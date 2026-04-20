@@ -23,6 +23,7 @@ namespace Abyss.Runtime.Events
         public static event Action OnRunStarted;
         public static event Action OnRunEnded;
         public static event Action OnPlayerDead;
+        public static event Action<int, string> OnExpGained;
         public static event Action<int, DraftTriggerReason> OnPlayerLevelUp;
         public static event Action OnDraftOpened;
         public static event Action OnDraftClosed;
@@ -31,6 +32,7 @@ namespace Abyss.Runtime.Events
         public static void RaiseRunStarted() => OnRunStarted?.Invoke();
         public static void RaiseRunEnded() => OnRunEnded?.Invoke();
         public static void RaisePlayerDead() => OnPlayerDead?.Invoke();
+        public static void RaiseExpGained(int amount, string source) => OnExpGained?.Invoke(amount, source);
         public static void RaisePlayerLevelUp(int newLevel, DraftTriggerReason reason) => OnPlayerLevelUp?.Invoke(newLevel, reason);
         public static void RaiseDraftOpened() => OnDraftOpened?.Invoke();
         public static void RaiseDraftClosed() => OnDraftClosed?.Invoke();
@@ -44,6 +46,7 @@ namespace Abyss.Runtime.Events
             OnRunStarted = null;
             OnRunEnded = null;
             OnPlayerDead = null;
+            OnExpGained = null;
             OnPlayerLevelUp = null;
             OnDraftOpened = null;
             OnDraftClosed = null;
