@@ -157,7 +157,10 @@ namespace Abyss.Runtime.Run
 
         private void HandleSkillDrafted(SkillData skill, DraftTriggerReason _)
         {
-            if (skill != null) stats.draftedSkillIds.Add(skill.skillId);
+            if (skill == null) return;
+            stats.draftedSkillIds.Add(skill.skillId);
+            stats.totalDraftCount += 1;
+            if (!string.IsNullOrEmpty(skill.formBound)) stats.formExclusiveDraftCount += 1;
         }
 
         private void HandleFormSwapped(FormData previous, FormData next)

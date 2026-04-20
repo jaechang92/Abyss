@@ -17,6 +17,10 @@ namespace Abyss.Runtime.Run
         public List<string> formsUsed = new();
         public List<string> draftedSkillIds = new();
         public Dictionary<string, float> formPlaytimeSeconds = new();
+        public int totalDraftCount;
+        public int formExclusiveDraftCount;
+
+        public float FormExclusiveDraftRatio => totalDraftCount <= 0 ? 0f : (float)formExclusiveDraftCount / totalDraftCount;
 
         public void Reset()
         {
@@ -27,6 +31,8 @@ namespace Abyss.Runtime.Run
             formsUsed.Clear();
             draftedSkillIds.Clear();
             formPlaytimeSeconds.Clear();
+            totalDraftCount = 0;
+            formExclusiveDraftCount = 0;
         }
 
         public string GetDominantFormId()
