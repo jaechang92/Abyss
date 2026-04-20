@@ -24,3 +24,5 @@ MonoBehaviour:
   goldReward: 5
   isElite: 0
   isRanged: 0
+  isBoss: 0
+  spawnPrefab: {fileID: 6257165252164764734, guid: c0c5c50c254229a4389627b7b86208bf, type: 3}
