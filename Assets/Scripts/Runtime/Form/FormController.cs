@@ -1,0 +1,98 @@
+using System;
+using Abyss.Runtime.Events;
+using UnityEngine;
+
+namespace Abyss.Runtime.Form
+{
+    /// <summary>
+    /// 플레이어의 2슬롯 폼 관리. Analyst MF-8 확정 — FSM 대신 enum 상태 + float 쿨다운.
+    /// 프로토 스펙: 2슬롯 고정, 교체 CD 1.5s, 교체 연출 0.3s (Docs/game-design/02-form-change-system.md).
+    /// 실제 입력 연결은 P-09 InputRouter에서. 지금은 RequestSwap() public API만 노출.
+    /// </summary>
+    public sealed class FormController : MonoBehaviour
+    {
+        public enum FormState
+        {
+            Ready,
+            Swapping
+        }
+
+        [Header("슬롯 (2슬롯 고정)")]
+        [SerializeField] private FormData[] slots = new FormData[2];
+        [SerializeField] private int activeSlot;
+
+        [Header("교체 설정 (P-14 RunConfig로 교체 예정)")]
+        [SerializeField, Min(0f)] private float swapCooldown = 1.5f;
+        [SerializeField, Min(0f)] private float swapAnimationDuration = 0.3f;
+
+        private FormState state = FormState.Ready;
+        private float currentCooldown;
+        private float currentSwapTimer;
+
+        public FormState State => state;
+        public FormData CurrentForm => slots[activeSlot];
+        public FormData OtherForm => slots[1 - activeSlot];
+        public int ActiveSlot => activeSlot;
+        public float CurrentCooldown => currentCooldown;
+        public float CooldownProgress => swapCooldown <= 0f ? 1f : 1f - (currentCooldown / swapCooldown);
+        public bool CanSwap => state == FormState.Ready && currentCooldown <= 0f && OtherForm != null;
+
+        public event Action<FormData, FormData> OnSwapStarted;
+        public event Action<FormData, FormData> OnSwapCompleted;
+
+        /// <summary>
+        /// 특정 슬롯에 폼을 배정. 런 시작·해금 해제·디버그용.
+        /// </summary>
+        public void AssignSlot(int slotIndex, FormData form)
+        {
+            if (slotIndex < 0 || slotIndex >= slots.Length) return;
+            slots[slotIndex] = form;
+        }
+
+        /// <summary>
+        /// 폼 교체 요청. 쿨다운·상태 가드 통과 시 즉시 전환 시작.
+        /// 성공 시 OnSwapStarted + GameEvents.OnFormSwapped 발행.
+        /// </summary>
+        public bool RequestSwap()
+        {
+            if (!CanSwap) return false;
+
+            var previous = CurrentForm;
+            activeSlot = 1 - activeSlot;
+            var next = CurrentForm;
+
+            state = FormState.Swapping;
+            currentSwapTimer = swapAnimationDuration;
+            currentCooldown = swapCooldown;
+
+            OnSwapStarted?.Invoke(previous, next);
+            GameEvents.RaiseFormSwapped(previous, next);
+            return true;
+        }
+
+        private void Update()
+        {
+            if (currentCooldown > 0f)
+            {
+                currentCooldown = Mathf.Max(0f, currentCooldown - Time.deltaTime);
+            }
+
+            if (state == FormState.Swapping)
+            {
+                currentSwapTimer -= Time.deltaTime;
+                if (currentSwapTimer <= 0f)
+                {
+                    state = FormState.Ready;
+                    OnSwapCompleted?.Invoke(OtherForm, CurrentForm);
+                }
+            }
+        }
+
+        [ContextMenu("Debug: Request Swap")]
+        private void DebugRequestSwap()
+        {
+            bool ok = RequestSwap();
+            Debug.Log($"[FormController] Debug Swap → {(ok ? "성공" : "차단됨")} (CD={currentCooldown:F2}s, state={state})");
+        }
+    }
+}

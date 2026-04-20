@@ -1,4 +1,5 @@
 using System;
+using Abyss.Runtime.Form;
 
 namespace Abyss.Runtime.Events
 {
@@ -28,6 +29,7 @@ namespace Abyss.Runtime.Events
         public static event Action OnDraftOpened;
         public static event Action OnDraftClosed;
         public static event Action OnBossKilled;
+        public static event Action<FormData, FormData> OnFormSwapped;
 
         public static void RaiseRunStarted() => OnRunStarted?.Invoke();
         public static void RaiseRunEnded() => OnRunEnded?.Invoke();
@@ -37,6 +39,7 @@ namespace Abyss.Runtime.Events
         public static void RaiseDraftOpened() => OnDraftOpened?.Invoke();
         public static void RaiseDraftClosed() => OnDraftClosed?.Invoke();
         public static void RaiseBossKilled() => OnBossKilled?.Invoke();
+        public static void RaiseFormSwapped(FormData previous, FormData next) => OnFormSwapped?.Invoke(previous, next);
 
         /// <summary>
         /// 씬 재로드·에디터 재진입 시 구독 누수 방지용 초기화.
@@ -51,6 +54,7 @@ namespace Abyss.Runtime.Events
             OnDraftOpened = null;
             OnDraftClosed = null;
             OnBossKilled = null;
+            OnFormSwapped = null;
         }
     }
 }
