@@ -30,10 +30,10 @@ namespace Abyss.EditorTools
         {
             bool proceed = EditorUtility.DisplayDialog(
                 "ContentBuilder",
-                "프로토 SO 에셋 16개 생성:\n" +
+                "프로토 SO 에셋 17개 생성:\n" +
                 "  · FormData 2 (dark_blade, void_archer)\n" +
                 "  · SkillData 9 (불꽃 5 + 심연 4)\n" +
-                "  · EnemyData 4 (근접 2 / 원거리 1 / 엘리트 1)\n" +
+                "  · EnemyData 5 (근접 2 / 원거리 1 / 엘리트 1 / 보스 1)\n" +
                 "  · RunConfig 1\n\n" +
                 "이미 존재하는 에셋은 건너뜁니다.",
                 "생성", "취소");
@@ -165,6 +165,21 @@ namespace Abyss.EditorTools
                 so.expReward = 60;
                 so.goldReward = 15;
                 so.isElite = true;
+            });
+
+            CreateOrSkip<EnemyData>($"{EnemyDir}/BossAbyssKeeper.asset", so =>
+            {
+                so.enemyId = "boss_abyss_keeper";
+                so.displayName = "심연의 수호자";
+                so.baseHp = 400;
+                so.baseDamage = 30;
+                so.moveSpeed = 2.5f;
+                so.detectionRange = 12f;
+                so.attackRange = 2.5f;
+                so.attackCooldown = 1.8f;
+                so.expReward = 200;
+                so.goldReward = 50;
+                so.isBoss = true;
             });
         }
 
