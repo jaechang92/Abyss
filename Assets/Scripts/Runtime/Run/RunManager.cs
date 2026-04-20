@@ -17,10 +17,34 @@ namespace Abyss.Runtime.Run
 
         private int currentLevel = 1;
         private int currentExp;
+        private int goldShards;
 
         public int CurrentLevel => currentLevel;
         public int CurrentExp => currentExp;
         public int ExpToNextLevel => CalcExpRequirement(currentLevel);
+        public int GoldShards => goldShards;
+
+        /// <summary>
+        /// 런 내 화폐 획득. Analyst 확정 — abyss_shards(메타)는 별도 MetaSave(P-21).
+        /// </summary>
+        public void GainGoldShards(int amount)
+        {
+            if (amount == 0) return;
+            goldShards = Mathf.Max(0, goldShards + amount);
+            GameEvents.RaiseGoldShardsChanged(goldShards);
+        }
+
+        /// <summary>
+        /// 리롤 등 소비. 잔액 부족 시 false 반환(상태 불변).
+        /// </summary>
+        public bool SpendGoldShards(int amount)
+        {
+            if (amount <= 0) return true;
+            if (goldShards < amount) return false;
+            goldShards -= amount;
+            GameEvents.RaiseGoldShardsChanged(goldShards);
+            return true;
+        }
 
         /// <summary>
         /// 경험치 획득 요청. 레벨업이 누적 발생해도 while 루프로 연쇄 처리.
@@ -70,6 +94,8 @@ namespace Abyss.Runtime.Run
         {
             currentLevel = 1;
             currentExp = 0;
+            goldShards = 0;
+            GameEvents.RaiseGoldShardsChanged(goldShards);
             GameEvents.RaiseRunStarted();
         }
 
