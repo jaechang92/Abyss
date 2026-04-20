@@ -15,12 +15,17 @@ namespace Abyss.Runtime.Player
         [SerializeField] private PlayerCharacter player;
         [SerializeField] private FormController formController;
 
+        [Header("공격 상태 지속시간 (이후 일반 전이로 복귀)")]
+        [SerializeField, Min(0.01f)] private float attackLightDuration = 0.25f;
+        [SerializeField, Min(0.01f)] private float attackHeavyDuration = 0.6f;
+
         [Header("디버그")]
         [SerializeField] private bool logStateChanges;
 
         private StateMachine fsm;
         private bool isFormSwapping;
         private bool hitQueued;
+        private float attackStateExitTime;
 
         public StateMachine Machine => fsm;
         public string CurrentStateId => fsm != null ? fsm.CurrentStateId : string.Empty;
@@ -74,13 +79,17 @@ namespace Abyss.Runtime.Player
         /// <summary>외부에서 AttackLight 상태 진입 유도. PlayerCharacter.Combat의 OnAttack에서 호출.</summary>
         public void TriggerAttackLight()
         {
-            if (CanAttack()) fsm.ForceTransitionTo(PlayerStateIds.AttackLight);
+            if (!CanAttack()) return;
+            attackStateExitTime = Time.time + attackLightDuration;
+            fsm.ForceTransitionTo(PlayerStateIds.AttackLight);
         }
 
         /// <summary>외부에서 AttackHeavy 상태 진입 유도.</summary>
         public void TriggerAttackHeavy()
         {
-            if (CanAttack()) fsm.ForceTransitionTo(PlayerStateIds.AttackHeavy);
+            if (!CanAttack()) return;
+            attackStateExitTime = Time.time + attackHeavyDuration;
+            fsm.ForceTransitionTo(PlayerStateIds.AttackHeavy);
         }
 
         private bool CanAttack()
@@ -133,7 +142,7 @@ namespace Abyss.Runtime.Player
 
             if (current == PlayerStateIds.AttackLight || current == PlayerStateIds.AttackHeavy)
             {
-                return;
+                if (Time.time < attackStateExitTime) return;
             }
 
             if (player.IsDashing)
