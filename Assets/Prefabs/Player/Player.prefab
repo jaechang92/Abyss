@@ -203,8 +203,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slots:
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 0ab4bdc3dce14984aa084f522d774b1d, type: 2}
+  - {fileID: 11400000, guid: 8b43c114418da30489c0566a81e9bcbe, type: 2}
   activeSlot: 0
   swapCooldown: 1.5
   swapAnimationDuration: 0.3

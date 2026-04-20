@@ -56,7 +56,11 @@ namespace Abyss.Runtime.Form
         /// </summary>
         public bool RequestSwap()
         {
-            if (!CanSwap) return false;
+            if (!CanSwap)
+            {
+                Debug.Log($"[FormController] Swap 거부 — state={state}, cooldown={currentCooldown:F2}s, other={(OtherForm != null ? OtherForm.formId : "null (slot 미할당)")}");
+                return false;
+            }
 
             var previous = CurrentForm;
             activeSlot = 1 - activeSlot;
@@ -66,6 +70,7 @@ namespace Abyss.Runtime.Form
             currentSwapTimer = swapAnimationDuration;
             currentCooldown = swapCooldown;
 
+            Debug.Log($"[FormController] Swap 실행: {previous?.formId ?? "?"} → {next?.formId ?? "?"}");
             OnSwapStarted?.Invoke(previous, next);
             GameEvents.RaiseFormSwapped(previous, next);
             return true;

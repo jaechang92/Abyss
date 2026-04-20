@@ -138,7 +138,7 @@ namespace Abyss.EditorTools
             string prefabPath = $"{PlayerPrefabDir}/Player.prefab";
             if (File.Exists(prefabPath))
             {
-                Debug.Log($"[PrefabBuilder] 건너뜀 (존재): {prefabPath}");
+                RewirePlayerPrefab(prefabPath);
                 return false;
             }
 
@@ -170,6 +170,7 @@ namespace Abyss.EditorTools
 
                 ConfigurePlayerInput(playerInput);
                 WirePlayerFields(player, rb, formController, stateMachine, groundCheck.transform);
+                AssignFormSlots(formController);
 
                 var prefab = PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
                 Debug.Log($"[PrefabBuilder] 생성: {prefabPath} (PlayerInput Actions = InputSystem_Actions, Behavior = SendMessages)");
@@ -215,6 +216,53 @@ namespace Abyss.EditorTools
             if (layerProp != null) layerProp.intValue = LayerMask.GetMask("Default");
 
             so.ApplyModifiedProperties();
+        }
+
+        private static void AssignFormSlots(FormController form)
+        {
+            if (form == null) return;
+
+            var dark = AssetDatabase.LoadAssetAtPath<FormData>("Assets/Data/Forms/DarkBlade.asset");
+            var archer = AssetDatabase.LoadAssetAtPath<FormData>("Assets/Data/Forms/VoidArcher.asset");
+
+            if (dark == null || archer == null)
+            {
+                Debug.LogWarning("[PrefabBuilder] FormData 에셋 미발견 — FormController.slots 미할당. ContentBuilder 먼저 실행 필요.");
+                return;
+            }
+
+            var so = new SerializedObject(form);
+            var slotsProp = so.FindProperty("slots");
+            if (slotsProp != null && slotsProp.isArray)
+            {
+                slotsProp.arraySize = 2;
+                slotsProp.GetArrayElementAtIndex(0).objectReferenceValue = dark;
+                slotsProp.GetArrayElementAtIndex(1).objectReferenceValue = archer;
+                so.ApplyModifiedProperties();
+                Debug.Log($"[PrefabBuilder] FormController.slots 할당: [0]={dark.name} [1]={archer.name}");
+            }
+        }
+
+        private static void RewirePlayerPrefab(string prefabPath)
+        {
+            // LoadPrefabContents / SaveAsPrefabAsset 경로는 Unity 6 일부 버전에서
+            // HideFlags.DontSaveInEditor assertion 경고를 유발. 직접 에셋 컴포넌트 수정.
+            var root = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (root == null)
+            {
+                Debug.LogWarning($"[PrefabBuilder] 기존 프리팹 로드 실패: {prefabPath}");
+                return;
+            }
+
+            var form = root.GetComponent<FormController>();
+            if (form != null)
+            {
+                AssignFormSlots(form);
+                EditorUtility.SetDirty(form);
+                EditorUtility.SetDirty(root);
+                AssetDatabase.SaveAssets();
+                Debug.Log($"[PrefabBuilder] 기존 Player 프리팹 FormController.slots 재연결: {prefabPath}");
+            }
         }
 
         private static void Set(SerializedObject so, string field, Object value)

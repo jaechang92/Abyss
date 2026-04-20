@@ -13,6 +13,7 @@ namespace Abyss.Runtime.Player
 
         private void OnFormSwap(InputValue value)
         {
+            UnityEngine.Debug.Log($"[PlayerCharacter] OnFormSwap 호출 — pressed={value.isPressed}, formController={(formController != null ? "OK" : "null")}");
             if (!value.isPressed) return;
             if (formController == null) return;
             formController.RequestSwap();
