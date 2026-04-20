@@ -1,4 +1,8 @@
 using System;
+using System.Collections.Generic;
+using Abyss.Runtime.Draft;
+using Abyss.Runtime.Enemy;
+using Abyss.Runtime.Form;
 
 namespace Abyss.Runtime.Events
 {
@@ -23,18 +27,32 @@ namespace Abyss.Runtime.Events
         public static event Action OnRunStarted;
         public static event Action OnRunEnded;
         public static event Action OnPlayerDead;
+        public static event Action<int, string> OnExpGained;
         public static event Action<int, DraftTriggerReason> OnPlayerLevelUp;
         public static event Action OnDraftOpened;
         public static event Action OnDraftClosed;
         public static event Action OnBossKilled;
+        public static event Action<FormData, FormData> OnFormSwapped;
+        public static event Action<int> OnGoldShardsChanged;
+        public static event Action<DraftOptions> OnDraftOptionsReady;
+        public static event Action<SkillData, DraftTriggerReason> OnSkillDrafted;
+        public static event Action<SkillData, IReadOnlyList<SkillData>> OnDraftSlotReplaceRequested;
+        public static event Action<EnemyData> OnEnemyKilled;
 
         public static void RaiseRunStarted() => OnRunStarted?.Invoke();
         public static void RaiseRunEnded() => OnRunEnded?.Invoke();
         public static void RaisePlayerDead() => OnPlayerDead?.Invoke();
+        public static void RaiseExpGained(int amount, string source) => OnExpGained?.Invoke(amount, source);
         public static void RaisePlayerLevelUp(int newLevel, DraftTriggerReason reason) => OnPlayerLevelUp?.Invoke(newLevel, reason);
         public static void RaiseDraftOpened() => OnDraftOpened?.Invoke();
         public static void RaiseDraftClosed() => OnDraftClosed?.Invoke();
         public static void RaiseBossKilled() => OnBossKilled?.Invoke();
+        public static void RaiseFormSwapped(FormData previous, FormData next) => OnFormSwapped?.Invoke(previous, next);
+        public static void RaiseGoldShardsChanged(int newAmount) => OnGoldShardsChanged?.Invoke(newAmount);
+        public static void RaiseDraftOptionsReady(DraftOptions options) => OnDraftOptionsReady?.Invoke(options);
+        public static void RaiseSkillDrafted(SkillData skill, DraftTriggerReason reason) => OnSkillDrafted?.Invoke(skill, reason);
+        public static void RaiseDraftSlotReplaceRequested(SkillData incoming, IReadOnlyList<SkillData> currentActives) => OnDraftSlotReplaceRequested?.Invoke(incoming, currentActives);
+        public static void RaiseEnemyKilled(EnemyData data) => OnEnemyKilled?.Invoke(data);
 
         /// <summary>
         /// 씬 재로드·에디터 재진입 시 구독 누수 방지용 초기화.
@@ -44,10 +62,17 @@ namespace Abyss.Runtime.Events
             OnRunStarted = null;
             OnRunEnded = null;
             OnPlayerDead = null;
+            OnExpGained = null;
             OnPlayerLevelUp = null;
             OnDraftOpened = null;
             OnDraftClosed = null;
             OnBossKilled = null;
+            OnFormSwapped = null;
+            OnGoldShardsChanged = null;
+            OnDraftOptionsReady = null;
+            OnSkillDrafted = null;
+            OnDraftSlotReplaceRequested = null;
+            OnEnemyKilled = null;
         }
     }
 }

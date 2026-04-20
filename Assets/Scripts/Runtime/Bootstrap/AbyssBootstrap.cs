@@ -1,4 +1,5 @@
 using UnityEngine;
+using Abyss.Runtime.Run;
 using GAS.Core;
 using ObjectPool_Core;
 using SaveSystem_Core;
@@ -8,8 +9,8 @@ namespace Abyss.Runtime.Bootstrap
     /// <summary>
     /// 씬 진입 시 최우선 실행되는 부트스트랩.
     /// 퍼시스턴트 싱글톤의 초기화 순서를 명시적으로 보장한다.
-    /// 순서: SaveSystem → AbilitySystem → PoolManager
-    /// (RunManager, GameFlowController, UIRoot는 P-05/P-06에서 추가 예정)
+    /// 순서: SaveSystem → AbilitySystem → PoolManager → RunManager
+    /// (GameFlowController, UIRoot는 씬 배치로 해결됨)
     /// </summary>
     [DefaultExecutionOrder(-1000)]
     public sealed class AbyssBootstrap : MonoBehaviour
@@ -42,6 +43,9 @@ namespace Abyss.Runtime.Bootstrap
 
             _ = PoolManager.Instance;
             Debug.Log("[AbyssBootstrap] PoolManager 준비 완료");
+
+            _ = RunManager.Instance;
+            Debug.Log("[AbyssBootstrap] RunManager 준비 완료");
 
             Debug.Log("[AbyssBootstrap] 초기화 완료");
         }
