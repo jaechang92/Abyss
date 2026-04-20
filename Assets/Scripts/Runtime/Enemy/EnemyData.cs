@@ -28,5 +28,8 @@ namespace Abyss.Runtime.Enemy
         [Header("분류")]
         public bool isElite;
         public bool isRanged;
+
+        [Header("스폰 프리팹 (StageDirector가 Instantiate)")]
+        public GameObject spawnPrefab;
     }
 }
