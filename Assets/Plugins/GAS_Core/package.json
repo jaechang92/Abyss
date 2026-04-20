@@ -1,0 +1,28 @@
+{
+  "name": "com.gas.core",
+  "version": "1.0.0",
+  "displayName": "GAS Core - Generic Ability System",
+  "description": "범용 게임플레이 어빌리티 시스템. 다양한 게임 장르에서 사용할 수 있도록 설계된 확장 가능한 어빌리티 프레임워크입니다.",
+  "unity": "2022.3",
+  "keywords": [
+    "ability",
+    "skill",
+    "gameplay",
+    "system",
+    "framework",
+    "gas",
+    "generic"
+  ],
+  "author": {
+    "name": "GAS Development Team"
+  },
+  "category": "Gameplay",
+  "dependencies": {},
+  "samples": [
+    {
+      "displayName": "Basic Examples",
+      "description": "기본적인 어빌리티 시스템 사용 예제",
+      "path": "Samples~/BasicExamples"
+    }
+  ]
+}
