@@ -61,6 +61,56 @@ namespace Abyss.Runtime.Enemy
             EvaluateTransitions();
         }
 
+        protected virtual void FixedUpdate()
+        {
+            if (body == null || isDead) return;
+            if (fsm == null || !fsm.IsRunning) return;
+
+            string current = fsm.CurrentStateId;
+            if (current == EnemyStateIds.Chase)
+            {
+                MoveTowardTarget();
+            }
+            else
+            {
+                StopHorizontal();
+            }
+        }
+
+        private void MoveTowardTarget()
+        {
+            if (target == null || data == null) return;
+
+            float delta = target.position.x - transform.position.x;
+            float dir = Mathf.Approximately(delta, 0f) ? 0f : Mathf.Sign(delta);
+            body.linearVelocity = new Vector2(dir * data.moveSpeed, body.linearVelocity.y);
+        }
+
+        private void StopHorizontal()
+        {
+            body.linearVelocity = new Vector2(0f, body.linearVelocity.y);
+        }
+
+        private void PerformAttack()
+        {
+            if (target == null || data == null) return;
+
+            var player = target.GetComponent<PlayerCharacter>();
+            if (player != null && !player.IsDead)
+            {
+                int damage = GetAttackDamage();
+                player.TakeDamage(damage);
+            }
+        }
+
+        /// <summary>
+        /// 페이즈 배수 등을 반영한 실제 공격력. BossEnemy가 override.
+        /// </summary>
+        protected virtual int GetAttackDamage()
+        {
+            return data != null ? data.baseDamage : 0;
+        }
+
         public void TakeDamage(int amount)
         {
             if (isDead || amount <= 0) return;
@@ -94,7 +144,7 @@ namespace Abyss.Runtime.Enemy
         {
             fsm.AddState(new NamedState(EnemyStateIds.Patrol, () => LogEnter(EnemyStateIds.Patrol)));
             fsm.AddState(new NamedState(EnemyStateIds.Chase, () => LogEnter(EnemyStateIds.Chase)));
-            fsm.AddState(new NamedState(EnemyStateIds.Attack, () => LogEnter(EnemyStateIds.Attack)));
+            fsm.AddState(new NamedState(EnemyStateIds.Attack, () => { LogEnter(EnemyStateIds.Attack); PerformAttack(); }));
             fsm.AddState(new NamedState(EnemyStateIds.Stagger, () => LogEnter(EnemyStateIds.Stagger)));
             fsm.AddState(new NamedState(EnemyStateIds.Dead, () => LogEnter(EnemyStateIds.Dead)));
         }

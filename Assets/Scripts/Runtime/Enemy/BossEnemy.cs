@@ -37,6 +37,12 @@ namespace Abyss.Runtime.Enemy
             CheckPhaseTransition();
         }
 
+        protected override int GetAttackDamage()
+        {
+            int baseDamage = base.GetAttackDamage();
+            return Mathf.RoundToInt(baseDamage * CurrentDamageMultiplier);
+        }
+
         private void CheckPhaseTransition()
         {
             if (IsDead || Data == null || Data.baseHp <= 0) return;
