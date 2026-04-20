@@ -47,6 +47,8 @@ namespace Abyss.Runtime.Bootstrap
             _ = RunManager.Instance;
             Debug.Log("[AbyssBootstrap] RunManager 준비 완료");
 
+            RunManager.Instance.StartNewRun();
+
             Debug.Log("[AbyssBootstrap] 초기화 완료");
         }
     }
