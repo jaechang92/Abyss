@@ -1,5 +1,6 @@
 using System;
 using Abyss.Runtime.Events;
+using Abyss.Runtime.Run;
 using UnityEngine;
 
 namespace Abyss.Runtime.Form
@@ -85,6 +86,11 @@ namespace Abyss.Runtime.Form
                     state = FormState.Ready;
                     OnSwapCompleted?.Invoke(OtherForm, CurrentForm);
                 }
+            }
+
+            if (CurrentForm != null && RunManager.HasInstance)
+            {
+                RunManager.Instance.RegisterFormPlaytime(CurrentForm.formId, Time.deltaTime);
             }
         }
 

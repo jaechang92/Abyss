@@ -1,4 +1,7 @@
+using Abyss.Runtime.Draft;
 using Abyss.Runtime.Events;
+using Abyss.Runtime.Form;
+using Abyss.Runtime.Stage;
 using Singleton_Core;
 using UnityEngine;
 
@@ -18,11 +21,15 @@ namespace Abyss.Runtime.Run
         private int currentLevel = 1;
         private int currentExp;
         private int goldShards;
+        private readonly RunStats stats = new();
+        private bool isRunActive;
 
         public int CurrentLevel => currentLevel;
         public int CurrentExp => currentExp;
         public int ExpToNextLevel => CalcExpRequirement(currentLevel);
         public int GoldShards => goldShards;
+        public RunStats Stats => stats;
+        public bool IsRunActive => isRunActive;
 
         /// <summary>
         /// 런 내 화폐 획득. Analyst 확정 — abyss_shards(메타)는 별도 MetaSave(P-21).
@@ -92,16 +99,104 @@ namespace Abyss.Runtime.Run
 
         public void StartNewRun()
         {
+            if (isRunActive) return;
+
             currentLevel = 1;
             currentExp = 0;
             goldShards = 0;
+            stats.Reset();
+            isRunActive = true;
             GameEvents.RaiseGoldShardsChanged(goldShards);
             GameEvents.RaiseRunStarted();
+            Debug.Log("[RunManager] 런 시작 — isRunActive = true");
         }
 
         public void EndRun()
         {
+            isRunActive = false;
             GameEvents.RaiseRunEnded();
+        }
+
+        /// <summary>
+        /// FormController가 매 프레임 호출해 현재 폼 플레이타임 누적.
+        /// </summary>
+        public void RegisterFormPlaytime(string formId, float delta)
+        {
+            if (!isRunActive || string.IsNullOrEmpty(formId) || delta <= 0f) return;
+            if (!stats.formPlaytimeSeconds.ContainsKey(formId)) stats.formPlaytimeSeconds[formId] = 0f;
+            stats.formPlaytimeSeconds[formId] += delta;
+        }
+
+        private void OnEnable()
+        {
+            GameEvents.OnEnemyKilled += HandleEnemyKilled;
+            GameEvents.OnSkillDrafted += HandleSkillDrafted;
+            GameEvents.OnFormSwapped += HandleFormSwapped;
+            GameEvents.OnRoomEntered += HandleRoomEntered;
+            GameEvents.OnPlayerDead += HandlePlayerDead;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.OnEnemyKilled -= HandleEnemyKilled;
+            GameEvents.OnSkillDrafted -= HandleSkillDrafted;
+            GameEvents.OnFormSwapped -= HandleFormSwapped;
+            GameEvents.OnRoomEntered -= HandleRoomEntered;
+            GameEvents.OnPlayerDead -= HandlePlayerDead;
+        }
+
+        private void Update()
+        {
+            if (isRunActive) stats.totalElapsedSeconds += Time.unscaledDeltaTime;
+        }
+
+        private void HandleEnemyKilled(Abyss.Runtime.Enemy.EnemyData _)
+        {
+            if (isRunActive) stats.enemiesKilled += 1;
+        }
+
+        private void HandleSkillDrafted(SkillData skill, DraftTriggerReason _)
+        {
+            if (skill != null) stats.draftedSkillIds.Add(skill.skillId);
+        }
+
+        private void HandleFormSwapped(FormData previous, FormData next)
+        {
+            if (previous != null && !stats.formsUsed.Contains(previous.formId)) stats.formsUsed.Add(previous.formId);
+            if (next != null && !stats.formsUsed.Contains(next.formId)) stats.formsUsed.Add(next.formId);
+        }
+
+        private void HandleRoomEntered(RoomData room)
+        {
+            if (room != null) stats.stageReached = room.roomId;
+        }
+
+        private void HandlePlayerDead()
+        {
+            if (isRunActive) EndRun();
+        }
+
+        [ContextMenu("Debug: End Run")]
+        private void DebugEndRun()
+        {
+            if (!isRunActive)
+            {
+                StartNewRun();
+            }
+            EndRun();
+        }
+
+        [ContextMenu("Debug: Gain 100 Exp")]
+        private void DebugGainExp()
+        {
+            GainExp(100, "debug");
+        }
+
+        [ContextMenu("Debug: Notify Boss Killed")]
+        private void DebugBossKilled()
+        {
+            if (!isRunActive) StartNewRun();
+            NotifyBossKilled();
         }
 
         private int CalcExpRequirement(int level)
