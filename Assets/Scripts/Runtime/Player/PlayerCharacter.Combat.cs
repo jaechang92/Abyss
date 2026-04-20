@@ -25,7 +25,7 @@ namespace Abyss.Runtime.Player
             if (!CanAttackLight) return;
 
             lastAttackLightTime = Time.time;
-            Debug.Log("[Player] AttackLight 트리거 (실제 판정 P-14 이후)");
+            stateMachine?.TriggerAttackLight();
         }
 
         private void OnAttackHeavy(InputValue value)
@@ -34,7 +34,7 @@ namespace Abyss.Runtime.Player
             if (!CanAttackHeavy) return;
 
             lastAttackHeavyTime = Time.time;
-            Debug.Log("[Player] AttackHeavy 트리거");
+            stateMachine?.TriggerAttackHeavy();
         }
     }
 }

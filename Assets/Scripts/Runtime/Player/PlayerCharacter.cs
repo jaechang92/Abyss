@@ -14,13 +14,16 @@ namespace Abyss.Runtime.Player
         [Header("컴포넌트 참조")]
         [SerializeField] private Rigidbody2D body;
         [SerializeField] private FormController formController;
+        [SerializeField] private PlayerStateMachine stateMachine;
 
         public Rigidbody2D Body => body;
+        public PlayerStateMachine StateMachine => stateMachine;
 
         private void Awake()
         {
             if (body == null) body = GetComponent<Rigidbody2D>();
             if (formController == null) formController = GetComponent<FormController>();
+            if (stateMachine == null) stateMachine = GetComponent<PlayerStateMachine>();
             InitializeHealth();
         }
 
