@@ -1,0 +1,55 @@
+# Unity 프로젝트 Git 설정
+# 한글 인코딩 및 줄바꿈 관리
+
+# C# 소스 파일 - UTF-8 BOM으로 강제
+*.cs text eol=crlf encoding=utf-8-bom diff=csharp
+
+# Unity 직렬화 파일 - LF 유지
+*.meta text eol=lf
+*.unity text eol=lf merge=unityyamlmerge
+*.prefab text eol=lf merge=unityyamlmerge
+*.asset text eol=lf
+*.mat text eol=lf
+*.anim text eol=lf
+*.controller text eol=lf
+
+# 셰이더
+*.shader text eol=lf
+*.cginc text eol=lf
+*.hlsl text eol=lf
+
+# 바이너리 파일
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.psd binary
+*.tga binary
+*.tif binary
+*.tiff binary
+*.bmp binary
+*.exr binary
+*.hdr binary
+
+*.mp3 binary
+*.wav binary
+*.ogg binary
+
+*.fbx binary
+*.obj binary
+*.blend binary
+*.dae binary
+
+*.dll binary
+*.so binary
+*.dylib binary
+*.a binary
+
+*.zip binary
+*.7z binary
+*.gz binary
+*.tar binary
+
+# Unity 전용 바이너리
+*.cubemap binary
+*.unitypackage binary

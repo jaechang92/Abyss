@@ -1,0 +1,33 @@
+# EditorConfig - Unity 프로젝트 한글 인코딩 설정
+root = true
+
+# C# 파일 설정
+[*.cs]
+charset = utf-8-bom
+end_of_line = crlf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Unity 메타 파일
+[*.meta]
+charset = utf-8
+end_of_line = lf
+
+# Unity 에셋 파일
+[*.{asset,prefab,unity,mat,anim,controller}]
+charset = utf-8
+end_of_line = lf
+
+# JSON 파일
+[*.json]
+charset = utf-8
+indent_style = space
+indent_size = 2
+
+# YAML 파일
+[*.{yaml,yml}]
+charset = utf-8
+indent_style = space
+indent_size = 2
