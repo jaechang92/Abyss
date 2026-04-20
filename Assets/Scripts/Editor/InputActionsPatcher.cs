@@ -1,0 +1,93 @@
+#if UNITY_EDITOR
+using System.IO;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+namespace Abyss.EditorTools
+{
+    /// <summary>
+    /// Abyss 전용 입력 액션을 기존 InputSystem_Actions.inputactions에 추가하는 패쳐.
+    /// 없는 액션만 추가하고 기존은 보존. Player 맵 대상.
+    /// 메뉴: Tools/Abyss/Patch Input Actions (Abyss)
+    /// </summary>
+    public static class InputActionsPatcher
+    {
+        private const string MenuPath = "Tools/Abyss/Patch Input Actions (Abyss)";
+        private const string AssetPath = "Assets/InputSystem_Actions.inputactions";
+        private const string TargetMap = "Player";
+
+        private static readonly (string name, string path)[] DesiredActions =
+        {
+            ("FormSwap", "<Keyboard>/q"),
+            ("Dash", "<Keyboard>/leftShift"),
+            ("AttackHeavy", "<Mouse>/rightButton"),
+            ("Skill1", "<Keyboard>/e"),
+            ("Skill2", "<Keyboard>/r")
+        };
+
+        [MenuItem(MenuPath)]
+        public static void Patch()
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<InputActionAsset>(AssetPath);
+            if (asset == null)
+            {
+                EditorUtility.DisplayDialog("InputActionsPatcher",
+                    $"{AssetPath}을 찾지 못했습니다.",
+                    "확인");
+                return;
+            }
+
+            var map = asset.FindActionMap(TargetMap);
+            if (map == null)
+            {
+                EditorUtility.DisplayDialog("InputActionsPatcher",
+                    $"'{TargetMap}' 맵을 찾지 못했습니다.",
+                    "확인");
+                return;
+            }
+
+            bool wasEnabled = map.enabled;
+            if (wasEnabled) map.Disable();
+
+            int added = 0;
+            int skipped = 0;
+
+            foreach (var (actionName, bindingPath) in DesiredActions)
+            {
+                if (map.FindAction(actionName) != null)
+                {
+                    Debug.Log($"[InputActionsPatcher] 건너뜀 (존재): {actionName}");
+                    skipped += 1;
+                    continue;
+                }
+
+                var action = map.AddAction(actionName, InputActionType.Button);
+                action.AddBinding(bindingPath);
+                Debug.Log($"[InputActionsPatcher] 추가: {actionName} ← {bindingPath}");
+                added += 1;
+            }
+
+            if (added > 0)
+            {
+                string json = asset.ToJson();
+                File.WriteAllText(AssetPath, json);
+                AssetDatabase.ImportAsset(AssetPath, ImportAssetOptions.ForceUpdate);
+                EditorUtility.SetDirty(asset);
+                AssetDatabase.SaveAssets();
+                Debug.Log($"[InputActionsPatcher] {added}개 액션 추가됨. 기존 {skipped}개 유지. 파일 저장 완료.");
+            }
+            else
+            {
+                Debug.Log("[InputActionsPatcher] 추가할 액션 없음 (모두 이미 존재)");
+            }
+
+            if (wasEnabled) map.Enable();
+
+            EditorUtility.DisplayDialog("InputActionsPatcher",
+                $"추가 {added}개 / 건너뜀 {skipped}개\n\nPlay 모드 실행 시 Q=FormSwap, LShift=Dash, RMB=AttackHeavy, E=Skill1, R=Skill2.",
+                "확인");
+        }
+    }
+}
+#endif
