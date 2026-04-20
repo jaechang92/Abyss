@@ -1,4 +1,6 @@
 using UnityEngine;
+using Abyss.Runtime.Analytics;
+using Abyss.Runtime.Feedback;
 using Abyss.Runtime.Run;
 using GAS.Core;
 using ObjectPool_Core;
@@ -46,6 +48,14 @@ namespace Abyss.Runtime.Bootstrap
 
             _ = RunManager.Instance;
             Debug.Log("[AbyssBootstrap] RunManager 준비 완료");
+
+            _ = HitstopController.Instance;
+            Debug.Log("[AbyssBootstrap] HitstopController 준비 완료");
+
+            _ = AnalyticsLogger.Instance;
+            Debug.Log("[AbyssBootstrap] AnalyticsLogger 준비 완료");
+
+            RunManager.Instance.StartNewRun();
 
             Debug.Log("[AbyssBootstrap] 초기화 완료");
         }

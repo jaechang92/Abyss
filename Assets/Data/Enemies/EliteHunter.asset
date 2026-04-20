@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38776e52fc55d374db5f06453d2c679d, type: 3}
+  m_Name: EliteHunter
+  m_EditorClassIdentifier: 
+  enemyId: elite_hunter
+  displayName: "\uC5D8\uB9AC\uD2B8 \uC0AC\uB0E5\uAFBC"
+  baseHp: 120
+  baseDamage: 25
+  moveSpeed: 3.5
+  detectionRange: 8
+  attackRange: 1.8
+  attackCooldown: 1.3
+  expReward: 60
+  goldReward: 15
+  isElite: 1
+  isRanged: 0
+  isBoss: 0
+  spawnPrefab: {fileID: 7203432616771138625, guid: a5fbc474a24525b4e8e81766cd43657c, type: 3}

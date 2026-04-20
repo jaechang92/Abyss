@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38776e52fc55d374db5f06453d2c679d, type: 3}
+  m_Name: MeleeGrunt
+  m_EditorClassIdentifier: 
+  enemyId: melee_grunt
+  displayName: "\uADFC\uC811 \uBCD1\uC0AC"
+  baseHp: 30
+  baseDamage: 10
+  moveSpeed: 3
+  detectionRange: 6
+  attackRange: 1.2
+  attackCooldown: 1.5
+  expReward: 15
+  goldReward: 3
+  isElite: 0
+  isRanged: 0
+  isBoss: 0
+  spawnPrefab: {fileID: 1306318577003939632, guid: b94ea74470a893347a1899c2ce2362b1, type: 3}

@@ -51,8 +51,8 @@ namespace Abyss.EditorTools
 
             var healthBar = CreateHealthBar(go.transform);
             var formSlot = CreateFormSlot(go.transform);
-            var skillSlot0 = CreateSkillSlot(go.transform, "SkillSlot0", new Vector2(160, -140));
-            var skillSlot1 = CreateSkillSlot(go.transform, "SkillSlot1", new Vector2(220, -140));
+            var skillSlot0 = CreateSkillSlot(go.transform, "SkillSlot0", new Vector2(24, 24));
+            var skillSlot1 = CreateSkillSlot(go.transform, "SkillSlot1", new Vector2(104, 24));
             var modal = CreateReplacementModal(go.transform);
 
             WireHUDPresenter(hud, healthBar, formSlot, new[] { skillSlot0, skillSlot1 }, modal);
@@ -101,12 +101,12 @@ namespace Abyss.EditorTools
         // ==================== Form Slot ====================
         private static FormSlotPresenter CreateFormSlot(Transform parent)
         {
-            var root = CreateRectChild(parent, "FormSlot", new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -64), new Vector2(160, 72));
+            var root = CreateRectChild(parent, "FormSlot", new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -64), new Vector2(200, 80));
 
-            var current = CreateIcon(root.transform, "CurrentFormIcon", new Vector2(40, -40), new Vector2(64, 64), new Color(0.35f, 0.35f, 0.4f));
-            var other = CreateIcon(root.transform, "OtherFormIcon", new Vector2(100, -24), new Vector2(40, 40), new Color(0.25f, 0.25f, 0.3f, 0.7f));
+            var current = CreateIcon(root.transform, "CurrentFormIcon", new Vector2(8, -8), new Vector2(64, 64), new Color(0.35f, 0.35f, 0.4f));
+            var other = CreateIcon(root.transform, "OtherFormIcon", new Vector2(80, -20), new Vector2(48, 48), new Color(0.25f, 0.25f, 0.3f, 0.7f));
 
-            var cooldownGo = CreateRectChild(root.transform, "CooldownFill", new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, -40), new Vector2(66, 66));
+            var cooldownGo = CreateRectChild(root.transform, "CooldownFill", new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(8, -8), new Vector2(64, 64));
             var cooldownImg = cooldownGo.AddComponent<Image>();
             cooldownImg.color = new Color(0f, 0f, 0f, 0.55f);
             cooldownImg.type = Image.Type.Filled;
@@ -125,9 +125,9 @@ namespace Abyss.EditorTools
         // ==================== Skill Slot ====================
         private static SkillSlotPresenter CreateSkillSlot(Transform parent, string name, Vector2 anchoredOffsetFromBottomLeft)
         {
-            var root = CreateRectChild(parent, name, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), anchoredOffsetFromBottomLeft, new Vector2(56, 56));
+            var root = CreateRectChild(parent, name, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), anchoredOffsetFromBottomLeft, new Vector2(64, 64));
 
-            var icon = CreateIcon(root.transform, "Icon", Vector2.zero, new Vector2(56, 56), new Color(0.35f, 0.35f, 0.4f));
+            var icon = CreateIcon(root.transform, "Icon", Vector2.zero, new Vector2(64, 64), new Color(0.35f, 0.35f, 0.4f));
             ((RectTransform)icon.transform).anchorMin = Vector2.zero;
             ((RectTransform)icon.transform).anchorMax = Vector2.one;
             ((RectTransform)icon.transform).offsetMin = Vector2.zero;

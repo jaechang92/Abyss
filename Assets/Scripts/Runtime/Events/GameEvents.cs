@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Form;
+using Abyss.Runtime.Stage;
 
 namespace Abyss.Runtime.Events
 {
@@ -38,6 +39,9 @@ namespace Abyss.Runtime.Events
         public static event Action<SkillData, DraftTriggerReason> OnSkillDrafted;
         public static event Action<SkillData, IReadOnlyList<SkillData>> OnDraftSlotReplaceRequested;
         public static event Action<EnemyData> OnEnemyKilled;
+        public static event Action<RoomData> OnRoomEntered;
+        public static event Action<RoomData> OnRoomCleared;
+        public static event Action<StageData> OnStageCleared;
 
         public static void RaiseRunStarted() => OnRunStarted?.Invoke();
         public static void RaiseRunEnded() => OnRunEnded?.Invoke();
@@ -53,6 +57,9 @@ namespace Abyss.Runtime.Events
         public static void RaiseSkillDrafted(SkillData skill, DraftTriggerReason reason) => OnSkillDrafted?.Invoke(skill, reason);
         public static void RaiseDraftSlotReplaceRequested(SkillData incoming, IReadOnlyList<SkillData> currentActives) => OnDraftSlotReplaceRequested?.Invoke(incoming, currentActives);
         public static void RaiseEnemyKilled(EnemyData data) => OnEnemyKilled?.Invoke(data);
+        public static void RaiseRoomEntered(RoomData room) => OnRoomEntered?.Invoke(room);
+        public static void RaiseRoomCleared(RoomData room) => OnRoomCleared?.Invoke(room);
+        public static void RaiseStageCleared(StageData stage) => OnStageCleared?.Invoke(stage);
 
         /// <summary>
         /// 씬 재로드·에디터 재진입 시 구독 누수 방지용 초기화.
@@ -73,6 +80,9 @@ namespace Abyss.Runtime.Events
             OnSkillDrafted = null;
             OnDraftSlotReplaceRequested = null;
             OnEnemyKilled = null;
+            OnRoomEntered = null;
+            OnRoomCleared = null;
+            OnStageCleared = null;
         }
     }
 }

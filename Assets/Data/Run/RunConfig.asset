@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed24189b9ceac5240a1a41305a535740, type: 3}
+  m_Name: RunConfig
+  m_EditorClassIdentifier: 
+  baseHp: 100
+  formSwapCooldown: 1.5
+  formSwapAnimationDuration: 0.3
+  formSwapHitstopMs: 120
+  draftOptionCount: 3
+  rerollCostLadder: 0f0000001e000000
+  skipReward: 10
+  activeSlotLimit: 2
+  commonWeight: 60
+  rareWeight: 28
+  epicWeight: 10
+  legendaryWeight: 2
+  baseExpToLevel: 100
+  expGrowthPerLevel: 1.2
+  formBiasThreshold: 0.6
