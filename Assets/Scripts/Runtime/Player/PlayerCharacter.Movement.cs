@@ -22,10 +22,12 @@ namespace Abyss.Runtime.Player
         private float dashTimer;
         private float lastDashTime = -999f;
         private Vector2 dashDirection;
+        private int facingSign = 1;
 
         public bool IsGrounded => isGrounded;
         public Vector2 Velocity => body != null ? body.linearVelocity : Vector2.zero;
         public bool IsDashing => dashTimer > 0f;
+        public int FacingSign => facingSign;
 
         private void OnMove(InputValue value)
         {
@@ -64,6 +66,21 @@ namespace Abyss.Runtime.Player
         private void UpdateDashTimers()
         {
             if (dashTimer > 0f) dashTimer -= Time.deltaTime;
+        }
+
+        /// <summary>
+        /// 이동 입력 기반 facing 전환. 자식 attackPoint/AttackEffect가 함께 뒤집히도록 localScale.x 부호만 반전.
+        /// </summary>
+        private void UpdateFacing()
+        {
+            if (Mathf.Abs(moveInput.x) <= 0.01f) return;
+
+            int desiredSign = moveInput.x > 0f ? 1 : -1;
+            if (desiredSign == facingSign) return;
+
+            facingSign = desiredSign;
+            Vector3 s = transform.localScale;
+            transform.localScale = new Vector3(Mathf.Abs(s.x) * desiredSign, s.y, s.z);
         }
 
         private void FixedUpdateMovement()

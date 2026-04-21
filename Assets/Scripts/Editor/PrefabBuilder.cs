@@ -19,6 +19,7 @@ namespace Abyss.EditorTools
     {
         private const string MenuPath = "Tools/Abyss/Generate Prototype Prefabs";
         private const string RebuildEnemiesMenuPath = "Tools/Abyss/Rebuild Enemy Prefabs (Force)";
+        private const string RebuildPlayerMenuPath = "Tools/Abyss/Rebuild Player Prefab (Force)";
         private const string EnemyPrefabDir = "Assets/Prefabs/Enemies";
         private const string PlayerPrefabDir = "Assets/Prefabs/Player";
         private const string SpriteDir = "Assets/Art/Sprites";
@@ -39,7 +40,7 @@ namespace Abyss.EditorTools
                 "생성", "취소");
             if (!proceed) return;
 
-            RunBuild(forceRebuildEnemies: false);
+            RunBuild(forceRebuildEnemies: false, forceRebuildPlayer: false);
         }
 
         [MenuItem(RebuildEnemiesMenuPath)]
@@ -54,10 +55,25 @@ namespace Abyss.EditorTools
                 "재생성", "취소");
             if (!proceed) return;
 
-            RunBuild(forceRebuildEnemies: true);
+            RunBuild(forceRebuildEnemies: true, forceRebuildPlayer: false);
         }
 
-        private static void RunBuild(bool forceRebuildEnemies)
+        [MenuItem(RebuildPlayerMenuPath)]
+        public static void RebuildPlayer()
+        {
+            bool proceed = EditorUtility.DisplayDialog(
+                "PrefabBuilder — Force Rebuild Player",
+                "기존 Player 프리팹을 삭제하고 재생성합니다.\n" +
+                "(AttackPoint/AttackEffect 자식 등 최신 구조가 필요할 때 사용)\n\n" +
+                "씬에 배치된 Player 인스턴스는 변경되지 않으므로,\n" +
+                "필요 시 씬에서 Player 제거 후 프리팹 드롭하여 교체하세요.",
+                "재생성", "취소");
+            if (!proceed) return;
+
+            RunBuild(forceRebuildEnemies: false, forceRebuildPlayer: true);
+        }
+
+        private static void RunBuild(bool forceRebuildEnemies, bool forceRebuildPlayer)
         {
             EnsureDir(EnemyPrefabDir);
             EnsureDir(PlayerPrefabDir);
@@ -65,12 +81,12 @@ namespace Abyss.EditorTools
 
             var sprite = GetOrCreateWhiteSprite();
             int enemyCount = BuildAllEnemyPrefabs(sprite, forceRebuildEnemies);
-            bool playerBuilt = BuildPlayerPrefab(sprite);
+            bool playerBuilt = BuildPlayerPrefab(sprite, forceRebuildPlayer);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Debug.Log($"[PrefabBuilder] 완료 — 적 {enemyCount}종{(forceRebuildEnemies ? " (force)" : "")}, 플레이어 {(playerBuilt ? 1 : 0)}종.");
+            Debug.Log($"[PrefabBuilder] 완료 — 적 {enemyCount}종{(forceRebuildEnemies ? " (force)" : "")}, 플레이어 {(playerBuilt ? 1 : 0)}종{(forceRebuildPlayer ? " (force)" : "")}.");
         }
 
         // ==================== Enemy Prefabs ====================
@@ -201,11 +217,24 @@ namespace Abyss.EditorTools
         // ==================== Player Prefab ====================
         private static bool BuildPlayerPrefab(Sprite sprite)
         {
+            return BuildPlayerPrefab(sprite, forceRebuild: false);
+        }
+
+        private static bool BuildPlayerPrefab(Sprite sprite, bool forceRebuild)
+        {
             string prefabPath = $"{PlayerPrefabDir}/Player.prefab";
+
             if (File.Exists(prefabPath))
             {
-                RewirePlayerPrefab(prefabPath);
-                return false;
+                if (forceRebuild)
+                {
+                    AssetDatabase.DeleteAsset(prefabPath);
+                }
+                else
+                {
+                    RewirePlayerPrefab(prefabPath);
+                    return false;
+                }
             }
 
             var root = new GameObject("Player");
@@ -234,12 +263,29 @@ namespace Abyss.EditorTools
                 groundCheck.transform.SetParent(root.transform, false);
                 groundCheck.transform.localPosition = new Vector3(0f, -0.5f, 0f);
 
+                var attackPoint = new GameObject("AttackPoint");
+                attackPoint.transform.SetParent(root.transform, false);
+                // 부모 localScale.x=1, .y=2. X는 1유닛 앞, Y는 본체 중앙(0.25 → 실제 0.5).
+                attackPoint.transform.localPosition = new Vector3(0.9f, 0.25f, 0f);
+
+                var effectGo = new GameObject("AttackEffect");
+                effectGo.transform.SetParent(attackPoint.transform, false);
+                effectGo.transform.localPosition = Vector3.zero;
+                effectGo.transform.localScale = new Vector3(1.4f, 0.7f, 1f);
+                var effectSr = effectGo.AddComponent<SpriteRenderer>();
+                effectSr.sprite = sprite;
+                effectSr.color = new Color(1f, 0.95f, 0.3f, 0.85f);
+                effectSr.sortingOrder = 5;
+                effectSr.enabled = false;
+                var attackEffect = effectGo.AddComponent<AttackEffect>();
+                SetPrivateField(attackEffect, "sr", effectSr);
+
                 ConfigurePlayerInput(playerInput);
-                WirePlayerFields(player, rb, formController, stateMachine, groundCheck.transform);
+                WirePlayerFields(player, rb, formController, stateMachine, groundCheck.transform, attackPoint.transform, attackEffect);
                 AssignFormSlots(formController);
 
                 var prefab = PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
-                Debug.Log($"[PrefabBuilder] 생성: {prefabPath} (PlayerInput Actions = InputSystem_Actions, Behavior = SendMessages)");
+                Debug.Log($"[PrefabBuilder] 생성: {prefabPath} (AttackPoint/AttackEffect 포함, PlayerInput Actions = InputSystem_Actions, Behavior = SendMessages)");
                 return prefab != null;
             }
             finally
@@ -270,13 +316,15 @@ namespace Abyss.EditorTools
             so.ApplyModifiedProperties();
         }
 
-        private static void WirePlayerFields(PlayerCharacter player, Rigidbody2D body, FormController form, PlayerStateMachine fsm, Transform groundCheck)
+        private static void WirePlayerFields(PlayerCharacter player, Rigidbody2D body, FormController form, PlayerStateMachine fsm, Transform groundCheck, Transform attackPoint, AttackEffect attackEffect)
         {
             var so = new SerializedObject(player);
             Set(so, "body", body);
             Set(so, "formController", form);
             Set(so, "stateMachine", fsm);
             Set(so, "groundCheck", groundCheck);
+            Set(so, "attackPoint", attackPoint);
+            Set(so, "attackEffect", attackEffect);
 
             var layerProp = so.FindProperty("groundLayer");
             if (layerProp != null) layerProp.intValue = LayerMask.GetMask("Default");

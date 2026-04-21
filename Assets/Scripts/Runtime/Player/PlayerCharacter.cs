@@ -31,6 +31,7 @@ namespace Abyss.Runtime.Player
         {
             UpdateGrounded();
             UpdateDashTimers();
+            UpdateFacing();
         }
 
         private void FixedUpdate()
@@ -41,6 +42,7 @@ namespace Abyss.Runtime.Player
         private void OnDrawGizmosSelected()
         {
             DrawMovementGizmos();
+            OnDrawGizmosSelectedCombat();
         }
     }
 }
