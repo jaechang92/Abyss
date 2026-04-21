@@ -20,9 +20,11 @@ MonoBehaviour:
   detectionRange: 12
   attackRange: 2.5
   attackCooldown: 1.8
+  patrolRadius: 2
+  patrolSpeedMultiplier: 0.5
   expReward: 200
   goldReward: 50
   isElite: 0
   isRanged: 0
   isBoss: 1
-  spawnPrefab: {fileID: 6294286343554360712, guid: afbd3f0d419c7634ea7472a23327d893, type: 3}
+  spawnPrefab: {fileID: 444683683145308411, guid: afbd3f0d419c7634ea7472a23327d893, type: 3}
