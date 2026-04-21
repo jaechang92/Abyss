@@ -1,6 +1,7 @@
 using UnityEngine;
 using Abyss.Runtime.Analytics;
 using Abyss.Runtime.Feedback;
+using Abyss.Runtime.Meta;
 using Abyss.Runtime.Run;
 using GAS.Core;
 using ObjectPool_Core;
@@ -11,7 +12,7 @@ namespace Abyss.Runtime.Bootstrap
     /// <summary>
     /// 씬 진입 시 최우선 실행되는 부트스트랩.
     /// 퍼시스턴트 싱글톤의 초기화 순서를 명시적으로 보장한다.
-    /// 순서: SaveSystem → AbilitySystem → PoolManager → RunManager
+    /// 순서: SaveSystem → MetaSaveService → AbilitySystem → PoolManager → RunManager
     /// (GameFlowController, UIRoot는 씬 배치로 해결됨)
     /// </summary>
     [DefaultExecutionOrder(-1000)]
@@ -39,6 +40,9 @@ namespace Abyss.Runtime.Bootstrap
 
             _ = SaveSystem.Instance;
             Debug.Log($"[AbyssBootstrap] SaveSystem 준비 완료 (persistentDataPath: {Application.persistentDataPath})");
+
+            _ = MetaSaveService.Instance;
+            Debug.Log($"[AbyssBootstrap] MetaSaveService 준비 완료 (abyss 누적 {MetaSaveService.Instance.Current.abyssShardsTotal})");
 
             _ = AbilitySystem.Instance;
             Debug.Log("[AbyssBootstrap] AbilitySystem 준비 완료");

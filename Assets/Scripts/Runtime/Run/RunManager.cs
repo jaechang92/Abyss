@@ -1,6 +1,7 @@
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Form;
+using Abyss.Runtime.Meta;
 using Abyss.Runtime.Stage;
 using Singleton_Core;
 using UnityEngine;
@@ -18,11 +19,16 @@ namespace Abyss.Runtime.Run
         [SerializeField] private int baseExpToLevel = 100;
         [SerializeField] private float expGrowthPerLevel = 1.2f;
 
+        [Header("메타 정산 (P-21 — RunConfig.abyssShardsConversionRate와 동일 기본값)")]
+        [SerializeField, Range(0f, 1f)] private float abyssShardsConversionRate = 0.2f;
+
         private int currentLevel = 1;
         private int currentExp;
         private int goldShards;
+        private int bossKillsThisRun;
         private readonly RunStats stats = new();
         private bool isRunActive;
+        private int lastRunAbyssShardsEarned;
 
         public int CurrentLevel => currentLevel;
         public int CurrentExp => currentExp;
@@ -30,6 +36,7 @@ namespace Abyss.Runtime.Run
         public int GoldShards => goldShards;
         public RunStats Stats => stats;
         public bool IsRunActive => isRunActive;
+        public int LastRunAbyssShardsEarned => lastRunAbyssShardsEarned;
 
         /// <summary>
         /// 런 내 화폐 획득. Analyst 확정 — abyss_shards(메타)는 별도 MetaSave(P-21).
@@ -85,6 +92,7 @@ namespace Abyss.Runtime.Run
         /// </summary>
         public void NotifyBossKilled()
         {
+            bossKillsThisRun += 1;
             GameEvents.RaiseBossKilled();
             GrantBonusLevel(DraftTriggerReason.BossBonus);
         }
@@ -104,6 +112,8 @@ namespace Abyss.Runtime.Run
             currentLevel = 1;
             currentExp = 0;
             goldShards = 0;
+            bossKillsThisRun = 0;
+            lastRunAbyssShardsEarned = 0;
             stats.Reset();
             isRunActive = true;
             GameEvents.RaiseGoldShardsChanged(goldShards);
@@ -113,8 +123,38 @@ namespace Abyss.Runtime.Run
 
         public void EndRun()
         {
+            if (!isRunActive)
+            {
+                // 이중 호출 가드 — 정산은 한 번만.
+                return;
+            }
+
             isRunActive = false;
+            SettleMetaProgress();
             GameEvents.RaiseRunEnded();
+        }
+
+        /// <summary>
+        /// 런 종료 시 메타 진행 정산. MetaSaveService가 비활성화된 경우 skip.
+        /// 환산: goldShards * abyssShardsConversionRate (반올림, 음수 가드).
+        /// </summary>
+        private void SettleMetaProgress()
+        {
+            lastRunAbyssShardsEarned = Mathf.Max(0, Mathf.RoundToInt(goldShards * abyssShardsConversionRate));
+
+            if (!MetaSaveService.HasInstance)
+            {
+                Debug.LogWarning("[RunManager] MetaSaveService 미초기화 — abyss_shards 정산 skip");
+                return;
+            }
+
+            var meta = MetaSaveService.Instance;
+            if (lastRunAbyssShardsEarned > 0)
+            {
+                meta.AddAbyssShards(lastRunAbyssShardsEarned, autoSave: false);
+            }
+            meta.RecordRunResult(stats.stageReached, stats.totalElapsedSeconds, goldShards, bossKillsThisRun, autoSave: true);
+            Debug.Log($"[RunManager] 메타 정산: abyss +{lastRunAbyssShardsEarned} (gold={goldShards}, rate={abyssShardsConversionRate:F2}) / 누적 {meta.Current.abyssShardsTotal}");
         }
 
         /// <summary>
