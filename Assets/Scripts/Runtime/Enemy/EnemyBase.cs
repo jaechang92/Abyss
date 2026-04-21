@@ -24,6 +24,7 @@ namespace Abyss.Runtime.Enemy
 
         private StateMachine fsm;
         private Rigidbody2D body;
+        private EnemyVisuals visuals;
         private int currentHp;
         private float lastAttackTime = -999f;
         private bool staggerQueued;
@@ -43,6 +44,7 @@ namespace Abyss.Runtime.Enemy
         {
             fsm = GetComponent<StateMachine>();
             body = GetComponent<Rigidbody2D>();
+            visuals = GetComponent<EnemyVisuals>();
             if (data != null) currentHp = data.baseHp;
             RegisterStates();
         }
@@ -145,6 +147,8 @@ namespace Abyss.Runtime.Enemy
             currentHp = Mathf.Max(0, currentHp - amount);
             OnHpChanged?.Invoke(previous, currentHp);
 
+            visuals?.Flash();
+
             if (currentHp <= 0) Die();
             else staggerQueued = true;
         }
@@ -231,6 +235,12 @@ namespace Abyss.Runtime.Enemy
             }
 
             if (current != EnemyStateIds.Patrol) fsm.ForceTransitionTo(EnemyStateIds.Patrol);
+        }
+
+        [ContextMenu("Debug: Take 10 Damage")]
+        private void DebugTakeDamage()
+        {
+            TakeDamage(10);
         }
 
         private void OnDrawGizmosSelected()
