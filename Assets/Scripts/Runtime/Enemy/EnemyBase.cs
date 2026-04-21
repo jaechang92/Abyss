@@ -90,6 +90,15 @@ namespace Abyss.Runtime.Enemy
         {
             if (target == null || data == null) return;
 
+            // 공격 사거리 안이면 정지하고 쿨다운 대기.
+            // EvaluateTransitions는 사거리 안 + 쿨다운 중에도 Chase 상태를 유지시키므로
+            // 이동 판정은 여기서 한 번 더 가드한다(거리 계산은 EvaluateTransitions과 동일한 2D 거리).
+            if (Vector2.Distance(transform.position, target.position) <= data.attackRange)
+            {
+                StopHorizontal();
+                return;
+            }
+
             float delta = target.position.x - transform.position.x;
             float dir = Mathf.Approximately(delta, 0f) ? 0f : Mathf.Sign(delta);
             body.linearVelocity = new Vector2(dir * data.moveSpeed, body.linearVelocity.y);
