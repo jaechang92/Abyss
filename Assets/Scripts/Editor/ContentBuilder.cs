@@ -180,6 +180,7 @@ namespace Abyss.EditorTools
                 so.expReward = 200;
                 so.goldReward = 50;
                 so.isBoss = true;
+                so.patrolRadius = 0f; // 보스는 Patrol 정지 (수동 페이즈 스크립트로 제어)
             });
         }
 

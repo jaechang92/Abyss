@@ -21,6 +21,12 @@ namespace Abyss.Runtime.Enemy
         [Min(0f)] public float attackRange = 1.2f;
         [Min(0.1f)] public float attackCooldown = 1.5f;
 
+        [Header("순찰")]
+        [Tooltip("스폰 지점 기준 좌우 이동 반경. 0이면 Patrol 시 정지 (보스 등)")]
+        [Min(0f)] public float patrolRadius = 2f;
+        [Tooltip("moveSpeed 대비 순찰 이동 속도 배율")]
+        [Range(0f, 1f)] public float patrolSpeedMultiplier = 0.5f;
+
         [Header("보상")]
         [Min(0)] public int expReward = 20;
         [Min(0)] public int goldReward = 5;
