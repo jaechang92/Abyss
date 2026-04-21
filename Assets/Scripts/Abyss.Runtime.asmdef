@@ -1,0 +1,21 @@
+{
+    "name": "Abyss.Runtime",
+    "rootNamespace": "Abyss",
+    "references": [
+        "GAS.Core",
+        "FSM.Core",
+        "Singleton.Core",
+        "Unity.InputSystem",
+        "Unity.ugui",
+        "Newtonsoft.Json"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
