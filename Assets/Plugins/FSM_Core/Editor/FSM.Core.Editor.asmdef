@@ -1,0 +1,18 @@
+{
+    "name": "FSM.Core.Editor",
+    "rootNamespace": "FSM.Core.Editor",
+    "references": [
+        "FSM.Core"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
