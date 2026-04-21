@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 프로젝트 개요
 
-Abyss는 Unity 6 6000.2.68f1 기반의 게임 프로젝트이다. URP 17.2.0를 사용한다.
+Abyss는 Unity 6 6000.0.68f1 기반의 게임 프로젝트이다. URP 17.0.4를 사용한다.
 
 ## 기술 스택
 
-- **엔진**: Unity 6 6000.2.68f1
-- **렌더 파이프라인**: URP 17.2.0
+- **엔진**: Unity 6 6000.0.68f1
+- **렌더 파이프라인**: URP 17.0.4
 - **입력 시스템**: Input System (New Input System)
-- **비동기**: UniTask (Coroutine 대신 반드시 UniTask/Awaitable 사용)
+- **비동기**: Unity `Awaitable` (UniTask 미도입 — ADR-002, Coroutine 사용 금지)
 - **언어**: C# (.NET Standard 2.1)
 
 ## 프로젝트 구조
@@ -76,7 +76,7 @@ Unity 에디터에서 `Tools > Code Convention > Convention Checker Window` 또�
 
 ## 개발 규칙
 
-- Coroutine 사용 금지, 반드시 UniTask 또는 Awaitable 사용
+- Coroutine 사용 금지, Unity `Awaitable` 사용 (UniTask 미도입 — ADR-002 참조)
 - 변수명에 언더스코어(`_`) 접두어 사용하지 않음 (camelCase 그대로)
 - 한글 주석 허용, UTF-8 인코딩 유지
 - 한 파일 500줄 초과 시 분할 작성

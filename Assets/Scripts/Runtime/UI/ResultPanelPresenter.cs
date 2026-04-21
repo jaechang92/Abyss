@@ -1,4 +1,5 @@
 using Abyss.Runtime.Events;
+using Abyss.Runtime.Meta;
 using Abyss.Runtime.Run;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,7 +10,7 @@ using UnityEngine.UI;
 namespace Abyss.Runtime.UI
 {
     /// <summary>
-    /// 런 종료 결과 패널. Analyst MF-6 — 7항목 표시 + 즉시 재시작 플로우.
+    /// 런 종료 결과 패널. Analyst MF-6 — 7항목 + P-21 abyss_earned 라인 + 즉시 재시작 플로우.
     /// OnRunEnded 구독 → 활성화 + 기본 포커스 [즉시 재시작] 버튼.
     /// Enter/Space 즉시 재시작, 버튼 클릭 동일.
     /// </summary>
@@ -27,6 +28,9 @@ namespace Abyss.Runtime.UI
         [SerializeField] private Text skillsText;
         [SerializeField] private Text stageText;
         [SerializeField] private Text elapsedText;
+
+        [Header("메타 정산 (P-21)")]
+        [SerializeField] private Text abyssEarnedText;
 
         [Header("버튼")]
         [SerializeField] private Button restartButton;
@@ -119,6 +123,13 @@ namespace Abyss.Runtime.UI
                 int mins = Mathf.FloorToInt(stats.totalElapsedSeconds / 60f);
                 int secs = Mathf.FloorToInt(stats.totalElapsedSeconds % 60f);
                 elapsedText.text = $"경과: {mins:D2}:{secs:D2}";
+            }
+
+            if (abyssEarnedText != null)
+            {
+                int earned = RunManager.HasInstance ? RunManager.Instance.LastRunAbyssShardsEarned : 0;
+                int total = MetaSaveService.HasInstance ? MetaSaveService.Instance.Current.abyssShardsTotal : 0;
+                abyssEarnedText.text = $"Abyss 획득: +{earned}  (누적 {total})";
             }
         }
 

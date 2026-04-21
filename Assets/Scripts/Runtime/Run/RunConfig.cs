@@ -36,5 +36,9 @@ namespace Abyss.Runtime.Run
         [Header("밸런스 가드레일")]
         [Tooltip("단일 런 내 전투 시간 비율 기준 단일 폼 사용률 경보 임계값 (MF-5)")]
         [Range(0.5f, 1f)] public float formBiasThreshold = 0.6f;
+
+        [Header("메타 진행 (P-21)")]
+        [Tooltip("런 종료 시 goldShards → abyss_shards 환산 비율. 0.2 = gold 10 → abyss 2")]
+        [Range(0f, 1f)] public float abyssShardsConversionRate = 0.2f;
     }
 }

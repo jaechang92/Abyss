@@ -60,6 +60,7 @@ namespace Abyss.EditorTools
             var skills = CreateStatLine(panel.transform, "Skills", ref y, spacing);
             var stage = CreateStatLine(panel.transform, "Stage", ref y, spacing);
             var elapsed = CreateStatLine(panel.transform, "Elapsed", ref y, spacing);
+            var abyss = CreateStatLine(panel.transform, "AbyssEarned", ref y, spacing);
 
             var (restartButton, restartLabel) = CreateRestartButton(panel.transform);
 
@@ -73,6 +74,7 @@ namespace Abyss.EditorTools
             SetObject(so, "skillsText", skills);
             SetObject(so, "stageText", stage);
             SetObject(so, "elapsedText", elapsed);
+            SetObject(so, "abyssEarnedText", abyss);
             SetObject(so, "restartButton", restartButton);
             SetObject(so, "restartLabel", restartLabel);
             so.ApplyModifiedProperties();
@@ -81,7 +83,7 @@ namespace Abyss.EditorTools
             EditorUtility.SetDirty(presenter);
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
 
-            Debug.Log("[ResultPanelBuilder] 완료 — 7항목 + 재시작 버튼 구성, 초기 상태 비활성.");
+            Debug.Log("[ResultPanelBuilder] 완료 — 7항목 + Abyss 획득 라인 + 재시작 버튼 구성, 초기 상태 비활성.");
             Selection.activeGameObject = go;
         }
 

@@ -28,6 +28,8 @@ namespace Abyss.Runtime.Enemy
         private float lastAttackTime = -999f;
         private bool staggerQueued;
         private bool isDead;
+        private Vector2 spawnPosition;
+        private int patrolDirection = 1;
 
         public EnemyData Data => data;
         public Rigidbody2D Body => body;
@@ -52,6 +54,7 @@ namespace Abyss.Runtime.Enemy
                 var player = FindAnyObjectByType<PlayerCharacter>();
                 if (player != null) target = player.transform;
             }
+            spawnPosition = transform.position;
             fsm.StartStateMachine(EnemyStateIds.Patrol);
         }
 
@@ -71,6 +74,10 @@ namespace Abyss.Runtime.Enemy
             {
                 MoveTowardTarget();
             }
+            else if (current == EnemyStateIds.Patrol)
+            {
+                PatrolStep();
+            }
             else
             {
                 StopHorizontal();
@@ -89,6 +96,25 @@ namespace Abyss.Runtime.Enemy
         private void StopHorizontal()
         {
             body.linearVelocity = new Vector2(0f, body.linearVelocity.y);
+        }
+
+        /// <summary>
+        /// spawn 지점 기준 좌우 왕복. patrolRadius=0이면 정지 (보스 등 수동 제어 개체).
+        /// </summary>
+        private void PatrolStep()
+        {
+            if (data == null || data.patrolRadius <= 0f)
+            {
+                StopHorizontal();
+                return;
+            }
+
+            float offsetX = transform.position.x - spawnPosition.x;
+            if (offsetX >= data.patrolRadius && patrolDirection > 0) patrolDirection = -1;
+            else if (offsetX <= -data.patrolRadius && patrolDirection < 0) patrolDirection = 1;
+
+            float speed = data.moveSpeed * data.patrolSpeedMultiplier;
+            body.linearVelocity = new Vector2(patrolDirection * speed, body.linearVelocity.y);
         }
 
         private void PerformAttack()
@@ -214,6 +240,15 @@ namespace Abyss.Runtime.Enemy
             Gizmos.DrawWireSphere(transform.position, data.detectionRange);
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, data.attackRange);
+
+            if (data.patrolRadius > 0f)
+            {
+                Gizmos.color = Color.cyan;
+                Vector3 origin = Application.isPlaying ? (Vector3)spawnPosition : transform.position;
+                Gizmos.DrawLine(origin + Vector3.left * data.patrolRadius, origin + Vector3.right * data.patrolRadius);
+                Gizmos.DrawWireCube(origin + Vector3.left * data.patrolRadius, new Vector3(0.15f, 0.8f, 0f));
+                Gizmos.DrawWireCube(origin + Vector3.right * data.patrolRadius, new Vector3(0.15f, 0.8f, 0f));
+            }
         }
     }
 }
