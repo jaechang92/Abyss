@@ -48,11 +48,13 @@ namespace CodeConvention.Editor
             },
 
             // 규칙 2: 메서드명은 PascalCase
+            // - readonly 한정자 추가 지원 (static readonly 필드 선언이 메서드로 오인되지 않도록)
+            // - 메서드명 자리에 C# 한정자/예약어가 오면 제외 (튜플 타입 (string, ...)을 함수 시그니처로 오인하는 백트래킹 방지)
             new ConventionRule
             {
                 Name = "MethodNamePascalCase",
                 Description = "메서드명은 PascalCase로 작성",
-                Pattern = @"(?:public|private|protected|internal)\s+(?:static\s+)?(?:async\s+)?(?:virtual\s+)?(?:override\s+)?(?:abstract\s+)?(?:\w+(?:<[^>]+>)?)\s+([a-z][a-zA-Z0-9]*)\s*\(",
+                Pattern = @"(?:public|private|protected|internal)\s+(?:static\s+)?(?:readonly\s+)?(?:async\s+)?(?:virtual\s+)?(?:override\s+)?(?:abstract\s+)?(?:\w+(?:<[^>]+>)?)\s+(?!(?:readonly|volatile|const|static|abstract|virtual|override|sealed|unsafe|extern|partial|async|new)\b)([a-z][a-zA-Z0-9]*)\s*\(",
                 Severity = ViolationSeverity.Error,
                 MessageFormat = "메서드명은 PascalCase로 작성: '{0}'",
                 ExcludePatterns = new[] { @"^(get|set|add|remove)_" }
