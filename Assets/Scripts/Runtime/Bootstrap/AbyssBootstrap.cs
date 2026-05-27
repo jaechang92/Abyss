@@ -2,6 +2,7 @@ using UnityEngine;
 using Abyss.Runtime.Analytics;
 using Abyss.Runtime.Audio;
 using Abyss.Runtime.Feedback;
+using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using Abyss.Runtime.Run;
 using GAS.Core;
@@ -13,7 +14,7 @@ namespace Abyss.Runtime.Bootstrap
     /// <summary>
     /// 씬 진입 시 최우선 실행되는 부트스트랩.
     /// 퍼시스턴트 싱글톤의 초기화 순서를 명시적으로 보장한다.
-    /// 순서: SaveSystem → MetaSaveService → AbilitySystem → PoolManager → RunManager → HitstopController → AnalyticsLogger → AudioManager
+    /// 순서: SaveSystem → MetaSaveService → AbilitySystem → PoolManager → RunManager → HitstopController → AnalyticsLogger → AudioManager → LocalizationManager
     /// (GameFlowController, UIRoot는 씬 배치로 해결됨)
     /// </summary>
     [DefaultExecutionOrder(-1000)]
@@ -62,6 +63,9 @@ namespace Abyss.Runtime.Bootstrap
 
             _ = AudioManager.Instance;
             Debug.Log("[AbyssBootstrap] AudioManager 준비 완료");
+
+            _ = LocalizationManager.Instance;
+            Debug.Log($"[AbyssBootstrap] LocalizationManager 준비 완료 (lang: {LocalizationManager.Instance.CurrentLanguage}, keys: {LocalizationManager.Instance.KeyCount})");
 
             RunManager.Instance.StartNewRun();
 
