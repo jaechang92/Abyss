@@ -1,0 +1,30 @@
+StringKey,Category,Location,Condition,FormatArgs,Korean,English,Japanese
+Common_Confirm,공통,팝업 버튼,,,확인,Confirm,確認
+Common_Cancel,공통,팝업 버튼,,,취소,Cancel,キャンセル
+Common_Close,공통,팝업 버튼,,,닫기,Close,閉じる
+Common_Yes,공통,팝업 버튼,,,예,Yes,はい
+Common_No,공통,팝업 버튼,,,아니오,No,いいえ
+Common_Back,공통,네비게이션,,,뒤로,Back,戻る
+Menu_NewRun,메뉴,메인 메뉴,,,새 런 시작,New Run,新しいラン
+Menu_Continue,메뉴,메인 메뉴,저장 데이터 있을 때,,이어하기,Continue,続きから
+Menu_Settings,메뉴,메인 메뉴,,,설정,Settings,設定
+Menu_Exit,메뉴,메인 메뉴,,,종료,Exit,終了
+Hud_HpLabel,HUD,플레이어 HP 바,,,HP,HP,HP
+Hud_FormSwapHint,HUD,폼 교체 안내 툴팁,,,Q로 폼 교체,[Q] Swap Form,Qでフォーム切替
+Draft_Title,드래프트,스킬 드래프트 패널 헤더,,,스킬 선택,Choose a Skill,スキルを選択
+Draft_Reroll,드래프트,리롤 버튼,,,다시 뽑기,Reroll,引き直し
+Draft_Skip,드래프트,스킵 버튼,,,건너뛰기,Skip,スキップ
+Draft_ReplaceSlotTitle,드래프트,슬롯 교체 모달,Active 슬롯 가득 찼을 때,,교체할 스킬을 선택하세요,Choose a skill to replace,交換するスキルを選択
+Result_RunClear,결과,결과 패널,런 클리어 시,,런 클리어!,Run Cleared!,ランクリア！
+Result_Death,결과,결과 패널,사망 시,,사망,Death,デス
+Result_PlayTimeFormat,결과,플레이 타임 라벨,,{0}: 플레이 시간 (mm:ss),플레이 시간: {0},Play Time: {0},プレイ時間: {0}
+Result_KillCountFormat,결과,처치 수 라벨,,{0}: 처치 수,처치한 적: {0},Enemies Killed: {0},撃破数: {0}
+Result_ShardsGainedFormat,결과,획득 어비스 조각,,{0}: 획득량,획득한 어비스 조각: {0},Abyss Shards Gained: {0},獲得したアビス片: {0}
+Result_Restart,결과,재시작 버튼,,,재시작,Restart,リスタート
+Result_MainMenu,결과,메인 메뉴 버튼,,,메인 메뉴,Main Menu,メインメニュー
+Settings_MasterVolume,설정,마스터 볼륨 라벨,,,마스터 볼륨,Master Volume,マスター音量
+Settings_BgmVolume,설정,BGM 볼륨 라벨,,,배경음,BGM Volume,BGM音量
+Settings_SfxVolume,설정,SFX 볼륨 라벨,,,효과음,SFX Volume,SFX音量
+Settings_Language,설정,언어 선택 라벨,,,언어,Language,言語
+Form_DarkBlade,폼,폼 이름,,,다크 블레이드,Dark Blade,ダークブレード
+Form_VoidArcher,폼,폼 이름,,,보이드 아처,Void Archer,ボイドアーチャー
