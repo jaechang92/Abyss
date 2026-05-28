@@ -116,7 +116,9 @@ namespace Abyss.Runtime.Stage
 
         private void HandleEnemyKilled(EnemyData _)
         {
-            activeEnemies.RemoveAll(e => e == null);
+            // EnemyBase.Die는 Destroy(gameObject, 0.3f) 지연 파괴라 이 시점에는 e != null.
+            // IsDead 플래그로 즉시 제거해야 마지막 적 사망 시 룸이 즉시 클리어됨.
+            activeEnemies.RemoveAll(e => e == null || e.IsDead);
 
             if (activeEnemies.Count == 0 && CurrentRoom != null)
             {

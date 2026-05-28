@@ -32,6 +32,7 @@ namespace Abyss.Runtime.Player
             UpdateGrounded();
             UpdateDashTimers();
             UpdateFacing();
+            UpdateAttackFlash();
         }
 
         private void FixedUpdate()

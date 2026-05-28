@@ -30,11 +30,19 @@ namespace Abyss.Runtime.Player
         [SerializeField, Min(0f)] private float heavyHitstop = 0.10f;
         [SerializeField] private Vector2 lightShake = new(0.12f, 0.1f);
         [SerializeField] private Vector2 heavyShake = new(0.25f, 0.2f);
+        [SerializeField] private Color lightFlashColor = new(1f, 1f, 0.6f, 1f);
+        [SerializeField] private Color heavyFlashColor = new(1f, 0.6f, 0.4f, 1f);
+        [SerializeField, Min(0f)] private float lightFlashDuration = 0.12f;
+        [SerializeField, Min(0f)] private float heavyFlashDuration = 0.20f;
 
         private float lastAttackLightTime = -999f;
         private float lastAttackHeavyTime = -999f;
         private CameraShake cachedCameraShake;
         private bool cameraShakeLookupAttempted;
+        private SpriteRenderer cachedPlayerSr;
+        private bool playerSrLookupAttempted;
+        private Color baseSpriteColor = Color.white;
+        private float attackFlashTimer;
 
         private static readonly List<EnemyBase> reusableHitList = new();
 
@@ -71,6 +79,10 @@ namespace Abyss.Runtime.Player
             if (isHeavy) attackEffect?.PlayHeavy();
             else attackEffect?.PlayLight();
 
+            // 본체 sprite tint flash — AttackEffect는 옆에 표시되는 검기, 본체 flash는 캐릭터 자체가 공격함을 인지시킴.
+            TriggerAttackFlash(isHeavy ? heavyFlashColor : lightFlashColor,
+                               isHeavy ? heavyFlashDuration : lightFlashDuration);
+
             if (attackPoint == null) return;
 
             int hitCount = CollectAndDamageEnemies(damage);
@@ -81,6 +93,40 @@ namespace Abyss.Runtime.Player
                 HitstopController.Instance.Trigger(hitstop);
             }
             TriggerShake(shake);
+        }
+
+        private void TriggerAttackFlash(Color color, float duration)
+        {
+            var sr = ResolvePlayerSr();
+            if (sr == null) return;
+            sr.color = color;
+            attackFlashTimer = Mathf.Max(attackFlashTimer, duration);
+        }
+
+        /// <summary>
+        /// PlayerCharacter.Update에서 매 프레임 호출. 타이머 만료 시 본체 색을 baseSpriteColor로 복귀.
+        /// </summary>
+        private void UpdateAttackFlash()
+        {
+            if (attackFlashTimer <= 0f) return;
+
+            attackFlashTimer -= Time.unscaledDeltaTime;
+            if (attackFlashTimer <= 0f)
+            {
+                var sr = ResolvePlayerSr();
+                if (sr != null) sr.color = baseSpriteColor;
+            }
+        }
+
+        private SpriteRenderer ResolvePlayerSr()
+        {
+            if (cachedPlayerSr != null) return cachedPlayerSr;
+            if (playerSrLookupAttempted) return null;
+
+            playerSrLookupAttempted = true;
+            cachedPlayerSr = GetComponent<SpriteRenderer>();
+            if (cachedPlayerSr != null) baseSpriteColor = cachedPlayerSr.color;
+            return cachedPlayerSr;
         }
 
         private int CollectAndDamageEnemies(int damage)
