@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dca2f464adf7b14bb9770618efa96d0, type: 3}
+  m_Name: Room4_Elite
+  m_EditorClassIdentifier: 
+  roomId: room4_elite
+  roomType: 1
+  enemies:
+  - data: {fileID: 11400000, guid: 00319edb5f5c9024d9fb492c24ed94fd, type: 2}
+    count: 1
+  - data: {fileID: 11400000, guid: 1ae865111c7cd9940a8ad5309e5be5a8, type: 2}
+    count: 2
+  clearGoldReward: 20
