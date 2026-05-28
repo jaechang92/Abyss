@@ -27,4 +27,4 @@ MonoBehaviour:
   isElite: 0
   isRanged: 0
   isBoss: 1
-  spawnPrefab: {fileID: 444683683145308411, guid: afbd3f0d419c7634ea7472a23327d893, type: 3}
+  spawnPrefab: {fileID: 4084952528119728766, guid: afbd3f0d419c7634ea7472a23327d893, type: 3}

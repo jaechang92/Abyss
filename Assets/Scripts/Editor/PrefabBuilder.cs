@@ -24,7 +24,9 @@ namespace Abyss.EditorTools
         private const string PlayerPrefabDir = "Assets/Prefabs/Player";
         private const string SpriteDir = "Assets/Art/Sprites";
         private const string WhiteSpritePath = SpriteDir + "/WhiteSquare.png";
+        private const string EnemySpriteDir = "Assets/Art/Sprites/Enemies";
         private const string InputActionsPath = "Assets/InputSystem_Actions.inputactions";
+        private const string SetupImportMenuPath = "Tools/Abyss/Setup Enemy Sprite Import Settings";
 
         [MenuItem(MenuPath)]
         public static void Build()
@@ -78,6 +80,9 @@ namespace Abyss.EditorTools
             EnsureDir(EnemyPrefabDir);
             EnsureDir(PlayerPrefabDir);
             EnsureDir(SpriteDir);
+
+            // 적 스프라이트 임포트 설정 자동 적용 (PPU·FilterMode 일괄)
+            SetupEnemySpriteImportSettings();
 
             var sprite = GetOrCreateWhiteSprite();
             int enemyCount = BuildAllEnemyPrefabs(sprite, forceRebuildEnemies);
@@ -134,9 +139,13 @@ namespace Abyss.EditorTools
                 var col = root.AddComponent<BoxCollider2D>();
                 col.size = data.isBoss ? new Vector2(2f, 2f) : Vector2.one;
 
+                // 도트 스프라이트 우선 로드. 없으면 WhiteSquare 폴백 + 틴팅 유지.
+                var enemySprite = GetEnemySpriteByEnemyId(data.enemyId, sprite);
+                bool hasDotSprite = enemySprite != sprite;
+
                 var sr = root.AddComponent<SpriteRenderer>();
-                sr.sprite = sprite;
-                sr.color = GetEnemyColor(data);
+                sr.sprite = enemySprite;
+                sr.color = hasDotSprite ? Color.white : GetEnemyColor(data);
                 sr.sortingOrder = 0;
 
                 root.AddComponent<EnemyVisuals>();
@@ -170,6 +179,49 @@ namespace Abyss.EditorTools
             prop.objectReferenceValue = prefab;
             so.ApplyModifiedProperties();
             EditorUtility.SetDirty(data);
+        }
+
+        /// <summary>
+        /// enemyId 기반으로 Assets/Art/Sprites/Enemies/{enemyId}.png 스프라이트를 로드.
+        /// 파일이 없으면 fallback(WhiteSquare) 반환.
+        /// </summary>
+        private static Sprite GetEnemySpriteByEnemyId(string enemyId, Sprite fallback)
+        {
+            if (string.IsNullOrEmpty(enemyId)) return fallback;
+            string path = $"{EnemySpriteDir}/{enemyId}.png";
+            var loaded = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            return loaded != null ? loaded : fallback;
+        }
+
+        /// <summary>
+        /// Assets/Art/Sprites/Enemies/*.png 전체를 순회하여 픽셀아트 임포트 설정 일괄 적용.
+        /// TextureType=Sprite, FilterMode=Point, PPU=16, Mipmap 끔, 압축 없음.
+        /// </summary>
+        [MenuItem(SetupImportMenuPath)]
+        public static void SetupEnemySpriteImportSettings()
+        {
+            string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { EnemySpriteDir });
+            int count = 0;
+            foreach (var guid in guids)
+            {
+                string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                if (!assetPath.EndsWith(".png", System.StringComparison.OrdinalIgnoreCase)) continue;
+
+                var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+                if (importer == null) continue;
+
+                importer.textureType           = TextureImporterType.Sprite;
+                importer.spriteImportMode      = SpriteImportMode.Single;
+                importer.filterMode            = FilterMode.Point;
+                importer.textureCompression    = TextureImporterCompression.Uncompressed;
+                importer.spritePixelsPerUnit   = 16;
+                importer.mipmapEnabled         = false;
+                importer.SaveAndReimport();
+                count++;
+            }
+
+            if (count > 0)
+                Debug.Log($"[PrefabBuilder] 적 스프라이트 임포트 설정 적용 완료: {count}개 (PPU=16, FilterMode=Point, 압축 없음)");
         }
 
         private static Color GetEnemyColor(EnemyData data)
