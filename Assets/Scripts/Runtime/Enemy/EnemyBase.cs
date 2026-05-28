@@ -57,6 +57,23 @@ namespace Abyss.Runtime.Enemy
                 if (player != null) target = player.transform;
             }
             spawnPosition = transform.position;
+
+            // Player ↔ Enemy 콜리전 무시 — 측면 접촉으로 인한 마찰·상승 버그 방지.
+            // 공격 판정은 EvaluateTransitions가 Vector2.Distance 기반이라 데미지에는 영향 없음.
+            if (target != null)
+            {
+                var playerCols = target.GetComponentsInChildren<Collider2D>(true);
+                var enemyCols = GetComponentsInChildren<Collider2D>(true);
+                for (int i = 0; i < playerCols.Length; i++)
+                {
+                    for (int j = 0; j < enemyCols.Length; j++)
+                    {
+                        if (playerCols[i] == null || enemyCols[j] == null) continue;
+                        Physics2D.IgnoreCollision(playerCols[i], enemyCols[j], true);
+                    }
+                }
+            }
+
             fsm.StartStateMachine(EnemyStateIds.Patrol);
         }
 

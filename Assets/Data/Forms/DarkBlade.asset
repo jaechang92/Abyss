@@ -19,5 +19,6 @@ MonoBehaviour:
   icon: {fileID: 0}
   hpMultiplier: 1.2
   moveSpeedMultiplier: 1
+  jumpCount: 2
   primaryAction: {fileID: 0}
   secondaryAction: {fileID: 0}

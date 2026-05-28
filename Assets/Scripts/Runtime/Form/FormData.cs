@@ -22,6 +22,8 @@ namespace Abyss.Runtime.Form
         [Header("스탯 보정 (RunConfig.baseHp·moveSpeed 대비 배율)")]
         [Range(0.5f, 2f)] public float hpMultiplier = 1f;
         [Range(0.5f, 2f)] public float moveSpeedMultiplier = 1f;
+        [Tooltip("폼별 다단 점프 횟수. FormA(암흑검사)=2, FormB(공허궁수)=3 (기획 02-form-change-system.md)")]
+        [Min(1)] public int jumpCount = 2;
 
         [Header("폼 전용 어빌리티 (P-14에서 채움)")]
         public AbilityData primaryAction;
