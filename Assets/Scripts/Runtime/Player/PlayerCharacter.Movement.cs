@@ -23,11 +23,15 @@ namespace Abyss.Runtime.Player
         private float lastDashTime = -999f;
         private Vector2 dashDirection;
         private int facingSign = 1;
+        private int jumpsRemaining;
+
+        private static readonly Collider2D[] groundProbeBuffer = new Collider2D[8];
 
         public bool IsGrounded => isGrounded;
         public Vector2 Velocity => body != null ? body.linearVelocity : Vector2.zero;
         public bool IsDashing => dashTimer > 0f;
         public int FacingSign => facingSign;
+        public int JumpsRemaining => jumpsRemaining;
 
         private void OnMove(InputValue value)
         {
@@ -37,8 +41,10 @@ namespace Abyss.Runtime.Player
         private void OnJump(InputValue value)
         {
             if (!value.isPressed) return;
-            if (!isGrounded) return;
+            if (jumpsRemaining <= 0) return;
+
             body.linearVelocity = new Vector2(body.linearVelocity.x, jumpForce);
+            jumpsRemaining--;
         }
 
         private void OnDash(InputValue value)
@@ -60,7 +66,34 @@ namespace Abyss.Runtime.Player
                 isGrounded = false;
                 return;
             }
-            isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer) != null;
+
+            bool wasGrounded = isGrounded;
+            isGrounded = false;
+
+            // GC 회피를 위해 NonAlloc 버전 사용.
+            int hitCount = Physics2D.OverlapCircleNonAlloc(
+                groundCheck.position, groundCheckRadius, groundProbeBuffer, groundLayer);
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                var col = groundProbeBuffer[i];
+                if (col == null) continue;
+                // Enemy 콜라이더는 ground로 인정하지 않음 — 적 위에서 무한 점프 방지.
+                if (col.GetComponentInParent<Abyss.Runtime.Enemy.EnemyBase>() != null) continue;
+                // 자기 자신 콜라이더 제외.
+                if (col.transform == transform || col.transform.IsChildOf(transform)) continue;
+                isGrounded = true;
+                break;
+            }
+
+            // 접지 진입 시 점프 카운터 리셋 — 현재 폼의 jumpCount 기반 (기획 02-form-change-system.md).
+            if (isGrounded && !wasGrounded)
+            {
+                int maxJumps = (formController != null && formController.CurrentForm != null)
+                    ? Mathf.Max(1, formController.CurrentForm.jumpCount)
+                    : 1;
+                jumpsRemaining = maxJumps;
+            }
         }
 
         private void UpdateDashTimers()
@@ -81,6 +114,32 @@ namespace Abyss.Runtime.Player
             facingSign = desiredSign;
             Vector3 s = transform.localScale;
             transform.localScale = new Vector3(Mathf.Abs(s.x) * desiredSign, s.y, s.z);
+        }
+
+        private void OnEnable()
+        {
+            if (formController != null)
+            {
+                formController.OnSwapStarted += HandleFormSwapStarted;
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (formController != null)
+            {
+                formController.OnSwapStarted -= HandleFormSwapStarted;
+            }
+        }
+
+        /// <summary>
+        /// 폼 교체 시작 시점에 호출. 새 폼의 jumpCount로 점프 카운터를 즉시 리셋한다.
+        /// 공중에서 폼을 바꿔도 새 폼 기준 점프 횟수가 즉시 적용된다.
+        /// </summary>
+        private void HandleFormSwapStarted(Abyss.Runtime.Form.FormData previous, Abyss.Runtime.Form.FormData next)
+        {
+            if (next == null) return;
+            jumpsRemaining = Mathf.Max(1, next.jumpCount);
         }
 
         private void FixedUpdateMovement()
