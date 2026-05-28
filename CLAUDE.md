@@ -87,7 +87,13 @@ Unity 에디터에서 `Tools > Code Convention > Convention Checker Window` 또�
 
 1. `memory/NEXT_TASKS.md`를 남은 작업 목록으로 갱신
 2. `memory/SESSION_HISTORY.md`에 이번 세션에서 수행한 작업 내역 기록
-3. 모든 git 커밋/병합이 원격(push)까지 반영되었는지 확인
-4. 미커밋 변경사항(`git status`)이 남아 있지 않은지 확인
+3. **콘텐츠 진척 변경이 있었으면 간트차트 엑셀 갱신**
+   - 폼·스킬·적·보스·스테이지·메타·스토리·사운드·UI·시스템 카테고리에 신규·변경·완료 발생 시
+   - `Docs/game-design/_gantt_generator.py`의 `ROWS` 배열 동기화 (필요 시)
+   - `python Docs/game-design/_gantt_generator.py` 실행 → `abyss-content-gantt.xlsx` 재생성
+   - 완료된 콘텐츠는 `note="완료"`로 표기되어 작업관리 시트 F열이 자동 "완료" 초기화됨
+4. 모든 git 커밋/병합이 원격(push)까지 반영되었는지 확인
+5. 미커밋 변경사항(`git status`)이 남아 있지 않은지 확인
 
 > `/end-session`, ralph 루프, autopilot/ultrawork 등 지속 실행 모드가 종료될 때에도 위 체크리스트를 동일하게 적용한다.
+> `Docs/`는 `.gitignore` 제외 경로라 .xlsx와 _gantt_generator.py 변경은 git 커밋 대상이 아니다 (로컬 갱신만).
