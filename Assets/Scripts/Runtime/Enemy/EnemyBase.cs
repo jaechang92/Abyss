@@ -58,18 +58,36 @@ namespace Abyss.Runtime.Enemy
             }
             spawnPosition = transform.position;
 
+            var myCols = GetComponentsInChildren<Collider2D>(true);
+
             // Player ↔ Enemy 콜리전 무시 — 측면 접촉으로 인한 마찰·상승 버그 방지.
             // 공격 판정은 EvaluateTransitions가 Vector2.Distance 기반이라 데미지에는 영향 없음.
             if (target != null)
             {
                 var playerCols = target.GetComponentsInChildren<Collider2D>(true);
-                var enemyCols = GetComponentsInChildren<Collider2D>(true);
                 for (int i = 0; i < playerCols.Length; i++)
                 {
-                    for (int j = 0; j < enemyCols.Length; j++)
+                    for (int j = 0; j < myCols.Length; j++)
                     {
-                        if (playerCols[i] == null || enemyCols[j] == null) continue;
-                        Physics2D.IgnoreCollision(playerCols[i], enemyCols[j], true);
+                        if (playerCols[i] == null || myCols[j] == null) continue;
+                        Physics2D.IgnoreCollision(playerCols[i], myCols[j], true);
+                    }
+                }
+            }
+
+            // Enemy ↔ Enemy 콜리전 무시 — 적끼리 서로 밀어내며 이동 방해하는 문제 방지.
+            // IgnoreCollision은 양방향이므로 자기 자신만 처리해도 기존 적과의 쌍이 모두 등록됨.
+            var others = FindObjectsByType<EnemyBase>(FindObjectsSortMode.None);
+            for (int o = 0; o < others.Length; o++)
+            {
+                if (others[o] == null || others[o] == this) continue;
+                var otherCols = others[o].GetComponentsInChildren<Collider2D>(true);
+                for (int i = 0; i < otherCols.Length; i++)
+                {
+                    for (int j = 0; j < myCols.Length; j++)
+                    {
+                        if (otherCols[i] == null || myCols[j] == null) continue;
+                        Physics2D.IgnoreCollision(otherCols[i], myCols[j], true);
                     }
                 }
             }

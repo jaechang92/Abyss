@@ -12,14 +12,14 @@ namespace Abyss.Runtime.Player
         [SerializeField] private SpriteRenderer sr;
 
         [Header("Light")]
-        [SerializeField, Min(0.01f)] private float lightDuration = 0.08f;
-        [SerializeField] private Color lightColor = new(1f, 0.95f, 0.3f, 0.85f);
-        [SerializeField] private Vector3 lightScale = new(1.4f, 0.7f, 1f);
+        [SerializeField, Min(0.01f)] private float lightDuration = 0.18f;
+        [SerializeField] private Color lightColor = new(1f, 0.95f, 0.3f, 0.95f);
+        [SerializeField] private Vector3 lightScale = new(1.6f, 0.8f, 1f);
 
         [Header("Heavy")]
-        [SerializeField, Min(0.01f)] private float heavyDuration = 0.14f;
-        [SerializeField] private Color heavyColor = new(1f, 0.5f, 0.1f, 0.9f);
-        [SerializeField] private Vector3 heavyScale = new(1.9f, 1.0f, 1f);
+        [SerializeField, Min(0.01f)] private float heavyDuration = 0.28f;
+        [SerializeField] private Color heavyColor = new(1f, 0.5f, 0.1f, 1f);
+        [SerializeField] private Vector3 heavyScale = new(2.1f, 1.1f, 1f);
 
         private float timer;
 

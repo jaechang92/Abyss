@@ -38,6 +38,9 @@ namespace Abyss.Runtime.UI
 
         private void Start()
         {
+            // PrefabBuilder가 Player prefab을 재생성하면 씬 인스턴스가 갈리며 SerializeField 참조가 끊어질 수 있어 폴백 검색.
+            if (player == null) player = FindAnyObjectByType<PlayerCharacter>();
+
             if (healthBar != null && player != null) healthBar.Bind(player);
             if (formSlot != null && player != null) formSlot.Bind(player.Form);
             RefreshSkillSlots();
