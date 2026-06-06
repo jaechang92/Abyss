@@ -7,28 +7,35 @@ using UnityEngine;
 namespace Abyss.Runtime.Stage
 {
     /// <summary>
-    /// 스테이지 순차 진행 제어. 방 내 적이 모두 사망하면 자동으로 다음 방으로 진행.
-    /// Critic S3 반영: 노드 분기 없이 선형 5~7방 하드코딩.
+    /// 멀티 스테이지 순차 진행 제어. 방 내 적이 모두 사망하면 자동으로 다음 방으로 진행하고,
+    /// 한 스테이지의 마지막 방을 클리어하면 다음 스테이지로 진입한다(시퀀스 = StageSequenceData).
+    /// 시퀀스의 마지막 스테이지까지 클리어하면 런을 종료한다.
+    /// Critic S3 반영: 노드 분기 없이 스테이지별 선형 5~7방 하드코딩.
     /// </summary>
     public sealed class StageDirector : MonoBehaviour
     {
-        [SerializeField] private StageData stage;
+        [SerializeField] private StageSequenceData sequence;
         [SerializeField] private Transform[] spawnPoints;
         [SerializeField] private bool startOnEnable = true;
         [SerializeField, Min(0f)] private float delayBetweenRooms = 2f;
+        [SerializeField, Min(0f)] private float delayBetweenStages = 3f;
 
+        private int currentStageIndex = -1;
         private int currentRoomIndex = -1;
         private readonly List<EnemyBase> activeEnemies = new();
 
-        public StageData Stage => stage;
-        public RoomData CurrentRoom => IsValidRoom(currentRoomIndex) ? stage.rooms[currentRoomIndex] : null;
+        public StageSequenceData Sequence => sequence;
+        public StageData CurrentStage => IsValidStage(currentStageIndex) ? sequence.stages[currentStageIndex] : null;
+        public RoomData CurrentRoom => IsValidRoom(currentRoomIndex) ? CurrentStage.rooms[currentRoomIndex] : null;
+        public int CurrentStageIndex => currentStageIndex;
         public int CurrentRoomIndex => currentRoomIndex;
-        public int RemainingRooms => stage != null ? Mathf.Max(0, stage.rooms.Count - 1 - currentRoomIndex) : 0;
+        public int RemainingRooms => CurrentStage != null ? Mathf.Max(0, CurrentStage.rooms.Count - 1 - currentRoomIndex) : 0;
+        public int RemainingStages => sequence != null ? Mathf.Max(0, sequence.stages.Count - 1 - currentStageIndex) : 0;
 
         private void OnEnable()
         {
             GameEvents.OnEnemyKilled += HandleEnemyKilled;
-            if (startOnEnable) Invoke(nameof(StartStage), 0.2f);
+            if (startOnEnable) Invoke(nameof(StartSequence), 0.2f);
         }
 
         private void OnDisable()
@@ -37,16 +44,33 @@ namespace Abyss.Runtime.Stage
             CancelInvoke();
         }
 
-        public void StartStage()
+        public void StartSequence()
         {
-            if (stage == null || stage.rooms.Count == 0)
+            if (sequence == null || sequence.stages.Count == 0)
             {
-                Debug.LogWarning("[StageDirector] Stage 또는 rooms 미설정");
+                Debug.LogWarning("[StageDirector] Sequence 또는 stages 미설정");
                 return;
             }
 
-            currentRoomIndex = 0;
             RunManager.Instance?.StartNewRun();
+            currentStageIndex = 0;
+            EnterStage(currentStageIndex);
+        }
+
+        private void EnterStage(int index)
+        {
+            if (!IsValidStage(index)) return;
+
+            var stage = sequence.stages[index];
+            if (stage == null || stage.rooms.Count == 0)
+            {
+                Debug.LogWarning($"[StageDirector] Stage {index + 1} 또는 rooms 미설정 — 건너뜀");
+                ProceedToNextStage();
+                return;
+            }
+
+            Debug.Log($"[StageDirector] Stage {index + 1}/{sequence.stages.Count} 진입: {stage.displayName} ({stage.rooms.Count}방)");
+            currentRoomIndex = 0;
             EnterRoom(currentRoomIndex);
         }
 
@@ -54,19 +78,40 @@ namespace Abyss.Runtime.Stage
         {
             currentRoomIndex += 1;
 
-            if (currentRoomIndex >= stage.rooms.Count)
+            if (CurrentStage == null || currentRoomIndex >= CurrentStage.rooms.Count)
             {
-                GameEvents.RaiseStageCleared(stage);
-                RunManager.Instance?.EndRun();
+                // 현재 스테이지의 모든 방 클리어 → 스테이지 클리어 처리 후 다음 스테이지로.
+                if (CurrentStage != null) GameEvents.RaiseStageCleared(CurrentStage);
+                ProceedToNextStage();
                 return;
             }
 
             EnterRoom(currentRoomIndex);
         }
 
+        private void ProceedToNextStage()
+        {
+            currentStageIndex += 1;
+
+            if (currentStageIndex >= sequence.stages.Count)
+            {
+                // 시퀀스의 모든 스테이지 클리어 → 런 종료.
+                Debug.Log("[StageDirector] 모든 스테이지 클리어 — 런 종료");
+                RunManager.Instance?.EndRun();
+                return;
+            }
+
+            Debug.Log($"[StageDirector] 다음 스테이지로 진행 ({delayBetweenStages}s 후)");
+            Invoke(nameof(EnterCurrentStage), delayBetweenStages);
+        }
+
+        // Invoke 대상용 무인자 래퍼 (currentStageIndex는 ProceedToNextStage에서 이미 증가).
+        private void EnterCurrentStage() => EnterStage(currentStageIndex);
+
         private void EnterRoom(int index)
         {
-            if (!IsValidRoom(index)) return;
+            var stage = CurrentStage;
+            if (stage == null || !IsValidRoom(index)) return;
 
             var room = stage.rooms[index];
             Debug.Log($"[StageDirector] Room {index + 1}/{stage.rooms.Count} 진입: {room.roomId} ({room.roomType})");
@@ -139,8 +184,14 @@ namespace Abyss.Runtime.Stage
             Invoke(nameof(ProceedToNextRoom), delayBetweenRooms);
         }
 
+        private bool IsValidStage(int index)
+        {
+            return sequence != null && index >= 0 && index < sequence.stages.Count;
+        }
+
         private bool IsValidRoom(int index)
         {
+            var stage = CurrentStage;
             return stage != null && index >= 0 && index < stage.rooms.Count;
         }
     }

@@ -432,6 +432,10 @@ MonoBehaviour:
   heavyHitstop: 0.1
   lightShake: {x: 0.12, y: 0.1}
   heavyShake: {x: 0.25, y: 0.2}
+  lightFlashColor: {r: 1, g: 1, b: 0.6, a: 1}
+  heavyFlashColor: {r: 1, g: 0.6, b: 0.4, a: 1}
+  lightFlashDuration: 0.12
+  heavyFlashDuration: 0.2
   body: {fileID: 7001673642320991244}
   formController: {fileID: 3974315282671809960}
   stateMachine: {fileID: 5577743728559273929}

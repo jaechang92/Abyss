@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38776e52fc55d374db5f06453d2c679d, type: 3}
+  m_Name: MidBossSentinel
+  m_EditorClassIdentifier: 
+  enemyId: midboss_sentinel
+  displayName: "\uAC10\uC2DC\uC790 \uAC70\uC778"
+  baseHp: 220
+  baseDamage: 28
+  moveSpeed: 2.8
+  detectionRange: 8
+  attackRange: 2
+  attackCooldown: 1.4
+  patrolRadius: 2
+  patrolSpeedMultiplier: 0.5
+  expReward: 90
+  goldReward: 20
+  isElite: 1
+  isRanged: 0
+  isBoss: 0
+  spawnPrefab: {fileID: 4529532077497680952, guid: 576bbaff7f14d3349909d347610365cd, type: 3}

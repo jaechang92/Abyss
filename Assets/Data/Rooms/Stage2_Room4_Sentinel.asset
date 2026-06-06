@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dca2f464adf7b14bb9770618efa96d0, type: 3}
+  m_Name: Stage2_Room4_Sentinel
+  m_EditorClassIdentifier: 
+  roomId: stage2_room4_sentinel
+  roomType: 1
+  enemies:
+  - data: {fileID: 11400000, guid: dc007e59bbd012d488d3426e6eba912b, type: 2}
+    count: 1
+  - data: {fileID: 11400000, guid: 03c0a0ca364f01848bbbac63dc134c4f, type: 2}
+    count: 1
+  clearGoldReward: 30
