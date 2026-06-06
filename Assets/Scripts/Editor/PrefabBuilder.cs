@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System.IO;
+using Abyss.Runtime.Combat;
 using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Form;
 using Abyss.Runtime.Player;
@@ -22,6 +23,7 @@ namespace Abyss.EditorTools
         private const string RebuildPlayerMenuPath = "Tools/Abyss/Rebuild Player Prefab (Force)";
         private const string EnemyPrefabDir = "Assets/Prefabs/Enemies";
         private const string PlayerPrefabDir = "Assets/Prefabs/Player";
+        private const string CombatPrefabDir = "Assets/Prefabs/Combat";
         private const string SpriteDir = "Assets/Art/Sprites";
         private const string WhiteSpritePath = SpriteDir + "/WhiteSquare.png";
         private const string EnemySpriteDir = "Assets/Art/Sprites/Enemies";
@@ -79,6 +81,7 @@ namespace Abyss.EditorTools
         {
             EnsureDir(EnemyPrefabDir);
             EnsureDir(PlayerPrefabDir);
+            EnsureDir(CombatPrefabDir);
             EnsureDir(SpriteDir);
 
             // 적 스프라이트 임포트 설정 자동 적용 (PPU·FilterMode 일괄)
@@ -88,10 +91,16 @@ namespace Abyss.EditorTools
             int enemyCount = BuildAllEnemyPrefabs(sprite, forceRebuildEnemies);
             bool playerBuilt = BuildPlayerPrefab(sprite, forceRebuildPlayer);
 
+            // 발사체 프리팹 생성 후 isRanged 적 EnemyData에 자동 연결.
+            var projectile = BuildProjectilePrefab(sprite, forceRebuildEnemies);
+            int rangedLinked = LinkProjectileToRangedEnemies(projectile);
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Debug.Log($"[PrefabBuilder] 완료 — 적 {enemyCount}종{(forceRebuildEnemies ? " (force)" : "")}, 플레이어 {(playerBuilt ? 1 : 0)}종{(forceRebuildPlayer ? " (force)" : "")}.");
+            Debug.Log($"[PrefabBuilder] 완료 — 적 {enemyCount}종{(forceRebuildEnemies ? " (force)" : "")}, " +
+                      $"플레이어 {(playerBuilt ? 1 : 0)}종{(forceRebuildPlayer ? " (force)" : "")}, " +
+                      $"발사체 1종(원거리 적 {rangedLinked}종 연결).");
         }
 
         // ==================== Enemy Prefabs ====================
@@ -179,6 +188,84 @@ namespace Abyss.EditorTools
             prop.objectReferenceValue = prefab;
             so.ApplyModifiedProperties();
             EditorUtility.SetDirty(data);
+        }
+
+        // ==================== Projectile Prefab ====================
+        /// <summary>
+        /// 원거리 적 공용 발사체 프리팹 생성. Kinematic RB + Trigger CircleCollider2D + Projectile.
+        /// 기존 존재 시 forceRebuild 아니면 로드만(컴포넌트 반환).
+        /// </summary>
+        private static Projectile BuildProjectilePrefab(Sprite sprite, bool forceRebuild)
+        {
+            string path = $"{CombatPrefabDir}/EnemyProjectile.prefab";
+
+            if (File.Exists(path))
+            {
+                if (forceRebuild)
+                {
+                    AssetDatabase.DeleteAsset(path);
+                }
+                else
+                {
+                    var existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                    Debug.Log($"[PrefabBuilder] 건너뜀 (존재): {path}");
+                    return existing != null ? existing.GetComponent<Projectile>() : null;
+                }
+            }
+
+            var root = new GameObject("EnemyProjectile");
+            try
+            {
+                var rb = root.AddComponent<Rigidbody2D>();
+                rb.bodyType = RigidbodyType2D.Kinematic;
+                rb.gravityScale = 0f;
+
+                var col = root.AddComponent<CircleCollider2D>();
+                col.isTrigger = true;
+                col.radius = 0.4f;
+
+                var sr = root.AddComponent<SpriteRenderer>();
+                sr.sprite = sprite;
+                sr.color = new Color(1f, 0.6f, 0.1f); // 주황 — 화살/탄
+                sr.sortingOrder = 3;
+
+                root.AddComponent<Projectile>();
+                root.transform.localScale = new Vector3(0.45f, 0.18f, 1f);
+
+                var prefab = PrefabUtility.SaveAsPrefabAsset(root, path);
+                Debug.Log($"[PrefabBuilder] 생성: {path}");
+                return prefab != null ? prefab.GetComponent<Projectile>() : null;
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        /// <summary>
+        /// isRanged인 모든 EnemyData.projectilePrefab에 발사체를 연결. 연결한 종 수 반환.
+        /// </summary>
+        private static int LinkProjectileToRangedEnemies(Projectile projectile)
+        {
+            if (projectile == null) return 0;
+
+            string[] guids = AssetDatabase.FindAssets("t:EnemyData");
+            int linked = 0;
+            foreach (var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var data = AssetDatabase.LoadAssetAtPath<EnemyData>(path);
+                if (data == null || !data.isRanged) continue;
+
+                var so = new SerializedObject(data);
+                var prop = so.FindProperty("projectilePrefab");
+                if (prop == null) continue;
+                prop.objectReferenceValue = projectile;
+                so.ApplyModifiedProperties();
+                EditorUtility.SetDirty(data);
+                linked++;
+            }
+            return linked;
         }
 
         /// <summary>

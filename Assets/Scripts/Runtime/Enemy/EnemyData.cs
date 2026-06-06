@@ -1,3 +1,4 @@
+using Abyss.Runtime.Combat;
 using UnityEngine;
 
 namespace Abyss.Runtime.Enemy
@@ -35,6 +36,12 @@ namespace Abyss.Runtime.Enemy
         public bool isElite;
         public bool isRanged;
         public bool isBoss;
+
+        [Header("원거리 (isRanged 전용 — PrefabBuilder가 projectilePrefab 자동 연결)")]
+        [Tooltip("isRanged=true이고 이 값이 있으면 근접 즉발 대신 발사체를 발사")]
+        public Projectile projectilePrefab;
+        [Min(0f)] public float projectileSpeed = 8f;
+        [Min(0.1f)] public float projectileLifetime = 3f;
 
         [Header("스폰 프리팹 (StageDirector가 Instantiate)")]
         public GameObject spawnPrefab;

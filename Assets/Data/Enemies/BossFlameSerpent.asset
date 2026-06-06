@@ -27,4 +27,7 @@ MonoBehaviour:
   isElite: 0
   isRanged: 0
   isBoss: 1
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 8
+  projectileLifetime: 3
   spawnPrefab: {fileID: 7770420426439864675, guid: 132658194a8da90429789466d953fae0, type: 3}
