@@ -1,8 +1,10 @@
 using System;
+using Abyss.Runtime.Combat;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Player;
 using Abyss.Runtime.Run;
 using FSM.Core;
+using ObjectPool_Core;
 using UnityEngine;
 
 namespace Abyss.Runtime.Enemy
@@ -167,12 +169,34 @@ namespace Abyss.Runtime.Enemy
         {
             if (target == null || data == null) return;
 
+            // 원거리 적: 발사체 발사(즉발 대신). projectilePrefab 미연결 시 근접으로 폴백.
+            if (data.isRanged && data.projectilePrefab != null)
+            {
+                FireProjectile();
+                return;
+            }
+
             var player = target.GetComponent<PlayerCharacter>();
             if (player != null && !player.IsDead)
             {
                 int damage = GetAttackDamage();
                 player.TakeDamage(damage);
             }
+        }
+
+        /// <summary>
+        /// 타겟 방향으로 발사체를 풀에서 꺼내 발사한다. 자기 콜라이더와 겹치지 않도록
+        /// 사거리의 일부만큼 앞에서 생성하고, Projectile 측에서도 EnemyBase를 통과 처리한다.
+        /// </summary>
+        private void FireProjectile()
+        {
+            Vector2 origin = transform.position;
+            Vector2 toTarget = (Vector2)target.position - origin;
+            Vector2 dir = toTarget.sqrMagnitude > 0.0001f ? toTarget.normalized : Vector2.right;
+            Vector2 spawnPos = origin + dir * (data.attackRange * 0.3f);
+
+            var proj = PoolManager.Instance.Get(data.projectilePrefab, (Vector3)spawnPos, Quaternion.identity);
+            proj.Launch(dir, GetAttackDamage(), data.projectileSpeed, data.projectileLifetime, data.projectilePrefab);
         }
 
         /// <summary>

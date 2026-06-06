@@ -150,6 +150,8 @@ namespace Abyss.EditorTools
                 so.expReward = 20;
                 so.goldReward = 4;
                 so.isRanged = true;
+                so.projectileSpeed = 9f;       // 발사체 속도(근접 즉발 대신 직진 탄)
+                so.projectileLifetime = 3f;    // 미명중 시 소멸 시간
             });
 
             CreateOrSkip<EnemyData>($"{EnemyDir}/EliteHunter.asset", so =>
