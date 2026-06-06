@@ -185,15 +185,26 @@ namespace Abyss.Runtime.Enemy
         }
 
         /// <summary>
-        /// 타겟 방향으로 발사체를 풀에서 꺼내 발사한다. 자기 콜라이더와 겹치지 않도록
-        /// 사거리의 일부만큼 앞에서 생성하고, Projectile 측에서도 EnemyBase를 통과 처리한다.
+        /// 타겟 방향으로 발사체 1발 발사(원거리 적 직격용).
         /// </summary>
         private void FireProjectile()
         {
-            Vector2 origin = transform.position;
-            Vector2 toTarget = (Vector2)target.position - origin;
-            Vector2 dir = toTarget.sqrMagnitude > 0.0001f ? toTarget.normalized : Vector2.right;
-            Vector2 spawnPos = origin + dir * (data.attackRange * 0.3f);
+            Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
+            SpawnProjectile(toTarget);
+        }
+
+        /// <summary>
+        /// 지정 방향으로 발사체를 풀에서 꺼내 발사하는 공용 진입점(원거리 직격·보스 탄막 공유).
+        /// 자기 콜라이더와 겹치지 않도록 사거리의 일부만큼 앞에서 생성하고,
+        /// Projectile 측에서도 EnemyBase를 통과 처리한다. projectilePrefab 미연결 시 무동작.
+        /// 데미지는 GetAttackDamage()를 사용하므로 보스 페이즈 배율이 그대로 반영된다.
+        /// </summary>
+        protected void SpawnProjectile(Vector2 direction)
+        {
+            if (data == null || data.projectilePrefab == null) return;
+
+            Vector2 dir = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
+            Vector2 spawnPos = (Vector2)transform.position + dir * (data.attackRange * 0.3f);
 
             var proj = PoolManager.Instance.Get(data.projectilePrefab, (Vector3)spawnPos, Quaternion.identity);
             proj.Launch(dir, GetAttackDamage(), data.projectileSpeed, data.projectileLifetime, data.projectilePrefab);
