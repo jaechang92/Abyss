@@ -86,6 +86,59 @@ namespace Abyss.EditorTools
                 RoomAsset = "Room6_Boss", RootName = "RoomLayout_06",
                 Platforms = new[] { new Spec(-9f, 2f, 4f, 0.5f), new Spec(9f, 2f, 4f, 0.5f) }
             },
+
+            // ===== Stage 2 "불꽃의 회랑" — Stage1 대비 더 수직적·공격적 지형 =====
+            // Stage2_Room1_Ignition: 점화(워밍업) — 중앙 낮은 디딤 발판 2개.
+            new RoomLayout
+            {
+                RoomAsset = "Stage2_Room1_Ignition", RootName = "RoomLayout_07",
+                Platforms = new[] { new Spec(-3f, 1f, 3f, 0.5f), new Spec(3f, 1f, 3f, 0.5f) }
+            },
+            // Stage2_Room2_Volley: 일제사격 — 궁수 대비 엄폐용 좌우 고지대 + 중앙 차폐.
+            new RoomLayout
+            {
+                RoomAsset = "Stage2_Room2_Volley", RootName = "RoomLayout_08",
+                Platforms = new[]
+                {
+                    new Spec(-8f, 2.5f, 3f, 0.5f), new Spec(8f, 2.5f, 3f, 0.5f),
+                    new Spec(0f, 1.25f, 2f, 0.5f)
+                }
+            },
+            // Stage2_Room3_Phalanx: 밀집 — 중장병 회피용 좁은 중앙 고지대 + 양옆 단.
+            new RoomLayout
+            {
+                RoomAsset = "Stage2_Room3_Phalanx", RootName = "RoomLayout_09",
+                Platforms = new[]
+                {
+                    new Spec(0f, 3.5f, 2.5f, 0.5f), new Spec(-7f, 1.5f, 2.5f, 0.5f), new Spec(7f, 1.5f, 2.5f, 0.5f)
+                }
+            },
+            // Stage2_Room4_Sentinel: 감시자(중간보스) — 넓은 아레나 + 양옆 높은 탈출 발판(더블 점프).
+            new RoomLayout
+            {
+                RoomAsset = "Stage2_Room4_Sentinel", RootName = "RoomLayout_10",
+                Platforms = new[]
+                {
+                    new Spec(-10f, 3f, 3f, 0.5f), new Spec(10f, 3f, 3f, 0.5f),
+                    new Spec(0f, 5f, 2.5f, 0.5f)
+                }
+            },
+            // Stage2_Room5_Gauntlet: 시련 — 가장 복잡한 다층 지그재그 발판.
+            new RoomLayout
+            {
+                RoomAsset = "Stage2_Room5_Gauntlet", RootName = "RoomLayout_11",
+                Platforms = new[]
+                {
+                    new Spec(-9f, 1.25f, 2.5f, 0.5f), new Spec(-4f, 2.75f, 2.5f, 0.5f),
+                    new Spec(1f, 4.25f, 2.5f, 0.5f), new Spec(6f, 2.75f, 2.5f, 0.5f), new Spec(10f, 1.25f, 2.5f, 0.5f)
+                }
+            },
+            // Stage2_Room6_Serpent: 화염뱀(보스) — 개방 아레나, 회피 공간 확보 위해 대칭 양옆 발판만.
+            new RoomLayout
+            {
+                RoomAsset = "Stage2_Room6_Serpent", RootName = "RoomLayout_12",
+                Platforms = new[] { new Spec(-9f, 2.25f, 4f, 0.5f), new Spec(9f, 2.25f, 4f, 0.5f) }
+            },
         };
 
         [MenuItem(BuildMenu)]

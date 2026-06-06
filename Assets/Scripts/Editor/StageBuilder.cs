@@ -19,14 +19,23 @@ namespace Abyss.EditorTools
     public static class StageBuilder
     {
         private const string BuildMenu = "Tools/Abyss/Build Stage 1 Content";
+        private const string BuildStage2Menu = "Tools/Abyss/Build Stage 2 Content";
         private const string SceneSetupMenu = "Tools/Abyss/Setup StageDirector in Active Scene";
 
         private const string EnemyDir = "Assets/Data/Enemies";
         private const string RoomDir = "Assets/Data/Rooms";
         private const string StageDir = "Assets/Data/Stages";
+        private const string SequenceDir = "Assets/Data/Stages";
 
         private const string Stage1Id = "stage_1_abyss_entrance";
         private const string Stage1Name = "균열의 입구";
+
+        private const string Stage2Id = "stage_2_flame_corridor";
+        private const string Stage2Name = "불꽃의 회랑";
+
+        private const string SequenceFile = "MainRunSequence";
+        private const string SequenceId = "main_run_sequence";
+        private const string SequenceName = "본 런 시퀀스";
 
         [MenuItem(BuildMenu)]
         public static void BuildStage1Content()
@@ -84,6 +93,72 @@ namespace Abyss.EditorTools
             Debug.Log("[StageBuilder] Stage 1 콘텐츠 생성 완료 — Assets/Data/Stages/Stage1_AbyssEntrance.asset");
         }
 
+        [MenuItem(BuildStage2Menu)]
+        public static void BuildStage2Content()
+        {
+            bool proceed = EditorUtility.DisplayDialog(
+                "StageBuilder",
+                "Stage 2 '불꽃의 회랑' 콘텐츠 생성:\n" +
+                "  · RoomData 6개 (Combat 4 + Elite 1[중간보스] + Boss 1)\n" +
+                "  · StageData 1개 (Stage2_FlameCorridor, 방 6개 순차)\n" +
+                "  · StageSequenceData (Stage1 → Stage2 순차 진행)\n\n" +
+                "이미 존재하는 RoomData/StageData는 건너뜁니다(시퀀스는 갱신).",
+                "생성", "취소");
+            if (!proceed) return;
+
+            EnsureDir(RoomDir);
+            EnsureDir(StageDir);
+
+            // Stage1 기존 적 4종 + Stage2 신규 적 2종 로드 (ContentBuilder 산출물).
+            var grunt = LoadEnemyData("MeleeGrunt");
+            var brute = LoadEnemyData("MeleeBrute");
+            var archer = LoadEnemyData("RangedArcher");
+            var sentinel = LoadEnemyData("MidBossSentinel");
+            var serpent = LoadEnemyData("BossFlameSerpent");
+
+            if (grunt == null || brute == null || archer == null || sentinel == null || serpent == null)
+            {
+                EditorUtility.DisplayDialog(
+                    "StageBuilder 실패",
+                    "EnemyData 누락(Stage2 신규 적 포함). 먼저 'Tools/Abyss/Generate Prototype Content'를 실행하세요.",
+                    "확인");
+                return;
+            }
+
+            // Stage2 Room 6개 — Stage1 대비 적 수·강도 상향, 4번방 중간보스, 6번방 최종보스.
+            var r1 = CreateOrLoadRoom("Stage2_Room1_Ignition", RoomType.Combat, 10,
+                new[] { (grunt, 3) });
+            var r2 = CreateOrLoadRoom("Stage2_Room2_Volley",   RoomType.Combat, 14,
+                new[] { (archer, 2), (grunt, 2) });
+            var r3 = CreateOrLoadRoom("Stage2_Room3_Phalanx",  RoomType.Combat, 18,
+                new[] { (brute, 2), (grunt, 2) });
+            var r4 = CreateOrLoadRoom("Stage2_Room4_Sentinel", RoomType.Elite, 30,
+                new[] { (sentinel, 1), (brute, 1) });
+            var r5 = CreateOrLoadRoom("Stage2_Room5_Gauntlet", RoomType.Combat, 24,
+                new[] { (archer, 2), (brute, 2), (grunt, 2) });
+            var r6 = CreateOrLoadRoom("Stage2_Room6_Serpent",  RoomType.Boss, 70,
+                new[] { (serpent, 1) });
+
+            var stage2 = CreateOrLoadStage("Stage2_FlameCorridor", Stage2Id, Stage2Name,
+                new[] { r1, r2, r3, r4, r5, r6 });
+
+            // Stage1 로드 후 멀티 스테이지 시퀀스(Stage1 → Stage2) 생성/갱신.
+            var stage1 = AssetDatabase.LoadAssetAtPath<StageData>($"{StageDir}/Stage1_AbyssEntrance.asset");
+            if (stage1 == null)
+            {
+                Debug.LogWarning("[StageBuilder] Stage1_AbyssEntrance.asset 누락 — 시퀀스에 Stage2만 포함됩니다. " +
+                                 "먼저 'Build Stage 1 Content' 권장.");
+            }
+            var sequence = CreateOrUpdateSequence(stage1, stage2);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            EditorGUIUtility.PingObject(sequence);
+            Debug.Log($"[StageBuilder] Stage 2 콘텐츠 + 시퀀스 생성 완료 — " +
+                      $"Assets/Data/Stages/Stage2_FlameCorridor.asset, 시퀀스 {sequence.stages.Count} 스테이지");
+        }
+
         [MenuItem(SceneSetupMenu)]
         public static void SetupStageDirectorInActiveScene()
         {
@@ -94,14 +169,21 @@ namespace Abyss.EditorTools
                 return;
             }
 
-            var stage = AssetDatabase.LoadAssetAtPath<StageData>($"{StageDir}/Stage1_AbyssEntrance.asset");
-            if (stage == null)
+            // 멀티 스테이지 시퀀스 우선 로드. 없으면 Stage1 단독으로 시퀀스 자동 생성(하위호환).
+            var sequence = AssetDatabase.LoadAssetAtPath<StageSequenceData>($"{SequenceDir}/{SequenceFile}.asset");
+            if (sequence == null)
             {
-                EditorUtility.DisplayDialog(
-                    "StageBuilder 실패",
-                    "Stage1_AbyssEntrance.asset 누락. 먼저 'Tools/Abyss/Build Stage 1 Content'를 실행하세요.",
-                    "확인");
-                return;
+                var stage1 = AssetDatabase.LoadAssetAtPath<StageData>($"{StageDir}/Stage1_AbyssEntrance.asset");
+                if (stage1 == null)
+                {
+                    EditorUtility.DisplayDialog(
+                        "StageBuilder 실패",
+                        "StageSequenceData·Stage1 모두 누락. 먼저 'Tools/Abyss/Build Stage 1 Content'를 실행하세요.",
+                        "확인");
+                    return;
+                }
+                sequence = CreateOrUpdateSequence(stage1);
+                AssetDatabase.SaveAssets();
             }
 
             // 기존 StageDirector 검색
@@ -150,9 +232,10 @@ namespace Abyss.EditorTools
             // SerializedObject로 private SerializeField 와이어링
             var director = directorGo.GetComponent<StageDirector>();
             var so = new SerializedObject(director);
-            so.FindProperty("stage").objectReferenceValue = stage;
+            so.FindProperty("sequence").objectReferenceValue = sequence;
             so.FindProperty("startOnEnable").boolValue = true;
             so.FindProperty("delayBetweenRooms").floatValue = 2f;
+            so.FindProperty("delayBetweenStages").floatValue = 3f;
 
             var spArrayProp = so.FindProperty("spawnPoints");
             spArrayProp.arraySize = spawnPoints.Count;
@@ -177,7 +260,7 @@ namespace Abyss.EditorTools
                                  "StageDirector가 자동 스폰하므로 수동 인스턴스는 제거 권장.");
             }
 
-            Debug.Log($"[StageBuilder] StageDirector 셋업 완료 — Stage='{stage.displayName}', SpawnPoints={spawnPoints.Count}개");
+            Debug.Log($"[StageBuilder] StageDirector 셋업 완료 — Sequence='{sequence.displayName}' ({sequence.stages.Count} 스테이지), SpawnPoints={spawnPoints.Count}개");
         }
 
         private static EnemyData LoadEnemyData(string fileName)
@@ -229,6 +312,34 @@ namespace Abyss.EditorTools
             so.rooms = rooms.ToList();
             AssetDatabase.CreateAsset(so, path);
             Debug.Log($"[StageBuilder] 생성: {path}");
+            return so;
+        }
+
+        /// <summary>
+        /// 멀티 스테이지 시퀀스 SO를 생성하거나(없으면), 기존 시퀀스의 stages 목록을 갱신한다.
+        /// null 스테이지는 자동 제외(누락 자산 방어). 기존 SO는 식별자·목록만 덮어쓴다(멱등).
+        /// </summary>
+        private static StageSequenceData CreateOrUpdateSequence(params StageData[] stages)
+        {
+            var list = stages.Where(s => s != null).ToList();
+            string path = $"{SequenceDir}/{SequenceFile}.asset";
+            var existing = AssetDatabase.LoadAssetAtPath<StageSequenceData>(path);
+            if (existing != null)
+            {
+                existing.sequenceId = SequenceId;
+                existing.displayName = SequenceName;
+                existing.stages = list;
+                EditorUtility.SetDirty(existing);
+                Debug.Log($"[StageBuilder] 시퀀스 갱신: {path} ({list.Count} 스테이지)");
+                return existing;
+            }
+
+            var so = ScriptableObject.CreateInstance<StageSequenceData>();
+            so.sequenceId = SequenceId;
+            so.displayName = SequenceName;
+            so.stages = list;
+            AssetDatabase.CreateAsset(so, path);
+            Debug.Log($"[StageBuilder] 시퀀스 생성: {path} ({list.Count} 스테이지)");
             return so;
         }
 

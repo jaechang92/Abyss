@@ -13,7 +13,7 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// 프로토 SO 에셋 일괄 생성 에디터 툴.
-    /// 생성 대상: FormData 2 / SkillData 9 / EnemyData 4 / RunConfig 1 = 총 16개.
+    /// 생성 대상: FormData 2 / SkillData 9 / EnemyData 7 / RunConfig 1 = 총 19개.
     /// 기본값은 stage-d-analyst.md 확정 스펙 + 03-skill-draft-system.md 9스킬 목록.
     /// 이미 존재하는 에셋은 건너뜀(덮어쓰지 않음).
     /// </summary>
@@ -30,10 +30,10 @@ namespace Abyss.EditorTools
         {
             bool proceed = EditorUtility.DisplayDialog(
                 "ContentBuilder",
-                "프로토 SO 에셋 17개 생성:\n" +
+                "프로토 SO 에셋 19개 생성:\n" +
                 "  · FormData 2 (dark_blade, void_archer)\n" +
                 "  · SkillData 9 (불꽃 5 + 심연 4)\n" +
-                "  · EnemyData 5 (근접 2 / 원거리 1 / 엘리트 1 / 보스 1)\n" +
+                "  · EnemyData 7 (근접 2 / 원거리 1 / 엘리트 1 / 보스 1 + Stage2 중간보스 1 / 보스 1)\n" +
                 "  · RunConfig 1\n\n" +
                 "이미 존재하는 에셋은 건너뜁니다.",
                 "생성", "취소");
@@ -181,6 +181,39 @@ namespace Abyss.EditorTools
                 so.goldReward = 50;
                 so.isBoss = true;
                 so.patrolRadius = 0f; // 보스는 Patrol 정지 (수동 페이즈 스크립트로 제어)
+            });
+
+            // Stage 2 "불꽃의 회랑" 신규 적 2종. AI·페이즈 패턴은 기존 재활용(스탯만 차별화),
+            // 정식 회전베기/화염브레스 패턴은 M2 본작업으로 연기(08-content-roadmap.md).
+            CreateOrSkip<EnemyData>($"{EnemyDir}/MidBossSentinel.asset", so =>
+            {
+                so.enemyId = "midboss_sentinel";
+                so.displayName = "감시자 거인";
+                so.baseHp = 220;
+                so.baseDamage = 28;
+                so.moveSpeed = 2.8f;
+                so.detectionRange = 8f;
+                so.attackRange = 2f;
+                so.attackCooldown = 1.4f;
+                so.expReward = 90;
+                so.goldReward = 20;
+                so.isElite = true; // Stage2 중간보스 — EliteBonus 드래프트 트리거 재활용
+            });
+
+            CreateOrSkip<EnemyData>($"{EnemyDir}/BossFlameSerpent.asset", so =>
+            {
+                so.enemyId = "boss_flame_serpent";
+                so.displayName = "화염 뱀";
+                so.baseHp = 520;
+                so.baseDamage = 38;
+                so.moveSpeed = 3f;
+                so.detectionRange = 12f;
+                so.attackRange = 2.8f;
+                so.attackCooldown = 1.6f;
+                so.expReward = 260;
+                so.goldReward = 65;
+                so.isBoss = true;
+                so.patrolRadius = 0f; // 보스는 Patrol 정지
             });
         }
 
