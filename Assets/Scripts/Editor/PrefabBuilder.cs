@@ -243,7 +243,8 @@ namespace Abyss.EditorTools
         }
 
         /// <summary>
-        /// isRanged인 모든 EnemyData.projectilePrefab에 발사체를 연결. 연결한 종 수 반환.
+        /// 원거리(isRanged) 및 보스(isBoss) EnemyData.projectilePrefab에 발사체를 연결.
+        /// 원거리 적은 직격, 보스는 페이즈 탄막에 동일 발사체를 재사용한다. 연결한 종 수 반환.
         /// </summary>
         private static int LinkProjectileToRangedEnemies(Projectile projectile)
         {
@@ -255,7 +256,7 @@ namespace Abyss.EditorTools
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var data = AssetDatabase.LoadAssetAtPath<EnemyData>(path);
-                if (data == null || !data.isRanged) continue;
+                if (data == null || !(data.isRanged || data.isBoss)) continue;
 
                 var so = new SerializedObject(data);
                 var prop = so.FindProperty("projectilePrefab");
