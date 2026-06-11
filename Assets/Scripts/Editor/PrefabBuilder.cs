@@ -160,10 +160,11 @@ namespace Abyss.EditorTools
                 root.AddComponent<EnemyVisuals>();
                 root.AddComponent<StateMachine>();
 
-                EnemyBase enemy = data.isBoss ? root.AddComponent<BossEnemy>() : root.AddComponent<EnemyBase>();
+                EnemyBase enemy = AddEnemyComponent(root, data);
                 SetPrivateField(enemy, "data", data);
 
                 if (data.isBoss) root.transform.localScale = new Vector3(1.6f, 1.6f, 1f);
+                else if (data.enemyId == "midboss_sentinel") root.transform.localScale = new Vector3(1.45f, 1.45f, 1f);
                 else if (data.isElite) root.transform.localScale = new Vector3(1.25f, 1.25f, 1f);
 
                 AttachNametag(root.transform, data);
@@ -310,6 +311,22 @@ namespace Abyss.EditorTools
 
             if (count > 0)
                 Debug.Log($"[PrefabBuilder] 적 스프라이트 임포트 설정 적용 완료: {count}개 (PPU=16, FilterMode=Point, 압축 없음)");
+        }
+
+        /// <summary>
+        /// enemyId/분류에 맞는 적 컴포넌트를 부착해 반환.
+        /// 보스별 고유 패턴 클래스(MidBossSentinelBoss·FlameSerpentBoss)는 enemyId로 분기하고,
+        /// 그 외 isBoss는 기본 BossEnemy(부채꼴 볼리), 일반 적은 EnemyBase를 사용한다.
+        /// MidBossSentinel은 isElite지만 페이즈 패턴을 위해 BossEnemy 파생으로 승격된다.
+        /// </summary>
+        private static EnemyBase AddEnemyComponent(GameObject root, EnemyData data)
+        {
+            switch (data.enemyId)
+            {
+                case "midboss_sentinel": return root.AddComponent<MidBossSentinelBoss>();
+                case "boss_flame_serpent": return root.AddComponent<FlameSerpentBoss>();
+            }
+            return data.isBoss ? root.AddComponent<BossEnemy>() : root.AddComponent<EnemyBase>();
         }
 
         private static Color GetEnemyColor(EnemyData data)

@@ -30,4 +30,4 @@ MonoBehaviour:
   projectilePrefab: {fileID: 0}
   projectileSpeed: 8
   projectileLifetime: 3
-  spawnPrefab: {fileID: 1998968922242430619, guid: a5fbc474a24525b4e8e81766cd43657c, type: 3}
+  spawnPrefab: {fileID: 1141081646486032334, guid: a5fbc474a24525b4e8e81766cd43657c, type: 3}

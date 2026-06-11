@@ -211,6 +211,15 @@ namespace Abyss.Runtime.Enemy
         }
 
         /// <summary>
+        /// 파생 보스 패턴(회전베기·꼬리치기 등)이 연출용으로 스프라이트 플래시를 트리거.
+        /// 피격 시 TakeDamage가 호출하는 것과 동일한 EnemyVisuals.Flash를 공유한다.
+        /// </summary>
+        protected void FlashVisual()
+        {
+            visuals?.Flash();
+        }
+
+        /// <summary>
         /// 페이즈 배수 등을 반영한 실제 공격력. BossEnemy가 override.
         /// </summary>
         protected virtual int GetAttackDamage()
