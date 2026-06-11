@@ -12,6 +12,9 @@ namespace Abyss.Runtime.Feedback
     /// </summary>
     public sealed class BossAreaEffect : MonoBehaviour
     {
+        /// <summary>Strike=발동 시 확장+페이드, Telegraph=발동 전 고정 범위 깜빡임(회피 안내).</summary>
+        public enum Mode { Strike, Telegraph }
+
         private const int RingTextureSize = 64;
         private static Sprite ringSprite;
 
@@ -20,20 +23,22 @@ namespace Abyss.Runtime.Feedback
         private float duration;
         private float timer;
         private Color baseColor;
+        private Mode mode;
 
         /// <summary>
         /// 지정 위치에 반경 radius(월드 유닛)의 원형 링 이펙트를 띄운다.
-        /// 링은 radius*0.4에서 radius까지 확장하며 알파가 사라진다.
+        /// Strike: radius*0.4 → radius까지 확장하며 알파 페이드.
+        /// Telegraph: 타격 범위(반경 radius)를 고정 표시하며 깜빡임 → 회피 안내.
         /// </summary>
-        public static void Spawn(Vector3 position, float radius, Color color, float duration = 0.35f)
+        public static void Spawn(Vector3 position, float radius, Color color, float duration = 0.35f, Mode mode = Mode.Strike)
         {
             var go = new GameObject("BossAreaEffect");
             go.transform.position = position;
             var fx = go.AddComponent<BossAreaEffect>();
-            fx.Init(radius, color, duration);
+            fx.Init(radius, color, duration, mode);
         }
 
-        private void Init(float radius, Color color, float dur)
+        private void Init(float radius, Color color, float dur, Mode effectMode)
         {
             sr = gameObject.AddComponent<SpriteRenderer>();
             sr.sprite = GetRingSprite();
@@ -41,6 +46,7 @@ namespace Abyss.Runtime.Feedback
             maxRadius = Mathf.Max(0.1f, radius);
             baseColor = color;
             duration = Mathf.Max(0.05f, dur);
+            mode = effectMode;
             timer = 0f;
             Apply(0f);
         }
@@ -56,6 +62,17 @@ namespace Abyss.Runtime.Feedback
         private void Apply(float t)
         {
             // 링 스프라이트는 지름 1유닛(PPU=size) → localScale = 지름. 반경 radius면 scale = radius*2.
+            if (mode == Mode.Telegraph)
+            {
+                // 타격 범위를 고정 표시하고 깜빡임 + 후반으로 갈수록 진해져 임박을 알린다.
+                transform.localScale = new Vector3(maxRadius * 2f, maxRadius * 2f, 1f);
+                Color tc = baseColor;
+                float blink = 0.4f + 0.4f * Mathf.Abs(Mathf.Sin(t * Mathf.PI * 4f));
+                tc.a = blink * Mathf.Lerp(0.5f, 1f, t);
+                sr.color = tc;
+                return;
+            }
+
             float diameter = Mathf.Lerp(maxRadius * 0.8f, maxRadius * 2f, t);
             transform.localScale = new Vector3(diameter, diameter, 1f);
 

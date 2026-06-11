@@ -219,6 +219,18 @@ namespace Abyss.Runtime.Enemy
             visuals?.Flash();
         }
 
+        /// <summary>패턴 예고(telegraph) 등에서 일정 시간 색조를 유지.</summary>
+        protected void TintVisual(Color color, float duration)
+        {
+            visuals?.Tint(color, duration);
+        }
+
+        /// <summary>강타 모션 — 스프라이트 스케일 펀치.</summary>
+        protected void PunchVisual(float magnitude, float duration)
+        {
+            visuals?.PunchScale(magnitude, duration);
+        }
+
         /// <summary>
         /// 페이즈 배수 등을 반영한 실제 공격력. BossEnemy가 override.
         /// </summary>
