@@ -1,14 +1,21 @@
 using System;
+using Abyss.Runtime.Feedback;
+using Abyss.Runtime.Player;
 using UnityEngine;
 
 namespace Abyss.Runtime.Enemy
 {
     /// <summary>
-    /// EnemyBase를 상속한 보스 구현. HP 임계값 기반 3페이즈 전환.
+    /// EnemyBase를 상속한 보스 기반 클래스. HP 임계값 기반 3페이즈 전환.
     /// 페이즈별 데미지 배율 + 부채꼴 탄막 볼리(발사체 재사용). 페이즈 상승 시 발사 수↑·주기↓.
     /// 처치 시 EnemyBase.Die가 RunManager.NotifyBossKilled() 호출 (EnemyData.isBoss=true).
+    ///
+    /// 보스별 고유 패턴은 <see cref="TickPattern"/>을 override해 구현한다(파생 클래스).
+    /// 기본 동작은 부채꼴 탄막 볼리로, 별도 파생 없이도 동작한다(BossAbyssKeeper 하위호환).
+    /// 공용 패턴 빌딩블록 <see cref="FireFan"/>(부채꼴 탄막)·<see cref="MeleeAreaStrike"/>(근접 광역)를
+    /// protected로 제공해 파생 클래스가 조합한다.
     /// </summary>
-    public sealed class BossEnemy : EnemyBase
+    public class BossEnemy : EnemyBase
     {
         [Header("페이즈 전환 HP 비율")]
         [Range(0f, 1f), SerializeField] private float phase2HpThreshold = 0.66f;
@@ -28,6 +35,7 @@ namespace Abyss.Runtime.Enemy
 
         private int currentPhase = 1;
         private float lastVolleyTime = -999f;
+        private CameraShake cameraShake;
 
         public int CurrentPhase => currentPhase;
         public event Action<int> OnPhaseChanged;
@@ -44,6 +52,15 @@ namespace Abyss.Runtime.Enemy
         {
             base.Update();
             CheckPhaseTransition();
+            TickPattern();
+        }
+
+        /// <summary>
+        /// 매 프레임 호출되는 보스 고유 패턴 훅. 기본 구현은 부채꼴 탄막 볼리.
+        /// 파생 보스는 이를 override해 회전베기·화염브레스 등 고유 패턴으로 교체한다.
+        /// </summary>
+        protected virtual void TickPattern()
+        {
             TryFireVolley();
         }
 
@@ -63,25 +80,68 @@ namespace Abyss.Runtime.Enemy
             if (Time.time < lastVolleyTime + interval) return;
             lastVolleyTime = Time.time;
 
-            FireVolley();
+            FireFan(baseVolleyCount + (currentPhase - 1), spreadAngle);
         }
 
-        private void FireVolley()
+        /// <summary>
+        /// 타겟 방향을 중심으로 count발을 spreadDeg 부채꼴로 발사하는 공용 헬퍼.
+        /// 데미지·속도·수명은 SpawnProjectile이 EnemyData/페이즈 배율을 반영한다.
+        /// projectilePrefab 미연결 시 SpawnProjectile이 무동작. (화염브레스·탄막 볼리 공용 빌딩블록)
+        /// </summary>
+        protected void FireFan(int count, float spreadDeg)
         {
-            int count = baseVolleyCount + (currentPhase - 1);
+            if (count <= 0 || Target == null) return;
 
             Vector2 toTarget = (Vector2)Target.position - (Vector2)transform.position;
             if (toTarget.sqrMagnitude < 0.0001f) toTarget = Vector2.right;
             float baseAngle = Mathf.Atan2(toTarget.y, toTarget.x) * Mathf.Rad2Deg;
 
-            float start = count > 1 ? baseAngle - spreadAngle * 0.5f : baseAngle;
-            float step = count > 1 ? spreadAngle / (count - 1) : 0f;
+            float start = count > 1 ? baseAngle - spreadDeg * 0.5f : baseAngle;
+            float step = count > 1 ? spreadDeg / (count - 1) : 0f;
 
             for (int i = 0; i < count; i++)
             {
                 float angRad = (start + step * i) * Mathf.Deg2Rad;
                 SpawnProjectile(new Vector2(Mathf.Cos(angRad), Mathf.Sin(angRad)));
             }
+        }
+
+        /// <summary>
+        /// 보스 주변 radius 원형 범위 안의 플레이어에게 근접 광역 데미지를 1회 가한다(회전베기·꼬리치기 공용).
+        /// 데미지는 GetAttackDamage()(페이즈 배율 반영) × damageMultiplier(패턴 고유 배율).
+        /// 범위 밖이거나 타겟이 없으면 무동작. 타격 성공 시 true 반환.
+        /// </summary>
+        protected bool MeleeAreaStrike(float radius, float damageMultiplier = 1f)
+        {
+            if (Target == null) return false;
+
+            float distance = Vector2.Distance(transform.position, Target.position);
+            if (distance > radius) return false;
+
+            var player = Target.GetComponent<PlayerCharacter>();
+            if (player == null || player.IsDead) return false;
+
+            int damage = Mathf.RoundToInt(GetAttackDamage() * Mathf.Max(0f, damageMultiplier));
+            if (damage > 0) player.TakeDamage(damage);
+            return true;
+        }
+
+        /// <summary>
+        /// 보스 위치에 반경 radius 원형 링 이펙트를 띄운다(근접 광역 패턴의 타격 범위 시각화).
+        /// </summary>
+        protected void SpawnAreaEffect(float radius, Color color, float duration = 0.35f)
+        {
+            BossAreaEffect.Spawn(transform.position, radius, color, duration);
+        }
+
+        /// <summary>
+        /// 카메라 흔들림 트리거(강타 타격감). 씬의 CameraShake를 1회 탐색해 캐시한다.
+        /// CameraShake가 없으면 무동작.
+        /// </summary>
+        protected void ShakeCamera(float magnitude, float duration)
+        {
+            if (cameraShake == null) cameraShake = FindAnyObjectByType<CameraShake>();
+            if (cameraShake != null) cameraShake.Shake(magnitude, duration);
         }
 
         protected override int GetAttackDamage()
