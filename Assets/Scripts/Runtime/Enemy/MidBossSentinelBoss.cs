@@ -1,4 +1,5 @@
 using System;
+using Abyss.Runtime.Feedback;
 using UnityEngine;
 
 namespace Abyss.Runtime.Enemy
@@ -30,8 +31,18 @@ namespace Abyss.Runtime.Enemy
         [Tooltip("페이즈3 회전베기 반경 배율")]
         [SerializeField, Min(1f)] private float finalRadiusMultiplier = 1.3f;
 
+        [Header("연출")]
+        [Tooltip("회전베기 전 예고 시간(초) — 붉은 틴트 + 범위 미리보기로 회피 안내")]
+        [SerializeField, Min(0f)] private float telegraphTime = 0.4f;
+        [Tooltip("예고 효과음(차지)")]
+        [SerializeField] private AudioClip telegraphSfx;
+        [Tooltip("베기 효과음")]
+        [SerializeField] private AudioClip slashSfx;
+
         // 회전베기 링 이펙트 색(감시자 외눈과 동일한 청록).
         private static readonly Color SpinColor = new Color(0.45f, 0.9f, 1f);
+        // 예고 틴트 색(붉은 경고).
+        private static readonly Color TelegraphColor = new Color(1f, 0.3f, 0.3f);
 
         private float lastSpinTime = -999f;
         private bool isSpinning;
@@ -68,11 +79,23 @@ namespace Abyss.Runtime.Enemy
 
                 Debug.Log($"[감시자 거인] 회전베기 발동 — 페이즈 {CurrentPhase}, {hits}연속 (반경 {radius:F1})");
 
+                // 예고: 붉은 틴트 + 타격 범위 고정 링 + 차지 효과음 → 플레이어 회피 여지.
+                if (telegraphTime > 0f)
+                {
+                    PlaySfx(telegraphSfx);
+                    TintVisual(TelegraphColor, telegraphTime);
+                    SpawnAreaEffect(radius, SpinColor, telegraphTime, BossAreaEffect.Mode.Telegraph);
+                    await Awaitable.WaitForSecondsAsync(telegraphTime, destroyCancellationToken);
+                    if (IsDead) return;
+                }
+
                 for (int i = 0; i < hits; i++)
                 {
                     if (IsDead) return;
 
+                    PlaySfx(slashSfx);
                     FlashVisual();
+                    PunchVisual(0.15f, comboGap);
                     SpawnAreaEffect(radius, SpinColor);
                     ShakeCamera(0.22f, 0.18f);
                     MeleeAreaStrike(radius, damageMul);

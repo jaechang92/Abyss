@@ -1,3 +1,5 @@
+using System;
+using Abyss.Runtime.Feedback;
 using UnityEngine;
 
 namespace Abyss.Runtime.Enemy
@@ -29,11 +31,24 @@ namespace Abyss.Runtime.Enemy
         [Tooltip("브레스 부채꼴 확산 각도(도) — 좁을수록 직선형 화염 줄기")]
         [SerializeField, Min(0f)] private float breatheSpread = 16f;
 
+        [Header("연출")]
+        [Tooltip("꼬리치기 전 예고 시간(초) — 붉은 틴트 + 범위 미리보기로 회피 안내")]
+        [SerializeField, Min(0f)] private float telegraphTime = 0.4f;
+        [Tooltip("예고 효과음(차지)")]
+        [SerializeField] private AudioClip telegraphSfx;
+        [Tooltip("꼬리치기 효과음(강타)")]
+        [SerializeField] private AudioClip smashSfx;
+        [Tooltip("화염브레스 효과음")]
+        [SerializeField] private AudioClip breatheSfx;
+
         // 꼬리치기 링 이펙트 색(화염 주황).
         private static readonly Color TailColor = new Color(1f, 0.45f, 0.12f);
+        // 예고 틴트 색(붉은 경고).
+        private static readonly Color TelegraphColor = new Color(1f, 0.3f, 0.3f);
 
         private float lastTailTime = -999f;
         private float lastBreatheTime = -999f;
+        private bool isTailSwinging;
 
         /// <summary>
         /// 타겟 거리에 따라 패턴을 선택한다. 꼬리치기 사거리 안이면 근접 강타,
@@ -41,7 +56,7 @@ namespace Abyss.Runtime.Enemy
         /// </summary>
         protected override void TickPattern()
         {
-            if (IsDead || Target == null || Data == null) return;
+            if (IsDead || Target == null || Data == null || isTailSwinging) return;
 
             float distance = Vector2.Distance(transform.position, Target.position);
 
@@ -49,12 +64,7 @@ namespace Abyss.Runtime.Enemy
             {
                 if (Time.time < lastTailTime + tailCooldown) return;
                 lastTailTime = Time.time;
-
-                Debug.Log($"[화염 뱀] 꼬리치기 발동 — 페이즈 {CurrentPhase} (반경 {tailRange:F1})");
-                FlashVisual();
-                SpawnAreaEffect(tailRange, TailColor);
-                ShakeCamera(0.3f, 0.25f);
-                MeleeAreaStrike(tailRange, tailDamageMultiplier);
+                PerformTailStrike();
                 return;
             }
 
@@ -66,9 +76,48 @@ namespace Abyss.Runtime.Enemy
 
                 int count = breatheBaseCount + (CurrentPhase - 1);
                 Debug.Log($"[화염 뱀] 화염브레스 발동 — 페이즈 {CurrentPhase}, {count}발");
+                PlaySfx(breatheSfx);
                 FlashVisual();
+                PunchVisual(0.1f, 0.2f);
                 ShakeCamera(0.12f, 0.15f);
                 FireFan(count, breatheSpread);
+            }
+        }
+
+        /// <summary>
+        /// 꼬리치기 — 예고(붉은 틴트 + 타격 범위 고정 링 + 차지음) 후 근접 광역 강타.
+        /// 즉발 광역이라 예고로 회피 여지를 준다. 예고 대기는 Awaitable(Coroutine 금지).
+        /// </summary>
+        private async void PerformTailStrike()
+        {
+            isTailSwinging = true;
+            try
+            {
+                Debug.Log($"[화염 뱀] 꼬리치기 발동 — 페이즈 {CurrentPhase} (반경 {tailRange:F1})");
+
+                if (telegraphTime > 0f)
+                {
+                    PlaySfx(telegraphSfx);
+                    TintVisual(TelegraphColor, telegraphTime);
+                    SpawnAreaEffect(tailRange, TailColor, telegraphTime, BossAreaEffect.Mode.Telegraph);
+                    await Awaitable.WaitForSecondsAsync(telegraphTime, destroyCancellationToken);
+                    if (IsDead) return;
+                }
+
+                PlaySfx(smashSfx);
+                FlashVisual();
+                PunchVisual(0.2f, 0.25f);
+                SpawnAreaEffect(tailRange, TailColor);
+                ShakeCamera(0.3f, 0.25f);
+                MeleeAreaStrike(tailRange, tailDamageMultiplier);
+            }
+            catch (OperationCanceledException)
+            {
+                // 꼬리치기 도중 파괴됨 — 정상 종료.
+            }
+            finally
+            {
+                isTailSwinging = false;
             }
         }
     }

@@ -1,4 +1,5 @@
 using System;
+using Abyss.Runtime.Audio;
 using Abyss.Runtime.Feedback;
 using Abyss.Runtime.Player;
 using UnityEngine;
@@ -32,6 +33,12 @@ namespace Abyss.Runtime.Enemy
         [SerializeField, Min(1)] private int baseVolleyCount = 3;
         [Tooltip("부채꼴 전체 확산 각도(도)")]
         [SerializeField, Min(0f)] private float spreadAngle = 40f;
+
+        [Header("연출 — 페이즈 전환")]
+        [Tooltip("페이즈 전환 시 재생할 효과음")]
+        [SerializeField] private AudioClip phaseChangeSfx;
+        [Tooltip("페이즈 전환 시 잠깐 입히는 강조 색")]
+        [SerializeField] private Color phaseFlashColor = new Color(1f, 0.85f, 0.3f);
 
         private int currentPhase = 1;
         private float lastVolleyTime = -999f;
@@ -129,9 +136,10 @@ namespace Abyss.Runtime.Enemy
         /// <summary>
         /// 보스 위치에 반경 radius 원형 링 이펙트를 띄운다(근접 광역 패턴의 타격 범위 시각화).
         /// </summary>
-        protected void SpawnAreaEffect(float radius, Color color, float duration = 0.35f)
+        protected void SpawnAreaEffect(float radius, Color color, float duration = 0.35f,
+            BossAreaEffect.Mode mode = BossAreaEffect.Mode.Strike)
         {
-            BossAreaEffect.Spawn(transform.position, radius, color, duration);
+            BossAreaEffect.Spawn(transform.position, radius, color, duration, mode);
         }
 
         /// <summary>
@@ -142,6 +150,16 @@ namespace Abyss.Runtime.Enemy
         {
             if (cameraShake == null) cameraShake = FindAnyObjectByType<CameraShake>();
             if (cameraShake != null) cameraShake.Shake(magnitude, duration);
+        }
+
+        /// <summary>
+        /// 효과음 재생(보스 패턴 연출 공용). 클립 미할당 또는 AudioManager 부재 시 무동작.
+        /// AudioManager는 단일 AudioSource라 위치 기반은 아니나 보스전엔 충분.
+        /// </summary>
+        protected void PlaySfx(AudioClip clip, float volume = 1f)
+        {
+            if (clip == null) return;
+            if (AudioManager.HasInstance) AudioManager.Instance.PlaySfx(clip, volume);
         }
 
         protected override int GetAttackDamage()
@@ -164,6 +182,13 @@ namespace Abyss.Runtime.Enemy
             {
                 currentPhase = nextPhase;
                 Debug.Log($"[Boss:{Data.enemyId}] Phase {currentPhase} 진입 (HP {ratio:P0})");
+
+                // 페이즈 전환 연출: 효과음 + 스케일 펀치 + 강조 틴트 + 카메라 흔들림.
+                PlaySfx(phaseChangeSfx);
+                PunchVisual(0.18f, 0.3f);
+                TintVisual(phaseFlashColor, 0.4f);
+                ShakeCamera(0.25f, 0.3f);
+
                 OnPhaseChanged?.Invoke(currentPhase);
             }
         }

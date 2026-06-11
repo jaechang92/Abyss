@@ -27,6 +27,7 @@ namespace Abyss.EditorTools
         private const string SpriteDir = "Assets/Art/Sprites";
         private const string WhiteSpritePath = SpriteDir + "/WhiteSquare.png";
         private const string EnemySpriteDir = "Assets/Art/Sprites/Enemies";
+        private const string SfxDir = "Assets/Audio/SFX";
         private const string InputActionsPath = "Assets/InputSystem_Actions.inputactions";
         private const string SetupImportMenuPath = "Tools/Abyss/Setup Enemy Sprite Import Settings";
 
@@ -323,10 +324,38 @@ namespace Abyss.EditorTools
         {
             switch (data.enemyId)
             {
-                case "midboss_sentinel": return root.AddComponent<MidBossSentinelBoss>();
-                case "boss_flame_serpent": return root.AddComponent<FlameSerpentBoss>();
+                case "midboss_sentinel":
+                {
+                    var sentinel = root.AddComponent<MidBossSentinelBoss>();
+                    SetPrivateField(sentinel, "phaseChangeSfx", LoadSfx("boss_phase"));
+                    SetPrivateField(sentinel, "telegraphSfx", LoadSfx("boss_telegraph"));
+                    SetPrivateField(sentinel, "slashSfx", LoadSfx("sentinel_slash"));
+                    return sentinel;
+                }
+                case "boss_flame_serpent":
+                {
+                    var serpent = root.AddComponent<FlameSerpentBoss>();
+                    SetPrivateField(serpent, "phaseChangeSfx", LoadSfx("boss_phase"));
+                    SetPrivateField(serpent, "telegraphSfx", LoadSfx("boss_telegraph"));
+                    SetPrivateField(serpent, "smashSfx", LoadSfx("serpent_smash"));
+                    SetPrivateField(serpent, "breatheSfx", LoadSfx("serpent_breath"));
+                    return serpent;
+                }
             }
-            return data.isBoss ? root.AddComponent<BossEnemy>() : root.AddComponent<EnemyBase>();
+
+            if (data.isBoss)
+            {
+                var boss = root.AddComponent<BossEnemy>();
+                SetPrivateField(boss, "phaseChangeSfx", LoadSfx("boss_phase"));
+                return boss;
+            }
+            return root.AddComponent<EnemyBase>();
+        }
+
+        /// <summary>Assets/Audio/SFX/{name}.wav 로드. 미import/부재 시 null(보스 측 PlaySfx가 무음 가드).</summary>
+        private static AudioClip LoadSfx(string name)
+        {
+            return AssetDatabase.LoadAssetAtPath<AudioClip>($"{SfxDir}/{name}.wav");
         }
 
         private static Color GetEnemyColor(EnemyData data)
