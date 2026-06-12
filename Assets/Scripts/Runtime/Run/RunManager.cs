@@ -15,12 +15,14 @@ namespace Abyss.Runtime.Run
     /// </summary>
     public sealed class RunManager : SingletonManager<RunManager>
     {
-        [Header("임시 경험치 커브 (P-14에서 RunConfig SO로 교체)")]
-        [SerializeField] private int baseExpToLevel = 100;
-        [SerializeField] private float expGrowthPerLevel = 1.2f;
+        [Header("런 설정 (P-14 — RunConfig SO 단일 소스)")]
+        [Tooltip("비워두면 Resources/Data/RunConfig를 자동 로드")]
+        [SerializeField] private RunConfig config;
 
-        [Header("메타 정산 (P-21 — RunConfig.abyssShardsConversionRate와 동일 기본값)")]
-        [SerializeField, Range(0f, 1f)] private float abyssShardsConversionRate = 0.2f;
+        // config 미할당·로드 실패 시 폴백 기본값
+        private const int DEFAULT_BASE_EXP = 100;
+        private const float DEFAULT_EXP_GROWTH = 1.2f;
+        private const float DEFAULT_ABYSS_RATE = 0.2f;
 
         private int currentLevel = 1;
         private int currentExp;
@@ -37,6 +39,23 @@ namespace Abyss.Runtime.Run
         public RunStats Stats => stats;
         public bool IsRunActive => isRunActive;
         public int LastRunAbyssShardsEarned => lastRunAbyssShardsEarned;
+        public RunConfig Config => config;
+
+        private int BaseExpToLevel => config != null ? config.baseExpToLevel : DEFAULT_BASE_EXP;
+        private float ExpGrowthPerLevel => config != null ? config.expGrowthPerLevel : DEFAULT_EXP_GROWTH;
+        private float AbyssShardsConversionRate => config != null ? config.abyssShardsConversionRate : DEFAULT_ABYSS_RATE;
+
+        protected override void OnAwake()
+        {
+            if (config == null)
+            {
+                config = Resources.Load<RunConfig>("Data/RunConfig");
+                if (config == null)
+                {
+                    Debug.LogWarning("[RunManager] RunConfig 로드 실패 — 폴백 기본값 사용. Assets/Resources/Data/RunConfig.asset 확인 필요.");
+                }
+            }
+        }
 
         /// <summary>
         /// 런 내 화폐 획득. Analyst 확정 — abyss_shards(메타)는 별도 MetaSave(P-21).
@@ -140,7 +159,7 @@ namespace Abyss.Runtime.Run
         /// </summary>
         private void SettleMetaProgress()
         {
-            lastRunAbyssShardsEarned = Mathf.Max(0, Mathf.RoundToInt(goldShards * abyssShardsConversionRate));
+            lastRunAbyssShardsEarned = Mathf.Max(0, Mathf.RoundToInt(goldShards * AbyssShardsConversionRate));
 
             if (!MetaSaveService.HasInstance)
             {
@@ -154,7 +173,7 @@ namespace Abyss.Runtime.Run
                 meta.AddAbyssShards(lastRunAbyssShardsEarned, autoSave: false);
             }
             meta.RecordRunResult(stats.stageReached, stats.totalElapsedSeconds, goldShards, bossKillsThisRun, autoSave: true);
-            Debug.Log($"[RunManager] 메타 정산: abyss +{lastRunAbyssShardsEarned} (gold={goldShards}, rate={abyssShardsConversionRate:F2}) / 누적 {meta.Current.abyssShardsTotal}");
+            Debug.Log($"[RunManager] 메타 정산: abyss +{lastRunAbyssShardsEarned} (gold={goldShards}, rate={AbyssShardsConversionRate:F2}) / 누적 {meta.Current.abyssShardsTotal}");
         }
 
         /// <summary>
@@ -244,7 +263,7 @@ namespace Abyss.Runtime.Run
 
         private int CalcExpRequirement(int level)
         {
-            return Mathf.RoundToInt(baseExpToLevel * Mathf.Pow(expGrowthPerLevel, level - 1));
+            return Mathf.RoundToInt(BaseExpToLevel * Mathf.Pow(ExpGrowthPerLevel, level - 1));
         }
     }
 }
