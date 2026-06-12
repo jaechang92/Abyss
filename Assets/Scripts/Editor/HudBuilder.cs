@@ -1,4 +1,6 @@
 #if UNITY_EDITOR
+using Abyss.Runtime.Draft;
+using Abyss.Runtime.Player;
 using Abyss.Runtime.UI;
 using UnityEditor;
 using UnityEngine;
@@ -56,6 +58,7 @@ namespace Abyss.EditorTools
             var modal = CreateReplacementModal(go.transform);
 
             WireHUDPresenter(hud, healthBar, formSlot, new[] { skillSlot0, skillSlot1 }, modal);
+            WireSceneReferences(hud);
 
             EditorUtility.SetDirty(hud);
             EditorUtility.SetDirty(go);
@@ -231,6 +234,36 @@ namespace Abyss.EditorTools
             SetPrivateField(hud, "formSlot", formSlot);
             SetPrivateFieldArray(hud, "skillSlots", skillSlots);
             SetPrivateField(hud, "replacementModal", modal);
+        }
+
+        /// <summary>
+        /// 씬에 존재하는 PlayerCharacter·DraftSessionController를 HUDPresenter에 자동 연결.
+        /// 빌드 시점에 미리 채워 런타임 FindAnyObjectByType 폴백 의존을 제거한다.
+        /// 셋업 순서상 대상이 아직 없을 수 있으므로, 못 찾으면 경고만 남기고 빌드는 계속한다.
+        /// </summary>
+        private static void WireSceneReferences(HUDPresenter hud)
+        {
+            var player = Object.FindAnyObjectByType<PlayerCharacter>(FindObjectsInactive.Include);
+            if (player != null)
+            {
+                SetPrivateField(hud, "player", player);
+                Debug.Log($"[HudBuilder] player 자동 연결: {player.name}");
+            }
+            else
+            {
+                Debug.LogWarning("[HudBuilder] 씬에서 PlayerCharacter를 찾지 못했습니다. HUDPresenter.player는 런타임 폴백 또는 수동 연결이 필요합니다.");
+            }
+
+            var draftSession = Object.FindAnyObjectByType<DraftSessionController>(FindObjectsInactive.Include);
+            if (draftSession != null)
+            {
+                SetPrivateField(hud, "draftSession", draftSession);
+                Debug.Log($"[HudBuilder] draftSession 자동 연결: {draftSession.name}");
+            }
+            else
+            {
+                Debug.LogWarning("[HudBuilder] 씬에서 DraftSessionController를 찾지 못했습니다. HUDPresenter.draftSession은 수동 연결이 필요합니다.");
+            }
         }
 
         // ==================== Helpers ====================
