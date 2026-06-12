@@ -22,20 +22,39 @@ namespace Abyss.Runtime.Form
         [SerializeField] private FormData[] slots = new FormData[2];
         [SerializeField] private int activeSlot;
 
-        [Header("교체 설정 (P-14 RunConfig로 교체 예정)")]
-        [SerializeField, Min(0f)] private float swapCooldown = 1.5f;
-        [SerializeField, Min(0f)] private float swapAnimationDuration = 0.3f;
+        [Header("런 설정 (P-14 — RunConfig SO 참조)")]
+        [Tooltip("비워두면 Resources/Data/RunConfig를 자동 로드")]
+        [SerializeField] private RunConfig config;
+
+        // config 미할당·로드 실패 시 폴백 기본값
+        private const float DEFAULT_SWAP_COOLDOWN = 1.5f;
+        private const float DEFAULT_SWAP_ANIM = 0.3f;
 
         private FormState state = FormState.Ready;
         private float currentCooldown;
         private float currentSwapTimer;
+
+        private float SwapCooldown => config != null ? config.formSwapCooldown : DEFAULT_SWAP_COOLDOWN;
+        private float SwapAnimationDuration => config != null ? config.formSwapAnimationDuration : DEFAULT_SWAP_ANIM;
+
+        private void Awake()
+        {
+            if (config == null)
+            {
+                config = Resources.Load<RunConfig>("Data/RunConfig");
+                if (config == null)
+                {
+                    Debug.LogWarning("[FormController] RunConfig 로드 실패 — 폴백 기본값 사용. Assets/Resources/Data/RunConfig.asset 확인 필요.");
+                }
+            }
+        }
 
         public FormState State => state;
         public FormData CurrentForm => slots[activeSlot];
         public FormData OtherForm => slots[1 - activeSlot];
         public int ActiveSlot => activeSlot;
         public float CurrentCooldown => currentCooldown;
-        public float CooldownProgress => swapCooldown <= 0f ? 1f : 1f - (currentCooldown / swapCooldown);
+        public float CooldownProgress => SwapCooldown <= 0f ? 1f : 1f - (currentCooldown / SwapCooldown);
         public bool CanSwap => state == FormState.Ready && currentCooldown <= 0f && OtherForm != null;
 
         public event Action<FormData, FormData> OnSwapStarted;
@@ -67,8 +86,8 @@ namespace Abyss.Runtime.Form
             var next = CurrentForm;
 
             state = FormState.Swapping;
-            currentSwapTimer = swapAnimationDuration;
-            currentCooldown = swapCooldown;
+            currentSwapTimer = SwapAnimationDuration;
+            currentCooldown = SwapCooldown;
 
             Debug.Log($"[FormController] Swap 실행: {previous?.formId ?? "?"} → {next?.formId ?? "?"}");
             OnSwapStarted?.Invoke(previous, next);
