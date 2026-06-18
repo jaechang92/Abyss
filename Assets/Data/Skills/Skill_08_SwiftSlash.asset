@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: "\uC21C\uAC04 \uC808\uB2E8"
   description: "\uACF5\uD5C8\uAD81\uC218 \uD2B9\uD654: \uC21C\uAC04\uC774\uB3D9 \uD6C4
     3\uC5F0 \uAC80\uAE30 (CD 3\uCD08)"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: d5a71afd160aec44da428f08a4adfb5a, type: 3}
   rarity: 2
   category: 0
   synergyTag: abyss
