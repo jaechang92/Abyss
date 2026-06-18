@@ -43,6 +43,7 @@ namespace Abyss.Runtime.UI
 
             if (healthBar != null && player != null) healthBar.Bind(player);
             if (formSlot != null && player != null) formSlot.Bind(player.Form);
+
             RefreshSkillSlots();
         }
 
@@ -63,18 +64,17 @@ namespace Abyss.Runtime.UI
         {
             if (skillSlots == null || draftSession == null) return;
 
-            activeBuffer.Clear();
-            foreach (var skill in draftSession.Owned)
-            {
-                if (skill == null) continue;
-                if (skill.category != SkillCategory.Active) continue;
-                activeBuffer.Add(skill);
-                if (activeBuffer.Count >= skillSlots.Length) break;
-            }
+            // 플레이어 스폰 순서와 무관하게 매 갱신 시 재해석 — Start 시점 null이어도 첫 드래프트에서 바인딩 보장.
+            if (player == null) player = FindAnyObjectByType<PlayerCharacter>();
+
+            // 슬롯 순서 SoT는 DraftSessionController가 단일 관리(PlayerCharacter 어빌리티 등록과 동일 규칙).
+            draftSession.CollectActiveOwned(activeBuffer, skillSlots.Length);
 
             for (int i = 0; i < skillSlots.Length; i++)
             {
                 if (skillSlots[i] == null) continue;
+                // 쿨다운 게이지 소스(플레이어+슬롯 인덱스) 연결 후 스킬 표시.
+                if (player != null) skillSlots[i].BindCooldownSource(player, i);
                 skillSlots[i].SetSkill(i < activeBuffer.Count ? activeBuffer[i] : null);
             }
         }

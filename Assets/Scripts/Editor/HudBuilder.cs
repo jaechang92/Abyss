@@ -81,6 +81,7 @@ namespace Abyss.EditorTools
             var fill = CreateRectChild(root.transform, "Fill", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
             StretchFill((RectTransform)fill.transform);
             var fillImg = fill.AddComponent<Image>();
+            fillImg.sprite = GetUISprite();
             fillImg.color = new Color(0.9f, 0.22f, 0.28f);
             fillImg.type = Image.Type.Filled;
             fillImg.fillMethod = Image.FillMethod.Horizontal;
@@ -111,6 +112,7 @@ namespace Abyss.EditorTools
 
             var cooldownGo = CreateRectChild(root.transform, "CooldownFill", new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(8, -8), new Vector2(64, 64));
             var cooldownImg = cooldownGo.AddComponent<Image>();
+            cooldownImg.sprite = GetUISprite();
             cooldownImg.color = new Color(0f, 0f, 0f, 0.55f);
             cooldownImg.type = Image.Type.Filled;
             cooldownImg.fillMethod = Image.FillMethod.Radial360;
@@ -139,6 +141,7 @@ namespace Abyss.EditorTools
             var cooldownGo = CreateRectChild(root.transform, "CooldownFill", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
             StretchFill((RectTransform)cooldownGo.transform);
             var cooldownImg = cooldownGo.AddComponent<Image>();
+            cooldownImg.sprite = GetUISprite();
             cooldownImg.color = new Color(0f, 0f, 0f, 0.55f);
             cooldownImg.type = Image.Type.Filled;
             cooldownImg.fillMethod = Image.FillMethod.Vertical;
@@ -302,6 +305,21 @@ namespace Abyss.EditorTools
             var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (font == null) font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             if (font != null) text.font = font;
+        }
+
+        private static Sprite uiSpriteCache;
+
+        /// <summary>
+        /// 빌트인 UI 스프라이트. Image.Type.Filled는 Source Image(sprite)가 없으면 fillAmount가
+        /// 렌더링되지 않으므로, HP·쿨다운 등 Filled 이미지에 반드시 할당해야 한다.
+        /// </summary>
+        private static Sprite GetUISprite()
+        {
+            if (uiSpriteCache == null)
+            {
+                uiSpriteCache = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+            }
+            return uiSpriteCache;
         }
 
         private static void SetPrivateField(Object target, string fieldName, Object value)

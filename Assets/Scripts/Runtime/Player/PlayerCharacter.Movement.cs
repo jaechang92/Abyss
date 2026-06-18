@@ -122,6 +122,7 @@ namespace Abyss.Runtime.Player
             {
                 formController.OnSwapStarted += HandleFormSwapStarted;
             }
+            SubscribeSkillEvents();
         }
 
         private void OnDisable()
@@ -130,6 +131,7 @@ namespace Abyss.Runtime.Player
             {
                 formController.OnSwapStarted -= HandleFormSwapStarted;
             }
+            UnsubscribeSkillEvents();
         }
 
         /// <summary>

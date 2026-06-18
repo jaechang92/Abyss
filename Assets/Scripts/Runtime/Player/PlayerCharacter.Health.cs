@@ -16,6 +16,9 @@ namespace Abyss.Runtime.Player
         public int CurrentHp => currentHp;
         public bool IsDead => isDead;
 
+        /// <summary>치트/디버그용 무적. true면 TakeDamage 무시.</summary>
+        public bool DebugInvincible { get; set; }
+
         /// <summary>HP 변화 로컬 이벤트. (previousHp, currentHp).</summary>
         public event Action<int, int> OnHpChanged;
 
@@ -27,7 +30,7 @@ namespace Abyss.Runtime.Player
 
         public void TakeDamage(int amount)
         {
-            if (isDead || amount <= 0) return;
+            if (isDead || amount <= 0 || DebugInvincible) return;
 
             int previous = currentHp;
             currentHp = Mathf.Max(0, currentHp - amount);
