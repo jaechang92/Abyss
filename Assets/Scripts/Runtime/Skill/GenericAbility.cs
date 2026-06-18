@@ -1,4 +1,5 @@
-﻿using Abyss.Runtime.Skill.Effects;
+﻿using Abyss.Runtime.Audio;
+using Abyss.Runtime.Skill.Effects;
 using GAS.Core;
 using UnityEngine;
 
@@ -42,6 +43,12 @@ namespace Abyss.Runtime.Skill
             BeginExecution();
             try
             {
+                // 발동음 — 효과 종류 무관 단일 지점 재생(무음 가드). 효과별 세분화는 후속.
+                if (data != null && data.castSfx != null && AudioManager.HasInstance)
+                {
+                    AudioManager.Instance.PlaySfx(data.castSfx);
+                }
+
                 if (effect != null)
                 {
                     await effect.ApplyAsync(context, data, destroyCancellationToken);

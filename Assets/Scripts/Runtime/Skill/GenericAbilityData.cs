@@ -49,6 +49,9 @@ namespace Abyss.Runtime.Skill
         [Tooltip("이펙트 색상.")]
         public Color effectColor = new(1f, 0.6f, 0.2f, 1f);
 
+        [Tooltip("발동음. 비어 있으면 무음(ContentBuilder.WireAbilitySfx가 자동 연결).")]
+        public AudioClip castSfx;
+
         public override bool Validate()
         {
             if (!base.Validate()) return false;

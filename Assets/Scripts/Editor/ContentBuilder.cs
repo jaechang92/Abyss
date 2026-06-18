@@ -29,6 +29,7 @@ namespace Abyss.EditorTools
         private const string AbilityDir = "Assets/Data/Abilities";
         private const string PlayerProjectilePrefabPath = "Assets/Prefabs/Combat/EnemyProjectile.prefab";
         private const string SkillIconDir = "Assets/Art/Sprites/SkillIcons";
+        private const string SfxDir = "Assets/Audio/SFX";
 
         [MenuItem(MenuPath)]
         public static void Generate()
@@ -57,6 +58,7 @@ namespace Abyss.EditorTools
             CreateAbilities();
             WireActiveAbilities();
             WireSkillIcons();
+            WireAbilitySfx();
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -71,9 +73,10 @@ namespace Abyss.EditorTools
             CreateAbilities();
             WireActiveAbilities();
             WireSkillIcons();
+            WireAbilitySfx();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log("[ContentBuilder] Active 스킬 어빌리티 생성·연결 + 아이콘 연결 완료 — Assets/Data/Abilities 확인");
+            Debug.Log("[ContentBuilder] Active 스킬 어빌리티 생성·연결 + 아이콘·발동음 연결 완료 — Assets/Data/Abilities 확인");
         }
 
         private static void CreateForms()
@@ -429,6 +432,42 @@ namespace Abyss.EditorTools
                 importer.mipmapEnabled       = false;
                 importer.SaveAndReimport();
             }
+        }
+
+        /// <summary>
+        /// 어빌리티 3종 발동음(Docs/game-design/_skill_sfx_generator.py 산출물)을 GenericAbilityData.castSfx에 연결.
+        /// 자산 경로 → SFX/skill_{key}.wav 매핑. 신규·기존(CreateOrSkip 건너뛴) 자산 모두 반영한다.
+        /// wav가 없으면(생성기 미실행) 해당 항목만 건너뛴다.
+        /// </summary>
+        private static void WireAbilitySfx()
+        {
+            WireSfx($"{AbilityDir}/Ability_Fireball.asset", "skill_fireball");
+            WireSfx($"{AbilityDir}/Ability_FlameRoar.asset", "skill_flame_roar");
+            WireSfx($"{AbilityDir}/Ability_SwiftSlash.asset", "skill_swift_slash");
+        }
+
+        private static void WireSfx(string abilityPath, string sfxKey)
+        {
+            var ability = AssetDatabase.LoadAssetAtPath<GenericAbilityData>(abilityPath);
+            if (ability == null)
+            {
+                Debug.LogWarning($"[ContentBuilder] 어빌리티 자산 없음: {abilityPath}");
+                return;
+            }
+
+            string sfxPath = $"{SfxDir}/{sfxKey}.wav";
+            var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(sfxPath);
+            if (clip == null)
+            {
+                Debug.LogWarning($"[ContentBuilder] 발동음 없음: {sfxPath} — _skill_sfx_generator.py 먼저 실행 필요.");
+                return;
+            }
+
+            if (ability.castSfx == clip) return;
+
+            ability.castSfx = clip;
+            EditorUtility.SetDirty(ability);
+            Debug.Log($"[ContentBuilder] 발동음 연결: {ability.name}.castSfx → {clip.name}");
         }
 
         private static void CreateOrSkip<T>(string assetPath, Action<T> configure) where T : ScriptableObject
