@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: "\uD654\uC5FC\uC758 \uD3EC\uD6A8"
   description: "\uC554\uD751\uAC80\uC0AC \uD2B9\uD654: \uADFC\uCC98 \uC801 \uBAA8\uB450
     \uC5F0\uC18C 3 \uBD80\uC5EC"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 9a903d8d4a4ce514eb763df121b901b7, type: 3}
   rarity: 2
   category: 0
   synergyTag: fire
