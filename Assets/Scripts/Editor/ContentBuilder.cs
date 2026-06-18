@@ -25,7 +25,7 @@ namespace Abyss.EditorTools
         private const string FormDir = "Assets/Data/Forms";
         private const string SkillDir = "Assets/Data/Skills";
         private const string EnemyDir = "Assets/Data/Enemies";
-        private const string RunDir = "Assets/Data/Run";
+        private const string RunDir = "Assets/Resources/Data"; // P-14: RunConfig 정규 위치(런타임 Resources.Load 대상). 구 Assets/Data/Run 중복 생성 방지.
         private const string AbilityDir = "Assets/Data/Abilities";
         private const string PlayerProjectilePrefabPath = "Assets/Prefabs/Combat/EnemyProjectile.prefab";
         private const string SkillIconDir = "Assets/Art/Sprites/SkillIcons";
@@ -38,7 +38,7 @@ namespace Abyss.EditorTools
                 "ContentBuilder",
                 "프로토 SO 에셋 19개 생성:\n" +
                 "  · FormData 2 (dark_blade, void_archer)\n" +
-                "  · SkillData 9 (불꽃 5 + 심연 4)\n" +
+                "  · SkillData 10 (불꽃 5 + 심연 4 + 버프 1)\n" +
                 "  · EnemyData 7 (근접 2 / 원거리 1 / 엘리트 1 / 보스 1 + Stage2 중간보스 1 / 보스 1)\n" +
                 "  · RunConfig 1\n\n" +
                 "이미 존재하는 에셋은 건너뜁니다.",
@@ -111,6 +111,7 @@ namespace Abyss.EditorTools
             AddSkill(7, "skill_abyss_charge", "심연 충전", SkillCategory.Passive, SkillRarity.Rare, "abyss", "", "폼 교체 시 다음 공격 피해 2배");
             AddSkill(8, "skill_swift_slash", "순간 절단", SkillCategory.Active, SkillRarity.Epic, "abyss", "void_archer", "공허궁수 특화: 순간이동 후 3연 검기 (CD 3초)");
             AddSkill(9, "skill_abyss_ally", "심연 동료", SkillCategory.Synergy, SkillRarity.Rare, "abyss", "", "[심연] 2개+ 시 대시 CD -0.5초");
+            AddSkill(10, "skill_battle_cry", "전장의 함성", SkillCategory.Active, SkillRarity.Rare, "", "", "발동 시 6초간 공격력 1.5배 (CD 12초)");
         }
 
         private static void AddSkill(int index, string skillId, string displayName, SkillCategory category, SkillRarity rarity, string synergyTag, string formBound, string description)
@@ -301,10 +302,25 @@ namespace Abyss.EditorTools
                 so.effectColor = new Color(0.4f, 0.85f, 1f, 1f);
             });
 
+            CreateOrSkip<GenericAbilityData>($"{AbilityDir}/Ability_BattleCry.asset", so =>
+            {
+                so.abilityName = "battle_cry";
+                so.description = "6초간 공격력을 1.5배로 끌어올린다.";
+                so.cooldownDuration = 12f;
+                so.effectType = AbilityEffectType.Buff;
+                so.healAmount = 0;
+                so.buffMoveSpeedMultiplier = 1f;
+                so.buffAttackMultiplier = 1.5f;
+                so.buffDuration = 6f;
+                so.showHitEffect = true;
+                so.effectColor = new Color(1f, 0.82f, 0.25f, 1f);
+            });
+
             // 이미 존재해 CreateOrSkip이 건너뛴 자산에도 연출 설정을 반영(재실행 시 색 갱신).
             ApplyEffectSettings($"{AbilityDir}/Ability_Fireball.asset", new Color(1f, 0.55f, 0.15f, 1f));
             ApplyEffectSettings($"{AbilityDir}/Ability_FlameRoar.asset", new Color(1f, 0.3f, 0.1f, 1f));
             ApplyEffectSettings($"{AbilityDir}/Ability_SwiftSlash.asset", new Color(0.4f, 0.85f, 1f, 1f));
+            ApplyEffectSettings($"{AbilityDir}/Ability_BattleCry.asset", new Color(1f, 0.82f, 0.25f, 1f));
         }
 
         private static void ApplyEffectSettings(string abilityPath, Color color)
@@ -325,6 +341,7 @@ namespace Abyss.EditorTools
             WireOne("skill_fireball", $"{AbilityDir}/Ability_Fireball.asset");
             WireOne("skill_flame_roar", $"{AbilityDir}/Ability_FlameRoar.asset");
             WireOne("skill_swift_slash", $"{AbilityDir}/Ability_SwiftSlash.asset");
+            WireOne("skill_battle_cry", $"{AbilityDir}/Ability_BattleCry.asset");
         }
 
         private static void WireOne(string skillId, string abilityPath)
@@ -377,6 +394,7 @@ namespace Abyss.EditorTools
             WireIcon("skill_fireball", "fireball");
             WireIcon("skill_flame_roar", "flame_roar");
             WireIcon("skill_swift_slash", "swift_slash");
+            WireIcon("skill_battle_cry", "battle_cry");
         }
 
         private static void WireIcon(string skillId, string iconKey)
@@ -444,6 +462,7 @@ namespace Abyss.EditorTools
             WireSfx($"{AbilityDir}/Ability_Fireball.asset", "skill_fireball");
             WireSfx($"{AbilityDir}/Ability_FlameRoar.asset", "skill_flame_roar");
             WireSfx($"{AbilityDir}/Ability_SwiftSlash.asset", "skill_swift_slash");
+            WireSfx($"{AbilityDir}/Ability_BattleCry.asset", "skill_battle_cry");
         }
 
         private static void WireSfx(string abilityPath, string sfxKey)

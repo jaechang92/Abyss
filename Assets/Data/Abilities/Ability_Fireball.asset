@@ -27,6 +27,9 @@ MonoBehaviour:
   projectileLifetime: 2
   projectileSpawnOffset: 0.7
   healAmount: 25
+  buffMoveSpeedMultiplier: 1
+  buffAttackMultiplier: 1
+  buffDuration: 0
   showHitEffect: 1
   effectColor: {r: 1, g: 0.55, b: 0.15, a: 1}
   castSfx: {fileID: 8300000, guid: 92fc5276f7dfa454e8bd27bba0a30f0a, type: 3}
