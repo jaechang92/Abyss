@@ -154,7 +154,7 @@ namespace Abyss.Runtime.Player
                 return;
             }
 
-            body.linearVelocity = new Vector2(moveInput.x * moveSpeed, body.linearVelocity.y);
+            body.linearVelocity = new Vector2(moveInput.x * moveSpeed * MoveSpeedMultiplier, body.linearVelocity.y);
         }
 
         private void DrawMovementGizmos()

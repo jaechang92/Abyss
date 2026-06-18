@@ -39,8 +39,17 @@ namespace Abyss.Runtime.Skill
         [Min(0f)] public float projectileSpawnOffset = 0.6f;
 
         [Header("Buff")]
-        [Tooltip("자기 회복량(Buff).")]
+        [Tooltip("자기 회복량(Buff). 즉시 적용.")]
         [Min(0)] public int healAmount = 25;
+
+        [Tooltip("이동속도 배율(Buff, 1 = 변화 없음). buffDuration 동안 적용.")]
+        [Min(0f)] public float buffMoveSpeedMultiplier = 1f;
+
+        [Tooltip("공격력 배율(Buff, 1 = 변화 없음). buffDuration 동안 적용.")]
+        [Min(0f)] public float buffAttackMultiplier = 1f;
+
+        [Tooltip("버프 지속시간(초, 0 = 즉시 효과(Heal)만).")]
+        [Min(0f)] public float buffDuration = 0f;
 
         [Header("연출")]
         [Tooltip("발동 시 원형 링 이펙트 표시 여부.")]
