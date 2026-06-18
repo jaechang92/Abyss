@@ -10,27 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a2f915f3e60261c49af03992048da4b7, type: 3}
-  m_Name: Ability_FlameRoar
+  m_Name: Ability_BattleCry
   m_EditorClassIdentifier: 
-  abilityName: flame_roar
-  description: "\uC8FC\uBCC0 \uC801\uC744 \uD654\uC5FC\uC73C\uB85C \uC77C\uC81C\uD788
-    \uAC15\uD0C0\uD55C\uB2E4."
+  abilityName: battle_cry
+  description: "6\uCD08\uAC04 \uACF5\uACA9\uB825\uC744 1.5\uBC30\uB85C \uB04C\uC5B4\uC62C\uB9B0\uB2E4."
   icon: {fileID: 0}
-  cooldownDuration: 6
+  cooldownDuration: 12
   requiresAlive: 1
   requiresCanAct: 1
-  effectType: 0
-  damage: 30
-  meleeBoxSize: {x: 3.4, y: 2.4}
-  meleeForwardOffset: 0
+  effectType: 2
+  damage: 20
+  meleeBoxSize: {x: 2.2, y: 1.6}
+  meleeForwardOffset: 1.1
   projectilePrefab: {fileID: 0}
   projectileSpeed: 12
   projectileLifetime: 2
   projectileSpawnOffset: 0.6
-  healAmount: 25
+  healAmount: 0
   buffMoveSpeedMultiplier: 1
-  buffAttackMultiplier: 1
-  buffDuration: 0
+  buffAttackMultiplier: 1.5
+  buffDuration: 6
   showHitEffect: 1
-  effectColor: {r: 1, g: 0.3, b: 0.1, a: 1}
-  castSfx: {fileID: 8300000, guid: 0627da07cafc56c42ad8d67b532f7bdf, type: 3}
+  effectColor: {r: 1, g: 0.82, b: 0.25, a: 1}
+  castSfx: {fileID: 8300000, guid: 0aa835b41927ea749a8282dea199007c, type: 3}
