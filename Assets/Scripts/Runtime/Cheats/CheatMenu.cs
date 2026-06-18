@@ -142,6 +142,17 @@ namespace Abyss.Runtime.Cheats
             {
                 p.DebugInvincible = !p.DebugInvincible;
             }
+
+            // 시간제 버프 테스트 — Buff Active 스킬이 아직 없어 직접 호출로 검증.
+            string buffState = p.HasActiveBuff
+                ? $"버프 {p.BuffRemaining:F1}s (이동x{p.MoveSpeedMultiplier:F1}/공격x{p.AttackMultiplier:F1})"
+                : "버프 없음";
+            GUILayout.Label(buffState);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("이동x1.5 (8s)")) p.ApplyTimedBuff(1.5f, 1f, 8f);
+            if (GUILayout.Button("공격x2 (8s)")) p.ApplyTimedBuff(1f, 2f, 8f);
+            if (GUILayout.Button("둘다 (8s)")) p.ApplyTimedBuff(1.5f, 2f, 8f);
+            GUILayout.EndHorizontal();
             GUILayout.Space(6);
         }
 

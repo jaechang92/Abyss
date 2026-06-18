@@ -56,7 +56,7 @@ namespace Abyss.Runtime.Player
 
             lastAttackLightTime = Time.time;
             stateMachine?.TriggerAttackLight();
-            PerformAttack(lightAttackDamage, lightHitstop, lightShake, isHeavy: false);
+            PerformAttack(Mathf.RoundToInt(lightAttackDamage * AttackMultiplier), lightHitstop, lightShake, isHeavy: false);
         }
 
         private void OnAttackHeavy(InputValue value)
@@ -66,7 +66,7 @@ namespace Abyss.Runtime.Player
 
             lastAttackHeavyTime = Time.time;
             stateMachine?.TriggerAttackHeavy();
-            PerformAttack(heavyAttackDamage, heavyHitstop, heavyShake, isHeavy: true);
+            PerformAttack(Mathf.RoundToInt(heavyAttackDamage * AttackMultiplier), heavyHitstop, heavyShake, isHeavy: true);
         }
 
         /// <summary>
