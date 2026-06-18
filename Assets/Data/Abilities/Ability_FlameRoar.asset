@@ -30,3 +30,4 @@ MonoBehaviour:
   healAmount: 25
   showHitEffect: 1
   effectColor: {r: 1, g: 0.3, b: 0.1, a: 1}
+  castSfx: {fileID: 8300000, guid: 0627da07cafc56c42ad8d67b532f7bdf, type: 3}
