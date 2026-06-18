@@ -37,20 +37,38 @@ namespace Abyss.Runtime.Draft
         public IReadOnlyList<SkillData> Owned => owned;
 
         /// <summary>
-        /// 보유 스킬 중 Active만 등장 순서대로 buffer에 채운다(최대 limit개). 슬롯0/1 매핑의 단일 기준점(SoT).
-        /// HUD(SkillSlotPresenter 배치)와 PlayerCharacter(어빌리티 등록)가 같은 규칙을 공유하도록 추출.
+        /// 현재 폼에서 쓸 수 있는 Active 스킬만 등장 순서대로 buffer에 채운다(최대 limit개).
+        /// 폼별 로드아웃의 단일 기준점(SoT) — HUD(SkillSlotPresenter 배치)와 PlayerCharacter(어빌리티 등록)가 공유.
+        /// any(formBound 빈) 스킬은 모든 폼 공유, 전용 스킬은 해당 폼에서만 노출된다.
         /// </summary>
-        public void CollectActiveOwned(List<SkillData> buffer, int limit)
+        public void CollectActiveOwned(List<SkillData> buffer, int limit, string currentFormId)
         {
             if (buffer == null) return;
             buffer.Clear();
             for (int i = 0; i < owned.Count; i++)
             {
-                var skill = owned[i];
-                if (skill == null || skill.category != SkillCategory.Active) continue;
-                buffer.Add(skill);
+                if (!IsSkillUsableInForm(owned[i], currentFormId)) continue;
+                buffer.Add(owned[i]);
                 if (buffer.Count >= limit) break;
             }
+        }
+
+        /// <summary>
+        /// 스킬이 해당 폼 컨텍스트에서 슬롯에 오를 수 있는지. Active이고 폼 귀속이 없거나(any)
+        /// 현재 폼과 일치해야 한다. 슬롯 표시·보유 상한·교체 모달의 공통 기준(SoT).
+        /// </summary>
+        private static bool IsSkillUsableInForm(SkillData skill, string currentFormId)
+        {
+            if (skill == null || skill.category != SkillCategory.Active) return false;
+            if (string.IsNullOrEmpty(skill.formBound)) return true; // any — 모든 폼 공유
+            return skill.formBound == currentFormId;
+        }
+
+        /// <summary>현재 폼 ID(폼 미연결 시 빈 문자열). 추첨·상한·교체 모달이 공유.</summary>
+        private string CurrentFormId()
+        {
+            var fc = ResolveFormController();
+            return fc != null && fc.CurrentForm != null ? fc.CurrentForm.formId : string.Empty;
         }
         public DraftOptions CurrentOptions => currentOptions;
         public int RerollsUsed => rerollsUsed;
@@ -131,9 +149,11 @@ namespace Abyss.Runtime.Draft
             var chosen = currentOptions.Cards[cardIndex];
             if (chosen == null) return false;
 
-            if (chosen.category == SkillCategory.Active && CountActiveOwned() >= activeSlotLimit)
+            // 보유 상한은 현재 폼 컨텍스트 기준 — 폼별로 독립된 슬롯 2칸을 갖는다(폼별 로드아웃).
+            string formId = CurrentFormId();
+            if (chosen.category == SkillCategory.Active && CountActiveOwnedForForm(formId) >= activeSlotLimit)
             {
-                GameEvents.RaiseDraftSlotReplaceRequested(chosen, SnapshotActiveOwned());
+                GameEvents.RaiseDraftSlotReplaceRequested(chosen, SnapshotActiveOwnedForForm(formId));
                 return true;
             }
 
@@ -180,11 +200,7 @@ namespace Abyss.Runtime.Draft
 
         private void DrawAndAnnounce()
         {
-            var fc = ResolveFormController();
-            string currentFormId = fc != null && fc.CurrentForm != null
-                ? fc.CurrentForm.formId
-                : string.Empty;
-
+            string currentFormId = CurrentFormId();
             var cards = pool.DrawOptions(optionCount, currentFormId, ownedSynergyTags, ownedSkillIds);
             currentOptions = new DraftOptions(cards, currentReason, rerollsUsed);
             GameEvents.RaiseDraftOptionsReady(currentOptions);
@@ -232,22 +248,22 @@ namespace Abyss.Runtime.Draft
             }
         }
 
-        private int CountActiveOwned()
+        private int CountActiveOwnedForForm(string currentFormId)
         {
             int count = 0;
             for (int i = 0; i < owned.Count; i++)
             {
-                if (owned[i] != null && owned[i].category == SkillCategory.Active) count += 1;
+                if (IsSkillUsableInForm(owned[i], currentFormId)) count += 1;
             }
             return count;
         }
 
-        private IReadOnlyList<SkillData> SnapshotActiveOwned()
+        private IReadOnlyList<SkillData> SnapshotActiveOwnedForForm(string currentFormId)
         {
             var result = new List<SkillData>();
             for (int i = 0; i < owned.Count; i++)
             {
-                if (owned[i] != null && owned[i].category == SkillCategory.Active) result.Add(owned[i]);
+                if (IsSkillUsableInForm(owned[i], currentFormId)) result.Add(owned[i]);
             }
             return result;
         }

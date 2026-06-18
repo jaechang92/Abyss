@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Events;
+using Abyss.Runtime.Form;
 using Abyss.Runtime.Skill;
 using GAS.Core;
 using UnityEngine;
@@ -19,6 +20,8 @@ namespace Abyss.Runtime.Player
 
         private readonly GenericAbility[] slotAbilities = new GenericAbility[SkillSlotCount];
         private readonly string[] slotNames = new string[SkillSlotCount];
+        // 슬롯 스킬의 폼 귀속(SkillData.formBound). 비어있으면 any. 발동 시 현재 폼과 대조한다.
+        private readonly string[] slotFormBound = new string[SkillSlotCount];
         private readonly List<SkillData> activeSkillBuffer = new();
 
         private DraftSessionController draftSessionRef;
@@ -55,14 +58,22 @@ namespace Abyss.Runtime.Player
         private void SubscribeSkillEvents()
         {
             GameEvents.OnSkillDrafted += HandleSkillDraftedForSlots;
+            GameEvents.OnFormSwapped += HandleFormSwappedForSlots;
         }
 
         private void UnsubscribeSkillEvents()
         {
             GameEvents.OnSkillDrafted -= HandleSkillDraftedForSlots;
+            GameEvents.OnFormSwapped -= HandleFormSwappedForSlots;
         }
 
         private void HandleSkillDraftedForSlots(SkillData skill, DraftTriggerReason reason)
+        {
+            RebuildSkillSlots();
+        }
+
+        // 폼 교체 시 슬롯을 현재 폼 로드아웃으로 재구성(폼별 스킬 세트 전환).
+        private void HandleFormSwappedForSlots(FormData previous, FormData next)
         {
             RebuildSkillSlots();
         }
@@ -87,8 +98,30 @@ namespace Abyss.Runtime.Player
             string abilityName = slotNames[slot];
             if (string.IsNullOrEmpty(abilityName) || !AbilitySystem.HasInstance) return;
 
+            // 폼 귀속 검사 — 현재 폼과 다른 전용 스킬은 발동 차단.
+            if (!IsSlotUsableInCurrentForm(slot)) return;
+
             // 비동기 실행은 fire-and-forget — 결과는 AbilitySystem 이벤트로 통지된다.
             _ = AbilitySystem.Instance.TryExecuteAbilityAsync(abilityName);
+        }
+
+        /// <summary>
+        /// 슬롯 스킬이 현재 폼에서 발동 가능한지. formBound이 비어있으면(any) 항상 가능,
+        /// 설정돼 있으면 현재 폼 formId와 일치해야 한다. SkillSlotPresenter dim 표시도 이 기준 재사용.
+        /// </summary>
+        public bool IsSlotUsableInCurrentForm(int slot)
+        {
+            if (slot < 0 || slot >= SkillSlotCount) return false;
+
+            string bound = slotFormBound[slot];
+            if (string.IsNullOrEmpty(bound)) return true; // any — 모든 폼에서 사용 가능
+
+            var current = formController != null ? formController.CurrentForm : null;
+            string currentFormId = current != null ? current.formId : null;
+            if (bound == currentFormId) return true;
+
+            Debug.Log($"[PlayerCharacter] 슬롯 {slot} 스킬은 '{bound}' 폼 전용 — 현재 '{currentFormId ?? "?"}'에서 발동 불가.");
+            return false;
         }
 
         // ====== 슬롯 ↔ 어빌리티 매핑 ======
@@ -111,14 +144,18 @@ namespace Abyss.Runtime.Player
             var draft = ResolveDraftSession();
             if (draft == null)
             {
-                for (int i = 0; i < SkillSlotCount; i++) ConfigureSlot(i, null);
+                for (int i = 0; i < SkillSlotCount; i++) { ConfigureSlot(i, null); slotFormBound[i] = null; }
                 return;
             }
 
-            draft.CollectActiveOwned(activeSkillBuffer, SkillSlotCount);
+            string currentFormId = formController != null && formController.CurrentForm != null
+                ? formController.CurrentForm.formId
+                : null;
+            draft.CollectActiveOwned(activeSkillBuffer, SkillSlotCount, currentFormId);
             for (int i = 0; i < SkillSlotCount; i++)
             {
                 SkillData skill = i < activeSkillBuffer.Count ? activeSkillBuffer[i] : null;
+                slotFormBound[i] = skill != null ? skill.formBound : null;
                 var abilityData = skill != null ? skill.relatedAbility as GenericAbilityData : null;
                 ConfigureSlot(i, abilityData);
             }

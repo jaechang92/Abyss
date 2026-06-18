@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Events;
+using Abyss.Runtime.Form;
 using Abyss.Runtime.Player;
 using UnityEngine;
 
@@ -28,12 +29,14 @@ namespace Abyss.Runtime.UI
         {
             GameEvents.OnSkillDrafted += HandleSkillDrafted;
             GameEvents.OnDraftSlotReplaceRequested += HandleReplaceRequested;
+            GameEvents.OnFormSwapped += HandleFormSwapped;
         }
 
         private void OnDisable()
         {
             GameEvents.OnSkillDrafted -= HandleSkillDrafted;
             GameEvents.OnDraftSlotReplaceRequested -= HandleReplaceRequested;
+            GameEvents.OnFormSwapped -= HandleFormSwapped;
         }
 
         private void Start()
@@ -48,6 +51,12 @@ namespace Abyss.Runtime.UI
         }
 
         private void HandleSkillDrafted(SkillData skill, DraftTriggerReason reason)
+        {
+            RefreshSkillSlots();
+        }
+
+        // 폼 교체 시 슬롯을 현재 폼 로드아웃으로 갱신(폼별 스킬 세트 전환).
+        private void HandleFormSwapped(FormData previous, FormData next)
         {
             RefreshSkillSlots();
         }
@@ -68,7 +77,11 @@ namespace Abyss.Runtime.UI
             if (player == null) player = FindAnyObjectByType<PlayerCharacter>();
 
             // 슬롯 순서 SoT는 DraftSessionController가 단일 관리(PlayerCharacter 어빌리티 등록과 동일 규칙).
-            draftSession.CollectActiveOwned(activeBuffer, skillSlots.Length);
+            // 현재 폼 로드아웃만 노출 — any 스킬은 양 폼 공유, 전용 스킬은 해당 폼에서만.
+            string currentFormId = player != null && player.Form != null && player.Form.CurrentForm != null
+                ? player.Form.CurrentForm.formId
+                : null;
+            draftSession.CollectActiveOwned(activeBuffer, skillSlots.Length, currentFormId);
 
             for (int i = 0; i < skillSlots.Length; i++)
             {
