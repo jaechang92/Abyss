@@ -24,5 +24,5 @@ MonoBehaviour:
   flatBonus: 0
   multiplier: 1
   formulaDescription: (flatBonus + base) * multiplier
-  relatedAbility: {fileID: 0}
+  relatedAbility: {fileID: 11400000, guid: bf98ce95c9730404ea1ad9fd52e6788d, type: 2}
   tags: []

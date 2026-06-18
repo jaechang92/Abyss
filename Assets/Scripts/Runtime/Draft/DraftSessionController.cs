@@ -35,6 +35,23 @@ namespace Abyss.Runtime.Draft
 
         public bool IsSessionActive => isSessionActive;
         public IReadOnlyList<SkillData> Owned => owned;
+
+        /// <summary>
+        /// 보유 스킬 중 Active만 등장 순서대로 buffer에 채운다(최대 limit개). 슬롯0/1 매핑의 단일 기준점(SoT).
+        /// HUD(SkillSlotPresenter 배치)와 PlayerCharacter(어빌리티 등록)가 같은 규칙을 공유하도록 추출.
+        /// </summary>
+        public void CollectActiveOwned(List<SkillData> buffer, int limit)
+        {
+            if (buffer == null) return;
+            buffer.Clear();
+            for (int i = 0; i < owned.Count; i++)
+            {
+                var skill = owned[i];
+                if (skill == null || skill.category != SkillCategory.Active) continue;
+                buffer.Add(skill);
+                if (buffer.Count >= limit) break;
+            }
+        }
         public DraftOptions CurrentOptions => currentOptions;
         public int RerollsUsed => rerollsUsed;
         public int SkipReward => skipReward;
@@ -42,6 +59,25 @@ namespace Abyss.Runtime.Draft
         private void Awake()
         {
             pool = GetComponent<DraftPoolManager>();
+            ResolveFormController();
+        }
+
+        /// <summary>
+        /// formController 폴백 해석. 씬 SerializeField 연결이 끊겨도(빌더 미실행·프리팹 재생성)
+        /// 런타임에 FormController를 탐색해 연결한다. 미연결 시 currentFormId가 빈 문자열이 되어
+        /// 폼 귀속 스킬이 드래프트에서 영구 필터링되는 문제를 방지한다(HUD 자동 와이어링과 동일 패턴).
+        /// </summary>
+        private FormController ResolveFormController()
+        {
+            if (formController == null)
+            {
+                formController = FindAnyObjectByType<FormController>(FindObjectsInactive.Include);
+                if (formController == null)
+                {
+                    Debug.LogWarning("[Draft] FormController 미발견 — 폼 귀속 스킬이 드래프트에 노출되지 않습니다.");
+                }
+            }
+            return formController;
         }
 
         private void OnEnable()
@@ -107,6 +143,17 @@ namespace Abyss.Runtime.Draft
             return true;
         }
 
+        /// <summary>
+        /// 치트/디버그용 즉시 지급. 슬롯 상한·세션 상태 무시하고 보유에 추가 + OnSkillDrafted 발행
+        /// (HUD·PlayerCharacter 슬롯 갱신 트리거).
+        /// </summary>
+        public void DebugGrantSkill(SkillData skill)
+        {
+            if (skill == null) return;
+            AcquireSkill(skill);
+            GameEvents.RaiseSkillDrafted(skill, DraftTriggerReason.LevelUp);
+        }
+
         /// <summary>교체 모달에서 기존 슬롯을 버리기로 결정한 뒤 호출.</summary>
         public bool ConfirmReplacement(string droppedSkillId, SkillData incoming)
         {
@@ -133,8 +180,9 @@ namespace Abyss.Runtime.Draft
 
         private void DrawAndAnnounce()
         {
-            string currentFormId = formController != null && formController.CurrentForm != null
-                ? formController.CurrentForm.formId
+            var fc = ResolveFormController();
+            string currentFormId = fc != null && fc.CurrentForm != null
+                ? fc.CurrentForm.formId
                 : string.Empty;
 
             var cards = pool.DrawOptions(optionCount, currentFormId, ownedSynergyTags, ownedSkillIds);

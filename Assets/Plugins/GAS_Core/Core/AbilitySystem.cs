@@ -262,6 +262,17 @@ namespace GAS.Core
         // ====== 디버그 ======
 
         /// <summary>
+        /// 등록된 모든 어빌리티의 쿨다운을 즉시 초기화(치트/디버그용).
+        /// </summary>
+        public void ResetAllCooldowns()
+        {
+            foreach (var kvp in registeredAbilities)
+            {
+                kvp.Value?.Cooldown?.Reset();
+            }
+        }
+
+        /// <summary>
         /// 등록된 모든 어빌리티 정보 출력
         /// </summary>
         public void DebugPrintAllAbilities()

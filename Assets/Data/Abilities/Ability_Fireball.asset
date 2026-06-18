@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2f915f3e60261c49af03992048da4b7, type: 3}
+  m_Name: Ability_Fireball
+  m_EditorClassIdentifier: 
+  abilityName: fireball
+  description: "\uC804\uBC29\uC73C\uB85C \uD654\uC5FC\uAD6C\uB97C \uBC1C\uC0AC\uD55C\uB2E4."
+  icon: {fileID: 0}
+  cooldownDuration: 4
+  requiresAlive: 1
+  requiresCanAct: 1
+  effectType: 1
+  damage: 22
+  meleeBoxSize: {x: 2.2, y: 1.6}
+  meleeForwardOffset: 1.1
+  projectilePrefab: {fileID: 6236116468714331731, guid: 54f992f062144484da995449f824a74c, type: 3}
+  projectileSpeed: 12
+  projectileLifetime: 2
+  projectileSpawnOffset: 0.7
+  healAmount: 25
+  showHitEffect: 1
+  effectColor: {r: 1, g: 0.55, b: 0.15, a: 1}

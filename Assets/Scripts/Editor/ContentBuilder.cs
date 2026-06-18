@@ -2,10 +2,12 @@
 using System;
 using System.IO;
 using System.Text;
+using Abyss.Runtime.Combat;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Form;
 using Abyss.Runtime.Run;
+using Abyss.Runtime.Skill;
 using UnityEditor;
 using UnityEngine;
 
@@ -24,6 +26,8 @@ namespace Abyss.EditorTools
         private const string SkillDir = "Assets/Data/Skills";
         private const string EnemyDir = "Assets/Data/Enemies";
         private const string RunDir = "Assets/Data/Run";
+        private const string AbilityDir = "Assets/Data/Abilities";
+        private const string PlayerProjectilePrefabPath = "Assets/Prefabs/Combat/EnemyProjectile.prefab";
 
         [MenuItem(MenuPath)]
         public static void Generate()
@@ -43,16 +47,30 @@ namespace Abyss.EditorTools
             EnsureDir(SkillDir);
             EnsureDir(EnemyDir);
             EnsureDir(RunDir);
+            EnsureDir(AbilityDir);
 
             CreateForms();
             CreateSkills();
             CreateEnemies();
             CreateRunConfig();
+            CreateAbilities();
+            WireActiveAbilities();
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
             Debug.Log("[ContentBuilder] 프로토 SO 생성 완료 — Assets/Data/ 하위 확인");
+        }
+
+        [MenuItem("Tools/Abyss/Wire Active Skill Abilities")]
+        public static void WireAbilitiesOnly()
+        {
+            EnsureDir(AbilityDir);
+            CreateAbilities();
+            WireActiveAbilities();
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("[ContentBuilder] Active 스킬 어빌리티 생성·연결 완료 — Assets/Data/Abilities 확인");
         }
 
         private static void CreateForms()
@@ -222,6 +240,124 @@ namespace Abyss.EditorTools
         private static void CreateRunConfig()
         {
             CreateOrSkip<RunConfig>($"{RunDir}/RunConfig.asset", _ => { });
+        }
+
+        /// <summary>
+        /// Active 스킬용 GenericAbilityData 3종 생성. 화염구=발사체, 화염의 포효=근접 광역, 순간 절단=근접.
+        /// 화염구 발사체는 기존 EnemyProjectile 프리팹을 재사용(faction은 런타임 Launch에서 HitsEnemies 지정).
+        /// </summary>
+        private static void CreateAbilities()
+        {
+            var projectile = AssetDatabase.LoadAssetAtPath<Projectile>(PlayerProjectilePrefabPath);
+            if (projectile == null)
+            {
+                Debug.LogWarning($"[ContentBuilder] 발사체 프리팹 없음({PlayerProjectilePrefabPath}) — 화염구 projectilePrefab 미연결. PrefabBuilder 먼저 실행 필요.");
+            }
+
+            CreateOrSkip<GenericAbilityData>($"{AbilityDir}/Ability_Fireball.asset", so =>
+            {
+                so.abilityName = "fireball";
+                so.description = "전방으로 화염구를 발사한다.";
+                so.cooldownDuration = 4f;
+                so.effectType = AbilityEffectType.Projectile;
+                so.damage = 22;
+                so.projectilePrefab = projectile;
+                so.projectileSpeed = 12f;
+                so.projectileLifetime = 2f;
+                so.projectileSpawnOffset = 0.7f;
+                so.showHitEffect = true;
+                so.effectColor = new Color(1f, 0.55f, 0.15f, 1f);
+            });
+
+            CreateOrSkip<GenericAbilityData>($"{AbilityDir}/Ability_FlameRoar.asset", so =>
+            {
+                so.abilityName = "flame_roar";
+                so.description = "주변 적을 화염으로 일제히 강타한다.";
+                so.cooldownDuration = 6f;
+                so.effectType = AbilityEffectType.MeleeArea;
+                so.damage = 30;
+                so.meleeBoxSize = new Vector2(3.4f, 2.4f);
+                so.meleeForwardOffset = 0f;
+                so.showHitEffect = true;
+                so.effectColor = new Color(1f, 0.3f, 0.1f, 1f);
+            });
+
+            CreateOrSkip<GenericAbilityData>($"{AbilityDir}/Ability_SwiftSlash.asset", so =>
+            {
+                so.abilityName = "swift_slash";
+                so.description = "전방을 빠르게 베어 넘긴다.";
+                so.cooldownDuration = 3f;
+                so.effectType = AbilityEffectType.MeleeArea;
+                so.damage = 18;
+                so.meleeBoxSize = new Vector2(2.8f, 1.6f);
+                so.meleeForwardOffset = 1.3f;
+                so.showHitEffect = true;
+                so.effectColor = new Color(0.4f, 0.85f, 1f, 1f);
+            });
+
+            // 이미 존재해 CreateOrSkip이 건너뛴 자산에도 연출 설정을 반영(재실행 시 색 갱신).
+            ApplyEffectSettings($"{AbilityDir}/Ability_Fireball.asset", new Color(1f, 0.55f, 0.15f, 1f));
+            ApplyEffectSettings($"{AbilityDir}/Ability_FlameRoar.asset", new Color(1f, 0.3f, 0.1f, 1f));
+            ApplyEffectSettings($"{AbilityDir}/Ability_SwiftSlash.asset", new Color(0.4f, 0.85f, 1f, 1f));
+        }
+
+        private static void ApplyEffectSettings(string abilityPath, Color color)
+        {
+            var ability = AssetDatabase.LoadAssetAtPath<GenericAbilityData>(abilityPath);
+            if (ability == null) return;
+            ability.showHitEffect = true;
+            ability.effectColor = color;
+            EditorUtility.SetDirty(ability);
+        }
+
+        /// <summary>
+        /// 기존 Active SkillData(이미 생성되어 CreateSkills가 건너뜀)의 relatedAbility를 어빌리티 자산에 연결.
+        /// skillId → 어빌리티 자산 매핑. 이미 연결돼 있으면 건너뛴다.
+        /// </summary>
+        private static void WireActiveAbilities()
+        {
+            WireOne("skill_fireball", $"{AbilityDir}/Ability_Fireball.asset");
+            WireOne("skill_flame_roar", $"{AbilityDir}/Ability_FlameRoar.asset");
+            WireOne("skill_swift_slash", $"{AbilityDir}/Ability_SwiftSlash.asset");
+        }
+
+        private static void WireOne(string skillId, string abilityPath)
+        {
+            var ability = AssetDatabase.LoadAssetAtPath<GenericAbilityData>(abilityPath);
+            if (ability == null)
+            {
+                Debug.LogWarning($"[ContentBuilder] 어빌리티 자산 없음: {abilityPath}");
+                return;
+            }
+
+            var skill = FindSkillById(skillId);
+            if (skill == null)
+            {
+                Debug.LogWarning($"[ContentBuilder] SkillData 없음: {skillId}");
+                return;
+            }
+
+            if (skill.relatedAbility == ability)
+            {
+                Debug.Log($"[ContentBuilder] 이미 연결됨: {skillId} → {ability.name}");
+                return;
+            }
+
+            skill.relatedAbility = ability;
+            EditorUtility.SetDirty(skill);
+            Debug.Log($"[ContentBuilder] 연결: {skillId}.relatedAbility → {ability.name}");
+        }
+
+        private static SkillData FindSkillById(string skillId)
+        {
+            string[] guids = AssetDatabase.FindAssets("t:SkillData");
+            foreach (var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var data = AssetDatabase.LoadAssetAtPath<SkillData>(path);
+                if (data != null && data.skillId == skillId) return data;
+            }
+            return null;
         }
 
         private static void CreateOrSkip<T>(string assetPath, Action<T> configure) where T : ScriptableObject

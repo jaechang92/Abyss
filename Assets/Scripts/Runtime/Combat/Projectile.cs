@@ -20,17 +20,21 @@ namespace Abyss.Runtime.Combat
         private float aliveTimer;
         private Projectile prefabRef;
         private bool consumed;
+        private ProjectileFaction faction = ProjectileFaction.HitsPlayer;
 
         /// <summary>
         /// 발사 초기화. prefabRef는 풀 반환 키로 사용(EnemyData.projectilePrefab 원본).
+        /// faction은 누구를 맞힐지 결정 — 기본 HitsPlayer(적 발사체). 플레이어 스킬은 HitsEnemies.
         /// </summary>
-        public void Launch(Vector2 dir, int dmg, float spd, float life, Projectile prefab)
+        public void Launch(Vector2 dir, int dmg, float spd, float life, Projectile prefab,
+                           ProjectileFaction faction = ProjectileFaction.HitsPlayer)
         {
             direction = dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector2.right;
             damage = dmg;
             speed = spd;
             lifetime = life;
             prefabRef = prefab;
+            this.faction = faction;
             aliveTimer = 0f;
             consumed = false;
 
@@ -53,16 +57,31 @@ namespace Abyss.Runtime.Combat
         {
             if (consumed) return;
 
-            // 적(발사 주체·아군 적) 통과.
-            if (other.GetComponentInParent<EnemyBase>() != null) return;
-
-            // 플레이어 명중 → 데미지 + 소멸.
-            var player = other.GetComponentInParent<PlayerCharacter>();
-            if (player != null)
+            if (faction == ProjectileFaction.HitsEnemies)
             {
-                if (!player.IsDead) player.TakeDamage(damage);
-                ReturnToPool();
-                return;
+                // 플레이어 발사 — 플레이어(발사 주체) 통과, 적 명중 시 피해 + 소멸.
+                if (other.GetComponentInParent<PlayerCharacter>() != null) return;
+
+                var enemy = other.GetComponentInParent<EnemyBase>();
+                if (enemy != null)
+                {
+                    if (!enemy.IsDead) enemy.TakeDamage(damage);
+                    ReturnToPool();
+                    return;
+                }
+            }
+            else
+            {
+                // 적 발사(기본) — 적(발사 주체·아군 적) 통과, 플레이어 명중 시 피해 + 소멸.
+                if (other.GetComponentInParent<EnemyBase>() != null) return;
+
+                var player = other.GetComponentInParent<PlayerCharacter>();
+                if (player != null)
+                {
+                    if (!player.IsDead) player.TakeDamage(damage);
+                    ReturnToPool();
+                    return;
+                }
             }
 
             // 정적 지형(트리거 아닌 콜라이더, Ground 등) 명중 → 소멸. 다른 트리거는 통과.

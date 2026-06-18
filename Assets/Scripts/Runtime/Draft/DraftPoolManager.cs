@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -13,6 +13,9 @@ namespace Abyss.Runtime.Draft
         [SerializeField] private List<SkillData> pool = new();
 
         public int PoolSize => pool.Count;
+
+        /// <summary>치트/디버그용 풀 조회(런타임에 전체 스킬 열람).</summary>
+        public IReadOnlyList<SkillData> Pool => pool;
 
         public void SetPool(IEnumerable<SkillData> skills)
         {
