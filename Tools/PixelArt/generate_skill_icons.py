@@ -10,10 +10,12 @@ Pillow(PIL) 필요: pip install Pillow
   fireball   - 주황 화염구 (Projectile)
   flame_roar - 적색 화염 폭발/포효 (MeleeArea 광역)
   swift_slash- 청록 베기 궤적 (MeleeArea 전방)
+  void_volley- 보랏빛 부채꼴 3화살 (Projectile 다발)
 """
 
 import os
-from PIL import Image
+import math
+from PIL import Image, ImageDraw
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "Assets", "Art", "Sprites", "SkillIcons")
 OUTPUT_DIR = os.path.normpath(OUTPUT_DIR)
@@ -198,6 +200,39 @@ def make_battle_cry():
 
 
 # -----------------------------------------------------------------------
+# void_volley (32x32) - 보랏빛 부채꼴 3화살 (Projectile 다발)
+#   ImageDraw로 좌측 원점에서 -27/0/+27도 방향 화살 3발을 그린다.
+# -----------------------------------------------------------------------
+def make_void_volley():
+    EDGE = (224, 208, 255, 255)  # 밝은 보라-흰 하이라이트
+    MID  = (150, 110, 240, 255)  # 보라
+    DEEP = (92,  52,  172, 255)  # 진보라(미사용 예비)
+
+    img = Image.new("RGBA", (SIZE, SIZE), TRANSPARENT)
+    d = ImageDraw.Draw(img)
+
+    origin = (5, 16)
+    length = 21
+    head = 5
+    for ang in (-27, 0, 27):
+        r = math.radians(ang)
+        dx, dy = math.cos(r), math.sin(r)
+        ex, ey = origin[0] + dx * length, origin[1] + dy * length
+        # 자루: 외곽선(굵게) 위에 보라 심
+        d.line([origin, (ex, ey)], fill=OUTLINE, width=4)
+        d.line([origin, (ex, ey)], fill=MID, width=2)
+        # 화살촉: 진행 방향 삼각형
+        tip = (ex + dx * head, ey + dy * head)
+        px, py = -dy, dx
+        left = (ex + px * head * 0.9, ey + py * head * 0.9)
+        right = (ex - px * head * 0.9, ey - py * head * 0.9)
+        d.polygon([tip, left, right], fill=MID, outline=OUTLINE)
+        # 촉 끝 하이라이트
+        d.point([(int(ex + dx * 2), int(ey + dy * 2))], fill=EDGE)
+    return img
+
+
+# -----------------------------------------------------------------------
 # 메인
 # -----------------------------------------------------------------------
 def main():
@@ -208,6 +243,7 @@ def main():
         ("flame_roar", make_flame_roar),
         ("swift_slash", make_swift_slash),
         ("battle_cry", make_battle_cry),
+        ("void_volley", make_void_volley),
     ]
 
     generated = []

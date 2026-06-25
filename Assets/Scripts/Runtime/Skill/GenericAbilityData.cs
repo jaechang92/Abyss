@@ -38,6 +38,12 @@ namespace Abyss.Runtime.Skill
         [Tooltip("플레이어 중심에서 발사체 생성 지점까지의 전방 오프셋.")]
         [Min(0f)] public float projectileSpawnOffset = 0.6f;
 
+        [Tooltip("한 번 발동에 발사할 발사체 수. 2 이상이면 부채꼴로 분산 발사.")]
+        [Min(1)] public int projectileCount = 1;
+
+        [Tooltip("다발 발사 시 전체 부채꼴 확산각(도). 0이면 모두 직선. projectileCount가 1이면 무시.")]
+        [Min(0f)] public float projectileSpreadAngle = 0f;
+
         [Header("Buff")]
         [Tooltip("자기 회복량(Buff). 즉시 적용.")]
         [Min(0)] public int healAmount = 25;

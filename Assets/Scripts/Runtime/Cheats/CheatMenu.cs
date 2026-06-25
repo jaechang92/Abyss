@@ -143,7 +143,7 @@ namespace Abyss.Runtime.Cheats
                 p.DebugInvincible = !p.DebugInvincible;
             }
 
-            // 시간제 버프 테스트 — Buff Active 스킬이 아직 없어 직접 호출로 검증.
+            // 시간제 버프 직접 테스트 — 스킬 발동 경로 없이 즉시 적용해 배율/타이머를 검증.
             string buffState = p.HasActiveBuff
                 ? $"버프 {p.BuffRemaining:F1}s (이동x{p.MoveSpeedMultiplier:F1}/공격x{p.AttackMultiplier:F1})"
                 : "버프 없음";
