@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b7ffb57272b5a149b440852a8b1035f, type: 3}
+  m_Name: Skill_11_VoidVolley
+  m_EditorClassIdentifier: 
+  skillId: skill_void_volley
+  displayName: "\uACF5\uD5C8 \uC5F0\uC0AC"
+  description: "\uACF5\uD5C8\uAD81\uC218 \uD2B9\uD654: \uC804\uBC29 \uBD80\uCC44\uAF34\uB85C
+    \uD654\uC0B4 3\uBC1C \uB3D9\uC2DC \uBC1C\uC0AC (CD 5\uCD08)"
+  icon: {fileID: 21300000, guid: 29b5209b919aaf24a9e4e1ee4f7c4c5c, type: 3}
+  rarity: 2
+  category: 0
+  synergyTag: abyss
+  formBound: void_archer
+  flatBonus: 0
+  multiplier: 1
+  formulaDescription: (flatBonus + base) * multiplier
+  relatedAbility: {fileID: 11400000, guid: df0418ac065ba6442b4474b88b6d234b, type: 2}
+  tags: []

@@ -26,6 +26,8 @@ MonoBehaviour:
   projectileSpeed: 12
   projectileLifetime: 2
   projectileSpawnOffset: 0.6
+  projectileCount: 1
+  projectileSpreadAngle: 0
   healAmount: 25
   buffMoveSpeedMultiplier: 1
   buffAttackMultiplier: 1

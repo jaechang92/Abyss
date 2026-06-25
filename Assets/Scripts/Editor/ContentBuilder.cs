@@ -36,9 +36,9 @@ namespace Abyss.EditorTools
         {
             bool proceed = EditorUtility.DisplayDialog(
                 "ContentBuilder",
-                "프로토 SO 에셋 19개 생성:\n" +
+                "프로토 SO 에셋 20개 생성:\n" +
                 "  · FormData 2 (dark_blade, void_archer)\n" +
-                "  · SkillData 10 (불꽃 5 + 심연 4 + 버프 1)\n" +
+                "  · SkillData 11 (불꽃 5 + 심연 5 + 버프 1)\n" +
                 "  · EnemyData 7 (근접 2 / 원거리 1 / 엘리트 1 / 보스 1 + Stage2 중간보스 1 / 보스 1)\n" +
                 "  · RunConfig 1\n\n" +
                 "이미 존재하는 에셋은 건너뜁니다.",
@@ -112,6 +112,7 @@ namespace Abyss.EditorTools
             AddSkill(8, "skill_swift_slash", "순간 절단", SkillCategory.Active, SkillRarity.Epic, "abyss", "void_archer", "공허궁수 특화: 순간이동 후 3연 검기 (CD 3초)");
             AddSkill(9, "skill_abyss_ally", "심연 동료", SkillCategory.Synergy, SkillRarity.Rare, "abyss", "", "[심연] 2개+ 시 대시 CD -0.5초");
             AddSkill(10, "skill_battle_cry", "전장의 함성", SkillCategory.Active, SkillRarity.Rare, "", "", "발동 시 6초간 공격력 1.5배 (CD 12초)");
+            AddSkill(11, "skill_void_volley", "공허 연사", SkillCategory.Active, SkillRarity.Epic, "abyss", "void_archer", "공허궁수 특화: 전방 부채꼴로 화살 3발 동시 발사 (CD 5초)");
         }
 
         private static void AddSkill(int index, string skillId, string displayName, SkillCategory category, SkillRarity rarity, string synergyTag, string formBound, string description)
@@ -316,11 +317,29 @@ namespace Abyss.EditorTools
                 so.effectColor = new Color(1f, 0.82f, 0.25f, 1f);
             });
 
+            CreateOrSkip<GenericAbilityData>($"{AbilityDir}/Ability_VoidVolley.asset", so =>
+            {
+                so.abilityName = "void_volley";
+                so.description = "전방 부채꼴로 공허 화살 3발을 동시에 발사한다.";
+                so.cooldownDuration = 5f;
+                so.effectType = AbilityEffectType.Projectile;
+                so.damage = 14;
+                so.projectilePrefab = projectile;
+                so.projectileSpeed = 13f;
+                so.projectileLifetime = 2f;
+                so.projectileSpawnOffset = 0.7f;
+                so.projectileCount = 3;
+                so.projectileSpreadAngle = 24f;
+                so.showHitEffect = true;
+                so.effectColor = new Color(0.6f, 0.42f, 0.95f, 1f);
+            });
+
             // 이미 존재해 CreateOrSkip이 건너뛴 자산에도 연출 설정을 반영(재실행 시 색 갱신).
             ApplyEffectSettings($"{AbilityDir}/Ability_Fireball.asset", new Color(1f, 0.55f, 0.15f, 1f));
             ApplyEffectSettings($"{AbilityDir}/Ability_FlameRoar.asset", new Color(1f, 0.3f, 0.1f, 1f));
             ApplyEffectSettings($"{AbilityDir}/Ability_SwiftSlash.asset", new Color(0.4f, 0.85f, 1f, 1f));
             ApplyEffectSettings($"{AbilityDir}/Ability_BattleCry.asset", new Color(1f, 0.82f, 0.25f, 1f));
+            ApplyEffectSettings($"{AbilityDir}/Ability_VoidVolley.asset", new Color(0.6f, 0.42f, 0.95f, 1f));
         }
 
         private static void ApplyEffectSettings(string abilityPath, Color color)
@@ -342,6 +361,7 @@ namespace Abyss.EditorTools
             WireOne("skill_flame_roar", $"{AbilityDir}/Ability_FlameRoar.asset");
             WireOne("skill_swift_slash", $"{AbilityDir}/Ability_SwiftSlash.asset");
             WireOne("skill_battle_cry", $"{AbilityDir}/Ability_BattleCry.asset");
+            WireOne("skill_void_volley", $"{AbilityDir}/Ability_VoidVolley.asset");
         }
 
         private static void WireOne(string skillId, string abilityPath)
@@ -395,6 +415,7 @@ namespace Abyss.EditorTools
             WireIcon("skill_flame_roar", "flame_roar");
             WireIcon("skill_swift_slash", "swift_slash");
             WireIcon("skill_battle_cry", "battle_cry");
+            WireIcon("skill_void_volley", "void_volley");
         }
 
         private static void WireIcon(string skillId, string iconKey)
@@ -463,6 +484,7 @@ namespace Abyss.EditorTools
             WireSfx($"{AbilityDir}/Ability_FlameRoar.asset", "skill_flame_roar");
             WireSfx($"{AbilityDir}/Ability_SwiftSlash.asset", "skill_swift_slash");
             WireSfx($"{AbilityDir}/Ability_BattleCry.asset", "skill_battle_cry");
+            WireSfx($"{AbilityDir}/Ability_VoidVolley.asset", "skill_void_volley");
         }
 
         private static void WireSfx(string abilityPath, string sfxKey)

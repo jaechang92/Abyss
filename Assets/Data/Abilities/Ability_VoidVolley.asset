@@ -10,28 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a2f915f3e60261c49af03992048da4b7, type: 3}
-  m_Name: Ability_Fireball
+  m_Name: Ability_VoidVolley
   m_EditorClassIdentifier: 
-  abilityName: fireball
-  description: "\uC804\uBC29\uC73C\uB85C \uD654\uC5FC\uAD6C\uB97C \uBC1C\uC0AC\uD55C\uB2E4."
+  abilityName: void_volley
+  description: "\uC804\uBC29 \uBD80\uCC44\uAF34\uB85C \uACF5\uD5C8 \uD654\uC0B4 3\uBC1C\uC744
+    \uB3D9\uC2DC\uC5D0 \uBC1C\uC0AC\uD55C\uB2E4."
   icon: {fileID: 0}
-  cooldownDuration: 4
+  cooldownDuration: 5
   requiresAlive: 1
   requiresCanAct: 1
   effectType: 1
-  damage: 22
+  damage: 14
   meleeBoxSize: {x: 2.2, y: 1.6}
   meleeForwardOffset: 1.1
   projectilePrefab: {fileID: 6236116468714331731, guid: 54f992f062144484da995449f824a74c, type: 3}
-  projectileSpeed: 12
+  projectileSpeed: 13
   projectileLifetime: 2
   projectileSpawnOffset: 0.7
-  projectileCount: 1
-  projectileSpreadAngle: 0
+  projectileCount: 3
+  projectileSpreadAngle: 24
   healAmount: 25
   buffMoveSpeedMultiplier: 1
   buffAttackMultiplier: 1
   buffDuration: 0
   showHitEffect: 1
-  effectColor: {r: 1, g: 0.55, b: 0.15, a: 1}
-  castSfx: {fileID: 8300000, guid: 92fc5276f7dfa454e8bd27bba0a30f0a, type: 3}
+  effectColor: {r: 0.6, g: 0.42, b: 0.95, a: 1}
+  castSfx: {fileID: 8300000, guid: a0f99c675fda9d04a841bc27e37b6255, type: 3}
