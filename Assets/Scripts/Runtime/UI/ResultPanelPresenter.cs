@@ -136,7 +136,17 @@ namespace Abyss.Runtime.UI
         private void HandleRestart()
         {
             Time.timeScale = 1f;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+            // 씬 분리: 명시적으로 Run 씬을 재로드(buildIndex 의존 제거).
+            // SceneFlowController 미가동(분리 전 상태) 시 기존 동작으로 폴백.
+            if (Abyss.Runtime.Flow.SceneFlowController.HasInstance)
+            {
+                _ = Abyss.Runtime.Flow.SceneFlowController.Instance.LoadRunAsync();
+            }
+            else
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }
         }
     }
 }
