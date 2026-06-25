@@ -322,7 +322,7 @@ MonoBehaviour:
   rerollCostLadder: 0f0000001e000000
   skipReward: 10
   activeSlotLimit: 2
-  formController: {fileID: 0}
+  formController: {fileID: 1701649995}
 --- !u!114 &85537059
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -345,6 +345,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6db81524eaf77b94498e237b212ad210, type: 2}
   - {fileID: 11400000, guid: 918463d9d65317b40ba409f67a92ae3b, type: 2}
   - {fileID: 11400000, guid: e51f99226aeabeb4cbada64798e66c2e, type: 2}
+  - {fileID: 11400000, guid: 0d8cbb5bb29b234419de1efc7727de1e, type: 2}
 --- !u!4 &85537060
 Transform:
   m_ObjectHideFlags: 0
@@ -9614,11 +9615,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9142422784060862740, guid: bd40c6fbd17fa5a41b7253c4e10d7461, type: 3}
       propertyPath: heavyAttackDamage
-      value: 350
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 9142422784060862740, guid: bd40c6fbd17fa5a41b7253c4e10d7461, type: 3}
       propertyPath: lightAttackDamage
-      value: 150
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 9142422784060862740, guid: bd40c6fbd17fa5a41b7253c4e10d7461, type: 3}
       propertyPath: groundLayer.m_Bits
@@ -9641,6 +9642,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4752d647da573b641916c3e913926412, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1701649995 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3974315282671809960, guid: bd40c6fbd17fa5a41b7253c4e10d7461, type: 3}
+  m_PrefabInstance: {fileID: 1701649991}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8cfe0f4e5ba4804eb776bb3f58572be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1710592753
