@@ -17,13 +17,14 @@ namespace Abyss.EditorTools
         private const string AssetPath = "Assets/InputSystem_Actions.inputactions";
         private const string TargetMap = "Player";
 
+        // 키보드 전용 조작(방향키 이동 + 액션 키). .inputactions의 실제 바인딩과 동기화 유지.
         private static readonly (string name, string path)[] DesiredActions =
         {
-            ("FormSwap", "<Keyboard>/q"),
-            ("Dash", "<Keyboard>/leftShift"),
-            ("AttackHeavy", "<Mouse>/rightButton"),
-            ("Skill1", "<Keyboard>/e"),
-            ("Skill2", "<Keyboard>/r")
+            ("FormSwap", "<Keyboard>/leftCtrl"),
+            ("Dash", "<Keyboard>/d"),
+            ("AttackHeavy", "<Keyboard>/x"),
+            ("Skill1", "<Keyboard>/a"),
+            ("Skill2", "<Keyboard>/s")
         };
 
         [MenuItem(MenuPath)]
@@ -85,7 +86,7 @@ namespace Abyss.EditorTools
             if (wasEnabled) map.Enable();
 
             EditorUtility.DisplayDialog("InputActionsPatcher",
-                $"추가 {added}개 / 건너뜀 {skipped}개\n\nPlay 모드 실행 시 Q=FormSwap, LShift=Dash, RMB=AttackHeavy, E=Skill1, R=Skill2.",
+                $"추가 {added}개 / 건너뜀 {skipped}개\n\n키보드 전용 조작: ←→=이동, Z=공격, X=강공격, A=Skill1, S=Skill2, C=점프, D=대시, LCtrl=폼교체.",
                 "확인");
         }
     }
