@@ -18,14 +18,6 @@ namespace Abyss.EditorTools
     /// </summary>
     public static class StageBuilder
     {
-        private const string BuildMenu = "Tools/Abyss/Build Stage 1 Content";
-        private const string BuildStage2Menu = "Tools/Abyss/Build Stage 2 Content";
-        private const string SceneSetupMenu = "Tools/Abyss/Setup StageDirector in Active Scene";
-
-        private const string EnemyDir = "Assets/Data/Enemies";
-        private const string RoomDir = "Assets/Data/Rooms";
-        private const string StageDir = "Assets/Data/Stages";
-        private const string SequenceDir = "Assets/Data/Stages";
 
         private const string Stage1Id = "stage_1_abyss_entrance";
         private const string Stage1Name = "균열의 입구";
@@ -37,7 +29,7 @@ namespace Abyss.EditorTools
         private const string SequenceId = "main_run_sequence";
         private const string SequenceName = "본 런 시퀀스";
 
-        [MenuItem(BuildMenu)]
+        [MenuItem(AbyssMenu.BuildStage1)]
         public static void BuildStage1Content()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -49,8 +41,8 @@ namespace Abyss.EditorTools
                 "생성", "취소");
             if (!proceed) return;
 
-            EnsureDir(RoomDir);
-            EnsureDir(StageDir);
+            EnsureDir(AbyssPaths.Rooms);
+            EnsureDir(AbyssPaths.Stages);
 
             // EnemyData 5종 로드 (ContentBuilder 산출물)
             var grunt = LoadEnemyData("MeleeGrunt");
@@ -63,7 +55,7 @@ namespace Abyss.EditorTools
             {
                 EditorUtility.DisplayDialog(
                     "StageBuilder 실패",
-                    "EnemyData 누락. 먼저 'Tools/Abyss/Generate Prototype Content'를 실행하세요.",
+                    $"EnemyData 누락. 먼저 '{AbyssMenu.GenerateContent}'를 실행하세요.",
                     "확인");
                 return;
             }
@@ -93,7 +85,7 @@ namespace Abyss.EditorTools
             Debug.Log("[StageBuilder] Stage 1 콘텐츠 생성 완료 — Assets/Data/Stages/Stage1_AbyssEntrance.asset");
         }
 
-        [MenuItem(BuildStage2Menu)]
+        [MenuItem(AbyssMenu.BuildStage2)]
         public static void BuildStage2Content()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -106,8 +98,8 @@ namespace Abyss.EditorTools
                 "생성", "취소");
             if (!proceed) return;
 
-            EnsureDir(RoomDir);
-            EnsureDir(StageDir);
+            EnsureDir(AbyssPaths.Rooms);
+            EnsureDir(AbyssPaths.Stages);
 
             // Stage1 기존 적 4종 + Stage2 신규 적 2종 로드 (ContentBuilder 산출물).
             var grunt = LoadEnemyData("MeleeGrunt");
@@ -120,7 +112,7 @@ namespace Abyss.EditorTools
             {
                 EditorUtility.DisplayDialog(
                     "StageBuilder 실패",
-                    "EnemyData 누락(Stage2 신규 적 포함). 먼저 'Tools/Abyss/Generate Prototype Content'를 실행하세요.",
+                    $"EnemyData 누락(Stage2 신규 적 포함). 먼저 '{AbyssMenu.GenerateContent}'를 실행하세요.",
                     "확인");
                 return;
             }
@@ -143,7 +135,7 @@ namespace Abyss.EditorTools
                 new[] { r1, r2, r3, r4, r5, r6 });
 
             // Stage1 로드 후 멀티 스테이지 시퀀스(Stage1 → Stage2) 생성/갱신.
-            var stage1 = AssetDatabase.LoadAssetAtPath<StageData>($"{StageDir}/Stage1_AbyssEntrance.asset");
+            var stage1 = AssetDatabase.LoadAssetAtPath<StageData>($"{AbyssPaths.Stages}/Stage1_AbyssEntrance.asset");
             if (stage1 == null)
             {
                 Debug.LogWarning("[StageBuilder] Stage1_AbyssEntrance.asset 누락 — 시퀀스에 Stage2만 포함됩니다. " +
@@ -156,10 +148,10 @@ namespace Abyss.EditorTools
 
             EditorGUIUtility.PingObject(sequence);
             Debug.Log($"[StageBuilder] Stage 2 콘텐츠 + 시퀀스 생성 완료 — " +
-                      $"Assets/Data/Stages/Stage2_FlameCorridor.asset, 시퀀스 {sequence.stages.Count} 스테이지");
+                      $"{AbyssPaths.Stages}/Stage2_FlameCorridor.asset, 시퀀스 {sequence.stages.Count} 스테이지");
         }
 
-        [MenuItem(SceneSetupMenu)]
+        [MenuItem(AbyssMenu.BuildStageDirector)]
         public static void SetupStageDirectorInActiveScene()
         {
             var scene = EditorSceneManager.GetActiveScene();
@@ -170,15 +162,15 @@ namespace Abyss.EditorTools
             }
 
             // 멀티 스테이지 시퀀스 우선 로드. 없으면 Stage1 단독으로 시퀀스 자동 생성(하위호환).
-            var sequence = AssetDatabase.LoadAssetAtPath<StageSequenceData>($"{SequenceDir}/{SequenceFile}.asset");
+            var sequence = AssetDatabase.LoadAssetAtPath<StageSequenceData>($"{AbyssPaths.Stages}/{SequenceFile}.asset");
             if (sequence == null)
             {
-                var stage1 = AssetDatabase.LoadAssetAtPath<StageData>($"{StageDir}/Stage1_AbyssEntrance.asset");
+                var stage1 = AssetDatabase.LoadAssetAtPath<StageData>($"{AbyssPaths.Stages}/Stage1_AbyssEntrance.asset");
                 if (stage1 == null)
                 {
                     EditorUtility.DisplayDialog(
                         "StageBuilder 실패",
-                        "StageSequenceData·Stage1 모두 누락. 먼저 'Tools/Abyss/Build Stage 1 Content'를 실행하세요.",
+                        $"StageSequenceData·Stage1 모두 누락. 먼저 '{AbyssMenu.BuildStage1}'를 실행하세요.",
                         "확인");
                     return;
                 }
@@ -265,15 +257,15 @@ namespace Abyss.EditorTools
 
         private static EnemyData LoadEnemyData(string fileName)
         {
-            var data = AssetDatabase.LoadAssetAtPath<EnemyData>($"{EnemyDir}/{fileName}.asset");
-            if (data == null) Debug.LogError($"[StageBuilder] EnemyData 누락: {EnemyDir}/{fileName}.asset");
+            var data = AssetDatabase.LoadAssetAtPath<EnemyData>($"{AbyssPaths.Enemies}/{fileName}.asset");
+            if (data == null) Debug.LogError($"[StageBuilder] EnemyData 누락: {AbyssPaths.Enemies}/{fileName}.asset");
             return data;
         }
 
         private static RoomData CreateOrLoadRoom(
             string fileName, RoomType roomType, int goldReward, (EnemyData data, int count)[] entries)
         {
-            string path = $"{RoomDir}/{fileName}.asset";
+            string path = $"{AbyssPaths.Rooms}/{fileName}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<RoomData>(path);
             if (existing != null)
             {
@@ -293,7 +285,7 @@ namespace Abyss.EditorTools
 
         private static StageData CreateOrLoadStage(string fileName, string stageId, string displayName, RoomData[] rooms)
         {
-            string path = $"{StageDir}/{fileName}.asset";
+            string path = $"{AbyssPaths.Stages}/{fileName}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<StageData>(path);
             if (existing != null)
             {
@@ -322,7 +314,7 @@ namespace Abyss.EditorTools
         private static StageSequenceData CreateOrUpdateSequence(params StageData[] stages)
         {
             var list = stages.Where(s => s != null).ToList();
-            string path = $"{SequenceDir}/{SequenceFile}.asset";
+            string path = $"{AbyssPaths.Stages}/{SequenceFile}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<StageSequenceData>(path);
             if (existing != null)
             {

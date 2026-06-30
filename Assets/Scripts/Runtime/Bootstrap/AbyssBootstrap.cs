@@ -70,10 +70,10 @@ namespace Abyss.Runtime.Bootstrap
 
             Debug.Log("[AbyssBootstrap] 초기화 완료");
 
-            // 영속 시스템 준비 완료 → 첫 게임 씬으로 전환.
+            // 영속 시스템 준비 완료 → 로비 씬으로 전환.
             // StartNewRun은 Run 씬의 StageDirector가 단일 소유자로 호출한다(여기서 직접 호출하지 않음).
-            // 씬 분리 1단계: Run 직행. 2단계에서 LoadLobbyAsync로 변경 예정.
-            _ = SceneFlowController.Instance.LoadRunAsync();
+            // 씬 분리 2단계: Bootstrap → Lobby → (시작) → Run.
+            _ = SceneFlowController.Instance.LoadLobbyAsync();
         }
     }
 }

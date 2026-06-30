@@ -19,9 +19,6 @@ namespace Abyss.EditorTools
     /// </summary>
     public static class PlatformBuilder
     {
-        private const string BuildMenu = "Tools/Abyss/Build Test Platforms in Active Scene";
-        private const string ClearMenu = "Tools/Abyss/Clear Test Platforms in Active Scene";
-
         private const string PlatformsRootName = "Platforms";
 
         /// <summary>발판 1개 명세 (위치, 크기).</summary>
@@ -50,7 +47,7 @@ namespace Abyss.EditorTools
             new PlatformSpec("Platform_05", new Vector2(12f,  0.75f), new Vector2(4f,   0.5f)),
         };
 
-        [MenuItem(BuildMenu)]
+        [MenuItem(AbyssMenu.BuildPlatforms)]
         public static void BuildTestPlatforms()
         {
             var scene = EditorSceneManager.GetActiveScene();
@@ -101,7 +98,7 @@ namespace Abyss.EditorTools
                       $"루트='{PlatformsRootName}'. 중앙 Platform_03은 더블 점프 필수 구간입니다.");
         }
 
-        [MenuItem(ClearMenu)]
+        [MenuItem(AbyssMenu.ClearPlatforms)]
         public static void ClearTestPlatforms()
         {
             var root = GameObject.Find(PlatformsRootName);

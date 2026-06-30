@@ -9,12 +9,10 @@ namespace Abyss.EditorTools
     /// <summary>
     /// Abyss 전용 입력 액션을 기존 InputSystem_Actions.inputactions에 추가하는 패쳐.
     /// 없는 액션만 추가하고 기존은 보존. Player 맵 대상.
-    /// 메뉴: Tools/Abyss/Patch Input Actions (Abyss)
+    /// 메뉴 경로는 <see cref="AbyssMenu.PatchInputActions"/>.
     /// </summary>
     public static class InputActionsPatcher
     {
-        private const string MenuPath = "Tools/Abyss/Patch Input Actions (Abyss)";
-        private const string AssetPath = "Assets/InputSystem_Actions.inputactions";
         private const string TargetMap = "Player";
 
         // 키보드 전용 조작(방향키 이동 + 액션 키). .inputactions의 실제 바인딩과 동기화 유지.
@@ -27,14 +25,14 @@ namespace Abyss.EditorTools
             ("Skill2", "<Keyboard>/s")
         };
 
-        [MenuItem(MenuPath)]
+        [MenuItem(AbyssMenu.PatchInputActions)]
         public static void Patch()
         {
-            var asset = AssetDatabase.LoadAssetAtPath<InputActionAsset>(AssetPath);
+            var asset = AssetDatabase.LoadAssetAtPath<InputActionAsset>(AbyssPaths.InputActions);
             if (asset == null)
             {
                 EditorUtility.DisplayDialog("InputActionsPatcher",
-                    $"{AssetPath}을 찾지 못했습니다.",
+                    $"{AbyssPaths.InputActions}을 찾지 못했습니다.",
                     "확인");
                 return;
             }
@@ -72,8 +70,8 @@ namespace Abyss.EditorTools
             if (added > 0)
             {
                 string json = asset.ToJson();
-                File.WriteAllText(AssetPath, json);
-                AssetDatabase.ImportAsset(AssetPath, ImportAssetOptions.ForceUpdate);
+                File.WriteAllText(AbyssPaths.InputActions, json);
+                AssetDatabase.ImportAsset(AbyssPaths.InputActions, ImportAssetOptions.ForceUpdate);
                 EditorUtility.SetDirty(asset);
                 AssetDatabase.SaveAssets();
                 Debug.Log($"[InputActionsPatcher] {added}개 액션 추가됨. 기존 {skipped}개 유지. 파일 저장 완료.");

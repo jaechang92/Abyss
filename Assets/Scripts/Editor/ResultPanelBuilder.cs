@@ -8,14 +8,13 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// ResultPanelPresenter가 붙은 GameObject 자식 UI를 일괄 생성·연결.
-    /// 메뉴: Tools/Abyss/Build Result Panel Children
+    /// 메뉴 경로는 <see cref="AbyssMenu.BuildResultPanel"/>.
     /// </summary>
     public static class ResultPanelBuilder
     {
-        private const string MenuPath = "Tools/Abyss/Build Result Panel Children";
         private const string UndoLabel = "Build Result Panel Children";
 
-        [MenuItem(MenuPath)]
+        [MenuItem(AbyssMenu.BuildResultPanel)]
         public static void Build()
         {
             var go = Selection.activeGameObject;
@@ -62,7 +61,12 @@ namespace Abyss.EditorTools
             var elapsed = CreateStatLine(panel.transform, "Elapsed", ref y, spacing);
             var abyss = CreateStatLine(panel.transform, "AbyssEarned", ref y, spacing);
 
-            var (restartButton, restartLabel) = CreateRestartButton(panel.transform);
+            var (restartButton, restartLabel) = CreateButton(
+                panel.transform, "RestartButton", new Vector2(-160, 50), new Vector2(300, 72),
+                new Color(0.25f, 0.4f, 0.25f), "즉시 재시작 (Enter)");
+            var (lobbyButton, lobbyLabel) = CreateButton(
+                panel.transform, "LobbyButton", new Vector2(160, 50), new Vector2(300, 72),
+                new Color(0.25f, 0.3f, 0.45f), "로비로");
 
             var so = new SerializedObject(presenter);
             SetObject(so, "root", root);
@@ -77,6 +81,8 @@ namespace Abyss.EditorTools
             SetObject(so, "abyssEarnedText", abyss);
             SetObject(so, "restartButton", restartButton);
             SetObject(so, "restartLabel", restartLabel);
+            SetObject(so, "lobbyButton", lobbyButton);
+            SetObject(so, "lobbyLabel", lobbyLabel);
             so.ApplyModifiedProperties();
 
             root.SetActive(false);
@@ -130,25 +136,25 @@ namespace Abyss.EditorTools
             return t;
         }
 
-        private static (Button button, Text label) CreateRestartButton(Transform parent)
+        private static (Button button, Text label) CreateButton(Transform parent, string name, Vector2 pos, Vector2 size, Color baseColor, string labelText)
         {
-            var go = CreateRect(parent, "RestartButton", new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 50), new Vector2(300, 72));
+            var go = CreateRect(parent, name, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0), pos, size);
             var img = go.AddComponent<Image>();
-            img.color = new Color(0.25f, 0.4f, 0.25f);
+            img.color = baseColor;
             var btn = go.AddComponent<Button>();
             btn.targetGraphic = img;
             var colors = btn.colors;
-            colors.normalColor = new Color(0.25f, 0.4f, 0.25f);
-            colors.highlightedColor = new Color(0.4f, 0.6f, 0.35f);
-            colors.selectedColor = new Color(0.45f, 0.65f, 0.4f);
-            colors.pressedColor = new Color(0.2f, 0.3f, 0.2f);
+            colors.normalColor = baseColor;
+            colors.highlightedColor = Color.Lerp(baseColor, Color.white, 0.25f);
+            colors.selectedColor = Color.Lerp(baseColor, Color.white, 0.35f);
+            colors.pressedColor = Color.Lerp(baseColor, Color.black, 0.2f);
             btn.colors = colors;
 
             var labelGo = CreateRect(go.transform, "Label", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
             Stretch((RectTransform)labelGo.transform);
             var label = labelGo.AddComponent<Text>();
             ApplyFont(label);
-            label.text = "즉시 재시작 (Enter)";
+            label.text = labelText;
             label.fontSize = 16;
             label.alignment = TextAnchor.MiddleCenter;
             label.color = Color.white;
