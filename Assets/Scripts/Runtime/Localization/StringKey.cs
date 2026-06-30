@@ -51,5 +51,16 @@ namespace Abyss.Runtime.Localization
         // ---- 폼 ----
         public const string Form_DarkBlade = "Form_DarkBlade";
         public const string Form_VoidArcher = "Form_VoidArcher";
+
+        // ---- 대화 (NPC) ----
+        public const string Npc_Guide_Name = "Npc_Guide_Name";
+        public const string Npc_Guide_Prompt = "Npc_Guide_Prompt";
+        public const string Npc_Guide_Line1 = "Npc_Guide_Line1";
+        public const string Npc_Guide_Line2 = "Npc_Guide_Line2";
+        public const string Npc_Guide_Line3 = "Npc_Guide_Line3";
+
+        // ---- 로비 상호작용 ----
+        public const string Portal_Prompt = "Portal_Prompt";
+        public const string Npc_Service_Prompt = "Npc_Service_Prompt";
     }
 }

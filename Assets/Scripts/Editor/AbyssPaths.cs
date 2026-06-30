@@ -18,6 +18,7 @@ namespace Abyss.EditorTools
         public const string Stages = Data + "/Stages";
         public const string Abilities = Data + "/Abilities";
         public const string Physics = Data + "/Physics";
+        public const string Dialogue = Data + "/Dialogue";
         public const string RunConfigDir = "Assets/Resources/Data"; // P-14: 런타임 Resources.Load 대상(정규 위치)
 
         // 프리팹 디렉터리

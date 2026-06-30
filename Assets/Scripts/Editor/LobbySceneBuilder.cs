@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Abyss.Runtime.Camera;
 using Abyss.Runtime.Form;
 using Abyss.Runtime.Lobby;
+using Abyss.Runtime.Localization;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -19,7 +20,7 @@ namespace Abyss.EditorTools
     /// 구성: 바닥/벽 + 경량 플레이어(이동·상호작용) + 카메라 추적 + 던전 포털 + 폼 선택 패널.
     /// 씬 분리 3단계(H1) — 스컬식 플레이 가능 허브 골격.
     /// </summary>
-    public static class LobbySceneBuilder
+    public static partial class LobbySceneBuilder
     {
         // 폼 버튼 강조 색(LobbyController/FormSelectPanel과 일치)
         private static readonly Color FormNormal = new Color(0.18f, 0.18f, 0.22f);
@@ -51,12 +52,18 @@ namespace Abyss.EditorTools
             var canvas = CreateCanvas();
             var prompt = CreatePrompt(canvas.transform);
             var panel = CreateFormSelectPanel(canvas);
+            var dialogueUI = CreateDialogueUI(canvas);
+
+            var guideNpc = CreateGuideNpc();
+            var serviceNpc = CreateServiceNpc();
 
             // 와이어링
             WireCamera(cameraFollow, player.transform);
             WireController(controller, groundCheck);
             WireInteractor(interactor, prompt);
-            WirePortal(portal, panel.component, controller);
+            WirePortal(portal);
+            WireServiceNpc(serviceNpc, panel.component, controller);
+            WireDialogueNpc(guideNpc, dialogueUI, controller);
 
             EnsureSceneFolder();
             EditorSceneManager.SaveScene(scene, AbyssPaths.LobbyScene);
@@ -154,6 +161,22 @@ namespace Abyss.EditorTools
             return go.AddComponent<DungeonPortal>();
         }
 
+        private static ServiceNpc CreateServiceNpc()
+        {
+            var go = new GameObject("ServiceNpc");
+            go.transform.position = new Vector3(3f, -2.5f, 0f);
+            go.transform.localScale = new Vector3(1f, 2f, 1f);
+
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = EditorPlatformFactory.LoadWhiteSquare();
+            sr.color = new Color(0.4f, 0.8f, 0.6f);
+
+            var col = go.AddComponent<BoxCollider2D>();
+            col.isTrigger = true;
+
+            return go.AddComponent<ServiceNpc>();
+        }
+
         // ───────────────────────── UI ─────────────────────────
 
         private static Canvas CreateCanvas()
@@ -213,7 +236,7 @@ namespace Abyss.EditorTools
                 fx += 330f;
             }
 
-            var (confirm, _) = CreateButton(box.transform, "ConfirmButton", new Vector2(-130, -160), new Vector2(220, 64), new Color(0.25f, 0.4f, 0.25f), "입장 (Enter)");
+            var (confirm, _) = CreateButton(box.transform, "ConfirmButton", new Vector2(-130, -160), new Vector2(220, 64), new Color(0.25f, 0.4f, 0.25f), "선택 (Enter)");
             var (cancel, _) = CreateButton(box.transform, "CancelButton", new Vector2(130, -160), new Vector2(220, 64), new Color(0.4f, 0.25f, 0.25f), "취소 (Esc)");
 
             root.SetActive(false);
@@ -309,11 +332,21 @@ namespace Abyss.EditorTools
             so.ApplyModifiedProperties();
         }
 
-        private static void WirePortal(DungeonPortal portal, FormSelectPanel panel, LobbyPlayerController player)
+        private static void WirePortal(DungeonPortal portal)
         {
             var so = new SerializedObject(portal);
+            var p = so.FindProperty("promptKey");
+            if (p != null) p.stringValue = StringKey.Portal_Prompt;
+            so.ApplyModifiedProperties();
+        }
+
+        private static void WireServiceNpc(ServiceNpc npc, FormSelectPanel panel, LobbyPlayerController player)
+        {
+            var so = new SerializedObject(npc);
             SetObject(so, "formSelectPanel", panel);
             SetObject(so, "player", player);
+            var p = so.FindProperty("promptKey");
+            if (p != null) p.stringValue = StringKey.Npc_Service_Prompt;
             so.ApplyModifiedProperties();
         }
 
