@@ -21,17 +21,7 @@ namespace Abyss.EditorTools
     /// </summary>
     public static class ContentBuilder
     {
-        private const string MenuPath = "Tools/Abyss/Generate Prototype Content";
-        private const string FormDir = "Assets/Data/Forms";
-        private const string SkillDir = "Assets/Data/Skills";
-        private const string EnemyDir = "Assets/Data/Enemies";
-        private const string RunDir = "Assets/Resources/Data"; // P-14: RunConfig 정규 위치(런타임 Resources.Load 대상). 구 Assets/Data/Run 중복 생성 방지.
-        private const string AbilityDir = "Assets/Data/Abilities";
-        private const string PlayerProjectilePrefabPath = "Assets/Prefabs/Combat/EnemyProjectile.prefab";
-        private const string SkillIconDir = "Assets/Art/Sprites/SkillIcons";
-        private const string SfxDir = "Assets/Audio/SFX";
-
-        [MenuItem(MenuPath)]
+        [MenuItem(AbyssMenu.GenerateContent)]
         public static void Generate()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -45,11 +35,11 @@ namespace Abyss.EditorTools
                 "생성", "취소");
             if (!proceed) return;
 
-            EnsureDir(FormDir);
-            EnsureDir(SkillDir);
-            EnsureDir(EnemyDir);
-            EnsureDir(RunDir);
-            EnsureDir(AbilityDir);
+            EnsureDir(AbyssPaths.Forms);
+            EnsureDir(AbyssPaths.Skills);
+            EnsureDir(AbyssPaths.Enemies);
+            EnsureDir(AbyssPaths.RunConfigDir);
+            EnsureDir(AbyssPaths.Abilities);
 
             CreateForms();
             CreateSkills();
@@ -66,10 +56,10 @@ namespace Abyss.EditorTools
             Debug.Log("[ContentBuilder] 프로토 SO 생성 완료 — Assets/Data/ 하위 확인");
         }
 
-        [MenuItem("Tools/Abyss/Wire Active Skill Abilities")]
+        [MenuItem(AbyssMenu.GenerateWireSkills)]
         public static void WireAbilitiesOnly()
         {
-            EnsureDir(AbilityDir);
+            EnsureDir(AbyssPaths.Abilities);
             CreateAbilities();
             WireActiveAbilities();
             WireSkillIcons();
@@ -81,7 +71,7 @@ namespace Abyss.EditorTools
 
         private static void CreateForms()
         {
-            CreateOrSkip<FormData>($"{FormDir}/DarkBlade.asset", so =>
+            CreateOrSkip<FormData>($"{AbyssPaths.Forms}/DarkBlade.asset", so =>
             {
                 so.formId = "dark_blade";
                 so.displayName = "암흑 검사";
@@ -90,7 +80,7 @@ namespace Abyss.EditorTools
                 so.moveSpeedMultiplier = 1f;
             });
 
-            CreateOrSkip<FormData>($"{FormDir}/VoidArcher.asset", so =>
+            CreateOrSkip<FormData>($"{AbyssPaths.Forms}/VoidArcher.asset", so =>
             {
                 so.formId = "void_archer";
                 so.displayName = "공허 궁수";
@@ -118,7 +108,7 @@ namespace Abyss.EditorTools
         private static void AddSkill(int index, string skillId, string displayName, SkillCategory category, SkillRarity rarity, string synergyTag, string formBound, string description)
         {
             var filename = $"Skill_{index:D2}_{ToPascalCase(skillId.Replace("skill_", string.Empty))}.asset";
-            CreateOrSkip<SkillData>($"{SkillDir}/{filename}", so =>
+            CreateOrSkip<SkillData>($"{AbyssPaths.Skills}/{filename}", so =>
             {
                 so.skillId = skillId;
                 so.displayName = displayName;
@@ -135,7 +125,7 @@ namespace Abyss.EditorTools
 
         private static void CreateEnemies()
         {
-            CreateOrSkip<EnemyData>($"{EnemyDir}/MeleeGrunt.asset", so =>
+            CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/MeleeGrunt.asset", so =>
             {
                 so.enemyId = "melee_grunt";
                 so.displayName = "근접 병사";
@@ -149,7 +139,7 @@ namespace Abyss.EditorTools
                 so.goldReward = 3;
             });
 
-            CreateOrSkip<EnemyData>($"{EnemyDir}/MeleeBrute.asset", so =>
+            CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/MeleeBrute.asset", so =>
             {
                 so.enemyId = "melee_brute";
                 so.displayName = "중장 강적";
@@ -163,7 +153,7 @@ namespace Abyss.EditorTools
                 so.goldReward = 5;
             });
 
-            CreateOrSkip<EnemyData>($"{EnemyDir}/RangedArcher.asset", so =>
+            CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/RangedArcher.asset", so =>
             {
                 so.enemyId = "ranged_archer";
                 so.displayName = "원거리 사수";
@@ -180,7 +170,7 @@ namespace Abyss.EditorTools
                 so.projectileLifetime = 3f;    // 미명중 시 소멸 시간
             });
 
-            CreateOrSkip<EnemyData>($"{EnemyDir}/EliteHunter.asset", so =>
+            CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/EliteHunter.asset", so =>
             {
                 so.enemyId = "elite_hunter";
                 so.displayName = "엘리트 사냥꾼";
@@ -195,7 +185,7 @@ namespace Abyss.EditorTools
                 so.isElite = true;
             });
 
-            CreateOrSkip<EnemyData>($"{EnemyDir}/BossAbyssKeeper.asset", so =>
+            CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/BossAbyssKeeper.asset", so =>
             {
                 so.enemyId = "boss_abyss_keeper";
                 so.displayName = "심연의 수호자";
@@ -213,7 +203,7 @@ namespace Abyss.EditorTools
 
             // Stage 2 "불꽃의 회랑" 신규 적 2종. AI·페이즈 패턴은 기존 재활용(스탯만 차별화),
             // 정식 회전베기/화염브레스 패턴은 M2 본작업으로 연기(08-content-roadmap.md).
-            CreateOrSkip<EnemyData>($"{EnemyDir}/MidBossSentinel.asset", so =>
+            CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/MidBossSentinel.asset", so =>
             {
                 so.enemyId = "midboss_sentinel";
                 so.displayName = "감시자 거인";
@@ -228,7 +218,7 @@ namespace Abyss.EditorTools
                 so.isElite = true; // Stage2 중간보스 — EliteBonus 드래프트 트리거 재활용
             });
 
-            CreateOrSkip<EnemyData>($"{EnemyDir}/BossFlameSerpent.asset", so =>
+            CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/BossFlameSerpent.asset", so =>
             {
                 so.enemyId = "boss_flame_serpent";
                 so.displayName = "화염 뱀";
@@ -247,7 +237,7 @@ namespace Abyss.EditorTools
 
         private static void CreateRunConfig()
         {
-            CreateOrSkip<RunConfig>($"{RunDir}/RunConfig.asset", _ => { });
+            CreateOrSkip<RunConfig>($"{AbyssPaths.RunConfigDir}/RunConfig.asset", _ => { });
         }
 
         /// <summary>
@@ -256,13 +246,13 @@ namespace Abyss.EditorTools
         /// </summary>
         private static void CreateAbilities()
         {
-            var projectile = AssetDatabase.LoadAssetAtPath<Projectile>(PlayerProjectilePrefabPath);
+            var projectile = AssetDatabase.LoadAssetAtPath<Projectile>(AbyssPaths.EnemyProjectilePrefab);
             if (projectile == null)
             {
-                Debug.LogWarning($"[ContentBuilder] 발사체 프리팹 없음({PlayerProjectilePrefabPath}) — 화염구 projectilePrefab 미연결. PrefabBuilder 먼저 실행 필요.");
+                Debug.LogWarning($"[ContentBuilder] 발사체 프리팹 없음({AbyssPaths.EnemyProjectilePrefab}) — 화염구 projectilePrefab 미연결. PrefabBuilder 먼저 실행 필요.");
             }
 
-            CreateOrSkip<GenericAbilityData>($"{AbilityDir}/Ability_Fireball.asset", so =>
+            CreateOrSkip<GenericAbilityData>($"{AbyssPaths.Abilities}/Ability_Fireball.asset", so =>
             {
                 so.abilityName = "fireball";
                 so.description = "전방으로 화염구를 발사한다.";
@@ -277,7 +267,7 @@ namespace Abyss.EditorTools
                 so.effectColor = new Color(1f, 0.55f, 0.15f, 1f);
             });
 
-            CreateOrSkip<GenericAbilityData>($"{AbilityDir}/Ability_FlameRoar.asset", so =>
+            CreateOrSkip<GenericAbilityData>($"{AbyssPaths.Abilities}/Ability_FlameRoar.asset", so =>
             {
                 so.abilityName = "flame_roar";
                 so.description = "주변 적을 화염으로 일제히 강타한다.";
@@ -290,7 +280,7 @@ namespace Abyss.EditorTools
                 so.effectColor = new Color(1f, 0.3f, 0.1f, 1f);
             });
 
-            CreateOrSkip<GenericAbilityData>($"{AbilityDir}/Ability_SwiftSlash.asset", so =>
+            CreateOrSkip<GenericAbilityData>($"{AbyssPaths.Abilities}/Ability_SwiftSlash.asset", so =>
             {
                 so.abilityName = "swift_slash";
                 so.description = "전방을 빠르게 베어 넘긴다.";
@@ -303,7 +293,7 @@ namespace Abyss.EditorTools
                 so.effectColor = new Color(0.4f, 0.85f, 1f, 1f);
             });
 
-            CreateOrSkip<GenericAbilityData>($"{AbilityDir}/Ability_BattleCry.asset", so =>
+            CreateOrSkip<GenericAbilityData>($"{AbyssPaths.Abilities}/Ability_BattleCry.asset", so =>
             {
                 so.abilityName = "battle_cry";
                 so.description = "6초간 공격력을 1.5배로 끌어올린다.";
@@ -317,7 +307,7 @@ namespace Abyss.EditorTools
                 so.effectColor = new Color(1f, 0.82f, 0.25f, 1f);
             });
 
-            CreateOrSkip<GenericAbilityData>($"{AbilityDir}/Ability_VoidVolley.asset", so =>
+            CreateOrSkip<GenericAbilityData>($"{AbyssPaths.Abilities}/Ability_VoidVolley.asset", so =>
             {
                 so.abilityName = "void_volley";
                 so.description = "전방 부채꼴로 공허 화살 3발을 동시에 발사한다.";
@@ -335,11 +325,11 @@ namespace Abyss.EditorTools
             });
 
             // 이미 존재해 CreateOrSkip이 건너뛴 자산에도 연출 설정을 반영(재실행 시 색 갱신).
-            ApplyEffectSettings($"{AbilityDir}/Ability_Fireball.asset", new Color(1f, 0.55f, 0.15f, 1f));
-            ApplyEffectSettings($"{AbilityDir}/Ability_FlameRoar.asset", new Color(1f, 0.3f, 0.1f, 1f));
-            ApplyEffectSettings($"{AbilityDir}/Ability_SwiftSlash.asset", new Color(0.4f, 0.85f, 1f, 1f));
-            ApplyEffectSettings($"{AbilityDir}/Ability_BattleCry.asset", new Color(1f, 0.82f, 0.25f, 1f));
-            ApplyEffectSettings($"{AbilityDir}/Ability_VoidVolley.asset", new Color(0.6f, 0.42f, 0.95f, 1f));
+            ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_Fireball.asset", new Color(1f, 0.55f, 0.15f, 1f));
+            ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_FlameRoar.asset", new Color(1f, 0.3f, 0.1f, 1f));
+            ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_SwiftSlash.asset", new Color(0.4f, 0.85f, 1f, 1f));
+            ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_BattleCry.asset", new Color(1f, 0.82f, 0.25f, 1f));
+            ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_VoidVolley.asset", new Color(0.6f, 0.42f, 0.95f, 1f));
         }
 
         private static void ApplyEffectSettings(string abilityPath, Color color)
@@ -357,11 +347,11 @@ namespace Abyss.EditorTools
         /// </summary>
         private static void WireActiveAbilities()
         {
-            WireOne("skill_fireball", $"{AbilityDir}/Ability_Fireball.asset");
-            WireOne("skill_flame_roar", $"{AbilityDir}/Ability_FlameRoar.asset");
-            WireOne("skill_swift_slash", $"{AbilityDir}/Ability_SwiftSlash.asset");
-            WireOne("skill_battle_cry", $"{AbilityDir}/Ability_BattleCry.asset");
-            WireOne("skill_void_volley", $"{AbilityDir}/Ability_VoidVolley.asset");
+            WireOne("skill_fireball", $"{AbyssPaths.Abilities}/Ability_Fireball.asset");
+            WireOne("skill_flame_roar", $"{AbyssPaths.Abilities}/Ability_FlameRoar.asset");
+            WireOne("skill_swift_slash", $"{AbyssPaths.Abilities}/Ability_SwiftSlash.asset");
+            WireOne("skill_battle_cry", $"{AbyssPaths.Abilities}/Ability_BattleCry.asset");
+            WireOne("skill_void_volley", $"{AbyssPaths.Abilities}/Ability_VoidVolley.asset");
         }
 
         private static void WireOne(string skillId, string abilityPath)
@@ -420,7 +410,7 @@ namespace Abyss.EditorTools
 
         private static void WireIcon(string skillId, string iconKey)
         {
-            string iconPath = $"{SkillIconDir}/{iconKey}.png";
+            string iconPath = $"{AbyssPaths.SkillIcons}/{iconKey}.png";
             var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(iconPath);
             if (sprite == null)
             {
@@ -452,9 +442,9 @@ namespace Abyss.EditorTools
         /// </summary>
         private static void SetupSkillIconImportSettings()
         {
-            if (!Directory.Exists(SkillIconDir)) return;
+            if (!Directory.Exists(AbyssPaths.SkillIcons)) return;
 
-            string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { SkillIconDir });
+            string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { AbyssPaths.SkillIcons });
             foreach (var guid in guids)
             {
                 string assetPath = AssetDatabase.GUIDToAssetPath(guid);
@@ -480,11 +470,11 @@ namespace Abyss.EditorTools
         /// </summary>
         private static void WireAbilitySfx()
         {
-            WireSfx($"{AbilityDir}/Ability_Fireball.asset", "skill_fireball");
-            WireSfx($"{AbilityDir}/Ability_FlameRoar.asset", "skill_flame_roar");
-            WireSfx($"{AbilityDir}/Ability_SwiftSlash.asset", "skill_swift_slash");
-            WireSfx($"{AbilityDir}/Ability_BattleCry.asset", "skill_battle_cry");
-            WireSfx($"{AbilityDir}/Ability_VoidVolley.asset", "skill_void_volley");
+            WireSfx($"{AbyssPaths.Abilities}/Ability_Fireball.asset", "skill_fireball");
+            WireSfx($"{AbyssPaths.Abilities}/Ability_FlameRoar.asset", "skill_flame_roar");
+            WireSfx($"{AbyssPaths.Abilities}/Ability_SwiftSlash.asset", "skill_swift_slash");
+            WireSfx($"{AbyssPaths.Abilities}/Ability_BattleCry.asset", "skill_battle_cry");
+            WireSfx($"{AbyssPaths.Abilities}/Ability_VoidVolley.asset", "skill_void_volley");
         }
 
         private static void WireSfx(string abilityPath, string sfxKey)
@@ -496,7 +486,7 @@ namespace Abyss.EditorTools
                 return;
             }
 
-            string sfxPath = $"{SfxDir}/{sfxKey}.wav";
+            string sfxPath = $"{AbyssPaths.Sfx}/{sfxKey}.wav";
             var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(sfxPath);
             if (clip == null)
             {

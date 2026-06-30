@@ -35,11 +35,14 @@ namespace Abyss.Runtime.UI
         [Header("버튼")]
         [SerializeField] private Button restartButton;
         [SerializeField] private Text restartLabel;
+        [SerializeField] private Button lobbyButton;
+        [SerializeField] private Text lobbyLabel;
 
         private void Awake()
         {
             if (root != null) root.SetActive(false);
             if (restartButton != null) restartButton.onClick.AddListener(HandleRestart);
+            if (lobbyButton != null) lobbyButton.onClick.AddListener(HandleReturnToLobby);
         }
 
         private void OnEnable()
@@ -86,6 +89,7 @@ namespace Abyss.Runtime.UI
 
             if (titleText != null) titleText.text = "런 종료";
             if (restartLabel != null) restartLabel.text = "즉시 재시작 (Enter)";
+            if (lobbyLabel != null) lobbyLabel.text = "로비로";
 
             if (killsText != null) killsText.text = $"처치 수: {stats.enemiesKilled}";
             if (comboText != null) comboText.text = $"최장 콤보: {stats.maxCombo}";
@@ -136,7 +140,32 @@ namespace Abyss.Runtime.UI
         private void HandleRestart()
         {
             Time.timeScale = 1f;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+            // 씬 분리: 명시적으로 Run 씬을 재로드(buildIndex 의존 제거).
+            // SceneFlowController 미가동(분리 전 상태) 시 기존 동작으로 폴백.
+            if (Abyss.Runtime.Flow.SceneFlowController.HasInstance)
+            {
+                _ = Abyss.Runtime.Flow.SceneFlowController.Instance.LoadRunAsync();
+            }
+            else
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }
+        }
+
+        private void HandleReturnToLobby()
+        {
+            Time.timeScale = 1f;
+
+            // 로비 씬으로 복귀. SceneFlowController 미가동(분리 전 상태) 시 안전하게 무시.
+            if (Abyss.Runtime.Flow.SceneFlowController.HasInstance)
+            {
+                _ = Abyss.Runtime.Flow.SceneFlowController.Instance.LoadLobbyAsync();
+            }
+            else
+            {
+                Debug.LogWarning("[ResultPanelPresenter] SceneFlowController 미가동 — 로비 전환 불가.");
+            }
         }
     }
 }

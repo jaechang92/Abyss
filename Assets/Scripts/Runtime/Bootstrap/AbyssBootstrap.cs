@@ -2,6 +2,7 @@ using UnityEngine;
 using Abyss.Runtime.Analytics;
 using Abyss.Runtime.Audio;
 using Abyss.Runtime.Feedback;
+using Abyss.Runtime.Flow;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using Abyss.Runtime.Run;
@@ -67,9 +68,12 @@ namespace Abyss.Runtime.Bootstrap
             _ = LocalizationManager.Instance;
             Debug.Log($"[AbyssBootstrap] LocalizationManager 준비 완료 (lang: {LocalizationManager.Instance.CurrentLanguage}, keys: {LocalizationManager.Instance.KeyCount})");
 
-            RunManager.Instance.StartNewRun();
-
             Debug.Log("[AbyssBootstrap] 초기화 완료");
+
+            // 영속 시스템 준비 완료 → 로비 씬으로 전환.
+            // StartNewRun은 Run 씬의 StageDirector가 단일 소유자로 호출한다(여기서 직접 호출하지 않음).
+            // 씬 분리 2단계: Bootstrap → Lobby → (시작) → Run.
+            _ = SceneFlowController.Instance.LoadLobbyAsync();
         }
     }
 }

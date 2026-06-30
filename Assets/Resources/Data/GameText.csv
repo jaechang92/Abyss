@@ -28,3 +28,10 @@ Settings_SfxVolume,설정,SFX 볼륨 라벨,,,효과음,SFX Volume,SFX音量
 Settings_Language,설정,언어 선택 라벨,,,언어,Language,言語
 Form_DarkBlade,폼,폼 이름,,,다크 블레이드,Dark Blade,ダークブレード
 Form_VoidArcher,폼,폼 이름,,,보이드 아처,Void Archer,ボイドアーチャー
+Npc_Guide_Name,대화,로비-안내자,,,안내자,Guide,案内人
+Npc_Guide_Prompt,대화,로비-안내자 프롬프트,,,안내자와 대화 (G),Talk to Guide (G),案内人と話す (G)
+Npc_Guide_Line1,대화,로비-안내자,,,"심연의 입구에 잘 왔네, 방랑자여.","Welcome to the threshold of the abyss, wanderer.",深淵の入り口へようこそ、彷徨う者よ。
+Npc_Guide_Line2,대화,로비-안내자,,,저 아래는 끝을 알 수 없는 어둠. 허나 자네라면 다를지도 모르지.,Below lies endless darkness. Yet perhaps you will be different.,その下には果てなき闇。だが君なら違うかもしれぬ。
+Npc_Guide_Line3,대화,로비-안내자,,,준비가 되면 포털로 향하게. 행운을 비네.,"When you are ready, head to the portal. Good luck.",準備ができたらポータルへ。幸運を祈る。
+Portal_Prompt,대화,로비-포털 프롬프트,,,던전 입장 (G),Enter Dungeon (G),ダンジョン入場 (G)
+Npc_Service_Prompt,대화,로비-정비 NPC 프롬프트,,,장비 정비 (G),Manage Forms (G),装備整備 (G)

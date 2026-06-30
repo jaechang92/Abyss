@@ -10,15 +10,14 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// HUD 루트(HUDPresenter) 자식 UI를 일괄 생성·연결하는 에디터 툴.
-    /// 사용법: Hierarchy에서 HUDPresenter가 붙은 GameObject 선택 → 메뉴 Tools/Abyss/Build HUD Children.
+    /// 사용법: Hierarchy에서 HUDPresenter가 붙은 GameObject 선택 → 메뉴 <see cref="AbyssMenu.BuildHud"/>.
     /// 자식이 이미 있으면 삭제 후 재생성(확인 다이얼로그).
     /// </summary>
     public static class HudBuilder
     {
-        private const string MenuPath = "Tools/Abyss/Build HUD Children";
         private const string UndoLabel = "Build HUD Children";
 
-        [MenuItem(MenuPath)]
+        [MenuItem(AbyssMenu.BuildHud)]
         public static void Build()
         {
             var go = Selection.activeGameObject;

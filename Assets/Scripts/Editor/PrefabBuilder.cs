@@ -18,20 +18,7 @@ namespace Abyss.EditorTools
     /// </summary>
     public static class PrefabBuilder
     {
-        private const string MenuPath = "Tools/Abyss/Generate Prototype Prefabs";
-        private const string RebuildEnemiesMenuPath = "Tools/Abyss/Rebuild Enemy Prefabs (Force)";
-        private const string RebuildPlayerMenuPath = "Tools/Abyss/Rebuild Player Prefab (Force)";
-        private const string EnemyPrefabDir = "Assets/Prefabs/Enemies";
-        private const string PlayerPrefabDir = "Assets/Prefabs/Player";
-        private const string CombatPrefabDir = "Assets/Prefabs/Combat";
-        private const string SpriteDir = "Assets/Art/Sprites";
-        private const string WhiteSpritePath = SpriteDir + "/WhiteSquare.png";
-        private const string EnemySpriteDir = "Assets/Art/Sprites/Enemies";
-        private const string SfxDir = "Assets/Audio/SFX";
-        private const string InputActionsPath = "Assets/InputSystem_Actions.inputactions";
-        private const string SetupImportMenuPath = "Tools/Abyss/Setup Enemy Sprite Import Settings";
-
-        [MenuItem(MenuPath)]
+        [MenuItem(AbyssMenu.GeneratePrefabs)]
         public static void Build()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -48,7 +35,7 @@ namespace Abyss.EditorTools
             RunBuild(forceRebuildEnemies: false, forceRebuildPlayer: false);
         }
 
-        [MenuItem(RebuildEnemiesMenuPath)]
+        [MenuItem(AbyssMenu.GenerateRebuildEnemies)]
         public static void RebuildEnemies()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -63,7 +50,7 @@ namespace Abyss.EditorTools
             RunBuild(forceRebuildEnemies: true, forceRebuildPlayer: false);
         }
 
-        [MenuItem(RebuildPlayerMenuPath)]
+        [MenuItem(AbyssMenu.GenerateRebuildPlayer)]
         public static void RebuildPlayer()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -80,10 +67,10 @@ namespace Abyss.EditorTools
 
         private static void RunBuild(bool forceRebuildEnemies, bool forceRebuildPlayer)
         {
-            EnsureDir(EnemyPrefabDir);
-            EnsureDir(PlayerPrefabDir);
-            EnsureDir(CombatPrefabDir);
-            EnsureDir(SpriteDir);
+            EnsureDir(AbyssPaths.EnemyPrefabs);
+            EnsureDir(AbyssPaths.PlayerPrefabs);
+            EnsureDir(AbyssPaths.CombatPrefabs);
+            EnsureDir(AbyssPaths.Sprites);
 
             // 적 스프라이트 임포트 설정 자동 적용 (PPU·FilterMode 일괄)
             SetupEnemySpriteImportSettings();
@@ -122,7 +109,7 @@ namespace Abyss.EditorTools
         private static bool BuildEnemyPrefab(EnemyData data, Sprite sprite, bool forceRebuild)
         {
             string prefabName = ToPascalCase(data.enemyId);
-            string prefabPath = $"{EnemyPrefabDir}/{prefabName}.prefab";
+            string prefabPath = $"{AbyssPaths.EnemyPrefabs}/{prefabName}.prefab";
 
             if (File.Exists(prefabPath))
             {
@@ -199,7 +186,7 @@ namespace Abyss.EditorTools
         /// </summary>
         private static Projectile BuildProjectilePrefab(Sprite sprite, bool forceRebuild)
         {
-            string path = $"{CombatPrefabDir}/EnemyProjectile.prefab";
+            string path = $"{AbyssPaths.CombatPrefabs}/EnemyProjectile.prefab";
 
             if (File.Exists(path))
             {
@@ -278,7 +265,7 @@ namespace Abyss.EditorTools
         private static Sprite GetEnemySpriteByEnemyId(string enemyId, Sprite fallback)
         {
             if (string.IsNullOrEmpty(enemyId)) return fallback;
-            string path = $"{EnemySpriteDir}/{enemyId}.png";
+            string path = $"{AbyssPaths.EnemySprites}/{enemyId}.png";
             var loaded = AssetDatabase.LoadAssetAtPath<Sprite>(path);
             return loaded != null ? loaded : fallback;
         }
@@ -287,10 +274,10 @@ namespace Abyss.EditorTools
         /// Assets/Art/Sprites/Enemies/*.png 전체를 순회하여 픽셀아트 임포트 설정 일괄 적용.
         /// TextureType=Sprite, FilterMode=Point, PPU=16, Mipmap 끔, 압축 없음.
         /// </summary>
-        [MenuItem(SetupImportMenuPath)]
+        [MenuItem(AbyssMenu.GenerateSpriteImport)]
         public static void SetupEnemySpriteImportSettings()
         {
-            string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { EnemySpriteDir });
+            string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { AbyssPaths.EnemySprites });
             int count = 0;
             foreach (var guid in guids)
             {
@@ -355,7 +342,7 @@ namespace Abyss.EditorTools
         /// <summary>Assets/Audio/SFX/{name}.wav 로드. 미import/부재 시 null(보스 측 PlaySfx가 무음 가드).</summary>
         private static AudioClip LoadSfx(string name)
         {
-            return AssetDatabase.LoadAssetAtPath<AudioClip>($"{SfxDir}/{name}.wav");
+            return AssetDatabase.LoadAssetAtPath<AudioClip>($"{AbyssPaths.Sfx}/{name}.wav");
         }
 
         private static Color GetEnemyColor(EnemyData data)
@@ -408,7 +395,7 @@ namespace Abyss.EditorTools
 
         private static bool BuildPlayerPrefab(Sprite sprite, bool forceRebuild)
         {
-            string prefabPath = $"{PlayerPrefabDir}/Player.prefab";
+            string prefabPath = $"{AbyssPaths.PlayerPrefabs}/Player.prefab";
 
             if (File.Exists(prefabPath))
             {
@@ -482,10 +469,10 @@ namespace Abyss.EditorTools
 
         private static void ConfigurePlayerInput(PlayerInput input)
         {
-            var actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(InputActionsPath);
+            var actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(AbyssPaths.InputActions);
             if (actions == null)
             {
-                Debug.LogWarning($"[PrefabBuilder] {InputActionsPath} 미발견 — PlayerInput.actions 미할당");
+                Debug.LogWarning($"[PrefabBuilder] {AbyssPaths.InputActions} 미발견 — PlayerInput.actions 미할당");
                 return;
             }
 
@@ -522,8 +509,8 @@ namespace Abyss.EditorTools
         {
             if (form == null) return;
 
-            var dark = AssetDatabase.LoadAssetAtPath<FormData>("Assets/Data/Forms/DarkBlade.asset");
-            var archer = AssetDatabase.LoadAssetAtPath<FormData>("Assets/Data/Forms/VoidArcher.asset");
+            var dark = AssetDatabase.LoadAssetAtPath<FormData>($"{AbyssPaths.Forms}/DarkBlade.asset");
+            var archer = AssetDatabase.LoadAssetAtPath<FormData>($"{AbyssPaths.Forms}/VoidArcher.asset");
 
             if (dark == null || archer == null)
             {
@@ -574,7 +561,7 @@ namespace Abyss.EditorTools
         // ==================== White Sprite ====================
         private static Sprite GetOrCreateWhiteSprite()
         {
-            var existing = AssetDatabase.LoadAssetAtPath<Sprite>(WhiteSpritePath);
+            var existing = AssetDatabase.LoadAssetAtPath<Sprite>(AbyssPaths.WhiteSquare);
             if (existing != null) return existing;
 
             var tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
@@ -584,10 +571,10 @@ namespace Abyss.EditorTools
             tex.Apply();
 
             byte[] png = tex.EncodeToPNG();
-            File.WriteAllBytes(WhiteSpritePath, png);
-            AssetDatabase.ImportAsset(WhiteSpritePath);
+            File.WriteAllBytes(AbyssPaths.WhiteSquare, png);
+            AssetDatabase.ImportAsset(AbyssPaths.WhiteSquare);
 
-            var importer = (TextureImporter)AssetImporter.GetAtPath(WhiteSpritePath);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(AbyssPaths.WhiteSquare);
             if (importer != null)
             {
                 importer.textureType = TextureImporterType.Sprite;
@@ -596,8 +583,8 @@ namespace Abyss.EditorTools
                 importer.SaveAndReimport();
             }
 
-            Debug.Log($"[PrefabBuilder] 생성: {WhiteSpritePath}");
-            return AssetDatabase.LoadAssetAtPath<Sprite>(WhiteSpritePath);
+            Debug.Log($"[PrefabBuilder] 생성: {AbyssPaths.WhiteSquare}");
+            return AssetDatabase.LoadAssetAtPath<Sprite>(AbyssPaths.WhiteSquare);
         }
 
         // ==================== Helpers ====================

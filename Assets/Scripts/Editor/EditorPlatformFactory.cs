@@ -14,9 +14,6 @@ namespace Abyss.EditorTools
     internal static class EditorPlatformFactory
     {
         public const string GroundLayerName = "Ground";
-        public const string WhiteSquarePath = "Assets/Art/Sprites/WhiteSquare.png";
-        public const string PhysicsDir = "Assets/Data/Physics";
-        public const string FrictionlessPath = "Assets/Data/Physics/Frictionless.physicsMaterial2D";
 
         // 발판 기본 색상 — Ground(흰색)와 구분되도록 따뜻한 갈색 톤.
         public static readonly Color DefaultPlatformColor = new Color(0.78f, 0.47f, 0.24f, 1f);
@@ -36,24 +33,24 @@ namespace Abyss.EditorTools
 
         public static Sprite LoadWhiteSquare()
         {
-            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(WhiteSquarePath);
+            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(AbyssPaths.WhiteSquare);
             if (sprite == null)
-                Debug.LogWarning($"[EditorPlatformFactory] 스프라이트 누락: {WhiteSquarePath} — 비주얼 없이 콜라이더만 생성됩니다.");
+                Debug.LogWarning($"[EditorPlatformFactory] 스프라이트 누락: {AbyssPaths.WhiteSquare} — 비주얼 없이 콜라이더만 생성됩니다.");
             return sprite;
         }
 
         /// <summary>마찰 0 PhysicsMaterial2D 에셋을 로드하거나 없으면 생성한다.</summary>
         public static PhysicsMaterial2D GetOrCreateFrictionlessMaterial()
         {
-            var mat = AssetDatabase.LoadAssetAtPath<PhysicsMaterial2D>(FrictionlessPath);
+            var mat = AssetDatabase.LoadAssetAtPath<PhysicsMaterial2D>(AbyssPaths.Frictionless);
             if (mat != null) return mat;
 
-            if (!Directory.Exists(PhysicsDir)) Directory.CreateDirectory(PhysicsDir);
+            if (!Directory.Exists(AbyssPaths.Physics)) Directory.CreateDirectory(AbyssPaths.Physics);
 
             mat = new PhysicsMaterial2D("Frictionless") { friction = 0f, bounciness = 0f };
-            AssetDatabase.CreateAsset(mat, FrictionlessPath);
+            AssetDatabase.CreateAsset(mat, AbyssPaths.Frictionless);
             AssetDatabase.SaveAssets();
-            Debug.Log($"[EditorPlatformFactory] 마찰 0 PhysicsMaterial2D 생성: {FrictionlessPath}");
+            Debug.Log($"[EditorPlatformFactory] 마찰 0 PhysicsMaterial2D 생성: {AbyssPaths.Frictionless}");
             return mat;
         }
 
