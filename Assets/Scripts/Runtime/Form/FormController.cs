@@ -1,5 +1,6 @@
 using System;
 using Abyss.Runtime.Events;
+using Abyss.Runtime.Flow;
 using Abyss.Runtime.Run;
 using UnityEngine;
 
@@ -47,6 +48,30 @@ namespace Abyss.Runtime.Form
                     Debug.LogWarning("[FormController] RunConfig 로드 실패 — 폴백 기본값 사용. Assets/Resources/Data/RunConfig.asset 확인 필요.");
                 }
             }
+
+            ApplyStartingForm();
+        }
+
+        /// <summary>
+        /// 로비에서 선택한 시작 폼(RunStartContext)을 활성 슬롯으로 반영한다.
+        /// 슬롯 폼 구성은 씬 직렬화 그대로 두고 activeSlot만 선택한다.
+        /// 미선택이거나 슬롯에 없는 폼이면 씬 기본 활성 슬롯을 유지한다.
+        /// </summary>
+        private void ApplyStartingForm()
+        {
+            if (!RunStartContext.HasStartingForm) return;
+
+            string id = RunStartContext.StartingFormId;
+            for (int i = 0; i < slots.Length; i++)
+            {
+                if (slots[i] != null && slots[i].formId == id)
+                {
+                    activeSlot = i;
+                    Debug.Log($"[FormController] 시작 폼 적용: {id} (slot {i})");
+                    return;
+                }
+            }
+            Debug.LogWarning($"[FormController] 시작 폼 '{id}'이(가) 슬롯에 없음 — 기본 활성 슬롯({activeSlot}) 유지.");
         }
 
         public FormState State => state;
