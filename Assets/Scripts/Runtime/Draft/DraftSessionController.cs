@@ -33,6 +33,10 @@ namespace Abyss.Runtime.Draft
         private int rerollsUsed;
         private bool isSessionActive;
 
+        // 세션 진행 중 도착한 레벨업(다중 레벨업·보스/엘리트 보너스)을 대기시켜 순차 처리한다.
+        // 큐잉이 없으면 세션 중 발생한 레벨업 이벤트가 전부 폐기된다.
+        private readonly Queue<DraftTriggerReason> pendingReasons = new();
+
         public bool IsSessionActive => isSessionActive;
         public IReadOnlyList<SkillData> Owned => owned;
 
@@ -188,8 +192,18 @@ namespace Abyss.Runtime.Draft
 
         private void HandleLevelUp(int newLevel, DraftTriggerReason reason)
         {
-            if (isSessionActive) return;
+            // 세션 진행 중이면 폐기하지 않고 대기열에 넣어 세션 종료 후 순차로 연다.
+            if (isSessionActive)
+            {
+                pendingReasons.Enqueue(reason);
+                return;
+            }
 
+            OpenSession(reason);
+        }
+
+        private void OpenSession(DraftTriggerReason reason)
+        {
             currentReason = reason;
             rerollsUsed = 0;
             isSessionActive = true;
@@ -211,6 +225,12 @@ namespace Abyss.Runtime.Draft
             isSessionActive = false;
             currentOptions = null;
             GameEvents.RaiseDraftClosed();
+
+            // 대기 중인 레벨업이 있으면 다음 드래프트를 곧바로 이어 연다.
+            if (pendingReasons.Count > 0)
+            {
+                OpenSession(pendingReasons.Dequeue());
+            }
         }
 
         private void AcquireSkill(SkillData skill)

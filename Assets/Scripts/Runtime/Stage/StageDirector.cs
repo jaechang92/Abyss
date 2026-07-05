@@ -23,6 +23,7 @@ namespace Abyss.Runtime.Stage
         private int currentStageIndex = -1;
         private int currentRoomIndex = -1;
         private readonly List<EnemyBase> activeEnemies = new();
+        private bool isRoomClearing;  // ProceedToNextRoom 지연 창 동안 룸 이중 클리어(보상 중복·방 스킵) 방지
 
         public StageSequenceData Sequence => sequence;
         public StageData CurrentStage => IsValidStage(currentStageIndex) ? sequence.stages[currentStageIndex] : null;
@@ -76,6 +77,7 @@ namespace Abyss.Runtime.Stage
 
         public void ProceedToNextRoom()
         {
+            isRoomClearing = false;  // 다음 방으로 넘어가며 클리어 상태 해제
             currentRoomIndex += 1;
 
             if (CurrentStage == null || currentRoomIndex >= CurrentStage.rooms.Count)
@@ -165,7 +167,7 @@ namespace Abyss.Runtime.Stage
             // IsDead 플래그로 즉시 제거해야 마지막 적 사망 시 룸이 즉시 클리어됨.
             activeEnemies.RemoveAll(e => e == null || e.IsDead);
 
-            if (activeEnemies.Count == 0 && CurrentRoom != null)
+            if (!isRoomClearing && activeEnemies.Count == 0 && CurrentRoom != null)
             {
                 HandleRoomCleared(CurrentRoom);
             }
@@ -173,6 +175,10 @@ namespace Abyss.Runtime.Stage
 
         private void HandleRoomCleared(RoomData room)
         {
+            // 지연 창 중 재진입 방지 — 골드 이중 지급·ProceedToNextRoom 이중 Invoke(방 스킵) 차단.
+            if (isRoomClearing) return;
+            isRoomClearing = true;
+
             Debug.Log($"[StageDirector] Room 클리어: {room.roomId}");
             GameEvents.RaiseRoomCleared(room);
 
