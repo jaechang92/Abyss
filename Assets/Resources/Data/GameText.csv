@@ -35,3 +35,14 @@ Npc_Guide_Line2,대화,로비-안내자,,,저 아래는 끝을 알 수 없는 �
 Npc_Guide_Line3,대화,로비-안내자,,,준비가 되면 포털로 향하게. 행운을 비네.,"When you are ready, head to the portal. Good luck.",準備ができたらポータルへ。幸運を祈る。
 Portal_Prompt,대화,로비-포털 프롬프트,,,던전 입장 (G),Enter Dungeon (G),ダンジョン入場 (G)
 Npc_Service_Prompt,대화,로비-정비 NPC 프롬프트,,,장비 정비 (G),Manage Forms (G),装備整備 (G)
+Npc_Altar_Prompt,대화,로비-제단 프롬프트,,,심연의 제단 (G),Altar of Abyss (G),深淵の祭壇 (G)
+Altar_Title,메타,제단 패널 제목,,,심연의 제단,Altar of Abyss,深淵の祭壇
+Altar_ShardsFormat,메타,제단 잔액,,{0}: 잔액,심연 조각: {0},Abyss Shards: {0},深淵の欠片: {0}
+Altar_LevelFormat,메타,제단 레벨,,{0}: 현재 {1}: 최대,Lv {0}/{1},Lv {0}/{1},Lv {0}/{1}
+Altar_CostFormat,메타,제단 비용,,{0}: 비용,비용 {0},Cost {0},コスト {0}
+Altar_Maxed,메타,제단 최대치,,,최대,MAX,最大
+Altar_Purchase,메타,제단 강화 버튼,,,강화,Upgrade,強化
+Upgrade_MaxHp_Name,메타,업그레이드 이름,,,생명력 강화,Vitality,生命力強化
+Upgrade_MaxHp_Desc,메타,업그레이드 설명,,,레벨당 최대 체력 +20,+20 Max HP per level,レベルごとに最大HP +20
+Upgrade_Attack_Name,메타,업그레이드 이름,,,공격력 강화,Power,攻撃力強化
+Upgrade_Attack_Desc,메타,업그레이드 설명,,,레벨당 공격력 +8%,+8% Attack per level,レベルごとに攻撃力 +8%

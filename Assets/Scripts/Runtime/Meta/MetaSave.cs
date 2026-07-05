@@ -22,6 +22,9 @@ namespace Abyss.Runtime.Meta
         /// <summary>메타 화폐 누적 총량. 런 종료 시 `abyssShardsConversionRate` 환산분 추가.</summary>
         public int abyssShardsTotal;
 
+        /// <summary>심연의 제단 영구 업그레이드 레벨 목록. upgradeId 기준.</summary>
+        public List<MetaUpgradeEntry> upgradeLevels = new();
+
         /// <summary>런 기록(최고 스테이지·최장 런 등).</summary>
         public MetaRecords records = new();
 
@@ -37,6 +40,17 @@ namespace Abyss.Runtime.Meta
             UpdateSaveTime();
             if (version <= 0) version = 1;
         }
+    }
+
+    /// <summary>
+    /// 메타 업그레이드 1건의 저장 항목. JsonUtility가 Dictionary를 직렬화하지 못하므로
+    /// List&lt;MetaUpgradeEntry&gt;로 upgradeId→level 매핑을 보관한다.
+    /// </summary>
+    [Serializable]
+    public struct MetaUpgradeEntry
+    {
+        public string upgradeId;
+        public int level;
     }
 
     /// <summary>

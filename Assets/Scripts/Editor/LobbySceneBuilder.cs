@@ -53,9 +53,11 @@ namespace Abyss.EditorTools
             var prompt = CreatePrompt(canvas.transform);
             var panel = CreateFormSelectPanel(canvas);
             var dialogueUI = CreateDialogueUI(canvas);
+            var altarPanel = CreateMetaUpgradePanel(canvas);
 
             var guideNpc = CreateGuideNpc();
             var serviceNpc = CreateServiceNpc();
+            var altarNpc = CreateAltarNpc();
 
             // 와이어링
             WireCamera(cameraFollow, player.transform);
@@ -64,6 +66,8 @@ namespace Abyss.EditorTools
             WirePortal(portal);
             WireServiceNpc(serviceNpc, panel.component, controller);
             WireDialogueNpc(guideNpc, dialogueUI, controller);
+            LoadOrCreateMetaUpgrades();
+            WireAltarNpc(altarNpc, altarPanel, controller);
 
             EnsureSceneFolder();
             EditorSceneManager.SaveScene(scene, AbyssPaths.LobbyScene);

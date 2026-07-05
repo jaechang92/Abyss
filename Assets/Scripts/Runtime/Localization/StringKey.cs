@@ -62,5 +62,18 @@ namespace Abyss.Runtime.Localization
         // ---- 로비 상호작용 ----
         public const string Portal_Prompt = "Portal_Prompt";
         public const string Npc_Service_Prompt = "Npc_Service_Prompt";
+
+        // ---- 심연의 제단 (메타 영구 업그레이드) ----
+        public const string Npc_Altar_Prompt = "Npc_Altar_Prompt";
+        public const string Altar_Title = "Altar_Title";
+        public const string Altar_ShardsFormat = "Altar_ShardsFormat";
+        public const string Altar_LevelFormat = "Altar_LevelFormat";
+        public const string Altar_CostFormat = "Altar_CostFormat";
+        public const string Altar_Maxed = "Altar_Maxed";
+        public const string Altar_Purchase = "Altar_Purchase";
+        public const string Upgrade_MaxHp_Name = "Upgrade_MaxHp_Name";
+        public const string Upgrade_MaxHp_Desc = "Upgrade_MaxHp_Desc";
+        public const string Upgrade_Attack_Name = "Upgrade_Attack_Name";
+        public const string Upgrade_Attack_Desc = "Upgrade_Attack_Desc";
     }
 }
