@@ -263,7 +263,9 @@ namespace Abyss.Runtime.Run
 
         private int CalcExpRequirement(int level)
         {
-            return Mathf.RoundToInt(BaseExpToLevel * Mathf.Pow(ExpGrowthPerLevel, level - 1));
+            // 하한 1 보장 — RunConfig 값 조합(expGrowthPerLevel<1 등)으로 요구치가 0으로
+            // 반올림되면 GainExp의 while 루프가 감소 없이 영구 참이 되어 프리즈한다.
+            return Mathf.Max(1, Mathf.RoundToInt(BaseExpToLevel * Mathf.Pow(ExpGrowthPerLevel, level - 1)));
         }
     }
 }

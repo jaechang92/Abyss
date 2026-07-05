@@ -41,6 +41,9 @@ namespace Abyss.Runtime.Player
         private void OnJump(InputValue value)
         {
             if (!value.isPressed) return;
+            // 대시 중에는 FixedUpdateMovement가 속도를 dashDirection으로 덮어써 점프가 무효화된다.
+            // 점프 횟수만 낭비되지 않도록 대시 종료 후에만 점프를 허용한다(대시-점프 캔슬은 후속 검토).
+            if (IsDashing) return;
             if (jumpsRemaining <= 0) return;
 
             body.linearVelocity = new Vector2(body.linearVelocity.x, jumpForce);
