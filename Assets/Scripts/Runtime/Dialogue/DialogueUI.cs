@@ -36,6 +36,15 @@ namespace Abyss.Runtime.Dialogue
         /// <summary>대사 라인 배열 직접 재생(스토리 챕터 등). 라인이 없으면 즉시 complete 호출.</summary>
         public void Play(DialogueLine[] dialogueLines, Action complete)
         {
+            // 이미 재생 중에 다른 호출자가 Play하면, 이전 onComplete를 먼저 정리해
+            // 이전 NPC의 busy/InputLocked 고착(이동 불가)을 막는다.
+            if (IsOpen)
+            {
+                var prev = onComplete;
+                onComplete = null;
+                prev?.Invoke();
+            }
+
             if (dialogueLines == null || dialogueLines.Length == 0)
             {
                 complete?.Invoke();

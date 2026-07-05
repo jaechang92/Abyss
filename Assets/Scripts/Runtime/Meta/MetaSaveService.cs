@@ -94,6 +94,8 @@ namespace Abyss.Runtime.Meta
             var r = current.records;
             r.totalRunCount += 1;
             r.totalBossKillCount += Mathf.Max(0, bossKillDelta);
+            // bestStageId는 roomId 문자열이라 대소 비교가 불가 → '최근 런의 최종 도달 스테이지'로 갱신한다
+            // (런은 진행할수록 깊어지므로 대개 최고와 일치). 정밀한 최고 비교는 스테이지 인덱스 도입 후속.
             if (!string.IsNullOrEmpty(reachedStageId)) r.bestStageId = reachedStageId;
             if (runDurationSeconds > r.bestRunDurationSeconds) r.bestRunDurationSeconds = runDurationSeconds;
             if (goldShards > r.bestGoldShards) r.bestGoldShards = goldShards;

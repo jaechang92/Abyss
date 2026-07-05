@@ -183,7 +183,12 @@ namespace Abyss.Runtime.Draft
         {
             if (!isSessionActive || incoming == null) return false;
 
-            RemoveOwned(droppedSkillId);
+            // 제거가 실패(잘못된 id)하면 신규만 추가돼 슬롯 상한을 초과한다 → 획득 중단.
+            if (!RemoveOwned(droppedSkillId))
+            {
+                Debug.LogWarning($"[Draft] 교체 대상 '{droppedSkillId}' 제거 실패 — 획득 취소");
+                return false;
+            }
             AcquireSkill(incoming);
             GameEvents.RaiseSkillDrafted(incoming, currentReason);
             CloseSession();
@@ -240,7 +245,7 @@ namespace Abyss.Runtime.Draft
             if (!string.IsNullOrEmpty(skill.synergyTag)) ownedSynergyTags.Add(skill.synergyTag);
         }
 
-        private void RemoveOwned(string skillId)
+        private bool RemoveOwned(string skillId)
         {
             for (int i = owned.Count - 1; i >= 0; i--)
             {
@@ -251,9 +256,10 @@ namespace Abyss.Runtime.Draft
                     ownedSkillIds.Remove(skillId);
                     RecomputeSynergyTags();
                     Debug.Log($"[Draft] 교체: {removed.displayName} 제거");
-                    break;
+                    return true;
                 }
             }
+            return false;
         }
 
         private void RecomputeSynergyTags()

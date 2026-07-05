@@ -42,6 +42,7 @@ namespace Abyss.Runtime.Skill.Effects
                 Vector2 spawnPos = (Vector2)context.Position + dir * data.projectileSpawnOffset;
 
                 var proj = PoolManager.Instance.Get(data.projectilePrefab, (Vector3)spawnPos, Quaternion.identity);
+                if (proj == null) continue;  // 풀 고갈·프리팹 불일치 시 NRE 방지
                 proj.Launch(dir, data.damage, data.projectileSpeed, data.projectileLifetime,
                             data.projectilePrefab, ProjectileFaction.HitsEnemies);
 
