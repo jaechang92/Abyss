@@ -58,6 +58,7 @@ namespace Abyss.EditorTools
             var guideNpc = CreateGuideNpc();
             var serviceNpc = CreateServiceNpc();
             var altarNpc = CreateAltarNpc();
+            var storyNpc = CreateStoryNpc();
 
             // 와이어링
             WireCamera(cameraFollow, player.transform);
@@ -68,6 +69,8 @@ namespace Abyss.EditorTools
             WireDialogueNpc(guideNpc, dialogueUI, controller);
             LoadOrCreateMetaUpgrades();
             WireAltarNpc(altarNpc, altarPanel, controller);
+            var storyData = LoadOrCreateStoryData();
+            WireStoryNpc(storyNpc, storyData, dialogueUI, controller);
 
             EnsureSceneFolder();
             EditorSceneManager.SaveScene(scene, AbyssPaths.LobbyScene);

@@ -19,6 +19,7 @@ namespace Abyss.EditorTools
         public const string Abilities = Data + "/Abilities";
         public const string Physics = Data + "/Physics";
         public const string Dialogue = Data + "/Dialogue";
+        public const string Story = Data + "/Story"; // 서사(기록자) StoryData SO
         public const string RunConfigDir = "Assets/Resources/Data"; // P-14: 런타임 Resources.Load 대상(정규 위치)
         public const string MetaUpgrades = RunConfigDir + "/MetaUpgrades"; // 메타 영구 업그레이드 SO(런타임 Resources.LoadAll)
 

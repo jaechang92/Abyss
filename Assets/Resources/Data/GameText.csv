@@ -46,3 +46,12 @@ Upgrade_MaxHp_Name,메타,업그레이드 이름,,,생명력 강화,Vitality,生
 Upgrade_MaxHp_Desc,메타,업그레이드 설명,,,레벨당 최대 체력 +20,+20 Max HP per level,レベルごとに最大HP +20
 Upgrade_Attack_Name,메타,업그레이드 이름,,,공격력 강화,Power,攻撃力強化
 Upgrade_Attack_Desc,메타,업그레이드 설명,,,레벨당 공격력 +8%,+8% Attack per level,レベルごとに攻撃力 +8%
+Npc_Chronicler_Name,대화,로비-기록자 이름,,,기록자,Chronicler,記録者
+Npc_Chronicler_Prompt,대화,로비-기록자 프롬프트,,,이야기 듣기 (G),Listen (G),話を聞く (G)
+Story_Ch1_Line1,서사,챕터1-1,,,또 하나의 낙오자인가. 심연은 언제나 새로운 손님을 기다려 왔지.,Another castaway. The Abyss has always awaited new guests.,また一人の落伍者か。深淵は常に新たな客を待っていた。
+Story_Ch1_Line2,서사,챕터1-2,,,"수많은 이가 이 아래로 내려갔고, 돌아온 자는 없었다. 허나 자네에게선... 낯선 냄새가 나는군.","Many descended below, and none returned. Yet from you... I sense something unfamiliar.",幾多の者が下へ降り、戻った者はいない。だが君からは…見知らぬ気配がする。
+Story_Ch2_Line1,서사,챕터2-1,,,돌아왔군. 첫 추락에서 삼켜지지 않은 자는 드물다.,You have returned. Few survive being swallowed by the first fall.,戻ってきたか。最初の落下で呑まれぬ者は稀だ。
+Story_Ch2_Line2,서사,챕터2-2,,,"명심하게. 심연은 살아 숨쉬며, 지금 자네를 시험하고 있어.","Remember this. The Abyss breathes, and it is testing you now.",心に刻め。深淵は息づき、今も君を試している。
+Story_Ch3_Line1,서사,챕터3-1,,,수호자를 쓰러뜨렸다고? 그 아래엔 더 오래된 것들이 잠들어 있네.,You felled the Keeper? Below it slumber things far older.,守護者を倒しただと？その下にはさらに古きものが眠っている。
+Story_Ch3_Line2,서사,챕터3-2,,,자네가 찾는 답은 가장 깊은 곳에 있어. 허나 그 대가를 치를 각오는 되었는가.,The answer you seek lies at the deepest point. But are you prepared to pay its price?,君が求める答えは最も深き場所にある。だが、その代償を払う覚悟はあるか。
+Story_Idle_Line1,서사,기록자 대기,,,지금은 더 들려줄 이야기가 없군. 더 깊이 내려가 보게.,I have no more tales for now. Descend deeper.,今は語る話がない。さらに深く降りてみよ。

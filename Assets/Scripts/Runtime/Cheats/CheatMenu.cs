@@ -77,6 +77,7 @@ namespace Abyss.Runtime.Cheats
             DrawTimeSection();
             DrawPlayerSection();
             DrawCurrencySection();
+            DrawStorySection();
             DrawProgressSection();
             DrawEnemySection();
             DrawSkillSection();
@@ -184,6 +185,32 @@ namespace Abyss.Runtime.Cheats
                 GUILayout.EndHorizontal();
             }
             else GUILayout.Label("(MetaSaveService 없음)");
+            GUILayout.Space(6);
+        }
+
+        // ====== 스토리(기록자) ======
+        private void DrawStorySection()
+        {
+            GUILayout.Label("■ 스토리(기록자)", headerStyle);
+            var meta = MetaSaveService.Instance;
+            if (meta == null)
+            {
+                GUILayout.Label("(MetaSaveService 없음)");
+                GUILayout.Space(6);
+                return;
+            }
+
+            var save = meta.Current;
+            int runDelta = save.records.totalRunCount - save.storyRunSnapshot;
+            int bossDelta = save.records.totalBossKillCount - save.storyBossSnapshot;
+            GUILayout.Label($"storyStage = {meta.StoryStage}  (런델타 {runDelta} / 보스델타 {bossDelta})");
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("리셋(0)")) meta.DebugSetStoryStage(0);
+            if (GUILayout.Button("단계 -1")) meta.DebugSetStoryStage(meta.StoryStage - 1);
+            if (GUILayout.Button("단계 +1")) meta.DebugSetStoryStage(meta.StoryStage + 1);
+            GUILayout.EndHorizontal();
+            GUILayout.Label("※ 설정 시 스냅샷 0 리셋 — 다음 대화에서 해당 다음 챕터 열람 가능(누적 기준)");
             GUILayout.Space(6);
         }
 
