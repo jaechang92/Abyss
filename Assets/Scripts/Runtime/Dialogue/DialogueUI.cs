@@ -18,7 +18,7 @@ namespace Abyss.Runtime.Dialogue
         [SerializeField] private Text bodyLabel;
         [SerializeField] private Text hintLabel;
 
-        private DialogueData current;
+        private DialogueLine[] lines;
         private int index;
         private Action onComplete;
 
@@ -29,16 +29,20 @@ namespace Abyss.Runtime.Dialogue
             if (root != null) root.SetActive(false);
         }
 
-        /// <summary>대화 재생. 라인이 없으면 즉시 complete 호출.</summary>
+        /// <summary>DialogueData 재생. 라인이 없으면 즉시 complete 호출.</summary>
         public void Play(DialogueData data, Action complete)
+            => Play(data != null ? data.lines : null, complete);
+
+        /// <summary>대사 라인 배열 직접 재생(스토리 챕터 등). 라인이 없으면 즉시 complete 호출.</summary>
+        public void Play(DialogueLine[] dialogueLines, Action complete)
         {
-            if (data == null || data.lines == null || data.lines.Length == 0)
+            if (dialogueLines == null || dialogueLines.Length == 0)
             {
                 complete?.Invoke();
                 return;
             }
 
-            current = data;
+            lines = dialogueLines;
             onComplete = complete;
             index = 0;
             if (root != null) root.SetActive(true);
@@ -59,7 +63,7 @@ namespace Abyss.Runtime.Dialogue
 
         private void ShowLine()
         {
-            var line = current.lines[index];
+            var line = lines[index];
             if (speakerLabel != null) speakerLabel.text = Loc.Get(line.speakerKey);
             if (bodyLabel != null) bodyLabel.text = Loc.Get(line.textKey);
         }
@@ -67,7 +71,7 @@ namespace Abyss.Runtime.Dialogue
         private void Advance()
         {
             index++;
-            if (index >= current.lines.Length)
+            if (index >= lines.Length)
             {
                 Close();
                 var cb = onComplete;
@@ -81,7 +85,7 @@ namespace Abyss.Runtime.Dialogue
         private void Close()
         {
             if (root != null) root.SetActive(false);
-            current = null;
+            lines = null;
         }
     }
 }

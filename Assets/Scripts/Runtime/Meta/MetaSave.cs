@@ -25,6 +25,15 @@ namespace Abyss.Runtime.Meta
         /// <summary>심연의 제단 영구 업그레이드 레벨 목록. upgradeId 기준.</summary>
         public List<MetaUpgradeEntry> upgradeLevels = new();
 
+        /// <summary>마지막으로 시청한 스토리 챕터 단계(0 = 미시청). 서사 NPC가 다음 챕터 해금에 사용.</summary>
+        public int storyStage;
+
+        /// <summary>마지막 챕터 시청 시점의 누적 런 수 스냅샷. 다음 챕터는 이 이후 추가 진전으로 해금.</summary>
+        public int storyRunSnapshot;
+
+        /// <summary>마지막 챕터 시청 시점의 누적 보스 처치 스냅샷.</summary>
+        public int storyBossSnapshot;
+
         /// <summary>런 기록(최고 스테이지·최장 런 등).</summary>
         public MetaRecords records = new();
 

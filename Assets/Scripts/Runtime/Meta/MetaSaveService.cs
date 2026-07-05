@@ -148,6 +148,43 @@ namespace Abyss.Runtime.Meta
             current.upgradeLevels.Add(new MetaUpgradeEntry { upgradeId = upgradeId, level = level });
         }
 
+        /// <summary>마지막으로 시청한 스토리 챕터 단계(0 = 미시청).</summary>
+        public int StoryStage
+        {
+            get
+            {
+                EnsureLoaded();
+                return current.storyStage;
+            }
+        }
+
+        /// <summary>
+        /// 스토리 진행 단계를 전진시키고, 시청 시점의 런/보스 누적 스냅샷을 기록한다.
+        /// 다음 챕터는 이 스냅샷 이후의 추가 진전으로 해금된다. 현재 단계 이하 값은 무시(후퇴 방지).
+        /// </summary>
+        public void AdvanceStory(int stage, int runSnapshot, int bossSnapshot, bool autoSave = true)
+        {
+            EnsureLoaded();
+            if (stage <= current.storyStage) return;
+            current.storyStage = stage;
+            current.storyRunSnapshot = runSnapshot;
+            current.storyBossSnapshot = bossSnapshot;
+            if (autoSave) Save();
+        }
+
+        /// <summary>
+        /// 디버그/치트: 스토리 단계를 임의 설정(후퇴 포함). 스냅샷은 0으로 리셋해
+        /// 델타 조건을 누적 기준으로 만든다(치트로 다음 챕터를 곧바로 열람하기 위함).
+        /// </summary>
+        public void DebugSetStoryStage(int stage, bool autoSave = true)
+        {
+            EnsureLoaded();
+            current.storyStage = Mathf.Max(0, stage);
+            current.storyRunSnapshot = 0;
+            current.storyBossSnapshot = 0;
+            if (autoSave) Save();
+        }
+
         /// <summary>
         /// 옵션 창 등에서 볼륨 변경 시 호출. 일괄 저장은 호출자가 컨트롤.
         /// </summary>

@@ -75,5 +75,16 @@ namespace Abyss.Runtime.Localization
         public const string Upgrade_MaxHp_Desc = "Upgrade_MaxHp_Desc";
         public const string Upgrade_Attack_Name = "Upgrade_Attack_Name";
         public const string Upgrade_Attack_Desc = "Upgrade_Attack_Desc";
+
+        // ---- 서사 (기록자 NPC) ----
+        public const string Npc_Chronicler_Name = "Npc_Chronicler_Name";
+        public const string Npc_Chronicler_Prompt = "Npc_Chronicler_Prompt";
+        public const string Story_Ch1_Line1 = "Story_Ch1_Line1";
+        public const string Story_Ch1_Line2 = "Story_Ch1_Line2";
+        public const string Story_Ch2_Line1 = "Story_Ch2_Line1";
+        public const string Story_Ch2_Line2 = "Story_Ch2_Line2";
+        public const string Story_Ch3_Line1 = "Story_Ch3_Line1";
+        public const string Story_Ch3_Line2 = "Story_Ch3_Line2";
+        public const string Story_Idle_Line1 = "Story_Idle_Line1";
     }
 }
