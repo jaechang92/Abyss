@@ -156,7 +156,9 @@ namespace Abyss.Runtime.Stage
         {
             if (spawnPoints != null && spawnPoints.Length > 0)
             {
-                return spawnPoints[index % spawnPoints.Length];
+                // 인스펙터에서 슬롯을 비우면 요소가 null일 수 있음 → transform 폴백으로 NRE 방지.
+                var sp = spawnPoints[index % spawnPoints.Length];
+                if (sp != null) return sp;
             }
             return transform;
         }

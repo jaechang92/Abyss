@@ -42,8 +42,23 @@ namespace Abyss.Runtime.Feedback
             if (!isActive) return;
             if (Time.realtimeSinceStartup < restoreAt) return;
 
-            Time.timeScale = restoreScale > 0f ? restoreScale : 1f;
+            // 히트스탑 창 동안 외부(치트 배속 등)가 timeScale을 0이 아닌 값으로 바꿨다면
+            // 그 값을 존중하고 덮어쓰지 않는다. 히트스탑이 세팅한 0일 때만 원복.
+            if (Mathf.Approximately(Time.timeScale, 0f))
+            {
+                Time.timeScale = restoreScale > 0f ? restoreScale : 1f;
+            }
             isActive = false;
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            // 히트스탑 활성 중 파괴 시 timeScale=0 고착 방지.
+            if (isActive && Mathf.Approximately(Time.timeScale, 0f))
+            {
+                Time.timeScale = restoreScale > 0f ? restoreScale : 1f;
+            }
         }
     }
 }

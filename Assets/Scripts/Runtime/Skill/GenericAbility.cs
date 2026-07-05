@@ -43,8 +43,15 @@ namespace Abyss.Runtime.Skill
             BeginExecution();
             try
             {
+                // data 미주입 시 각 효과가 data.* 즉시 역참조로 NRE → 단일 진입점에서 차단.
+                if (data == null)
+                {
+                    Debug.LogWarning($"[GenericAbility] {abilityName}: data 미주입 — 실행 skip");
+                    return;
+                }
+
                 // 발동음 — 효과 종류 무관 단일 지점 재생(무음 가드). 효과별 세분화는 후속.
-                if (data != null && data.castSfx != null && AudioManager.HasInstance)
+                if (data.castSfx != null && AudioManager.HasInstance)
                 {
                     AudioManager.Instance.PlaySfx(data.castSfx);
                 }

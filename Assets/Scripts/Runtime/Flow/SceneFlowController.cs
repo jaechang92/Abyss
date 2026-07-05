@@ -41,30 +41,37 @@ namespace Abyss.Runtime.Flow
             }
 
             isLoading = true;
-            Debug.Log($"[SceneFlowController] 씬 로드 시작: {sceneName}");
-
-            // 화면을 검게 덮은 뒤 로드 → 로드 중 씬 전환 끊김을 감춘다.
-            await Fader.FadeOutAsync();
-
-            var op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
-            if (op == null)
+            // 페이드/로드 await 중 예외·취소가 나도 isLoading이 true로 고착되면 이후 모든 전환이
+            // 상단 가드에서 무시된다. finally로 반드시 복구해 씬 전환 영구 잠금을 막는다.
+            try
             {
-                Debug.LogError($"[SceneFlowController] 씬 로드 실패 — 빌드 설정(Build Settings)에 '{sceneName}'이(가) 등록되어 있는지 확인.");
-                await Fader.FadeInAsync();  // 실패 시 덮인 화면 복구
+                Debug.Log($"[SceneFlowController] 씬 로드 시작: {sceneName}");
+
+                // 화면을 검게 덮은 뒤 로드 → 로드 중 씬 전환 끊김을 감춘다.
+                await Fader.FadeOutAsync();
+
+                var op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+                if (op == null)
+                {
+                    Debug.LogError($"[SceneFlowController] 씬 로드 실패 — 빌드 설정(Build Settings)에 '{sceneName}'이(가) 등록되어 있는지 확인.");
+                    await Fader.FadeInAsync();  // 실패 시 덮인 화면 복구
+                    return;
+                }
+
+                while (!op.isDone)
+                {
+                    await Awaitable.NextFrameAsync(destroyCancellationToken);
+                }
+
+                // 새 씬이 활성화된 뒤 화면을 걷어낸다.
+                await Fader.FadeInAsync();
+
+                Debug.Log($"[SceneFlowController] 씬 로드 완료: {sceneName}");
+            }
+            finally
+            {
                 isLoading = false;
-                return;
             }
-
-            while (!op.isDone)
-            {
-                await Awaitable.NextFrameAsync(destroyCancellationToken);
-            }
-
-            // 새 씬이 활성화된 뒤 화면을 걷어낸다.
-            await Fader.FadeInAsync();
-
-            isLoading = false;
-            Debug.Log($"[SceneFlowController] 씬 로드 완료: {sceneName}");
         }
     }
 }
