@@ -12,8 +12,12 @@ namespace Abyss.Runtime.Flow
     public sealed class SceneFlowController : SingletonManager<SceneFlowController>
     {
         private bool isLoading;
+        private ScreenFader fader;
 
         public bool IsLoading => isLoading;
+
+        // 페이드 오버레이는 최초 씬 로드 시 지연 생성한다(영속, DontDestroyOnLoad).
+        private ScreenFader Fader => fader != null ? fader : (fader = ScreenFader.Create());
 
         public Awaitable LoadBootstrapAsync() => LoadSceneAsync(SceneNames.Bootstrap);
         public Awaitable LoadLobbyAsync() => LoadSceneAsync(SceneNames.Lobby);
@@ -39,10 +43,14 @@ namespace Abyss.Runtime.Flow
             isLoading = true;
             Debug.Log($"[SceneFlowController] 씬 로드 시작: {sceneName}");
 
+            // 화면을 검게 덮은 뒤 로드 → 로드 중 씬 전환 끊김을 감춘다.
+            await Fader.FadeOutAsync();
+
             var op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
             if (op == null)
             {
                 Debug.LogError($"[SceneFlowController] 씬 로드 실패 — 빌드 설정(Build Settings)에 '{sceneName}'이(가) 등록되어 있는지 확인.");
+                await Fader.FadeInAsync();  // 실패 시 덮인 화면 복구
                 isLoading = false;
                 return;
             }
@@ -51,6 +59,9 @@ namespace Abyss.Runtime.Flow
             {
                 await Awaitable.NextFrameAsync(destroyCancellationToken);
             }
+
+            // 새 씬이 활성화된 뒤 화면을 걷어낸다.
+            await Fader.FadeInAsync();
 
             isLoading = false;
             Debug.Log($"[SceneFlowController] 씬 로드 완료: {sceneName}");
