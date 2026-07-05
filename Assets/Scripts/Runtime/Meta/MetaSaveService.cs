@@ -101,6 +101,54 @@ namespace Abyss.Runtime.Meta
         }
 
         /// <summary>
+        /// 지정 업그레이드의 현재 레벨. 미보유/빈 ID는 0.
+        /// </summary>
+        public int GetUpgradeLevel(string upgradeId)
+        {
+            if (string.IsNullOrEmpty(upgradeId)) return 0;
+            EnsureLoaded();
+            foreach (var e in current.upgradeLevels)
+            {
+                if (e.upgradeId == upgradeId) return e.level;
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// 업그레이드 1레벨 구매 시도. 최대 레벨 도달·잔액 부족 시 false(변경 없음).
+        /// 성공 시 abyss_shards 차감 + 레벨++ 후 즉시 저장(autoSave).
+        /// </summary>
+        public bool TryPurchaseUpgrade(MetaUpgradeData data, bool autoSave = true)
+        {
+            if (data == null || string.IsNullOrEmpty(data.upgradeId)) return false;
+            EnsureLoaded();
+
+            int level = GetUpgradeLevel(data.upgradeId);
+            if (level >= data.MaxLevel) return false;             // 최대 도달
+
+            int cost = data.CostForNextLevel(level);
+            if (cost < 0 || current.abyssShardsTotal < cost) return false;  // 잔액 부족
+
+            current.abyssShardsTotal -= cost;
+            SetUpgradeLevel(data.upgradeId, level + 1);
+            if (autoSave) Save();
+            return true;
+        }
+
+        private void SetUpgradeLevel(string upgradeId, int level)
+        {
+            for (int i = 0; i < current.upgradeLevels.Count; i++)
+            {
+                if (current.upgradeLevels[i].upgradeId != upgradeId) continue;
+                var e = current.upgradeLevels[i];
+                e.level = level;
+                current.upgradeLevels[i] = e;
+                return;
+            }
+            current.upgradeLevels.Add(new MetaUpgradeEntry { upgradeId = upgradeId, level = level });
+        }
+
+        /// <summary>
         /// 옵션 창 등에서 볼륨 변경 시 호출. 일괄 저장은 호출자가 컨트롤.
         /// </summary>
         public void UpdateSettings(float masterVolume, float bgmVolume, float sfxVolume, bool autoSave = true)
@@ -161,6 +209,7 @@ namespace Abyss.Runtime.Meta
         {
             save.unlockedFormIds ??= new List<string>();
             save.unlockedSkillIds ??= new List<string>();
+            save.upgradeLevels ??= new List<MetaUpgradeEntry>();
             save.records ??= new MetaRecords();
             save.settings ??= new MetaSettings();
         }

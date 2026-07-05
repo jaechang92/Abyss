@@ -20,6 +20,7 @@ namespace Abyss.EditorTools
         public const string Physics = Data + "/Physics";
         public const string Dialogue = Data + "/Dialogue";
         public const string RunConfigDir = "Assets/Resources/Data"; // P-14: 런타임 Resources.Load 대상(정규 위치)
+        public const string MetaUpgrades = RunConfigDir + "/MetaUpgrades"; // 메타 영구 업그레이드 SO(런타임 Resources.LoadAll)
 
         // 프리팹 디렉터리
         private const string Prefabs = "Assets/Prefabs";

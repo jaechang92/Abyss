@@ -172,15 +172,18 @@ namespace Abyss.Runtime.Cheats
             }
             else GUILayout.Label("(RunManager 없음)");
 
-            if (MetaSaveService.HasInstance)
+            // 심연 조각은 영속 메타 재화 — Bootstrap을 거치지 않은 로비 단독 플레이에서도
+            // Instance 접근으로 즉석 생성해 제단 업그레이드를 테스트할 수 있게 한다.
+            var meta = MetaSaveService.Instance;
+            if (meta != null)
             {
-                var meta = MetaSaveService.Instance;
                 GUILayout.Label($"심연 조각(메타) = {meta.Current.abyssShardsTotal}");
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("심연 +100")) meta.AddAbyssShards(100);
                 if (GUILayout.Button("심연 +1000")) meta.AddAbyssShards(1000);
                 GUILayout.EndHorizontal();
             }
+            else GUILayout.Label("(MetaSaveService 없음)");
             GUILayout.Space(6);
         }
 
