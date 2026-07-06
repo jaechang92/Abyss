@@ -132,7 +132,7 @@ namespace Abyss.Runtime.UI
             if (abyssEarnedText != null)
             {
                 int earned = RunManager.HasInstance ? RunManager.Instance.LastRunAbyssShardsEarned : 0;
-                int total = MetaSaveService.HasInstance ? MetaSaveService.Instance.Current.abyssShardsTotal : 0;
+                int total = MetaSaveService.Instance.Current.abyssShardsTotal;
                 abyssEarnedText.text = $"Abyss 획득: +{earned}  (누적 {total})";
             }
         }

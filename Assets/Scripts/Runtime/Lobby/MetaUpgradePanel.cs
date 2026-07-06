@@ -143,21 +143,21 @@ namespace Abyss.Runtime.Lobby
 
         private void OnPurchase(UpgradeRow row)
         {
-            if (row == null || row.Data == null || !MetaSaveService.HasInstance) return;
+            if (row == null || row.Data == null) return;
             if (MetaSaveService.Instance.TryPurchaseUpgrade(row.Data)) Refresh();
         }
 
         /// <summary>잔액·레벨·비용·버튼 상태를 전체 재계산한다.</summary>
         private void Refresh()
         {
-            int shards = MetaSaveService.HasInstance ? MetaSaveService.Instance.Current.abyssShardsTotal : 0;
+            int shards = MetaSaveService.Instance.Current.abyssShardsTotal;
             if (shardsLabel != null) shardsLabel.text = Loc.GetFormat(StringKey.Altar_ShardsFormat, shards);
 
             foreach (var row in rows)
             {
                 if (row == null || row.Data == null) continue;
 
-                int level = MetaSaveService.HasInstance ? MetaSaveService.Instance.GetUpgradeLevel(row.Data.upgradeId) : 0;
+                int level = MetaSaveService.Instance.GetUpgradeLevel(row.Data.upgradeId);
                 if (row.LevelLabel != null) row.LevelLabel.text = Loc.GetFormat(StringKey.Altar_LevelFormat, level, row.Data.MaxLevel);
 
                 int cost = row.Data.CostForNextLevel(level);

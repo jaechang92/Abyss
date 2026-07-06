@@ -154,18 +154,13 @@ namespace Abyss.Runtime.Run
         }
 
         /// <summary>
-        /// 런 종료 시 메타 진행 정산. MetaSaveService가 비활성화된 경우 skip.
+        /// 런 종료 시 메타 진행 정산. MetaSaveService는 코어 저장 싱글톤이므로 Instance로 접근해
+        /// Bootstrap 미경유(로비 단독 플레이 등)에서도 정산 결과가 유실되지 않게 한다(싱글턴 접근 정책).
         /// 환산: goldShards * abyssShardsConversionRate (반올림, 음수 가드).
         /// </summary>
         private void SettleMetaProgress()
         {
             lastRunAbyssShardsEarned = Mathf.Max(0, Mathf.RoundToInt(goldShards * AbyssShardsConversionRate));
-
-            if (!MetaSaveService.HasInstance)
-            {
-                Debug.LogWarning("[RunManager] MetaSaveService 미초기화 — abyss_shards 정산 skip");
-                return;
-            }
 
             var meta = MetaSaveService.Instance;
             if (lastRunAbyssShardsEarned > 0)
