@@ -37,6 +37,16 @@ namespace Abyss.Runtime.Feedback
 
         public void TriggerMs(int milliseconds) => Trigger(milliseconds / 1000f);
 
+        /// <summary>
+        /// 진행 중인 히트스탑을 원복 없이 취소한다. 게임플로우 정지(드래프트/결과)처럼 외부가 timeScale을
+        /// 권위적으로 제어할 때, 히트스탑의 지연 원복(restoreScale=1)이 그 정지를 덮어써 적이 다시 움직이는
+        /// 문제를 막는다. timeScale 자체는 건드리지 않고 원복 예약만 해제한다.
+        /// </summary>
+        public void CancelActive()
+        {
+            isActive = false;
+        }
+
         private void Update()
         {
             if (!isActive) return;
