@@ -47,14 +47,8 @@ namespace Abyss.Runtime.Run
 
         protected override void OnAwake()
         {
-            if (config == null)
-            {
-                config = Resources.Load<RunConfig>("Data/RunConfig");
-                if (config == null)
-                {
-                    Debug.LogWarning("[RunManager] RunConfig 로드 실패 — 폴백 기본값 사용. Assets/Resources/Data/RunConfig.asset 확인 필요.");
-                }
-            }
+            // RunConfig SoT: SerializeField 오버라이드 우선, 없으면 공유 RunConfigProvider.Current.
+            config = RunConfigProvider.Resolve(config);
         }
 
         /// <summary>
@@ -154,18 +148,13 @@ namespace Abyss.Runtime.Run
         }
 
         /// <summary>
-        /// 런 종료 시 메타 진행 정산. MetaSaveService가 비활성화된 경우 skip.
+        /// 런 종료 시 메타 진행 정산. MetaSaveService는 코어 저장 싱글톤이므로 Instance로 접근해
+        /// Bootstrap 미경유(로비 단독 플레이 등)에서도 정산 결과가 유실되지 않게 한다(싱글턴 접근 정책).
         /// 환산: goldShards * abyssShardsConversionRate (반올림, 음수 가드).
         /// </summary>
         private void SettleMetaProgress()
         {
             lastRunAbyssShardsEarned = Mathf.Max(0, Mathf.RoundToInt(goldShards * AbyssShardsConversionRate));
-
-            if (!MetaSaveService.HasInstance)
-            {
-                Debug.LogWarning("[RunManager] MetaSaveService 미초기화 — abyss_shards 정산 skip");
-                return;
-            }
 
             var meta = MetaSaveService.Instance;
             if (lastRunAbyssShardsEarned > 0)
