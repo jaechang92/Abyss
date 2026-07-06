@@ -40,14 +40,8 @@ namespace Abyss.Runtime.Form
 
         private void Awake()
         {
-            if (config == null)
-            {
-                config = Resources.Load<RunConfig>("Data/RunConfig");
-                if (config == null)
-                {
-                    Debug.LogWarning("[FormController] RunConfig 로드 실패 — 폴백 기본값 사용. Assets/Resources/Data/RunConfig.asset 확인 필요.");
-                }
-            }
+            // RunConfig SoT: SerializeField 오버라이드 우선, 없으면 공유 RunConfigProvider.Current.
+            config = RunConfigProvider.Resolve(config);
 
             ApplyStartingForm();
         }
