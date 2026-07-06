@@ -68,6 +68,24 @@ namespace Abyss.Runtime.Form
             Debug.LogWarning($"[FormController] 시작 폼 '{id}'이(가) 슬롯에 없음 — 기본 활성 슬롯({activeSlot}) 유지.");
         }
 
+        /// <summary>
+        /// 이 런의 시작 폼을 반환한다. RunStartContext 선택을 우선 반영하되, ApplyStartingForm의
+        /// Awake 실행 순서와 무관하게 슬롯 직렬화만으로 해석한다(HP 초기화가 Awake에서 시작 폼 배율을
+        /// 순서 안전하게 읽기 위함). 미선택·부재 시 씬 기본 활성 슬롯을 반환한다.
+        /// </summary>
+        public FormData ResolveStartingForm()
+        {
+            if (RunStartContext.HasStartingForm)
+            {
+                string id = RunStartContext.StartingFormId;
+                for (int i = 0; i < slots.Length; i++)
+                {
+                    if (slots[i] != null && slots[i].formId == id) return slots[i];
+                }
+            }
+            return (activeSlot >= 0 && activeSlot < slots.Length) ? slots[activeSlot] : null;
+        }
+
         public FormState State => state;
         public FormData CurrentForm => slots[activeSlot];
         public FormData OtherForm => slots[1 - activeSlot];

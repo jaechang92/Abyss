@@ -32,23 +32,35 @@ namespace Abyss.Runtime.Player
 
         private void InitializeHealth()
         {
-            // 최대 HP = RunConfig.baseHp(SoT) + 메타 업그레이드 보너스. 메타 배율도 이 시점에 확정.
-            maxHp = ResolveConfigBaseHp() + MetaUpgrades.MaxHpBonus();
+            // 최대 HP = RunConfig.baseHp(SoT) × 시작 폼 hpMultiplier + 메타 업그레이드 보너스.
+            // 폼별 HP 차별화는 '시작 폼 고정' 정책: 런 시작 폼 기준으로 여기서 1회 확정하고,
+            // 이후 폼 스왑(FormController.RequestSwap)에도 maxHp는 불변이다(악용·회복 없음).
+            maxHp = Mathf.RoundToInt(ResolveConfigBaseHp() * ResolveStartingFormHpMultiplier()) + MetaUpgrades.MaxHpBonus();
             metaAttackMult = MetaUpgrades.AttackMultiplier();
             currentHp = maxHp;
             isDead = false;
         }
 
         /// <summary>
-        /// 기본 최대 HP를 RunConfig(SoT)에서 읽는다. RunManager 미준비(Bootstrap 미경유 등) 시
-        /// RunConfig를 Resources에서 직접 폴백 로드해 초기화 순서와 무관하게 같은 값을 쓴다. 최후엔 로컬 baseHp.
+        /// 시작 폼의 hpMultiplier(1 = 무보정). formController 미참조 시 1배로 폴백한다.
+        /// Awake 실행 순서와 무관하도록 FormController.ResolveStartingForm으로 해석한다.
+        /// </summary>
+        private float ResolveStartingFormHpMultiplier()
+        {
+            var startForm = formController != null ? formController.ResolveStartingForm() : null;
+            return startForm != null ? startForm.hpMultiplier : 1f;
+        }
+
+        /// <summary>
+        /// 기본 최대 HP를 RunConfig(SoT)에서 읽는다. RunManager가 준비돼 있으면 그 config(에디터 오버라이드
+        /// 반영본)를 우선하고, 미준비(Bootstrap 미경유 등) 시 공유 RunConfigProvider.Current로 폴백해
+        /// 초기화 순서와 무관하게 같은 값을 쓴다. 최후엔 직렬화 로컬 baseHp.
         /// </summary>
         private int ResolveConfigBaseHp()
         {
-            if (RunManager.HasInstance && RunManager.Instance.Config != null)
-                return RunManager.Instance.Config.baseHp;
-
-            var cfg = Resources.Load<RunConfig>("Data/RunConfig");
+            var cfg = (RunManager.HasInstance && RunManager.Instance.Config != null)
+                ? RunManager.Instance.Config
+                : RunConfigProvider.Current;
             return cfg != null ? cfg.baseHp : baseHp;
         }
 
