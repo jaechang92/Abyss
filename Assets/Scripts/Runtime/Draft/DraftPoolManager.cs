@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Abyss.Runtime.Run;
 using UnityEngine;
 
 namespace Abyss.Runtime.Draft
@@ -38,13 +39,19 @@ namespace Abyss.Runtime.Draft
             var candidates = new List<SkillData>(pool.Count);
             var weights = new List<float>(pool.Count);
 
+            // 희귀도 분포는 RunConfig(SoT)에서 읽어 계산기에 주입한다. 미로드 시 Analyst 프로토 분포로 폴백.
+            var cfg = RunConfigProvider.Current;
+            var rarityWeights = cfg != null
+                ? new RarityWeights(cfg.commonWeight, cfg.rareWeight, cfg.epicWeight, cfg.legendaryWeight)
+                : RarityWeights.Default;
+
             for (int i = 0; i < pool.Count; i++)
             {
                 var skill = pool[i];
                 if (skill == null) continue;
                 if (excludedSkillIds != null && excludedSkillIds.Contains(skill.skillId)) continue;
 
-                float w = DraftWeightCalculator.CalculateWeight(skill, currentFormId, ownedSynergyTags);
+                float w = DraftWeightCalculator.CalculateWeight(skill, currentFormId, ownedSynergyTags, rarityWeights);
                 if (w > 0f)
                 {
                     candidates.Add(skill);

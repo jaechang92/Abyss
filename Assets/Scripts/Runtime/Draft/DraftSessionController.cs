@@ -14,14 +14,21 @@ namespace Abyss.Runtime.Draft
     [RequireComponent(typeof(DraftPoolManager))]
     public sealed class DraftSessionController : MonoBehaviour
     {
-        [Header("Analyst 확정 (03-skill-draft-system.md §2)")]
-        [SerializeField] private int optionCount = 3;
-        [SerializeField] private int[] rerollCostLadder = { 15, 30 };
-        [SerializeField] private int skipReward = 10;
-        [SerializeField] private int activeSlotLimit = 2;
-
         [Header("선택 참조 (런타임 연결)")]
         [SerializeField] private FormController formController;
+
+        // 드래프트 수치는 RunConfig(SoT)에서 읽는다(P1-B #9 후속 — 하드코딩 죽은 데이터 제거).
+        // config 미로드 시 아래 폴백 기본값. 값은 Analyst 확정 스펙(03-skill-draft-system.md §2) 및 RunConfig 기본값과 일치.
+        private const int DEFAULT_OPTION_COUNT = 3;
+        private static readonly int[] DEFAULT_REROLL_LADDER = { 15, 30 };
+        private const int DEFAULT_SKIP_REWARD = 10;
+        private const int DEFAULT_ACTIVE_SLOT_LIMIT = 2;
+
+        private RunConfig config;
+
+        private int OptionCount => config != null ? Mathf.Max(1, config.draftOptionCount) : DEFAULT_OPTION_COUNT;
+        private int[] RerollCostLadder => (config != null && config.rerollCostLadder != null) ? config.rerollCostLadder : DEFAULT_REROLL_LADDER;
+        private int ActiveSlotLimit => config != null ? Mathf.Max(1, config.activeSlotLimit) : DEFAULT_ACTIVE_SLOT_LIMIT;
 
         private DraftPoolManager pool;
         private readonly List<SkillData> owned = new();
@@ -76,11 +83,12 @@ namespace Abyss.Runtime.Draft
         }
         public DraftOptions CurrentOptions => currentOptions;
         public int RerollsUsed => rerollsUsed;
-        public int SkipReward => skipReward;
+        public int SkipReward => config != null ? config.skipReward : DEFAULT_SKIP_REWARD;
 
         private void Awake()
         {
             pool = GetComponent<DraftPoolManager>();
+            config = RunConfigProvider.Current; // RunConfig SoT — 미로드 시 폴백 기본값.
             ResolveFormController();
         }
 
@@ -114,13 +122,14 @@ namespace Abyss.Runtime.Draft
 
         public int GetRerollCost()
         {
-            if (rerollsUsed >= rerollCostLadder.Length) return int.MaxValue;
-            return rerollCostLadder[rerollsUsed];
+            var ladder = RerollCostLadder;
+            if (rerollsUsed >= ladder.Length) return int.MaxValue;
+            return ladder[rerollsUsed];
         }
 
         public bool CanReroll()
         {
-            if (!isSessionActive || rerollsUsed >= rerollCostLadder.Length) return false;
+            if (!isSessionActive || rerollsUsed >= RerollCostLadder.Length) return false;
             return RunManager.Instance != null && RunManager.Instance.GoldShards >= GetRerollCost();
         }
 
@@ -140,7 +149,7 @@ namespace Abyss.Runtime.Draft
         {
             if (!isSessionActive) return false;
 
-            RunManager.Instance?.GainGoldShards(skipReward);
+            RunManager.Instance?.GainGoldShards(SkipReward);
             CloseSession();
             return true;
         }
@@ -155,7 +164,7 @@ namespace Abyss.Runtime.Draft
 
             // 보유 상한은 현재 폼 컨텍스트 기준 — 폼별로 독립된 슬롯 2칸을 갖는다(폼별 로드아웃).
             string formId = CurrentFormId();
-            if (chosen.category == SkillCategory.Active && CountActiveOwnedForForm(formId) >= activeSlotLimit)
+            if (chosen.category == SkillCategory.Active && CountActiveOwnedForForm(formId) >= ActiveSlotLimit)
             {
                 GameEvents.RaiseDraftSlotReplaceRequested(chosen, SnapshotActiveOwnedForForm(formId));
                 return true;
@@ -220,7 +229,7 @@ namespace Abyss.Runtime.Draft
         private void DrawAndAnnounce()
         {
             string currentFormId = CurrentFormId();
-            var cards = pool.DrawOptions(optionCount, currentFormId, ownedSynergyTags, ownedSkillIds);
+            var cards = pool.DrawOptions(OptionCount, currentFormId, ownedSynergyTags, ownedSkillIds);
             currentOptions = new DraftOptions(cards, currentReason, rerollsUsed);
             GameEvents.RaiseDraftOptionsReady(currentOptions);
         }
