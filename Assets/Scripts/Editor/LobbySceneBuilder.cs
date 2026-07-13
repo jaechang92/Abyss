@@ -154,34 +154,12 @@ namespace Abyss.EditorTools
 
         private static DungeonPortal CreatePortal()
         {
-            var go = new GameObject("DungeonPortal");
-            go.transform.position = new Vector3(8f, -2.5f, 0f);
-            go.transform.localScale = new Vector3(1.5f, 2f, 1f);
-
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = EditorPlatformFactory.LoadWhiteSquare();
-            sr.color = new Color(0.6f, 0.3f, 0.8f);
-
-            var col = go.AddComponent<BoxCollider2D>();
-            col.isTrigger = true;
-
-            return go.AddComponent<DungeonPortal>();
+            return CreateNpcObject<DungeonPortal>("DungeonPortal", new Vector2(8f, -2.5f), new Vector2(1.5f, 2f), new Color(0.6f, 0.3f, 0.8f));
         }
 
         private static ServiceNpc CreateServiceNpc()
         {
-            var go = new GameObject("ServiceNpc");
-            go.transform.position = new Vector3(3f, -2.5f, 0f);
-            go.transform.localScale = new Vector3(1f, 2f, 1f);
-
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = EditorPlatformFactory.LoadWhiteSquare();
-            sr.color = new Color(0.4f, 0.8f, 0.6f);
-
-            var col = go.AddComponent<BoxCollider2D>();
-            col.isTrigger = true;
-
-            return go.AddComponent<ServiceNpc>();
+            return CreateNpcObject<ServiceNpc>("ServiceNpc", new Vector2(3f, -2.5f), new Vector2(1f, 2f), new Color(0.4f, 0.8f, 0.6f));
         }
 
         // ───────────────────────── UI ─────────────────────────
@@ -352,9 +330,7 @@ namespace Abyss.EditorTools
             var so = new SerializedObject(npc);
             SetObject(so, "formSelectPanel", panel);
             SetObject(so, "player", player);
-            var p = so.FindProperty("promptKey");
-            if (p != null) p.stringValue = StringKey.Npc_Service_Prompt;
-            so.ApplyModifiedProperties();
+            ApplyNpcPrompt(so, StringKey.Npc_Service_Prompt);
         }
 
         private static void ConfigurePlayerInput(PlayerInput input)

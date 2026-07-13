@@ -22,18 +22,7 @@ namespace Abyss.EditorTools
         /// <summary>기록자 NPC 생성. 트리거 콜라이더로 PlayerInteractor가 감지한다.</summary>
         private static StoryNpc CreateStoryNpc()
         {
-            var go = new GameObject("StoryNpc");
-            go.transform.position = new Vector3(-2.5f, -2.5f, 0f);
-            go.transform.localScale = new Vector3(1f, 2f, 1f);
-
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = EditorPlatformFactory.LoadWhiteSquare();
-            sr.color = ChroniclerColor;
-
-            var col = go.AddComponent<BoxCollider2D>();
-            col.isTrigger = true;
-
-            return go.AddComponent<StoryNpc>();
+            return CreateNpcObject<StoryNpc>("StoryNpc", new Vector2(-2.5f, -2.5f), new Vector2(1f, 2f), ChroniclerColor);
         }
 
         private static void WireStoryNpc(StoryNpc npc, StoryData story, DialogueUI dialogueUI, LobbyPlayerController player)
@@ -42,9 +31,7 @@ namespace Abyss.EditorTools
             SetObject(so, "story", story);
             SetObject(so, "dialogueUI", dialogueUI);
             SetObject(so, "player", player);
-            var p = so.FindProperty("promptKey");
-            if (p != null) p.stringValue = StringKey.Npc_Chronicler_Prompt;
-            so.ApplyModifiedProperties();
+            ApplyNpcPrompt(so, StringKey.Npc_Chronicler_Prompt);
         }
 
         /// <summary>
