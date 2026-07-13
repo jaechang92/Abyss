@@ -45,18 +45,7 @@ namespace Abyss.EditorTools
         /// <summary>안내자 NPC(스토리) 생성. 트리거 콜라이더로 PlayerInteractor가 감지한다.</summary>
         private static DialogueNpc CreateGuideNpc()
         {
-            var go = new GameObject("GuideNpc");
-            go.transform.position = new Vector3(-6f, -2.5f, 0f);
-            go.transform.localScale = new Vector3(1f, 2f, 1f);
-
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = EditorPlatformFactory.LoadWhiteSquare();
-            sr.color = new Color(0.9f, 0.8f, 0.3f);
-
-            var col = go.AddComponent<BoxCollider2D>();
-            col.isTrigger = true;
-
-            return go.AddComponent<DialogueNpc>();
+            return CreateNpcObject<DialogueNpc>("GuideNpc", new Vector2(-6f, -2.5f), new Vector2(1f, 2f), new Color(0.9f, 0.8f, 0.3f));
         }
 
         /// <summary>안내자 대화 SO를 로드하거나 없으면 생성. lines는 항상 최신 StringKey로 갱신.</summary>
@@ -89,9 +78,7 @@ namespace Abyss.EditorTools
             SetObject(so, "dialogue", data);
             SetObject(so, "dialogueUI", ui);
             SetObject(so, "player", player);
-            var promptProp = so.FindProperty("promptKey");
-            if (promptProp != null) promptProp.stringValue = StringKey.Npc_Guide_Prompt;
-            so.ApplyModifiedProperties();
+            ApplyNpcPrompt(so, StringKey.Npc_Guide_Prompt);
         }
     }
 }

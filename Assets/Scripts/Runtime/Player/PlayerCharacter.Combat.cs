@@ -8,7 +8,7 @@ namespace Abyss.Runtime.Player
 {
     /// <summary>
     /// 전투 입력 훅 + 근접 공격 판정. 프로토 범위:
-    /// Physics2D.OverlapBoxAll 로 `attackPoint` 기준 박스 안 EnemyBase 감지 → TakeDamage.
+    /// Physics2D.OverlapBox(ContactFilter2D, 버퍼) 로 `attackPoint` 기준 박스 안 EnemyBase 감지 → TakeDamage.
     /// GAS Ability 본격 연결은 후속. 현재는 PlayerCharacter가 직접 데미지 로직 수행.
     /// </summary>
     public sealed partial class PlayerCharacter
@@ -45,6 +45,12 @@ namespace Abyss.Runtime.Player
         private float attackFlashTimer;
 
         private static readonly List<EnemyBase> reusableHitList = new();
+
+        // OverlapBoxAll의 매 호출 배열 할당(GC)을 피하기 위한 무할당 버퍼. 32개면 실전 동시 히트 수 충분.
+        private static readonly Collider2D[] overlapBuffer = new Collider2D[32];
+        // useTriggers를 매 호출 갱신해야 하므로 readonly 불가 (struct 필드 직접 대입).
+        // NoFilter()는 정적이 아닌 인스턴스 메서드라 기본 인스턴스를 만들어 호출한다.
+        private static ContactFilter2D overlapFilter = new ContactFilter2D().NoFilter();
 
         public bool CanAttackLight => Time.time >= lastAttackLightTime + attackCooldownLight;
         public bool CanAttackHeavy => Time.time >= lastAttackHeavyTime + attackCooldownHeavy;
@@ -131,11 +137,15 @@ namespace Abyss.Runtime.Player
 
         private int CollectAndDamageEnemies(int damage)
         {
-            var hits = Physics2D.OverlapBoxAll(attackPoint.position, attackBoxSize, 0f);
+            // OverlapBoxAll과 동일하게 전역 트리거 감지 설정을 따르도록 매 호출 동기화(설정이 런타임에 바뀔 수 있음).
+            overlapFilter.useTriggers = Physics2D.queriesHitTriggers;
+            int count = Physics2D.OverlapBox(attackPoint.position, attackBoxSize, 0f, overlapFilter, overlapBuffer);
             reusableHitList.Clear();
 
-            foreach (var col in hits)
+            // count만큼만 순회 — 버퍼에 남은 이전 호출 잔존값은 무시. 버퍼 초과분(32개 이상 동시 히트)은 누락될 수 있음.
+            for (int i = 0; i < count; i++)
             {
+                var col = overlapBuffer[i];
                 if (col == null) continue;
                 var enemy = col.GetComponentInParent<EnemyBase>();
                 if (enemy == null || enemy.IsDead) continue;

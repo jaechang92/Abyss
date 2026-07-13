@@ -8,12 +8,18 @@ using UnityEngine;
 namespace Abyss.Runtime.Skill.Effects
 {
     /// <summary>
-    /// 전방 박스 광역 근접 타격. 소유자 facing 방향으로 박스를 밀어내 OverlapBox로 적을 수집,
+    /// 전방 박스 광역 근접 타격. 소유자 facing 방향으로 박스를 밀어내 OverlapBox(ContactFilter2D, 버퍼)로 적을 수집,
     /// 중복 제거 후 일괄 피해. 프리팹이 필요 없어 가장 빠르게 플레이 가능한 효과.
     /// </summary>
     public sealed class MeleeAreaEffect : IAbilityEffect
     {
         private static readonly List<EnemyBase> hitBuffer = new();
+
+        // OverlapBoxAll의 매 호출 배열 할당(GC)을 피하기 위한 무할당 버퍼. 32개면 실전 동시 히트 수 충분.
+        private static readonly Collider2D[] overlapResults = new Collider2D[32];
+        // useTriggers를 매 호출 갱신해야 하므로 readonly 불가 (struct 필드 직접 대입).
+        // NoFilter()는 정적이 아닌 인스턴스 메서드라 기본 인스턴스를 만들어 호출한다.
+        private static ContactFilter2D overlapFilter = new ContactFilter2D().NoFilter();
 
         public async Awaitable ApplyAsync(IGameplayContext context, GenericAbilityData data, CancellationToken token)
         {
@@ -30,11 +36,15 @@ namespace Abyss.Runtime.Skill.Effects
                 BossAreaEffect.Spawn((Vector3)center, radius, data.effectColor, 0.3f);
             }
 
-            var hits = Physics2D.OverlapBoxAll(center, data.meleeBoxSize, 0f);
+            // OverlapBoxAll과 동일하게 전역 트리거 감지 설정을 따르도록 매 호출 동기화(설정이 런타임에 바뀔 수 있음).
+            overlapFilter.useTriggers = Physics2D.queriesHitTriggers;
+            int hitCount = Physics2D.OverlapBox(center, data.meleeBoxSize, 0f, overlapFilter, overlapResults);
 
             hitBuffer.Clear();
-            foreach (var col in hits)
+            // hitCount만큼만 순회 — 버퍼에 남은 이전 호출 잔존값은 무시. 버퍼 초과분(32개 이상 동시 히트)은 누락될 수 있음.
+            for (int i = 0; i < hitCount; i++)
             {
+                var col = overlapResults[i];
                 if (col == null) continue;
                 var enemy = col.GetComponentInParent<EnemyBase>();
                 if (enemy == null || enemy.IsDead) continue;

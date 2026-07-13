@@ -22,18 +22,7 @@ namespace Abyss.EditorTools
         /// <summary>제단 NPC 생성. 트리거 콜라이더로 PlayerInteractor가 감지한다.</summary>
         private static AltarNpc CreateAltarNpc()
         {
-            var go = new GameObject("AltarNpc");
-            go.transform.position = new Vector3(-9f, -2.5f, 0f);
-            go.transform.localScale = new Vector3(1f, 2f, 1f);
-
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = EditorPlatformFactory.LoadWhiteSquare();
-            sr.color = AltarColor;
-
-            var col = go.AddComponent<BoxCollider2D>();
-            col.isTrigger = true;
-
-            return go.AddComponent<AltarNpc>();
+            return CreateNpcObject<AltarNpc>("AltarNpc", new Vector2(-9f, -2.5f), new Vector2(1f, 2f), AltarColor);
         }
 
         /// <summary>메타 업그레이드 패널 Canvas UI 생성 + 컴포넌트 와이어. 초기 비활성. 행은 런타임 동적 생성.</summary>
@@ -78,9 +67,7 @@ namespace Abyss.EditorTools
             var so = new SerializedObject(npc);
             SetObject(so, "upgradePanel", panel);
             SetObject(so, "player", player);
-            var p = so.FindProperty("promptKey");
-            if (p != null) p.stringValue = StringKey.Npc_Altar_Prompt;
-            so.ApplyModifiedProperties();
+            ApplyNpcPrompt(so, StringKey.Npc_Altar_Prompt);
         }
 
         /// <summary>
