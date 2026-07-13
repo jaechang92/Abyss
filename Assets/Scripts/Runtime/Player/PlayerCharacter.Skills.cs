@@ -120,7 +120,7 @@ namespace Abyss.Runtime.Player
             string currentFormId = current != null ? current.formId : null;
             if (bound == currentFormId) return true;
 
-            Debug.Log($"[PlayerCharacter] 슬롯 {slot} 스킬은 '{bound}' 폼 전용 — 현재 '{currentFormId ?? "?"}'에서 발동 불가.");
+            // 폼 전용 스킬을 다른 폼에서 발동 시도 — 조용히 차단(입력마다 로그 노이즈 방지). dim 표시는 SkillSlotPresenter가 담당.
             return false;
         }
 
