@@ -9,6 +9,10 @@ namespace Abyss.Runtime.Player
     /// </summary>
     public sealed partial class PlayerCharacter
     {
+        // 이동 배율 하한. 데이터 실수로 moveMult=0이 들어와도 버프 지속시간 동안 완전 정지(소프트락)되지 않게 방지.
+        // 루트/속박은 별도 상태로 구현할 것.
+        private const float MIN_BUFF_MOVE_MULT = 0.1f;
+
         private float buffMoveMult = 1f;
         private float buffAtkMult = 1f;
         private float buffTimer;
@@ -33,7 +37,7 @@ namespace Abyss.Runtime.Player
         {
             if (duration <= 0f) return;
 
-            buffMoveMult = Mathf.Max(0f, moveMult);
+            buffMoveMult = Mathf.Max(MIN_BUFF_MOVE_MULT, moveMult);
             buffAtkMult = Mathf.Max(0f, atkMult);
             buffTimer = duration;
             Debug.Log($"[PlayerCharacter] 버프 적용 — 이동 x{buffMoveMult:F2} / 공격 x{buffAtkMult:F2} / {duration:F1}초");

@@ -20,6 +20,9 @@ namespace Abyss.Runtime.Stage
         [SerializeField, Min(0f)] private float delayBetweenRooms = 2f;
         [SerializeField, Min(0f)] private float delayBetweenStages = 3f;
 
+        // RunManager 등 다른 시스템의 Awake/OnEnable이 먼저 자리잡도록 시퀀스 시작을 한 틱 지연한다.
+        private const float SEQUENCE_START_DELAY = 0.2f;
+
         private int currentStageIndex = -1;
         private int currentRoomIndex = -1;
         private readonly List<EnemyBase> activeEnemies = new();
@@ -36,7 +39,7 @@ namespace Abyss.Runtime.Stage
         private void OnEnable()
         {
             GameEvents.OnEnemyKilled += HandleEnemyKilled;
-            if (startOnEnable) Invoke(nameof(StartSequence), 0.2f);
+            if (startOnEnable) Invoke(nameof(StartSequence), SEQUENCE_START_DELAY);
         }
 
         private void OnDisable()

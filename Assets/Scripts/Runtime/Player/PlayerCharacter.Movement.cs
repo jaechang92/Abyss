@@ -57,9 +57,10 @@ namespace Abyss.Runtime.Player
 
             lastDashTime = Time.time;
             dashTimer = dashDuration;
+            // 입력 방향 우선, 무입력 시 facing SoT(facingSign)로 대시. transform.localScale 직접 읽기 대신 SoT 사용.
             dashDirection = moveInput.sqrMagnitude > 0.01f
                 ? moveInput.normalized
-                : new Vector2(Mathf.Sign(transform.localScale.x), 0f);
+                : new Vector2(facingSign, 0f);
         }
 
         private void UpdateGrounded()
