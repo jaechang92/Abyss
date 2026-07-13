@@ -75,5 +75,13 @@ namespace Abyss.Runtime.Bootstrap
             // 씬 분리 2단계: Bootstrap → Lobby → (시작) → Run.
             _ = SceneFlowController.Instance.LoadLobbyAsync();
         }
+
+        /// <summary>
+        /// 도메인 리로드 비활성화 대비 정적 상태 리셋.
+        /// Enter Play Mode Options에서 도메인 리로드를 끄면 isInitialized가 이전 플레이 세션 값으로 잔존해
+        /// 재초기화가 스킵될 수 있으므로 플레이 세션마다 명시적으로 초기화한다.
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() => isInitialized = false;
     }
 }

@@ -60,29 +60,5 @@ namespace Abyss.Runtime.Events
         public static void RaiseRoomEntered(RoomData room) => OnRoomEntered?.Invoke(room);
         public static void RaiseRoomCleared(RoomData room) => OnRoomCleared?.Invoke(room);
         public static void RaiseStageCleared(StageData stage) => OnStageCleared?.Invoke(stage);
-
-        /// <summary>
-        /// 씬 재로드·에디터 재진입 시 구독 누수 방지용 초기화.
-        /// </summary>
-        public static void ClearAll()
-        {
-            OnRunStarted = null;
-            OnRunEnded = null;
-            OnPlayerDead = null;
-            OnExpGained = null;
-            OnPlayerLevelUp = null;
-            OnDraftOpened = null;
-            OnDraftClosed = null;
-            OnBossKilled = null;
-            OnFormSwapped = null;
-            OnGoldShardsChanged = null;
-            OnDraftOptionsReady = null;
-            OnSkillDrafted = null;
-            OnDraftSlotReplaceRequested = null;
-            OnEnemyKilled = null;
-            OnRoomEntered = null;
-            OnRoomCleared = null;
-            OnStageCleared = null;
-        }
     }
 }
