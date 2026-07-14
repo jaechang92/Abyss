@@ -10,7 +10,7 @@ namespace Abyss.Runtime.Lobby
 {
     /// <summary>
     /// 던전 포털 상호작용 시 열리는 시작 폼 선택 패널.
-    /// 확정 시 RunStartContext.StartingFormId를 기록하고 onConfirm 콜백을 호출한다.
+    /// 확정 시 RunStartContext.StartingForm을 기록하고 onConfirm 콜백을 호출한다.
     /// 폼 선택 로직은 이전 메뉴식 LobbyController에서 이전(추출)했다.
     /// </summary>
     public sealed class FormSelectPanel : MonoBehaviour
@@ -133,7 +133,7 @@ namespace Abyss.Runtime.Lobby
             if (selectableForms != null && selectedFormIndex >= 0 && selectedFormIndex < selectableForms.Length
                 && selectableForms[selectedFormIndex] != null)
             {
-                RunStartContext.StartingFormId = selectableForms[selectedFormIndex].formId;
+                RunStartContext.StartingForm = selectableForms[selectedFormIndex];
             }
             Close();
             onConfirm?.Invoke();
