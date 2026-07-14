@@ -13,8 +13,8 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// 프로토 SO 에셋 일괄 생성 에디터 툴.
-    /// 생성 대상: FormData 2 / SkillData 9 / EnemyData 7 / RunConfig 1 = 총 19개.
-    /// 기본값은 stage-d-analyst.md 확정 스펙 + 03-skill-draft-system.md 9스킬 목록.
+    /// 생성 대상: FormData 3 / SkillData 13 / EnemyData 7 / RunConfig 1.
+    /// 기본값은 stage-d-analyst.md 확정 스펙 + 03-skill-draft-system.md 스킬 목록.
     /// 이미 존재하는 에셋은 건너뜀(덮어쓰지 않음).
     /// </summary>
     public static partial class ContentBuilder
@@ -24,9 +24,9 @@ namespace Abyss.EditorTools
         {
             bool proceed = EditorUtility.DisplayDialog(
                 "ContentBuilder",
-                "프로토 SO 에셋 20개 생성:\n" +
-                "  · FormData 2 (dark_blade, void_archer)\n" +
-                "  · SkillData 11 (불꽃 5 + 심연 5 + 버프 1)\n" +
+                "프로토 SO 에셋 생성:\n" +
+                "  · FormData 3 (dark_blade, void_archer, ancient_shield)\n" +
+                "  · SkillData 13 (불꽃 5 + 심연 5 + 버프 1 + 방패 2)\n" +
                 "  · EnemyData 7 (근접 2 / 원거리 1 / 엘리트 1 / 보스 1 + Stage2 중간보스 1 / 보스 1)\n" +
                 "  · RunConfig 1\n\n" +
                 "이미 존재하는 에셋은 건너뜁니다.",
@@ -73,6 +73,16 @@ namespace Abyss.EditorTools
                 so.hpMultiplier = 0.9f;
                 so.moveSpeedMultiplier = 1.15f;
             });
+
+            CreateOrSkip<FormData>($"{AbyssPaths.Forms}/AncientShield.asset", so =>
+            {
+                so.formId = "ancient_shield";
+                so.displayName = "고대 방패병";
+                so.description = "방패로 버티는 철벽 근접. 최고 HP·저속·묵직한 단일 점프. 철벽 축 시너지. HP +50%, 이동속도 -15%.";
+                so.hpMultiplier = 1.5f;
+                so.moveSpeedMultiplier = 0.85f;
+                so.jumpCount = 1;
+            });
         }
 
         private static void CreateSkills()
@@ -88,6 +98,8 @@ namespace Abyss.EditorTools
             AddSkill(9, "skill_abyss_ally", "심연 동료", SkillCategory.Synergy, SkillRarity.Rare, "abyss", "", "[심연] 2개+ 시 대시 CD -0.5초");
             AddSkill(10, "skill_battle_cry", "전장의 함성", SkillCategory.Active, SkillRarity.Rare, "", "", "발동 시 6초간 공격력 1.5배 (CD 12초)");
             AddSkill(11, "skill_void_volley", "공허 연사", SkillCategory.Active, SkillRarity.Epic, "abyss", "void_archer", "공허궁수 특화: 전방 부채꼴로 화살 3발 동시 발사 (CD 5초)");
+            AddSkill(12, "skill_shield_bash", "방패 강타", SkillCategory.Active, SkillRarity.Rare, "guard", "ancient_shield", "고대방패병 특화: 전방 방패로 광역 강타 (CD 4초)");
+            AddSkill(13, "skill_iron_guard", "철벽 방어", SkillCategory.Active, SkillRarity.Epic, "guard", "ancient_shield", "고대방패병 특화: 5초간 받는 피해 50% 감소 (CD 10초)");
         }
 
         private static void AddSkill(int index, string skillId, string displayName, SkillCategory category, SkillRarity rarity, string synergyTag, string formBound, string description)

@@ -6,22 +6,41 @@ using UnityEngine;
 namespace Abyss.Runtime.Draft
 {
     /// <summary>
-    /// 드래프트 스킬 풀 관리. 9개 프로토 스킬 보유 + 가중치 기반 N장 추첨.
-    /// DraftWeightCalculator와 협업: 이 클래스는 풀 데이터·랜덤 추첨만 책임.
+    /// 드래프트 스킬 풀 관리 + 가중치 기반 N장 추첨.
+    /// 풀은 SkillCatalog(Resources/Data/Skills 전량)에서 지연 로드한다 — 새 스킬 에셋만 추가하면
+    /// 자동 편입(에디터 메뉴 재실행 불필요). DraftWeightCalculator와 협업: 이 클래스는 풀 데이터·추첨만 책임.
     /// </summary>
     public sealed class DraftPoolManager : MonoBehaviour
     {
-        [SerializeField] private List<SkillData> pool = new();
+        // 런타임 전용(비직렬화). 씬에 굳는 스냅샷을 제거해 카탈로그(폴더)를 SoT로 단일화한다.
+        private readonly List<SkillData> pool = new();
+        private bool isLoaded;
 
-        public int PoolSize => pool.Count;
+        public int PoolSize { get { EnsureLoaded(); return pool.Count; } }
 
         /// <summary>치트/디버그용 풀 조회(런타임에 전체 스킬 열람).</summary>
-        public IReadOnlyList<SkillData> Pool => pool;
+        public IReadOnlyList<SkillData> Pool { get { EnsureLoaded(); return pool; } }
 
+        /// <summary>
+        /// 명시적 풀 주입(테스트/치트). 주입 후엔 카탈로그 자동 로드를 억제해 테스트 격리를 보장한다.
+        /// </summary>
         public void SetPool(IEnumerable<SkillData> skills)
         {
             pool.Clear();
             foreach (var s in skills)
+            {
+                if (s != null) pool.Add(s);
+            }
+            isLoaded = true;
+        }
+
+        /// <summary>풀이 비어 있으면 SkillCatalog에서 1회 채운다(지연 로드, 실행순서 무관).</summary>
+        private void EnsureLoaded()
+        {
+            if (isLoaded) return;
+            isLoaded = true;
+            if (pool.Count > 0) return;
+            foreach (var s in SkillCatalog.All)
             {
                 if (s != null) pool.Add(s);
             }
@@ -36,6 +55,8 @@ namespace Abyss.Runtime.Draft
             IReadOnlyCollection<string> ownedSynergyTags,
             IReadOnlyCollection<string> excludedSkillIds = null)
         {
+            EnsureLoaded();
+
             var candidates = new List<SkillData>(pool.Count);
             var weights = new List<float>(pool.Count);
 

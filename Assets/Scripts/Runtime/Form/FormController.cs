@@ -47,42 +47,39 @@ namespace Abyss.Runtime.Form
         }
 
         /// <summary>
-        /// 로비에서 선택한 시작 폼(RunStartContext)을 활성 슬롯으로 반영한다.
-        /// 슬롯 폼 구성은 씬 직렬화 그대로 두고 activeSlot만 선택한다.
-        /// 미선택이거나 슬롯에 없는 폼이면 씬 기본 활성 슬롯을 유지한다.
+        /// 로비에서 선택한 시작 폼(RunStartContext)을 활성 슬롯에 반영한다.
+        /// 이미 슬롯에 있는 폼이면 그 슬롯을 활성화(스왑 대상 보존)하고, 슬롯에 없는 신규 폼(예: FormC)
+        /// 이면 활성 슬롯(0)에 주입한다 — 나머지 슬롯은 스왑 대상으로 유지. 미선택이면 씬 기본 유지.
+        /// (미드런 폼 보상은 EquipForm으로 슬롯을 지정 주입하는 동일 경로를 쓴다.)
         /// </summary>
         private void ApplyStartingForm()
         {
             if (!RunStartContext.HasStartingForm) return;
 
-            string id = RunStartContext.StartingFormId;
+            var form = RunStartContext.StartingForm;
             for (int i = 0; i < slots.Length; i++)
             {
-                if (slots[i] != null && slots[i].formId == id)
+                if (slots[i] != null && slots[i].formId == form.formId)
                 {
                     activeSlot = i;
-                    Debug.Log($"[FormController] 시작 폼 적용: {id} (slot {i})");
+                    Debug.Log($"[FormController] 시작 폼 적용: {form.formId} (기존 slot {i})");
                     return;
                 }
             }
-            Debug.LogWarning($"[FormController] 시작 폼 '{id}'이(가) 슬롯에 없음 — 기본 활성 슬롯({activeSlot}) 유지.");
+
+            // 슬롯에 없는 신규 시작 폼 → 활성 슬롯(0)에 주입.
+            EquipForm(form, 0, activate: true);
+            Debug.Log($"[FormController] 시작 폼 주입: {form.formId} → slot 0 (스왑 대상: {(OtherForm != null ? OtherForm.formId : "없음")})");
         }
 
         /// <summary>
-        /// 이 런의 시작 폼을 반환한다. RunStartContext 선택을 우선 반영하되, ApplyStartingForm의
-        /// Awake 실행 순서와 무관하게 슬롯 직렬화만으로 해석한다(HP 초기화가 Awake에서 시작 폼 배율을
+        /// 이 런의 시작 폼을 반환한다. RunStartContext 선택을 우선 반영하며, ApplyStartingForm의
+        /// Awake 실행 순서와 무관하게 컨텍스트 에셋을 직접 돌려준다(HP 초기화가 Awake에서 시작 폼 배율을
         /// 순서 안전하게 읽기 위함). 미선택·부재 시 씬 기본 활성 슬롯을 반환한다.
         /// </summary>
         public FormData ResolveStartingForm()
         {
-            if (RunStartContext.HasStartingForm)
-            {
-                string id = RunStartContext.StartingFormId;
-                for (int i = 0; i < slots.Length; i++)
-                {
-                    if (slots[i] != null && slots[i].formId == id) return slots[i];
-                }
-            }
+            if (RunStartContext.HasStartingForm) return RunStartContext.StartingForm;
             return (activeSlot >= 0 && activeSlot < slots.Length) ? slots[activeSlot] : null;
         }
 
@@ -98,12 +95,15 @@ namespace Abyss.Runtime.Form
         public event Action<FormData, FormData> OnSwapCompleted;
 
         /// <summary>
-        /// 특정 슬롯에 폼을 배정. 런 시작·해금 해제·디버그용.
+        /// 폼을 지정 슬롯에 주입한다. 로비 시작 폼 적용과 미드런 폼 보상(이벤트/보상 획득) 공용 진입점.
+        /// activate=true면 해당 슬롯을 활성 슬롯으로 만든다(현재 폼이 새 폼으로 즉시 전환).
+        /// 미드런에서 '플레이어가 슬롯 선택' UI는 이 API에 선택한 slotIndex를 넘겨 재사용한다.
         /// </summary>
-        public void AssignSlot(int slotIndex, FormData form)
+        public void EquipForm(FormData form, int slotIndex, bool activate = true)
         {
-            if (slotIndex < 0 || slotIndex >= slots.Length) return;
+            if (form == null || slotIndex < 0 || slotIndex >= slots.Length) return;
             slots[slotIndex] = form;
+            if (activate) activeSlot = slotIndex;
         }
 
         /// <summary>

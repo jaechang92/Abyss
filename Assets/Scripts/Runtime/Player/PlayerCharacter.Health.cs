@@ -68,8 +68,13 @@ namespace Abyss.Runtime.Player
         {
             if (isDead || amount <= 0 || DebugInvincible) return;
 
+            // 방어 버프(철벽 방어 등) 적용 — 받는 피해 배율. 배율 적용 후에도 최소 1 피해 보장(약공 무효화 방지).
+            int mitigated = DefenseMultiplier < 1f
+                ? Mathf.Max(1, Mathf.RoundToInt(amount * DefenseMultiplier))
+                : amount;
+
             int previous = currentHp;
-            currentHp = Mathf.Max(0, currentHp - amount);
+            currentHp = Mathf.Max(0, currentHp - mitigated);
             OnHpChanged?.Invoke(previous, currentHp);
 
             if (currentHp <= 0) Die();

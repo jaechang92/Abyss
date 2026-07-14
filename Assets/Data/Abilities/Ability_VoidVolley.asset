@@ -32,6 +32,7 @@ MonoBehaviour:
   healAmount: 25
   buffMoveSpeedMultiplier: 1
   buffAttackMultiplier: 1
+  buffDefenseMultiplier: 1
   buffDuration: 0
   showHitEffect: 1
   effectColor: {r: 0.6, g: 0.42, b: 0.95, a: 1}

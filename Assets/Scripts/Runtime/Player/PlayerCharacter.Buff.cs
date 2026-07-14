@@ -4,8 +4,8 @@ namespace Abyss.Runtime.Player
 {
     /// <summary>
     /// 시간제 버프 파트. 스킬(BuffEffect)이 ApplyTimedBuff로 이동속도·공격력 배율을 일시 적용하고,
-    /// UpdateBuff가 만료 시 1배로 원복한다. Movement(moveSpeed)·Combat(공격 데미지)이 배율을 참조한다.
-    /// 프로토 범위: 단일 버프 슬롯(재적용 시 덮어씀), 이동속도·공격력 2종.
+    /// UpdateBuff가 만료 시 1배로 원복한다. Movement(moveSpeed)·Combat(공격 데미지)·Health(받는 피해)가 배율을 참조한다.
+    /// 프로토 범위: 단일 버프 슬롯(재적용 시 덮어씀), 이동속도·공격력·방어 3종.
     /// </summary>
     public sealed partial class PlayerCharacter
     {
@@ -13,8 +13,12 @@ namespace Abyss.Runtime.Player
         // 루트/속박은 별도 상태로 구현할 것.
         private const float MIN_BUFF_MOVE_MULT = 0.1f;
 
+        // 방어 배율 하한. defMult=0이면 무적이 되므로 최대 80% 감소(0.2)로 제한. 무적은 별도 상태로 구현할 것.
+        private const float MIN_BUFF_DEF_MULT = 0.2f;
+
         private float buffMoveMult = 1f;
         private float buffAtkMult = 1f;
+        private float buffDefMult = 1f;
         private float buffTimer;
 
         /// <summary>이동속도 배율(1 = 기본). Movement가 참조.</summary>
@@ -23,6 +27,9 @@ namespace Abyss.Runtime.Player
         /// <summary>공격력 배율(1 = 기본). Combat이 참조.</summary>
         public float AttackMultiplier => buffAtkMult;
 
+        /// <summary>받는 피해 배율(1 = 기본, &lt;1 = 피해 감소). Health.TakeDamage가 참조.</summary>
+        public float DefenseMultiplier => buffDefMult;
+
         /// <summary>버프 활성 여부(잔여 시간 &gt; 0).</summary>
         public bool HasActiveBuff => buffTimer > 0f;
 
@@ -30,17 +37,24 @@ namespace Abyss.Runtime.Player
         public float BuffRemaining => Mathf.Max(0f, buffTimer);
 
         /// <summary>
-        /// 시간제 버프 적용(재적용 시 덮어씀). moveMult/atkMult는 1이면 해당 항목 변화 없음.
-        /// duration이 0 이하면 무시(즉시 효과는 BuffEffect의 Heal이 담당).
+        /// 시간제 버프 적용(방어 배율 없이). 기존 호출부 하위호환용 — 방어 배율은 1(무변화)로 위임.
         /// </summary>
         public void ApplyTimedBuff(float moveMult, float atkMult, float duration)
+            => ApplyTimedBuff(moveMult, atkMult, 1f, duration);
+
+        /// <summary>
+        /// 시간제 버프 적용(재적용 시 덮어씀). moveMult/atkMult/defMult는 1이면 해당 항목 변화 없음.
+        /// duration이 0 이하면 무시(즉시 효과는 BuffEffect의 Heal이 담당).
+        /// </summary>
+        public void ApplyTimedBuff(float moveMult, float atkMult, float defMult, float duration)
         {
             if (duration <= 0f) return;
 
             buffMoveMult = Mathf.Max(MIN_BUFF_MOVE_MULT, moveMult);
             buffAtkMult = Mathf.Max(0f, atkMult);
+            buffDefMult = Mathf.Max(MIN_BUFF_DEF_MULT, defMult);
             buffTimer = duration;
-            Debug.Log($"[PlayerCharacter] 버프 적용 — 이동 x{buffMoveMult:F2} / 공격 x{buffAtkMult:F2} / {duration:F1}초");
+            Debug.Log($"[PlayerCharacter] 버프 적용 — 이동 x{buffMoveMult:F2} / 공격 x{buffAtkMult:F2} / 방어 x{buffDefMult:F2} / {duration:F1}초");
         }
 
         // PlayerCharacter.Update에서 매 프레임 호출. 만료 시 1배 원복.
@@ -53,6 +67,7 @@ namespace Abyss.Runtime.Player
             {
                 buffMoveMult = 1f;
                 buffAtkMult = 1f;
+                buffDefMult = 1f;
             }
         }
     }

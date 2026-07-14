@@ -235,6 +235,56 @@ def make_void_volley():
 # -----------------------------------------------------------------------
 # 메인
 # -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+# 방패 실루엣 공통 스펙 (heater shield). (left_pad, body) → draw_pixels가 우측·높이 패딩.
+# 상단이 가장 넓고 하단으로 뾰족하게 좁아진다. 미스카운트 방지를 위해 좌패딩+본문만 지정.
+# -----------------------------------------------------------------------
+def _shield_rows():
+    return [
+        (8, "OOOOOOOOOOOOOOOO"),  # 3 상단 테두리
+        (8, "OLLLLLLLLLLLLLLO"),  # 4 상단 하이라이트
+        (8, "OLMMMMMMMMMMMMDO"),  # 5
+        (8, "OLMMMMMMMMMMMMDO"),  # 6
+        (8, "OLMMMMMCCMMMMMDO"),  # 7 중앙 스터드
+        (8, "OLMMMMMCCMMMMMDO"),  # 8 중앙 스터드
+        (8, "OLMMMMMMMMMMMMDO"),  # 9
+        (8, "OLMMMMMMMMMMMMDO"),  # 10
+        (9, "OLMMMMMMMMMMDO"),    # 11 테이퍼
+        (10, "OLMMMMMMMMDO"),     # 12
+        (11, "OLMMMMMMDO"),       # 13
+        (12, "OLMMMMDO"),         # 14
+        (13, "OLMMDO"),           # 15
+        (14, "OMMO"),             # 16
+        (15, "OO"),               # 17 하단 꼭짓점
+    ]
+
+
+def _make_shield(steel_l, steel_m, steel_d, stud):
+    P = {".": TRANSPARENT, "O": OUTLINE, "L": steel_l, "M": steel_m, "D": steel_d, "C": stud}
+    matrix = ["", "", ""] + ["." * left + body for left, body in _shield_rows()]
+    return draw_pixels((SIZE, SIZE), matrix, P)
+
+
+# shield_bash (32x32) - 강철 방패 + 황동 스터드 (근접 광역 강타)
+def make_shield_bash():
+    return _make_shield(
+        steel_l=(205, 215, 230, 255),
+        steel_m=(150, 165, 195, 255),
+        steel_d=(95, 110, 145, 255),
+        stud=(235, 205, 120, 255),  # 황동 중앙
+    )
+
+
+# iron_guard (32x32) - 청강 방패 + 청록 젬 (방어 버프)
+def make_iron_guard():
+    return _make_shield(
+        steel_l=(190, 220, 240, 255),
+        steel_m=(120, 160, 205, 255),
+        steel_d=(70, 100, 150, 255),
+        stud=(120, 235, 220, 255),  # 청록 젬
+    )
+
+
 def main():
     ensure_dir(OUTPUT_DIR)
 
@@ -244,6 +294,8 @@ def main():
         ("swift_slash", make_swift_slash),
         ("battle_cry", make_battle_cry),
         ("void_volley", make_void_volley),
+        ("shield_bash", make_shield_bash),
+        ("iron_guard", make_iron_guard),
     ]
 
     generated = []

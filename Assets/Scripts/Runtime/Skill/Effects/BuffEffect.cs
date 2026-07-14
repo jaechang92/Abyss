@@ -18,7 +18,7 @@ namespace Abyss.Runtime.Skill.Effects
             {
                 // 즉시 회복(있으면) + 시간제 버프(buffDuration>0일 때) 적용.
                 if (data.healAmount > 0) player.Heal(data.healAmount);
-                player.ApplyTimedBuff(data.buffMoveSpeedMultiplier, data.buffAttackMultiplier, data.buffDuration);
+                player.ApplyTimedBuff(data.buffMoveSpeedMultiplier, data.buffAttackMultiplier, data.buffDefenseMultiplier, data.buffDuration);
             }
 
             await Awaitable.NextFrameAsync(token);

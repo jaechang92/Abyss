@@ -10,22 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a2f915f3e60261c49af03992048da4b7, type: 3}
-  m_Name: Ability_Fireball
+  m_Name: Ability_ShieldBash
   m_EditorClassIdentifier: 
-  abilityName: fireball
-  description: "\uC804\uBC29\uC73C\uB85C \uD654\uC5FC\uAD6C\uB97C \uBC1C\uC0AC\uD55C\uB2E4."
+  abilityName: shield_bash
+  description: "\uC804\uBC29\uC744 \uBC29\uD328\uB85C \uAD11\uC5ED \uAC15\uD0C0\uD55C\uB2E4."
   icon: {fileID: 0}
   cooldownDuration: 4
   requiresAlive: 1
   requiresCanAct: 1
-  effectType: 1
-  damage: 22
-  meleeBoxSize: {x: 2.2, y: 1.6}
+  effectType: 0
+  damage: 28
+  meleeBoxSize: {x: 3, y: 2}
   meleeForwardOffset: 1.1
-  projectilePrefab: {fileID: 6236116468714331731, guid: 54f992f062144484da995449f824a74c, type: 3}
+  projectilePrefab: {fileID: 0}
   projectileSpeed: 12
   projectileLifetime: 2
-  projectileSpawnOffset: 0.7
+  projectileSpawnOffset: 0.6
   projectileCount: 1
   projectileSpreadAngle: 0
   healAmount: 25
@@ -34,5 +34,5 @@ MonoBehaviour:
   buffDefenseMultiplier: 1
   buffDuration: 0
   showHitEffect: 1
-  effectColor: {r: 1, g: 0.55, b: 0.15, a: 1}
-  castSfx: {fileID: 8300000, guid: 92fc5276f7dfa454e8bd27bba0a30f0a, type: 3}
+  effectColor: {r: 0.7, g: 0.75, b: 0.85, a: 1}
+  castSfx: {fileID: 8300000, guid: 031a679ce1ad74143aaf7ebcfa21316d, type: 3}
