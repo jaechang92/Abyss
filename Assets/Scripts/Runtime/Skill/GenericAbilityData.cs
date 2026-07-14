@@ -54,6 +54,9 @@ namespace Abyss.Runtime.Skill
         [Tooltip("공격력 배율(Buff, 1 = 변화 없음). buffDuration 동안 적용.")]
         [Min(0f)] public float buffAttackMultiplier = 1f;
 
+        [Tooltip("받는 피해 배율(Buff, 1 = 변화 없음, <1 = 피해 감소). buffDuration 동안 적용. 방패병 '철벽 방어' 등 방어 스킬용.")]
+        [Min(0f)] public float buffDefenseMultiplier = 1f;
+
         [Tooltip("버프 지속시간(초, 0 = 즉시 효과(Heal)만).")]
         [Min(0f)] public float buffDuration = 0f;
 
