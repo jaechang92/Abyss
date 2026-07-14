@@ -1,5 +1,4 @@
 #if UNITY_EDITOR
-using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Form;
 using Abyss.Runtime.Player;
@@ -12,10 +11,10 @@ namespace Abyss.EditorTools
     /// 현재 씬에 Draft 시스템 GameObject를 생성·연결.
     /// 메뉴 경로는 <see cref="AbyssMenu.BuildDraftSystem"/>.
     /// - Draft GameObject (DraftSessionController + DraftPoolManager) 생성
-    /// - 모든 SkillData 에셋을 pool에 자동 할당
     /// - 씬의 PlayerCharacter에서 FormController 탐색해 session.formController 연결
     /// - 씬의 HUDPresenter 발견 시 Draft Session 필드에 역참조 연결
     /// - 씬의 DraftPanelPresenter 발견 시 session 필드에 역참조 연결
+    /// 스킬 풀은 런타임에 SkillCatalog(Resources/Data/Skills 전량)가 자동 로드 — 여기서 할당하지 않는다.
     /// </summary>
     public static class DraftSystemBuilder
     {
@@ -27,16 +26,15 @@ namespace Abyss.EditorTools
         {
             bool proceed = EditorUtility.DisplayDialog(
                 "DraftSystemBuilder",
-                "Draft GameObject 생성 + SkillData 풀 할당 + HUD/DraftPanel 역참조 연결.\n" +
+                "Draft GameObject 생성 + HUD/DraftPanel 역참조 연결.\n" +
+                "스킬 풀은 런타임에 SkillCatalog가 Resources/Data/Skills를 자동 로드합니다(수동 할당 없음).\n" +
                 "이미 있는 Draft GameObject는 그대로 두고 필드만 갱신합니다.",
                 "실행", "취소");
             if (!proceed) return;
 
             var sessionGo = FindOrCreateDraftGameObject();
-            var pool = sessionGo.GetComponent<DraftPoolManager>();
             var session = sessionGo.GetComponent<DraftSessionController>();
 
-            AssignSkillPool(pool);
             LinkSessionReferences(session);
             LinkConsumers(session);
 
@@ -64,33 +62,6 @@ namespace Abyss.EditorTools
             go.AddComponent<DraftSessionController>();
             Debug.Log($"[DraftSystemBuilder] '{DraftGameObjectName}' GameObject 생성");
             return go;
-        }
-
-        private static void AssignSkillPool(DraftPoolManager pool)
-        {
-            if (pool == null) return;
-
-            string[] guids = AssetDatabase.FindAssets("t:SkillData");
-            var skills = new List<SkillData>(guids.Length);
-            foreach (var guid in guids)
-            {
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                var data = AssetDatabase.LoadAssetAtPath<SkillData>(path);
-                if (data != null) skills.Add(data);
-            }
-
-            var so = new SerializedObject(pool);
-            var prop = so.FindProperty("pool");
-            if (prop != null)
-            {
-                prop.arraySize = skills.Count;
-                for (int i = 0; i < skills.Count; i++)
-                {
-                    prop.GetArrayElementAtIndex(i).objectReferenceValue = skills[i];
-                }
-                so.ApplyModifiedProperties();
-                Debug.Log($"[DraftSystemBuilder] SkillData {skills.Count}개 pool에 할당");
-            }
         }
 
         private static void LinkSessionReferences(DraftSessionController session)
