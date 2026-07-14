@@ -205,7 +205,7 @@ namespace Abyss.EditorTools
             var bg = root.AddComponent<Image>();
             bg.color = new Color(0f, 0f, 0f, 0.85f);
 
-            var box = CreateRect(root.transform, "Box", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(760, 460));
+            var box = CreateRect(root.transform, "Box", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(940, 460));
             var boxImg = box.AddComponent<Image>();
             boxImg.color = new Color(0.1f, 0.1f, 0.14f, 0.98f);
 
@@ -214,11 +214,13 @@ namespace Abyss.EditorTools
             // 폼 버튼
             var forms = LoadForms();
             var formButtons = new List<Object>();
-            float fx = -165f;
+            // N개 폼을 중앙 정렬(폼 수가 늘어도 자동 대응). 간격 285 + 버튼폭 260 → 25px 여백.
+            const float formSpacing = 285f;
+            float fx = -(forms.Length - 1) * formSpacing / 2f;
             foreach (var f in forms)
             {
                 formButtons.Add(CreateFormButton(box.transform, f, new Vector2(fx, 30)));
-                fx += 330f;
+                fx += formSpacing;
             }
 
             var (confirm, _) = CreateButton(box.transform, "ConfirmButton", new Vector2(-130, -160), new Vector2(220, 64), new Color(0.25f, 0.4f, 0.25f), "선택 (Enter)");
@@ -240,7 +242,7 @@ namespace Abyss.EditorTools
 
         private static Button CreateFormButton(Transform parent, FormData form, Vector2 pos)
         {
-            var go = CreateRect(parent, "FormButton_" + form.formId, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), pos, new Vector2(300, 150));
+            var go = CreateRect(parent, "FormButton_" + form.formId, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), pos, new Vector2(260, 150));
             var img = go.AddComponent<Image>();
             img.color = FormNormal;
             var btn = go.AddComponent<Button>();
@@ -396,11 +398,14 @@ namespace Abyss.EditorTools
         {
             var dark = AssetDatabase.LoadAssetAtPath<FormData>(AbyssPaths.Forms + "/DarkBlade.asset");
             var archer = AssetDatabase.LoadAssetAtPath<FormData>(AbyssPaths.Forms + "/VoidArcher.asset");
+            var shield = AssetDatabase.LoadAssetAtPath<FormData>(AbyssPaths.Forms + "/AncientShield.asset");
             var list = new List<FormData>();
             if (dark != null) list.Add(dark);
             else Debug.LogWarning($"[LobbySceneBuilder] DarkBlade.asset 누락 — '{AbyssMenu.GenerateContent}' 먼저 실행.");
             if (archer != null) list.Add(archer);
             else Debug.LogWarning($"[LobbySceneBuilder] VoidArcher.asset 누락 — '{AbyssMenu.GenerateContent}' 먼저 실행.");
+            if (shield != null) list.Add(shield);
+            else Debug.LogWarning($"[LobbySceneBuilder] AncientShield.asset 누락 — '{AbyssMenu.GenerateContent}' 먼저 실행.");
             return list.ToArray();
         }
 
