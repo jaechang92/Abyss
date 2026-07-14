@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2f915f3e60261c49af03992048da4b7, type: 3}
+  m_Name: Ability_ShieldBash
+  m_EditorClassIdentifier: 
+  abilityName: shield_bash
+  description: "\uC804\uBC29\uC744 \uBC29\uD328\uB85C \uAD11\uC5ED \uAC15\uD0C0\uD55C\uB2E4."
+  icon: {fileID: 0}
+  cooldownDuration: 4
+  requiresAlive: 1
+  requiresCanAct: 1
+  effectType: 0
+  damage: 28
+  meleeBoxSize: {x: 3, y: 2}
+  meleeForwardOffset: 1.1
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 12
+  projectileLifetime: 2
+  projectileSpawnOffset: 0.6
+  projectileCount: 1
+  projectileSpreadAngle: 0
+  healAmount: 25
+  buffMoveSpeedMultiplier: 1
+  buffAttackMultiplier: 1
+  buffDefenseMultiplier: 1
+  buffDuration: 0
+  showHitEffect: 1
+  effectColor: {r: 0.7, g: 0.75, b: 0.85, a: 1}
+  castSfx: {fileID: 8300000, guid: 031a679ce1ad74143aaf7ebcfa21316d, type: 3}

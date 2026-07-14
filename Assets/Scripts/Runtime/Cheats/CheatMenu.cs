@@ -146,13 +146,13 @@ namespace Abyss.Runtime.Cheats
 
             // 시간제 버프 직접 테스트 — 스킬 발동 경로 없이 즉시 적용해 배율/타이머를 검증.
             string buffState = p.HasActiveBuff
-                ? $"버프 {p.BuffRemaining:F1}s (이동x{p.MoveSpeedMultiplier:F1}/공격x{p.AttackMultiplier:F1})"
+                ? $"버프 {p.BuffRemaining:F1}s (이동x{p.MoveSpeedMultiplier:F1}/공격x{p.AttackMultiplier:F1}/방어x{p.DefenseMultiplier:F1})"
                 : "버프 없음";
             GUILayout.Label(buffState);
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("이동x1.5 (8s)")) p.ApplyTimedBuff(1.5f, 1f, 8f);
             if (GUILayout.Button("공격x2 (8s)")) p.ApplyTimedBuff(1f, 2f, 8f);
-            if (GUILayout.Button("둘다 (8s)")) p.ApplyTimedBuff(1.5f, 2f, 8f);
+            if (GUILayout.Button("방어x0.5 (5s)")) p.ApplyTimedBuff(1f, 1f, 0.5f, 5f);
             GUILayout.EndHorizontal();
             GUILayout.Space(6);
         }

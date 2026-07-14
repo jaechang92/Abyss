@@ -106,12 +106,42 @@ namespace Abyss.EditorTools
                 so.effectColor = new Color(0.6f, 0.42f, 0.95f, 1f);
             });
 
+            CreateOrSkip<GenericAbilityData>($"{AbyssPaths.Abilities}/Ability_ShieldBash.asset", so =>
+            {
+                so.abilityName = "shield_bash";
+                so.description = "전방을 방패로 광역 강타한다.";
+                so.cooldownDuration = 4f;
+                so.effectType = AbilityEffectType.MeleeArea;
+                so.damage = 28;
+                so.meleeBoxSize = new Vector2(3f, 2f);
+                so.meleeForwardOffset = 1.1f;
+                so.showHitEffect = true;
+                so.effectColor = new Color(0.7f, 0.75f, 0.85f, 1f);
+            });
+
+            CreateOrSkip<GenericAbilityData>($"{AbyssPaths.Abilities}/Ability_IronGuard.asset", so =>
+            {
+                so.abilityName = "iron_guard";
+                so.description = "5초간 받는 피해를 50% 감소시킨다.";
+                so.cooldownDuration = 10f;
+                so.effectType = AbilityEffectType.Buff;
+                so.healAmount = 0;
+                so.buffMoveSpeedMultiplier = 1f;
+                so.buffAttackMultiplier = 1f;
+                so.buffDefenseMultiplier = 0.5f;
+                so.buffDuration = 5f;
+                so.showHitEffect = true;
+                so.effectColor = new Color(0.55f, 0.7f, 0.95f, 1f);
+            });
+
             // 이미 존재해 CreateOrSkip이 건너뛴 자산에도 연출 설정을 반영(재실행 시 색 갱신).
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_Fireball.asset", new Color(1f, 0.55f, 0.15f, 1f));
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_FlameRoar.asset", new Color(1f, 0.3f, 0.1f, 1f));
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_SwiftSlash.asset", new Color(0.4f, 0.85f, 1f, 1f));
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_BattleCry.asset", new Color(1f, 0.82f, 0.25f, 1f));
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_VoidVolley.asset", new Color(0.6f, 0.42f, 0.95f, 1f));
+            ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_ShieldBash.asset", new Color(0.7f, 0.75f, 0.85f, 1f));
+            ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_IronGuard.asset", new Color(0.55f, 0.7f, 0.95f, 1f));
         }
 
         private static void ApplyEffectSettings(string abilityPath, Color color)
@@ -134,6 +164,8 @@ namespace Abyss.EditorTools
             WireOne("skill_swift_slash", $"{AbyssPaths.Abilities}/Ability_SwiftSlash.asset");
             WireOne("skill_battle_cry", $"{AbyssPaths.Abilities}/Ability_BattleCry.asset");
             WireOne("skill_void_volley", $"{AbyssPaths.Abilities}/Ability_VoidVolley.asset");
+            WireOne("skill_shield_bash", $"{AbyssPaths.Abilities}/Ability_ShieldBash.asset");
+            WireOne("skill_iron_guard", $"{AbyssPaths.Abilities}/Ability_IronGuard.asset");
         }
 
         private static void WireOne(string skillId, string abilityPath)
@@ -187,6 +219,8 @@ namespace Abyss.EditorTools
             WireSfx($"{AbyssPaths.Abilities}/Ability_SwiftSlash.asset", "skill_swift_slash");
             WireSfx($"{AbyssPaths.Abilities}/Ability_BattleCry.asset", "skill_battle_cry");
             WireSfx($"{AbyssPaths.Abilities}/Ability_VoidVolley.asset", "skill_void_volley");
+            WireSfx($"{AbyssPaths.Abilities}/Ability_ShieldBash.asset", "skill_shield_bash");
+            WireSfx($"{AbyssPaths.Abilities}/Ability_IronGuard.asset", "skill_iron_guard");
         }
 
         private static void WireSfx(string abilityPath, string sfxKey)
