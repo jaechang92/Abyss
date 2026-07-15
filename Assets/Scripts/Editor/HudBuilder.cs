@@ -55,8 +55,10 @@ namespace Abyss.EditorTools
             var skillSlot0 = CreateSkillSlot(go.transform, "SkillSlot0", new Vector2(24, 24));
             var skillSlot1 = CreateSkillSlot(go.transform, "SkillSlot1", new Vector2(104, 24));
             var modal = CreateReplacementModal(go.transform);
+            var formModal = CreateFormRewardModal(go.transform);
 
             WireHUDPresenter(hud, healthBar, formSlot, new[] { skillSlot0, skillSlot1 }, modal);
+            SetPrivateField(hud, "formRewardModal", formModal);
             WireSceneReferences(hud);
 
             EditorUtility.SetDirty(hud);
@@ -187,6 +189,41 @@ namespace Abyss.EditorTools
             var cancel = CreateModalButton(panel.transform, "CancelButton", new Vector2(0, -110), "취소");
 
             var presenter = root.AddComponent<ReplacementModal>();
+            SetPrivateField(presenter, "root", root);
+            SetPrivateField(presenter, "incomingText", title);
+            SetPrivateFieldArray(presenter, "currentSlotButtons", new[] { slot0.button, slot1.button });
+            SetPrivateFieldArray(presenter, "currentSlotLabels", new[] { slot0.label, slot1.label });
+            SetPrivateField(presenter, "cancelButton", cancel.button);
+
+            root.SetActive(false);
+            return presenter;
+        }
+
+        private static FormReplacementModal CreateFormRewardModal(Transform parent)
+        {
+            var root = CreateRectChild(parent, "FormRewardModal", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            StretchFill((RectTransform)root.transform);
+            var bg = root.AddComponent<Image>();
+            bg.color = new Color(0, 0, 0, 0.72f);
+            bg.raycastTarget = true;
+
+            var panel = CreateRectChild(root.transform, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(520, 320));
+            var panelImg = panel.AddComponent<Image>();
+            panelImg.color = new Color(0.12f, 0.14f, 0.2f, 0.98f);
+
+            var titleGo = CreateRectChild(panel.transform, "IncomingText", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -48), new Vector2(480, 40));
+            var title = titleGo.AddComponent<Text>();
+            ApplyDefaultFont(title);
+            title.text = "폼 획득: ???";
+            title.fontSize = 20;
+            title.alignment = TextAnchor.MiddleCenter;
+            title.color = new Color(0.75f, 0.9f, 1f);
+
+            var slot0 = CreateModalButton(panel.transform, "Slot0Button", new Vector2(-120, 20), "슬롯 1");
+            var slot1 = CreateModalButton(panel.transform, "Slot1Button", new Vector2(120, 20), "슬롯 2");
+            var cancel = CreateModalButton(panel.transform, "CancelButton", new Vector2(0, -110), "취소");
+
+            var presenter = root.AddComponent<FormReplacementModal>();
             SetPrivateField(presenter, "root", root);
             SetPrivateField(presenter, "incomingText", title);
             SetPrivateFieldArray(presenter, "currentSlotButtons", new[] { slot0.button, slot1.button });

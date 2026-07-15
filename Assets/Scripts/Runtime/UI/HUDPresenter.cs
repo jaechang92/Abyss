@@ -18,6 +18,7 @@ namespace Abyss.Runtime.UI
         [SerializeField] private FormSlotPresenter formSlot;
         [SerializeField] private SkillSlotPresenter[] skillSlots = new SkillSlotPresenter[2];
         [SerializeField] private ReplacementModal replacementModal;
+        [SerializeField] private FormReplacementModal formRewardModal;
 
         [Header("참조 (씬에서 연결)")]
         [SerializeField] private PlayerCharacter player;
@@ -29,6 +30,7 @@ namespace Abyss.Runtime.UI
         {
             GameEvents.OnSkillDrafted += HandleSkillDrafted;
             GameEvents.OnDraftSlotReplaceRequested += HandleReplaceRequested;
+            GameEvents.OnFormRewardOffered += HandleFormRewardOffered;
             GameEvents.OnFormSwapped += HandleFormSwapped;
         }
 
@@ -36,6 +38,7 @@ namespace Abyss.Runtime.UI
         {
             GameEvents.OnSkillDrafted -= HandleSkillDrafted;
             GameEvents.OnDraftSlotReplaceRequested -= HandleReplaceRequested;
+            GameEvents.OnFormRewardOffered -= HandleFormRewardOffered;
             GameEvents.OnFormSwapped -= HandleFormSwapped;
         }
 
@@ -67,6 +70,14 @@ namespace Abyss.Runtime.UI
             {
                 replacementModal.Open(incoming, currentActives, draftSession);
             }
+        }
+
+        // 미드런 폼 보상 획득 → 슬롯 선택 모달. FormController는 플레이어에서 해석.
+        private void HandleFormRewardOffered(FormData incoming)
+        {
+            if (formRewardModal == null) return;
+            var controller = player != null ? player.Form : null;
+            if (controller != null) formRewardModal.Open(incoming, controller);
         }
 
         private void RefreshSkillSlots()
