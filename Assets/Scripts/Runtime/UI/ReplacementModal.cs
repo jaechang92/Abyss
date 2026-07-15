@@ -27,8 +27,9 @@ namespace Abyss.Runtime.UI
 
         private void Awake()
         {
-            if (root != null) root.SetActive(false);
-
+            // 주의: root.SetActive(false)를 여기서 하지 않는다. 컴포넌트가 root와 같은 GameObject에 있어
+            // Open()의 첫 root.SetActive(true)가 이 Awake를 유발하는데, 여기서 다시 끄면 모달이 안 열린다.
+            // 초기 숨김은 빌더(HudBuilder)가 root를 비활성으로 직렬화해 보장한다.
             for (int i = 0; i < currentSlotButtons.Length; i++)
             {
                 int idx = i;
@@ -37,7 +38,7 @@ namespace Abyss.Runtime.UI
                     currentSlotButtons[i].onClick.AddListener(() => OnSlotSelected(idx));
                 }
             }
-            if (cancelButton != null) cancelButton.onClick.AddListener(Close);
+            if (cancelButton != null) cancelButton.onClick.AddListener(Cancel);
         }
 
         public void Open(SkillData incoming, IReadOnlyList<SkillData> actives, DraftSessionController controller)
@@ -66,6 +67,15 @@ namespace Abyss.Runtime.UI
             }
 
             if (root != null) root.SetActive(true);
+        }
+
+        /// <summary>교체 포기 — 모달을 닫고 드래프트 카드 선택으로 되돌아간다.</summary>
+        private void Cancel()
+        {
+            // Close()가 session을 비우므로 먼저 잡아둔다.
+            var controller = session;
+            Close();
+            controller?.CancelReplacement();
         }
 
         public void Close()

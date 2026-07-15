@@ -17,6 +17,9 @@ namespace Abyss.EditorTools
     {
         private const string UndoLabel = "Build HUD Children";
 
+        // 모달용 하위 Canvas 정렬 순위. 루트 Canvas 소속인 DraftPanel·ResultPanel(정렬 0)보다 위.
+        private const int MODAL_SORTING_ORDER = 100;
+
         [MenuItem(AbyssMenu.BuildHud)]
         public static void Build()
         {
@@ -188,6 +191,8 @@ namespace Abyss.EditorTools
             var slot1 = CreateModalButton(panel.transform, "Slot1Button", new Vector2(120, 20), "슬롯 2");
             var cancel = CreateModalButton(panel.transform, "CancelButton", new Vector2(0, -110), "취소");
 
+            MakeModalOverlay(root);
+
             var presenter = root.AddComponent<ReplacementModal>();
             SetPrivateField(presenter, "root", root);
             SetPrivateField(presenter, "incomingText", title);
@@ -223,6 +228,8 @@ namespace Abyss.EditorTools
             var slot1 = CreateModalButton(panel.transform, "Slot1Button", new Vector2(120, 20), "슬롯 2");
             var cancel = CreateModalButton(panel.transform, "CancelButton", new Vector2(0, -110), "취소");
 
+            MakeModalOverlay(root);
+
             var presenter = root.AddComponent<FormReplacementModal>();
             SetPrivateField(presenter, "root", root);
             SetPrivateField(presenter, "incomingText", title);
@@ -232,6 +239,22 @@ namespace Abyss.EditorTools
 
             root.SetActive(false);
             return presenter;
+        }
+
+        /// <summary>
+        /// 모달 root를 항상 패널 위에 그리게 만든다.
+        /// 모달은 HUD 자식이고 HUD는 Canvas의 첫 자식이라, 형제 순서만으로는 DraftPanel(둘째 자식)을
+        /// 넘을 수 없다(같은 Canvas는 계층 순서대로 그린다). HUD를 뒤로 옮기는 건 답이 아니다 —
+        /// DraftPanel이 평소 HUD를 덮는 것은 의도된 동작이다. 그래서 모달만 하위 Canvas로 분리해
+        /// 정렬을 오버라이드한다. 중첩 Canvas의 그래픽은 부모 GraphicRaycaster가 잡지 못하므로
+        /// 전용 Raycaster를 함께 붙여야 버튼 클릭이 동작한다.
+        /// </summary>
+        private static void MakeModalOverlay(GameObject root)
+        {
+            var canvas = root.AddComponent<Canvas>();
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = MODAL_SORTING_ORDER;
+            root.AddComponent<GraphicRaycaster>();
         }
 
         private struct ButtonHandle

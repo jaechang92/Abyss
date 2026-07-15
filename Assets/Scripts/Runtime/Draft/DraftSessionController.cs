@@ -193,14 +193,32 @@ namespace Abyss.Runtime.Draft
             if (!isSessionActive || incoming == null) return false;
 
             // 제거가 실패(잘못된 id)하면 신규만 추가돼 슬롯 상한을 초과한다 → 획득 중단.
-            if (!RemoveOwned(droppedSkillId))
+            int droppedIndex = RemoveOwned(droppedSkillId);
+            if (droppedIndex < 0)
             {
                 Debug.LogWarning($"[Draft] 교체 대상 '{droppedSkillId}' 제거 실패 — 획득 취소");
                 return false;
             }
-            AcquireSkill(incoming);
+
+            // 버린 스킬이 있던 자리에 넣는다. owned 순서가 곧 슬롯 순서(CollectActiveOwned)라,
+            // 끝에 추가하면 뒷 슬롯 스킬이 앞으로 당겨지고 신규가 뒷칸에 배치된다(Bug-024).
+            InsertSkill(incoming, droppedIndex);
             GameEvents.RaiseSkillDrafted(incoming, currentReason);
             CloseSession();
+            return true;
+        }
+
+        /// <summary>
+        /// 교체 모달에서 취소 — 드래프트 카드 선택으로 되돌린다.
+        /// 세션·현재 옵션은 그대로 두고 OnDraftOptionsReady만 재발행한다. DraftPanelPresenter가
+        /// 이를 받아 같은 카드로 패널을 다시 연다(교체 요청 시 숨겨졌던 그 패널).
+        /// CloseSession을 쓰면 안 된다 — 게임이 재개되고 옵션이 사라져 돌아갈 화면이 없어진다.
+        /// </summary>
+        public bool CancelReplacement()
+        {
+            if (!isSessionActive || currentOptions == null) return false;
+
+            GameEvents.RaiseDraftOptionsReady(currentOptions);
             return true;
         }
 
@@ -247,14 +265,19 @@ namespace Abyss.Runtime.Draft
             }
         }
 
-        private void AcquireSkill(SkillData skill)
+        /// <summary>신규 획득 — 보유 목록 끝에 추가(뒤 슬롯부터 채워진다).</summary>
+        private void AcquireSkill(SkillData skill) => InsertSkill(skill, owned.Count);
+
+        /// <summary>보유 목록의 지정 위치에 넣는다. owned 순서가 곧 슬롯 순서라 위치가 슬롯을 결정한다.</summary>
+        private void InsertSkill(SkillData skill, int index)
         {
-            owned.Add(skill);
+            owned.Insert(Mathf.Clamp(index, 0, owned.Count), skill);
             ownedSkillIds.Add(skill.skillId);
             if (!string.IsNullOrEmpty(skill.synergyTag)) ownedSynergyTags.Add(skill.synergyTag);
         }
 
-        private bool RemoveOwned(string skillId)
+        /// <summary>제거한 보유 목록 위치를 반환(미발견 시 -1). 교체 시 그 자리에 신규를 넣기 위함.</summary>
+        private int RemoveOwned(string skillId)
         {
             for (int i = owned.Count - 1; i >= 0; i--)
             {
@@ -264,11 +287,11 @@ namespace Abyss.Runtime.Draft
                     owned.RemoveAt(i);
                     ownedSkillIds.Remove(skillId);
                     RecomputeSynergyTags();
-                    Debug.Log($"[Draft] 교체: {removed.displayName} 제거");
-                    return true;
+                    Debug.Log($"[Draft] 교체: {removed.displayName} 제거 (보유 위치 {i})");
+                    return i;
                 }
             }
-            return false;
+            return -1;
         }
 
         private void RecomputeSynergyTags()
