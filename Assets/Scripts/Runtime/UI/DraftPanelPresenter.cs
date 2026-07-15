@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Run;
@@ -55,6 +56,7 @@ namespace Abyss.Runtime.UI
             GameEvents.OnDraftOptionsReady += HandleOptionsReady;
             GameEvents.OnDraftClosed += HandleDraftClosed;
             GameEvents.OnSkillDrafted += HandleSkillDrafted;
+            GameEvents.OnDraftSlotReplaceRequested += HandleReplaceRequested;
         }
 
         private void OnDisable()
@@ -62,6 +64,7 @@ namespace Abyss.Runtime.UI
             GameEvents.OnDraftOptionsReady -= HandleOptionsReady;
             GameEvents.OnDraftClosed -= HandleDraftClosed;
             GameEvents.OnSkillDrafted -= HandleSkillDrafted;
+            GameEvents.OnDraftSlotReplaceRequested -= HandleReplaceRequested;
         }
 
         private void Update()
@@ -127,6 +130,14 @@ namespace Abyss.Runtime.UI
         }
 
         private void HandleDraftClosed()
+        {
+            if (root != null) root.SetActive(false);
+        }
+
+        // 카드 선택이 슬롯 교체로 이어지면 선택 단계는 끝났다 — 교체 모달에 화면을 넘긴다.
+        // 세션은 살아 있으므로(CloseSession 아님) 패널만 숨긴다. 모달에서 취소하면
+        // DraftSessionController.CancelReplacement가 OnDraftOptionsReady를 재발행해 되돌아온다.
+        private void HandleReplaceRequested(SkillData _, IReadOnlyList<SkillData> __)
         {
             if (root != null) root.SetActive(false);
         }
