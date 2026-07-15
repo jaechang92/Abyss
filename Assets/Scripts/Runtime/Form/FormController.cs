@@ -87,6 +87,10 @@ namespace Abyss.Runtime.Form
         public FormData CurrentForm => slots[activeSlot];
         public FormData OtherForm => slots[1 - activeSlot];
         public int ActiveSlot => activeSlot;
+        public int SlotCount => slots.Length;
+
+        /// <summary>슬롯 index의 폼(범위 밖이면 null). 폼 보상 슬롯 선택 모달의 표시용.</summary>
+        public FormData GetSlot(int index) => (index >= 0 && index < slots.Length) ? slots[index] : null;
         public float CurrentCooldown => currentCooldown;
         public float CooldownProgress => SwapCooldown <= 0f ? 1f : 1f - (currentCooldown / SwapCooldown);
         public bool CanSwap => state == FormState.Ready && currentCooldown <= 0f && OtherForm != null;

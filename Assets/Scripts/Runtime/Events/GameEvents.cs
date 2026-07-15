@@ -38,6 +38,7 @@ namespace Abyss.Runtime.Events
         public static event Action<DraftOptions> OnDraftOptionsReady;
         public static event Action<SkillData, DraftTriggerReason> OnSkillDrafted;
         public static event Action<SkillData, IReadOnlyList<SkillData>> OnDraftSlotReplaceRequested;
+        public static event Action<FormData> OnFormRewardOffered;
         public static event Action<EnemyData> OnEnemyKilled;
         public static event Action<RoomData> OnRoomEntered;
         public static event Action<RoomData> OnRoomCleared;
@@ -56,6 +57,7 @@ namespace Abyss.Runtime.Events
         public static void RaiseDraftOptionsReady(DraftOptions options) => OnDraftOptionsReady?.Invoke(options);
         public static void RaiseSkillDrafted(SkillData skill, DraftTriggerReason reason) => OnSkillDrafted?.Invoke(skill, reason);
         public static void RaiseDraftSlotReplaceRequested(SkillData incoming, IReadOnlyList<SkillData> currentActives) => OnDraftSlotReplaceRequested?.Invoke(incoming, currentActives);
+        public static void RaiseFormRewardOffered(FormData incoming) => OnFormRewardOffered?.Invoke(incoming);
         public static void RaiseEnemyKilled(EnemyData data) => OnEnemyKilled?.Invoke(data);
         public static void RaiseRoomEntered(RoomData room) => OnRoomEntered?.Invoke(room);
         public static void RaiseRoomCleared(RoomData room) => OnRoomCleared?.Invoke(room);

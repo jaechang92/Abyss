@@ -2,6 +2,7 @@
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Events;
+using Abyss.Runtime.Form;
 using Abyss.Runtime.Meta;
 using Abyss.Runtime.Player;
 using Abyss.Runtime.Run;
@@ -315,6 +316,9 @@ namespace Abyss.Runtime.Cheats
             {
                 string cur = p.Form.CurrentForm != null ? p.Form.CurrentForm.formId : "?";
                 if (GUILayout.Button($"폼 교체 (현재: {cur})")) p.Form.RequestSwap();
+#if UNITY_EDITOR
+                if (GUILayout.Button("폼 보상 발동 (미보유 폼 제시)")) OfferRewardFormCheat(p.Form);
+#endif
             }
 
             var st = ResolveStage();
@@ -324,6 +328,34 @@ namespace Abyss.Runtime.Cheats
             }
             GUILayout.Space(6);
         }
+
+#if UNITY_EDITOR
+        // 테스트용(에디터 전용): 현재 슬롯에 없는 FormData를 찾아 폼 보상 모달을 띄운다.
+        // 정식 보상은 Phase 2의 FormAltar(직렬화 rewardForm)가 담당 — 여기선 트리거만 대체.
+        private static void OfferRewardFormCheat(FormController controller)
+        {
+            if (controller == null) return;
+
+            var ownedIds = new HashSet<string>();
+            for (int i = 0; i < controller.SlotCount; i++)
+            {
+                var f = controller.GetSlot(i);
+                if (f != null) ownedIds.Add(f.formId);
+            }
+
+            foreach (var guid in UnityEditor.AssetDatabase.FindAssets("t:FormData"))
+            {
+                var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+                var form = UnityEditor.AssetDatabase.LoadAssetAtPath<FormData>(path);
+                if (form != null && !ownedIds.Contains(form.formId))
+                {
+                    GameEvents.RaiseFormRewardOffered(form);
+                    return;
+                }
+            }
+            Debug.Log("[CheatMenu] 미보유 폼 없음 — 모든 폼이 이미 슬롯에 있음");
+        }
+#endif
 
         // ====== 참조 해석(지연·재탐색) ======
         private PlayerCharacter ResolvePlayer()
