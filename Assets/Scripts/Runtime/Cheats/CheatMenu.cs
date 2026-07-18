@@ -331,7 +331,7 @@ namespace Abyss.Runtime.Cheats
 
 #if UNITY_EDITOR
         // 테스트용(에디터 전용): 현재 슬롯에 없는 FormData를 찾아 폼 보상 모달을 띄운다.
-        // 정식 보상은 Phase 2의 FormAltar(직렬화 rewardForm)가 담당 — 여기선 트리거만 대체.
+        // 정식 보상은 FormAltar(직렬화 rewardForm, Run 씬 배치)가 담당 — 이 치트는 제단 없이 빠르게 검증하는 대체 경로.
         private static void OfferRewardFormCheat(FormController controller)
         {
             if (controller == null) return;
