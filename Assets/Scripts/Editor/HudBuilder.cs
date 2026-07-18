@@ -57,6 +57,7 @@ namespace Abyss.EditorTools
             var formSlot = CreateFormSlot(go.transform);
             var skillSlot0 = CreateSkillSlot(go.transform, "SkillSlot0", new Vector2(24, 24));
             var skillSlot1 = CreateSkillSlot(go.transform, "SkillSlot1", new Vector2(104, 24));
+            CreateFormBiasWarning(go.transform); // 편향 경고 배너(자체 이벤트 구독 — HUDPresenter 배선 불필요)
             var modal = CreateReplacementModal(go.transform);
             var formModal = CreateFormRewardModal(go.transform);
             CreateInteractPrompt(go.transform); // 근접 상호작용 프롬프트(비활성). PlayerInteractor.promptLabel 배선은 FormAltarBuilder가 담당
@@ -69,7 +70,7 @@ namespace Abyss.EditorTools
             EditorUtility.SetDirty(go);
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
 
-            Debug.Log($"[HudBuilder] HUD 자식 UI 생성 완료: HealthBar / FormSlot / SkillSlot ×2 / ReplacementModal(비활성)");
+            Debug.Log($"[HudBuilder] HUD 자식 UI 생성 완료: HealthBar / FormSlot / FormBiasWarning(비활성) / SkillSlot ×2 / ReplacementModal(비활성)");
             Selection.activeGameObject = go;
         }
 
@@ -239,6 +240,39 @@ namespace Abyss.EditorTools
             SetPrivateField(presenter, "cancelButton", cancel.button);
 
             root.SetActive(false);
+            return presenter;
+        }
+
+        // ==================== Form Bias Warning ====================
+        /// <summary>
+        /// 폼 편향 경고 배너(FormSlot 바로 아래). Presenter는 항상 활성 상태로 두고 Body만 토글해
+        /// 숨김 중에도 GameEvents 구독이 유지되게 한다(자기 자신을 끄면 다시 켜줄 주체가 없다).
+        /// </summary>
+        private static FormBiasWarningPresenter CreateFormBiasWarning(Transform parent)
+        {
+            var root = CreateRectChild(parent, "FormBiasWarning", new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -152), new Vector2(360, 48));
+
+            var body = CreateRectChild(root.transform, "Body", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            StretchFill((RectTransform)body.transform);
+            var bodyImg = body.AddComponent<Image>();
+            bodyImg.color = new Color(0.32f, 0.18f, 0.06f, 0.82f);
+            bodyImg.raycastTarget = false;
+
+            var labelGo = CreateRectChild(body.transform, "Label", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            StretchFill((RectTransform)labelGo.transform);
+            var label = labelGo.AddComponent<Text>();
+            ApplyDefaultFont(label);
+            label.text = "폼 편향 경고";
+            label.fontSize = 13;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = new Color(1f, 0.86f, 0.62f);
+            label.raycastTarget = false;
+
+            var presenter = root.AddComponent<FormBiasWarningPresenter>();
+            SetPrivateField(presenter, "root", body);
+            SetPrivateField(presenter, "label", label);
+
+            body.SetActive(false);
             return presenter;
         }
 

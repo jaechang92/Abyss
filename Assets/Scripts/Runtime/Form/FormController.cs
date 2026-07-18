@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Flow;
 using Abyss.Runtime.Run;
@@ -91,9 +92,46 @@ namespace Abyss.Runtime.Form
 
         /// <summary>슬롯 index의 폼(범위 밖이면 null). 폼 보상 슬롯 선택 모달의 표시용.</summary>
         public FormData GetSlot(int index) => (index >= 0 && index < slots.Length) ? slots[index] : null;
+
+        /// <summary>
+        /// 현재 슬롯에 장착된(=이 런에서 보유 중인) 폼 목록. 별도 인벤토리가 없으므로 슬롯이 곧 보유 상태다.
+        /// 폼 보상 룸의 '미보유 폼 우선 제시' 판정에 쓰인다.
+        /// 호출 빈도가 룸 클리어당 1회라 캐시 재사용(별칭 위험)보다 매번 새 리스트를 주는 쪽을 택했다.
+        /// </summary>
+        public List<FormData> GetOwnedForms()
+        {
+            var owned = new List<FormData>(slots.Length);
+            for (int i = 0; i < slots.Length; i++)
+            {
+                if (slots[i] != null && !owned.Contains(slots[i])) owned.Add(slots[i]);
+            }
+            return owned;
+        }
         public float CurrentCooldown => currentCooldown;
         public float CooldownProgress => SwapCooldown <= 0f ? 1f : 1f - (currentCooldown / SwapCooldown);
-        public bool CanSwap => state == FormState.Ready && currentCooldown <= 0f && OtherForm != null;
+        public bool CanSwap => state == FormState.Ready && currentCooldown <= 0f && OtherForm != null && IsGateOpen;
+
+        /// <summary>
+        /// 외부(플레이어 FSM) 교체 허용 게이트. 미등록이면 항상 허용해 로비·테스트 씬에서 폼 단독 동작을 보장한다.
+        /// FormController가 Player 네임스페이스를 역참조하지 않도록 델리게이트로 주입받는다(의존 방향 유지).
+        /// </summary>
+        private Func<bool> swapGate;
+        private bool IsGateOpen => swapGate == null || swapGate();
+
+        /// <summary>
+        /// 교체 허용 조건을 주입한다(피격 경직·시전 중·사망 등 상태 차단용).
+        /// PlayerStateMachine이 OnEnable에서 등록한다.
+        /// </summary>
+        public void SetSwapGate(Func<bool> gate) => swapGate = gate;
+
+        /// <summary>
+        /// 자신이 등록한 게이트만 해제한다. 등록자가 여럿일 때(프리팹 중복 인스턴스·테스트 씬)
+        /// 먼저 비활성화되는 쪽이 남의 게이트까지 지우는 것을 막는다.
+        /// </summary>
+        public void ClearSwapGate(Func<bool> expected)
+        {
+            if (swapGate == expected) swapGate = null;
+        }
 
         public event Action<FormData, FormData> OnSwapStarted;
         public event Action<FormData, FormData> OnSwapCompleted;
@@ -118,7 +156,7 @@ namespace Abyss.Runtime.Form
         {
             if (!CanSwap)
             {
-                Debug.Log($"[FormController] Swap 거부 — state={state}, cooldown={currentCooldown:F2}s, other={(OtherForm != null ? OtherForm.formId : "null (slot 미할당)")}");
+                Debug.Log($"[FormController] Swap 거부 — state={state}, cooldown={currentCooldown:F2}s, other={(OtherForm != null ? OtherForm.formId : "null (slot 미할당)")}, gate={(IsGateOpen ? "open" : "blocked (피격/시전/사망)")}");
                 return false;
             }
 

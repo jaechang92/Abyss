@@ -5,7 +5,7 @@ namespace Abyss.Tests.EditMode
 {
     /// <summary>
     /// RunStats POCO EditMode 테스트.
-    /// GetDominantFormId · GetFormRatio · Reset · FormExclusiveDraftRatio 가드.
+    /// GetDominantFormId · GetFormRatio · GetFormPlaytimeRatio · Reset · FormExclusiveDraftRatio 가드.
     /// </summary>
     public sealed class RunStatsTests
     {
@@ -58,6 +58,67 @@ namespace Abyss.Tests.EditMode
             var stats = new RunStats();
             stats.totalElapsedSeconds = 40f;
             Assert.AreEqual(0f, stats.GetFormRatio("nonexistent_form"));
+        }
+
+        [Test]
+        public void FormPlaytimeTotalSeconds_SumsAllForms()
+        {
+            var stats = new RunStats();
+            stats.formPlaytimeSeconds["dark_blade"] = 30f;
+            stats.formPlaytimeSeconds["void_archer"] = 10f;
+            Assert.AreEqual(40f, stats.FormPlaytimeTotalSeconds, 0.0001f);
+        }
+
+        [Test]
+        public void GetFormPlaytimeRatio_NoPlaytime_ReturnsZero()
+        {
+            var stats = new RunStats();
+            Assert.AreEqual(0f, stats.GetFormPlaytimeRatio("dark_blade"));
+        }
+
+        [Test]
+        public void GetFormPlaytimeRatio_NullOrEmptyForm_ReturnsZero()
+        {
+            var stats = new RunStats();
+            stats.formPlaytimeSeconds["dark_blade"] = 15f;
+            Assert.AreEqual(0f, stats.GetFormPlaytimeRatio(string.Empty));
+            Assert.AreEqual(0f, stats.GetFormPlaytimeRatio(null));
+        }
+
+        // 편향 판정의 핵심 성질: 런 총 경과시간(unscaled)이 아니라 폼 시간 총합이 분모이므로
+        // 모달·일시정지로 totalElapsedSeconds가 아무리 늘어도 비율이 희석되지 않는다.
+        [Test]
+        public void GetFormPlaytimeRatio_UnaffectedByElapsedTime()
+        {
+            var stats = new RunStats();
+            stats.totalElapsedSeconds = 400f;  // 정지 구간이 길게 누적된 상황
+            stats.formPlaytimeSeconds["dark_blade"] = 30f;
+            stats.formPlaytimeSeconds["void_archer"] = 10f;
+
+            Assert.AreEqual(0.75f, stats.GetFormPlaytimeRatio("dark_blade"), 0.0001f);
+            Assert.AreEqual(0.075f, stats.GetFormRatio("dark_blade"), 0.0001f);  // 기존 지표는 그대로 희석됨
+        }
+
+        [Test]
+        public void GetFormPlaytimeRatio_AllFormsSumToOne()
+        {
+            var stats = new RunStats();
+            stats.formPlaytimeSeconds["dark_blade"] = 12f;
+            stats.formPlaytimeSeconds["void_archer"] = 8f;
+            stats.formPlaytimeSeconds["ancient_shield"] = 20f;
+
+            float sum = stats.GetFormPlaytimeRatio("dark_blade")
+                      + stats.GetFormPlaytimeRatio("void_archer")
+                      + stats.GetFormPlaytimeRatio("ancient_shield");
+            Assert.AreEqual(1f, sum, 0.0001f);
+        }
+
+        [Test]
+        public void GetFormPlaytimeRatio_UnknownForm_ReturnsZero()
+        {
+            var stats = new RunStats();
+            stats.formPlaytimeSeconds["dark_blade"] = 40f;
+            Assert.AreEqual(0f, stats.GetFormPlaytimeRatio("nonexistent_form"));
         }
 
         [Test]

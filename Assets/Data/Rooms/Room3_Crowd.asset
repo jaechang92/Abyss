@@ -20,4 +20,5 @@ MonoBehaviour:
   - data: {fileID: 11400000, guid: 03c0a0ca364f01848bbbac63dc134c4f, type: 2}
     count: 1
   clearGoldReward: 12
-  formReward: {fileID: 11400000, guid: 2f593b3e8d7561446a311bf86817c215, type: 2}
+  hasFormReward: 1
+  formReward: {fileID: 0}
