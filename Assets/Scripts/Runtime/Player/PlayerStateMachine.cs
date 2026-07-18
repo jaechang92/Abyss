@@ -26,9 +26,30 @@ namespace Abyss.Runtime.Player
         private bool isFormSwapping;
         private bool hitQueued;
         private float attackStateExitTime;
+        private System.Func<bool> swapGate;  // 해제 시 동일 인스턴스 비교용(남의 게이트 삭제 방지)
 
         public StateMachine Machine => fsm;
         public string CurrentStateId => fsm != null ? fsm.CurrentStateId : string.Empty;
+
+        /// <summary>
+        /// 현재 상태에서 폼 교체가 허용되는지. 피격 경직(Hit)·시전 중(AttackLight/Heavy)·사망(Dead)에서 차단한다.
+        /// Dash는 허용 — 대시 캔슬 교체는 의도된 조작감(기획 02-form-change-system.md).
+        /// FormController.SetSwapGate로 주입되어 RequestSwap 가드에 합류한다.
+        /// </summary>
+        public bool CanSwapForm
+        {
+            get
+            {
+                if (player != null && player.IsDead) return false;
+                if (fsm == null || !fsm.IsRunning) return true;  // FSM 미가동 시엔 폼 단독 동작 보장
+
+                string id = fsm.CurrentStateId;
+                return id != PlayerStateIds.Hit
+                    && id != PlayerStateIds.Dead
+                    && id != PlayerStateIds.AttackLight
+                    && id != PlayerStateIds.AttackHeavy;
+            }
+        }
 
         private void Awake()
         {
@@ -45,6 +66,8 @@ namespace Abyss.Runtime.Player
             {
                 formController.OnSwapStarted += HandleSwapStarted;
                 formController.OnSwapCompleted += HandleSwapCompleted;
+                swapGate ??= () => CanSwapForm;
+                formController.SetSwapGate(swapGate);
             }
             if (player != null)
             {
@@ -58,6 +81,7 @@ namespace Abyss.Runtime.Player
             {
                 formController.OnSwapStarted -= HandleSwapStarted;
                 formController.OnSwapCompleted -= HandleSwapCompleted;
+                formController.ClearSwapGate(swapGate);
             }
             if (player != null)
             {
