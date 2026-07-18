@@ -11,7 +11,6 @@ namespace Abyss.EditorTools
     {
         // 데이터 (ScriptableObject) 디렉터리
         private const string Data = "Assets/Data";
-        public const string Forms = Data + "/Forms";
         public const string Enemies = Data + "/Enemies";
         public const string Rooms = Data + "/Rooms";
         public const string Stages = Data + "/Stages";
@@ -22,6 +21,7 @@ namespace Abyss.EditorTools
         public const string RunConfigDir = "Assets/Resources/Data"; // P-14: 런타임 Resources.Load 대상(정규 위치)
         public const string MetaUpgrades = RunConfigDir + "/MetaUpgrades"; // 메타 영구 업그레이드 SO(런타임 Resources.LoadAll)
         public const string Skills = RunConfigDir + "/Skills"; // 드래프트 스킬 SO(런타임 SkillCatalog.LoadAll) — 폴더에 추가 시 자동 편입
+        public const string Forms = RunConfigDir + "/Forms"; // 폼 SO(런타임 FormCatalog.LoadAll) — 폴더에 추가 시 자동 편입
 
         // 프리팹 디렉터리
         private const string Prefabs = "Assets/Prefabs";
