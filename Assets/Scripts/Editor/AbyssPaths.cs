@@ -33,12 +33,14 @@ namespace Abyss.EditorTools
         public const string Sprites = "Assets/Art/Sprites";
         public const string EnemySprites = Sprites + "/Enemies";
         public const string SkillIcons = Sprites + "/SkillIcons";
+        public const string Props = Sprites + "/Props"; // 월드 오브젝트 스프라이트(제단 등)
 
         // 오디오
         public const string Sfx = "Assets/Audio/SFX";
 
         // 개별 에셋 파일
         public const string WhiteSquare = Sprites + "/WhiteSquare.png";
+        public const string FormAltarSprite = Props + "/form_altar.png";
         public const string Frictionless = Physics + "/Frictionless.physicsMaterial2D";
         public const string EnemyProjectilePrefab = CombatPrefabs + "/EnemyProjectile.prefab";
         public const string LobbyScene = "Assets/Scenes/Lobby.unity";
