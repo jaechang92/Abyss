@@ -1,6 +1,7 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Events;
+using Abyss.Runtime.Form;
 using Abyss.Runtime.Run;
 using UnityEngine;
 
@@ -20,6 +21,9 @@ namespace Abyss.Runtime.Stage
         [SerializeField, Min(0f)] private float delayBetweenRooms = 2f;
         [SerializeField, Min(0f)] private float delayBetweenStages = 3f;
 
+        [Tooltip("폼 보상 룸에서 활성화할 제단(FormAltarBuilder가 배선). 비우면 보상 룸이 있어도 게이트 없이 진행.")]
+        [SerializeField] private FormAltar formAltar;
+
         // RunManager 등 다른 시스템의 Awake/OnEnable이 먼저 자리잡도록 시퀀스 시작을 한 틱 지연한다.
         private const float SEQUENCE_START_DELAY = 0.2f;
 
@@ -27,6 +31,7 @@ namespace Abyss.Runtime.Stage
         private int currentRoomIndex = -1;
         private readonly List<EnemyBase> activeEnemies = new();
         private bool isRoomClearing;  // ProceedToNextRoom 지연 창 동안 룸 이중 클리어(보상 중복·방 스킵) 방지
+        private bool awaitingFormReward;  // 보상 룸 클리어 후 제단 상호작용을 기다리는 동안 자동 진행 보류
 
         public StageSequenceData Sequence => sequence;
         public StageData CurrentStage => IsValidStage(currentStageIndex) ? sequence.stages[currentStageIndex] : null;
@@ -39,12 +44,14 @@ namespace Abyss.Runtime.Stage
         private void OnEnable()
         {
             GameEvents.OnEnemyKilled += HandleEnemyKilled;
+            GameEvents.OnFormRewardResolved += HandleFormRewardResolved;
             if (startOnEnable) Invoke(nameof(StartSequence), SEQUENCE_START_DELAY);
         }
 
         private void OnDisable()
         {
             GameEvents.OnEnemyKilled -= HandleEnemyKilled;
+            GameEvents.OnFormRewardResolved -= HandleFormRewardResolved;
             CancelInvoke();
         }
 
@@ -192,6 +199,27 @@ namespace Abyss.Runtime.Stage
                 RunManager.Instance?.GainGoldShards(room.clearGoldReward);
             }
 
+            // 폼 보상 룸: 제단을 활성화하고 상호작용(획득/거절)까지 자동 진행을 보류한다.
+            // 모달이 timeScale=0으로 정지시키므로 게이트 중에는 세계가 멈춘다. 제단 미배선이면 게이트 없이 진행(스톨 방지).
+            if (room.formReward != null && formAltar != null)
+            {
+                formAltar.Configure(room.formReward);
+                awaitingFormReward = true;
+                Debug.Log($"[StageDirector] 폼 보상 룸 — 제단 활성화({room.formReward.formId}), 상호작용까지 진행 보류");
+                return;
+            }
+
+            Invoke(nameof(ProceedToNextRoom), delayBetweenRooms);
+        }
+
+        // 폼 보상 모달이 닫히면(획득/거절) 게이트를 풀고 제단을 숨긴 뒤 다음 방으로 진행한다.
+        private void HandleFormRewardResolved()
+        {
+            if (!awaitingFormReward) return;
+            awaitingFormReward = false;
+
+            if (formAltar != null) formAltar.gameObject.SetActive(false);
+            Debug.Log("[StageDirector] 폼 보상 해결 — 다음 방 진행");
             Invoke(nameof(ProceedToNextRoom), delayBetweenRooms);
         }
 

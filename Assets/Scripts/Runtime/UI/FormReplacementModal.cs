@@ -1,4 +1,4 @@
-using Abyss.Runtime.Events;
+﻿using Abyss.Runtime.Events;
 using Abyss.Runtime.Form;
 using UnityEngine;
 using UnityEngine.UI;
@@ -94,6 +94,8 @@ namespace Abyss.Runtime.UI
             {
                 isOpen = false;
                 GameEvents.RaiseDraftClosed();
+                // 보상 흐름 종료 신호(획득/거절 공통). 보상 룸 게이트(StageDirector)가 이걸로 진행을 재개한다.
+                GameEvents.RaiseFormRewardResolved();
             }
         }
 

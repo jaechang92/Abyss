@@ -27,6 +27,7 @@ namespace Abyss.Runtime.Form
         [SerializeField] private float consumedAlphaScale = 0.35f;
 
         private bool consumed;
+        private float baseAlpha = 1f;
 
         public string InteractionPrompt => string.IsNullOrEmpty(promptKey) ? "폼 획득 (G)" : Loc.Get(promptKey);
 
@@ -36,6 +37,26 @@ namespace Abyss.Runtime.Form
         private void Awake()
         {
             if (visual == null) visual = GetComponent<SpriteRenderer>();
+            if (visual != null) baseAlpha = visual.color.a;
+        }
+
+        /// <summary>
+        /// 런타임 재설정. 보상 폼을 갈아끼우고 재장전(소비 해제·시각 복원)한 뒤 활성화한다.
+        /// 보상 룸 클리어 시 StageDirector가 호출 — 제단 하나를 룸마다 재사용한다.
+        /// </summary>
+        public void Configure(FormData reward)
+        {
+            // 비활성 상태면 먼저 켜서 Awake(visual/baseAlpha 확보)를 유발한다.
+            if (!gameObject.activeSelf) gameObject.SetActive(true);
+
+            rewardForm = reward;
+            consumed = false;
+            if (visual != null)
+            {
+                var c = visual.color;
+                c.a = baseAlpha;
+                visual.color = c;
+            }
         }
 
         public void Interact(GameObject interactor)

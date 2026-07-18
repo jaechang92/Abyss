@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Enemy;
+using Abyss.Runtime.Form;
 using UnityEngine;
 
 namespace Abyss.Runtime.Stage
@@ -19,6 +20,9 @@ namespace Abyss.Runtime.Stage
 
         [Header("클리어 보상")]
         [Min(0)] public int clearGoldReward;
+
+        [Tooltip("설정 시 이 방 클리어 후 폼 보상 제단이 활성화된다(비우면 없음). StageDirector가 게이트 처리.")]
+        public FormData formReward;
     }
 
     [System.Serializable]

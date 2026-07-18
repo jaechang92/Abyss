@@ -6450,7 +6450,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1030531077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8776,6 +8776,7 @@ MonoBehaviour:
   startOnEnable: 1
   delayBetweenRooms: 2
   delayBetweenStages: 3
+  formAltar: {fileID: 1030531077}
 --- !u!4 &1382588056
 Transform:
   m_ObjectHideFlags: 0
