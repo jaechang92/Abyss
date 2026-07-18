@@ -2,6 +2,7 @@
 using Abyss.Runtime.Form;
 using Abyss.Runtime.Lobby;
 using Abyss.Runtime.Player;
+using Abyss.Runtime.Stage;
 using Abyss.Runtime.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -52,12 +53,15 @@ namespace Abyss.EditorTools
             WireInteractPrompt(interactor);
             var altar = CreateOrReuseAltar(rewardForm);
 
+            WireStageDirector(altar.GetComponent<FormAltar>());
+            altar.SetActive(false); // 룸 게이트: 보상 룸 클리어 시 StageDirector가 활성화. 기본 숨김.
+
             EditorUtility.SetDirty(altar);
             EditorSceneManager.MarkSceneDirty(scene);
             Selection.activeGameObject = altar;
             EditorGUIUtility.PingObject(altar);
 
-            Debug.Log($"[FormAltarBuilder] 폼 제단 배치 완료 — 보상 폼='{rewardForm.displayName}' ({rewardForm.formId})");
+            Debug.Log($"[FormAltarBuilder] 폼 제단 배치 완료 — 보상 폼='{rewardForm.displayName}' ({rewardForm.formId}), 기본 비활성(룸 게이트)");
         }
 
         /// <summary>Run 플레이어에 상호작용 컴포넌트가 없으면 씬 인스턴스에 보강한다(멱등). 인터랙터 반환.</summary>
@@ -116,6 +120,25 @@ namespace Abyss.EditorTools
                 if (t.gameObject.name == PromptName) return t;
             }
             return null;
+        }
+
+        /// <summary>StageDirector.formAltar에 제단을 배선한다(보상 룸 게이트가 이 제단을 활성화).</summary>
+        private static void WireStageDirector(FormAltar altar)
+        {
+            var director = Object.FindAnyObjectByType<StageDirector>();
+            if (director == null)
+            {
+                Debug.LogWarning("[FormAltarBuilder] StageDirector 미발견 — formAltar 배선 생략. StageDirector 빌드 후 재실행하세요.");
+                return;
+            }
+
+            var so = new SerializedObject(director);
+            var prop = so.FindProperty("formAltar");
+            if (prop == null) return;
+            prop.objectReferenceValue = altar;
+            so.ApplyModifiedProperties();
+            EditorUtility.SetDirty(director);
+            Debug.Log("[FormAltarBuilder] StageDirector.formAltar → FormAltar 배선.");
         }
 
         /// <summary>기존 FormAltar가 있으면 재사용, 없으면 생성. 보상 폼·스프라이트를 주입한다.</summary>

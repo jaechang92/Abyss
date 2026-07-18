@@ -1,9 +1,10 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Abyss.Runtime.Enemy;
+using Abyss.Runtime.Form;
 using Abyss.Runtime.Stage;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -60,13 +61,18 @@ namespace Abyss.EditorTools
                 return;
             }
 
+            // 폼 보상(3번째 폼). Room3 클리어 시 제단 등장 — 미발견 시 보상 없이 진행(선택 사항).
+            var rewardForm = AssetDatabase.LoadAssetAtPath<FormData>($"{AbyssPaths.Forms}/AncientShield.asset");
+            if (rewardForm == null)
+                Debug.LogWarning("[StageBuilder] AncientShield.asset 미발견 — Room3 폼 보상 미설정. ContentBuilder 먼저 실행 권장.");
+
             // Room 6개 생성
             var room1 = CreateOrLoadRoom("Room1_Intro",     RoomType.Combat, 5,
                 new[] { (grunt, 2) });
             var room2 = CreateOrLoadRoom("Room2_Skirmish",  RoomType.Combat, 8,
                 new[] { (grunt, 2), (archer, 1) });
             var room3 = CreateOrLoadRoom("Room3_Crowd",     RoomType.Combat, 12,
-                new[] { (grunt, 3), (brute, 1) });
+                new[] { (grunt, 3), (brute, 1) }, formReward: rewardForm);
             var room4 = CreateOrLoadRoom("Room4_Elite",     RoomType.Elite, 20,
                 new[] { (elite, 1), (grunt, 2) });
             var room5 = CreateOrLoadRoom("Room5_Ambush",    RoomType.Combat, 18,
@@ -263,13 +269,21 @@ namespace Abyss.EditorTools
         }
 
         private static RoomData CreateOrLoadRoom(
-            string fileName, RoomType roomType, int goldReward, (EnemyData data, int count)[] entries)
+            string fileName, RoomType roomType, int goldReward, (EnemyData data, int count)[] entries,
+            FormData formReward = null)
         {
             string path = $"{AbyssPaths.Rooms}/{fileName}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<RoomData>(path);
             if (existing != null)
             {
-                Debug.Log($"[StageBuilder] 건너뜀 (존재): {path}");
+                // 기존 룸은 대부분 보존하되, formReward는 데이터 구동이므로 재실행 시 반영한다.
+                if (existing.formReward != formReward)
+                {
+                    existing.formReward = formReward;
+                    EditorUtility.SetDirty(existing);
+                    Debug.Log($"[StageBuilder] formReward 갱신: {path} → {(formReward != null ? formReward.formId : "none")}");
+                }
+                else Debug.Log($"[StageBuilder] 건너뜀 (존재): {path}");
                 return existing;
             }
 
@@ -277,6 +291,7 @@ namespace Abyss.EditorTools
             so.roomId = fileName.ToLowerInvariant();
             so.roomType = roomType;
             so.clearGoldReward = goldReward;
+            so.formReward = formReward;
             so.enemies = entries.Select(e => new EnemySpawnEntry { data = e.data, count = e.count }).ToList();
             AssetDatabase.CreateAsset(so, path);
             Debug.Log($"[StageBuilder] 생성: {path}");

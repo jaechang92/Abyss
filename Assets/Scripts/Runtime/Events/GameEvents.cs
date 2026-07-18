@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Enemy;
@@ -39,6 +39,7 @@ namespace Abyss.Runtime.Events
         public static event Action<SkillData, DraftTriggerReason> OnSkillDrafted;
         public static event Action<SkillData, IReadOnlyList<SkillData>> OnDraftSlotReplaceRequested;
         public static event Action<FormData> OnFormRewardOffered;
+        public static event Action OnFormRewardResolved; // 폼 보상 모달이 닫힘(획득/거절 모두) — 보상 룸 게이트 해제용
         public static event Action<EnemyData> OnEnemyKilled;
         public static event Action<RoomData> OnRoomEntered;
         public static event Action<RoomData> OnRoomCleared;
@@ -58,6 +59,7 @@ namespace Abyss.Runtime.Events
         public static void RaiseSkillDrafted(SkillData skill, DraftTriggerReason reason) => OnSkillDrafted?.Invoke(skill, reason);
         public static void RaiseDraftSlotReplaceRequested(SkillData incoming, IReadOnlyList<SkillData> currentActives) => OnDraftSlotReplaceRequested?.Invoke(incoming, currentActives);
         public static void RaiseFormRewardOffered(FormData incoming) => OnFormRewardOffered?.Invoke(incoming);
+        public static void RaiseFormRewardResolved() => OnFormRewardResolved?.Invoke();
         public static void RaiseEnemyKilled(EnemyData data) => OnEnemyKilled?.Invoke(data);
         public static void RaiseRoomEntered(RoomData room) => OnRoomEntered?.Invoke(room);
         public static void RaiseRoomCleared(RoomData room) => OnRoomCleared?.Invoke(room);
