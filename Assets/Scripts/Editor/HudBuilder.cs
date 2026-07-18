@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Player;
 using Abyss.Runtime.UI;
@@ -59,6 +59,7 @@ namespace Abyss.EditorTools
             var skillSlot1 = CreateSkillSlot(go.transform, "SkillSlot1", new Vector2(104, 24));
             var modal = CreateReplacementModal(go.transform);
             var formModal = CreateFormRewardModal(go.transform);
+            CreateInteractPrompt(go.transform); // 근접 상호작용 프롬프트(비활성). PlayerInteractor.promptLabel 배선은 FormAltarBuilder가 담당
 
             WireHUDPresenter(hud, healthBar, formSlot, new[] { skillSlot0, skillSlot1 }, modal);
             SetPrivateField(hud, "formRewardModal", formModal);
@@ -326,6 +327,26 @@ namespace Abyss.EditorTools
             {
                 Debug.LogWarning("[HudBuilder] 씬에서 DraftSessionController를 찾지 못했습니다. HUDPresenter.draftSession은 수동 연결이 필요합니다.");
             }
+        }
+
+        /// <summary>
+        /// 근접 상호작용 프롬프트 Text(하단 중앙, 기본 비활성). 로비 InteractPrompt와 동형.
+        /// 근접 시 표시·문구 갱신은 PlayerInteractor가 promptLabel을 토글해 담당한다.
+        /// FormAltarBuilder가 기존 HUD에 프롬프트가 없을 때 폴백 생성용으로도 호출한다(internal).
+        /// </summary>
+        internal static Text CreateInteractPrompt(Transform parent)
+        {
+            var go = CreateRectChild(parent, "InteractPrompt",
+                new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
+                new Vector2(0f, 120f), new Vector2(700f, 48f));
+            var t = go.AddComponent<Text>();
+            ApplyDefaultFont(t);
+            t.text = "폼 획득 (G)";
+            t.fontSize = 24;
+            t.alignment = TextAnchor.MiddleCenter;
+            t.color = new Color(1f, 0.95f, 0.6f);
+            go.SetActive(false); // 근접 시에만 표시(PlayerInteractor가 토글)
+            return t;
         }
 
         // ==================== Helpers ====================
