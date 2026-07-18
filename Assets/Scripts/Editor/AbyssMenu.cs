@@ -25,6 +25,7 @@ namespace Abyss.EditorTools
         public const string BuildStageDirector = Build + "StageDirector in Active Scene";
         public const string BuildRoomLayouts = Build + "Room Layouts in Active Scene";
         public const string BuildPlatforms = Build + "Test Platforms in Active Scene";
+        public const string BuildFormAltar = Build + "Form Altar in Active Scene";
 
         // Generate — 에셋(콘텐츠/프리팹) 생성
         public const string GenerateContent = Generate + "Prototype Content";
