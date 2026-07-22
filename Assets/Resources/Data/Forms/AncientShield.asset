@@ -23,3 +23,4 @@ MonoBehaviour:
   jumpCount: 1
   primaryAction: {fileID: 0}
   secondaryAction: {fileID: 0}
+  castColor: {r: 1, g: 0.8, b: 0.3, a: 1}

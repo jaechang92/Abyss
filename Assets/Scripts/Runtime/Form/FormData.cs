@@ -28,5 +28,10 @@ namespace Abyss.Runtime.Form
         [Header("폼 전용 어빌리티 (P-14에서 채움)")]
         public AbilityData primaryAction;
         public AbilityData secondaryAction;
+
+        [Header("폼 스킬 개시 연출")]
+        [Tooltip("이 폼의 formBound 전용 스킬 발동 시 본체 개시 플래시 색상. " +
+                 "기본값은 공용 청록 — 폼별로 지정하면 발동한 폼을 색으로 구분한다.")]
+        public Color castColor = new(0.6f, 0.9f, 1f, 1f);
     }
 }

@@ -20,9 +20,13 @@ namespace Abyss.Runtime.Player
         private const int SkillSlotCount = 2;
 
         [Header("폼 스킬 개시 연출")]
-        [Tooltip("formBound 전용 스킬 발동 성공 시 본체에 입히는 개시 플래시 색상")]
+        [Tooltip("현재 폼에 castColor가 없을 때 쓰는 개시 플래시 폴백 색상")]
         [SerializeField] private Color castFlashColor = new(0.6f, 0.9f, 1f, 1f);
         [SerializeField, Min(0f)] private float castFlashDuration = 0.15f;
+        [Tooltip("개시 링 버스트 반경(월드 유닛). 0이면 링 미표시. 효과 종류(근접/발사체/버프)와 무관하게 " +
+                 "폼 색상 링을 띄워 발동을 확실히 보이게 한다(BossAreaEffect 재사용).")]
+        [SerializeField, Min(0f)] private float castRingRadius = 1.2f;
+        [SerializeField, Min(0.05f)] private float castRingDuration = 0.3f;
         [Tooltip("개시 히트스탑(초). 공격 light(0.05)보다 약간 가볍게")]
         [SerializeField, Min(0f)] private float castHitstop = 0.04f;
         [Tooltip("개시 카메라 쉐이크 (magnitude, duration)")]
@@ -47,8 +51,8 @@ namespace Abyss.Runtime.Player
         {
             // AbilitySystem은 영속 싱글톤 — 현재 플레이어를 소유 컨텍스트로 (재)연결.
             AbilitySystem.Instance.Initialize(this);
-            // 폼 전용 스킬 발동 성공 시 개시 연출을 띄우기 위해 실행 이벤트 구독.
-            AbilitySystem.Instance.OnAbilityExecuted += HandleAbilityExecutedForCastMotion;
+            // 폼 전용 스킬 발동 개시 시 개시 연출을 띄우기 위해 개시 이벤트 구독(효과 완료 전 발화).
+            AbilitySystem.Instance.OnAbilityStarted += HandleAbilityStartedForCastMotion;
             RebuildSkillSlots();
         }
 
@@ -56,7 +60,7 @@ namespace Abyss.Runtime.Player
         {
             // 플레이어 파괴 시 등록 해제 — 영속 싱글톤에 파괴된 어빌리티가 잔류하지 않도록.
             if (!AbilitySystem.HasInstance) return;
-            AbilitySystem.Instance.OnAbilityExecuted -= HandleAbilityExecutedForCastMotion;
+            AbilitySystem.Instance.OnAbilityStarted -= HandleAbilityStartedForCastMotion;
             for (int i = 0; i < SkillSlotCount; i++)
             {
                 if (!string.IsNullOrEmpty(slotNames[i]))
@@ -121,14 +125,13 @@ namespace Abyss.Runtime.Player
         // ====== 폼 스킬 개시 연출 ======
 
         /// <summary>
-        /// 어빌리티 실행 성공(OnAbilityExecuted) 시 호출. 발동한 슬롯을 역매핑해
+        /// 어빌리티 실행 개시(OnAbilityStarted) 시 호출. 발동한 슬롯을 역매핑해
         /// formBound 전용 스킬이면 개시 연출(플래시 + 카메라 피드백)을 재생한다.
         /// 슬롯 키(slot{n}:...)로만 매칭하므로 적·비-슬롯 어빌리티는 자동 무시된다.
-        /// 성공 이벤트만 구독하므로 쿨다운·조건 미충족으로 막힌 발동엔 연출이 뜨지 않는다.
-        /// 주: 이 이벤트는 ExecuteAsync 완료 후 발화 — 프로토 스킬은 즉시 실행이라 개시 타이밍과 사실상 동일.
-        /// (채널링 스킬 도입 시 별도 OnAbilityStarted 훅으로 개시 시점을 분리할 것)
+        /// OnAbilityStarted는 CanExecute 통과 후 효과 적용 전에 발화하므로, 효과 종류(즉발/발사체/버프)와
+        /// 무관하게 발동 순간 연출이 뜬다(쿨다운·조건 미충족으로 막힌 발동엔 발화하지 않음).
         /// </summary>
-        private void HandleAbilityExecutedForCastMotion(string abilityName)
+        private void HandleAbilityStartedForCastMotion(string abilityName)
         {
             if (isDead || string.IsNullOrEmpty(abilityName)) return;
 
@@ -143,12 +146,24 @@ namespace Abyss.Runtime.Player
         }
 
         /// <summary>
-        /// 폼 전용 스킬 개시 연출: 본체 색 플래시 + 히트스탑 + 카메라 쉐이크.
-        /// 공격 피드백과 동일한 헬퍼(TriggerAttackFlash·TriggerShake)를 재사용해 시각 언어를 통일한다.
+        /// 폼 전용 스킬 개시 연출: 폼 색상 링 버스트 + 본체 색 플래시 + 히트스탑 + 카메라 쉐이크.
+        /// 링(BossAreaEffect)이 주 단서 — 근접/발사체/버프 등 스킬 자체 효과 유무와 무관하게 발동을 확실히 보이게 한다.
+        /// 색은 현재 폼의 castColor로 폼을 구분한다(폼 미확보 시 공용 castFlashColor 폴백).
+        /// formBound 스킬은 항상 해당 폼에서만 발동하므로 현재 폼 색 = 그 스킬의 폼 색.
         /// </summary>
         private void PlayFormSkillCastMotion()
         {
-            TriggerAttackFlash(castFlashColor, castFlashDuration);
+            var current = formController != null ? formController.CurrentForm : null;
+            Color castColor = current != null ? current.castColor : castFlashColor;
+
+            // 본체 tint 플래시(미묘) — 색 구분 보조.
+            TriggerAttackFlash(castColor, castFlashDuration);
+
+            // 폼 색상 링 버스트(주 단서) — 근접/발사체/버프 무관하게 발동 위치에 확실히 보인다.
+            if (castRingRadius > 0f)
+            {
+                BossAreaEffect.Spawn(transform.position, castRingRadius, castColor, castRingDuration);
+            }
 
             if (castHitstop > 0f && HitstopController.HasInstance)
             {

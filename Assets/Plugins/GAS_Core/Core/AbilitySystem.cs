@@ -32,6 +32,12 @@ namespace GAS.Core
         // ====== 이벤트 (IAbilitySystem 구현) ======
 
         /// <summary>
+        /// 어빌리티 실행 개시 시 발생 (CanExecute 통과 직후, 효과 적용 전).
+        /// 개시 연출 등 즉시성 피드백용 — 효과 완료를 기다리지 않는다.
+        /// </summary>
+        public event Action<string> OnAbilityStarted;
+
+        /// <summary>
         /// 어빌리티 실행 성공 시 발생
         /// </summary>
         public event Action<string> OnAbilityExecuted;
@@ -206,6 +212,10 @@ namespace GAS.Core
             try
             {
                 currentExecutingAbility = ability;
+
+                // 개시 통지 — 효과 적용(await) 전에 발화해 개시 연출 등 즉시성 피드백이
+                // 효과 종류(즉발/발사체/버프)와 무관하게 발동 순간 반응하도록 한다.
+                OnAbilityStarted?.Invoke(abilityName);
 
                 // 비동기 실행
                 await ability.ExecuteAsync(ownerContext);
