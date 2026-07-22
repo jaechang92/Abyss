@@ -17,10 +17,12 @@ namespace Abyss.Runtime.Skill.Effects
     {
         public async Awaitable ApplyAsync(IGameplayContext context, GenericAbilityData data, CancellationToken token)
         {
-            if (data.projectilePrefab == null || !PoolManager.HasInstance)
+            // projectilePrefab 미연결 시에만 무동작. PoolManager는 Instance 접근 시 자동 생성되므로
+            // HasInstance로 막지 않는다(EnemyBase.SpawnProjectile과 동일) — 적이 아직 발사체를 쏘지
+            // 않아 풀이 없는 방에서도 플레이어 스킬 발사체가 정상 생성되게 한다.
+            if (data.projectilePrefab == null)
             {
-                if (data.projectilePrefab == null)
-                    Debug.LogWarning($"[ProjectileEffect] {data.abilityName}: projectilePrefab이 비어 있어 무동작.");
+                Debug.LogWarning($"[ProjectileEffect] {data.abilityName}: projectilePrefab이 비어 있어 무동작.");
                 await Awaitable.NextFrameAsync(token);
                 return;
             }
