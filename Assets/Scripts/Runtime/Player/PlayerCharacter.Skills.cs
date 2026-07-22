@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Events;
+using Abyss.Runtime.Feedback;
 using Abyss.Runtime.Form;
 using Abyss.Runtime.Skill;
 using GAS.Core;
@@ -17,6 +18,15 @@ namespace Abyss.Runtime.Player
     public sealed partial class PlayerCharacter : IGameplayContext
     {
         private const int SkillSlotCount = 2;
+
+        [Header("폼 스킬 개시 연출")]
+        [Tooltip("formBound 전용 스킬 발동 성공 시 본체에 입히는 개시 플래시 색상")]
+        [SerializeField] private Color castFlashColor = new(0.6f, 0.9f, 1f, 1f);
+        [SerializeField, Min(0f)] private float castFlashDuration = 0.15f;
+        [Tooltip("개시 히트스탑(초). 공격 light(0.05)보다 약간 가볍게")]
+        [SerializeField, Min(0f)] private float castHitstop = 0.04f;
+        [Tooltip("개시 카메라 쉐이크 (magnitude, duration)")]
+        [SerializeField] private Vector2 castShake = new(0.1f, 0.1f);
 
         private readonly GenericAbility[] slotAbilities = new GenericAbility[SkillSlotCount];
         private readonly string[] slotNames = new string[SkillSlotCount];
@@ -37,6 +47,8 @@ namespace Abyss.Runtime.Player
         {
             // AbilitySystem은 영속 싱글톤 — 현재 플레이어를 소유 컨텍스트로 (재)연결.
             AbilitySystem.Instance.Initialize(this);
+            // 폼 전용 스킬 발동 성공 시 개시 연출을 띄우기 위해 실행 이벤트 구독.
+            AbilitySystem.Instance.OnAbilityExecuted += HandleAbilityExecutedForCastMotion;
             RebuildSkillSlots();
         }
 
@@ -44,6 +56,7 @@ namespace Abyss.Runtime.Player
         {
             // 플레이어 파괴 시 등록 해제 — 영속 싱글톤에 파괴된 어빌리티가 잔류하지 않도록.
             if (!AbilitySystem.HasInstance) return;
+            AbilitySystem.Instance.OnAbilityExecuted -= HandleAbilityExecutedForCastMotion;
             for (int i = 0; i < SkillSlotCount; i++)
             {
                 if (!string.IsNullOrEmpty(slotNames[i]))
@@ -103,6 +116,46 @@ namespace Abyss.Runtime.Player
 
             // 비동기 실행은 fire-and-forget — 결과는 AbilitySystem 이벤트로 통지된다.
             _ = AbilitySystem.Instance.TryExecuteAbilityAsync(abilityName);
+        }
+
+        // ====== 폼 스킬 개시 연출 ======
+
+        /// <summary>
+        /// 어빌리티 실행 성공(OnAbilityExecuted) 시 호출. 발동한 슬롯을 역매핑해
+        /// formBound 전용 스킬이면 개시 연출(플래시 + 카메라 피드백)을 재생한다.
+        /// 슬롯 키(slot{n}:...)로만 매칭하므로 적·비-슬롯 어빌리티는 자동 무시된다.
+        /// 성공 이벤트만 구독하므로 쿨다운·조건 미충족으로 막힌 발동엔 연출이 뜨지 않는다.
+        /// 주: 이 이벤트는 ExecuteAsync 완료 후 발화 — 프로토 스킬은 즉시 실행이라 개시 타이밍과 사실상 동일.
+        /// (채널링 스킬 도입 시 별도 OnAbilityStarted 훅으로 개시 시점을 분리할 것)
+        /// </summary>
+        private void HandleAbilityExecutedForCastMotion(string abilityName)
+        {
+            if (isDead || string.IsNullOrEmpty(abilityName)) return;
+
+            for (int slot = 0; slot < SkillSlotCount; slot++)
+            {
+                if (slotNames[slot] != abilityName) continue;
+
+                // 발동한 슬롯이 폼 전용(formBound 지정)일 때만 개시 연출.
+                if (!string.IsNullOrEmpty(slotFormBound[slot])) PlayFormSkillCastMotion();
+                return;
+            }
+        }
+
+        /// <summary>
+        /// 폼 전용 스킬 개시 연출: 본체 색 플래시 + 히트스탑 + 카메라 쉐이크.
+        /// 공격 피드백과 동일한 헬퍼(TriggerAttackFlash·TriggerShake)를 재사용해 시각 언어를 통일한다.
+        /// </summary>
+        private void PlayFormSkillCastMotion()
+        {
+            TriggerAttackFlash(castFlashColor, castFlashDuration);
+
+            if (castHitstop > 0f && HitstopController.HasInstance)
+            {
+                HitstopController.Instance.Trigger(castHitstop);
+            }
+
+            if (castShake != Vector2.zero) TriggerShake(castShake);
         }
 
         /// <summary>
