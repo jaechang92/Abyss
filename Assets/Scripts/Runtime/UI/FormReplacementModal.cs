@@ -27,6 +27,12 @@ namespace Abyss.Runtime.UI
         private FormData incomingForm;
         private bool isOpen;
 
+        // 2단계 취소 확인: 첫 클릭은 '무장'(경고 라벨)만, 재클릭에서 실제 포기. 오조작으로 보상을 날리는 걸 막는다.
+        private bool cancelArmed;
+        private Text cancelLabel;
+        private string cancelLabelDefault = "취소";
+        private const string CancelArmedText = "포기 확정? (다시 클릭)";
+
         private void Awake()
         {
             // 주의: root.SetActive(false)를 여기서 하지 않는다. 컴포넌트가 root와 같은 GameObject에 있어
@@ -40,7 +46,13 @@ namespace Abyss.Runtime.UI
                     currentSlotButtons[i].onClick.AddListener(() => OnSlotSelected(idx));
                 }
             }
-            if (cancelButton != null) cancelButton.onClick.AddListener(Cancel);
+            if (cancelButton != null)
+            {
+                cancelButton.onClick.AddListener(Cancel);
+                // 취소 버튼 자식 Text를 잡아 무장 시 라벨을 바꾼다(HudBuilder가 버튼 라벨을 자식 Text로 생성).
+                cancelLabel = cancelButton.GetComponentInChildren<Text>();
+                if (cancelLabel != null && !string.IsNullOrEmpty(cancelLabel.text)) cancelLabelDefault = cancelLabel.text;
+            }
         }
 
         public void Open(FormData incoming, FormController formController)
@@ -68,6 +80,9 @@ namespace Abyss.Runtime.UI
                 }
             }
 
+            // 새로 열 때는 취소 무장을 해제해 항상 1클릭=경고 상태에서 시작한다.
+            ResetCancelArm();
+
             if (root != null) root.SetActive(true);
 
             // 이미 열려 있는 상태(중복 호출)가 아니면 정지 진입.
@@ -80,12 +95,27 @@ namespace Abyss.Runtime.UI
 
         private void Cancel()
         {
-            // 폼을 받지 않고 닫는다(획득 포기).
+            // 2단계 확인: 첫 클릭은 무장(경고 라벨)만 하고 닫지 않는다. 재클릭에서 실제 포기.
+            if (!cancelArmed)
+            {
+                cancelArmed = true;
+                if (cancelLabel != null) cancelLabel.text = CancelArmedText;
+                return;
+            }
+            // 무장 상태에서 재클릭 — 폼을 받지 않고 닫는다(획득 포기).
             Close();
+        }
+
+        // 취소 버튼을 기본 상태로 되돌린다(무장 해제 + 라벨 복원).
+        private void ResetCancelArm()
+        {
+            cancelArmed = false;
+            if (cancelLabel != null) cancelLabel.text = cancelLabelDefault;
         }
 
         private void Close()
         {
+            ResetCancelArm();
             if (root != null) root.SetActive(false);
             incomingForm = null;
             controller = null;
