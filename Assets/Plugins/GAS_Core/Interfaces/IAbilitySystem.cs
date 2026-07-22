@@ -12,6 +12,12 @@ namespace GAS.Core
         // ====== 이벤트 ======
 
         /// <summary>
+        /// 어빌리티 실행 개시 시 발생 (CanExecute 통과 직후, 효과 적용 전).
+        /// 개시 연출 등 즉시성 피드백용 — 효과 완료를 기다리지 않는다.
+        /// </summary>
+        event Action<string> OnAbilityStarted; // abilityName
+
+        /// <summary>
         /// 어빌리티 실행 성공 시 발생
         /// </summary>
         event Action<string> OnAbilityExecuted; // abilityName
