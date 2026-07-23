@@ -205,17 +205,22 @@ namespace Abyss.EditorTools
             var bg = root.AddComponent<Image>();
             bg.color = new Color(0f, 0f, 0f, 0.85f);
 
-            var box = CreateRect(root.transform, "Box", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(940, 460));
+            // 폼 로드(폴더 SoT). 박스 폭을 폼 수에 맞춰 산정하려 먼저 로드한다.
+            var forms = LoadForms();
+            // N개 폼을 중앙 정렬(폼 수가 늘어도 자동 대응). 간격 285 + 버튼폭 260 → 25px 여백.
+            const float formSpacing = 285f;
+            const float formButtonWidth = 260f;
+            // 버튼 전체 span + 좌우 여백(각 50)이 박스 안에 들어오도록 폭을 확장(최소 940).
+            float boxWidth = Mathf.Max(940f, (forms.Length - 1) * formSpacing + formButtonWidth + 100f);
+
+            var box = CreateRect(root.transform, "Box", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(boxWidth, 460));
             var boxImg = box.AddComponent<Image>();
             boxImg.color = new Color(0.1f, 0.1f, 0.14f, 0.98f);
 
             CreateText(box.transform, "Title", "시작 폼 선택", 30, new Vector2(0, -50), new Vector2(700, 48), TextAnchor.MiddleCenter, new Color(1f, 0.9f, 0.7f));
 
             // 폼 버튼
-            var forms = LoadForms();
             var formButtons = new List<Object>();
-            // N개 폼을 중앙 정렬(폼 수가 늘어도 자동 대응). 간격 285 + 버튼폭 260 → 25px 여백.
-            const float formSpacing = 285f;
             float fx = -(forms.Length - 1) * formSpacing / 2f;
             foreach (var f in forms)
             {
@@ -396,16 +401,22 @@ namespace Abyss.EditorTools
 
         private static FormData[] LoadForms()
         {
-            var dark = AssetDatabase.LoadAssetAtPath<FormData>(AbyssPaths.Forms + "/DarkBlade.asset");
-            var archer = AssetDatabase.LoadAssetAtPath<FormData>(AbyssPaths.Forms + "/VoidArcher.asset");
-            var shield = AssetDatabase.LoadAssetAtPath<FormData>(AbyssPaths.Forms + "/AncientShield.asset");
+            // 폴더가 SoT: Forms 폴더의 모든 FormData를 로드해 새 폼이 자동 편입되게 한다(FormCatalog와 동형).
+            // 하드코딩 목록을 두면 새 폼마다 이 빌더를 고쳐야 하므로 폴더 스캔으로 대체.
             var list = new List<FormData>();
-            if (dark != null) list.Add(dark);
-            else Debug.LogWarning($"[LobbySceneBuilder] DarkBlade.asset 누락 — '{AbyssMenu.GenerateContent}' 먼저 실행.");
-            if (archer != null) list.Add(archer);
-            else Debug.LogWarning($"[LobbySceneBuilder] VoidArcher.asset 누락 — '{AbyssMenu.GenerateContent}' 먼저 실행.");
-            if (shield != null) list.Add(shield);
-            else Debug.LogWarning($"[LobbySceneBuilder] AncientShield.asset 누락 — '{AbyssMenu.GenerateContent}' 먼저 실행.");
+            string[] guids = AssetDatabase.FindAssets("t:FormData", new[] { AbyssPaths.Forms });
+            foreach (var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var form = AssetDatabase.LoadAssetAtPath<FormData>(path);
+                if (form != null) list.Add(form);
+            }
+
+            if (list.Count == 0)
+                Debug.LogWarning($"[LobbySceneBuilder] {AbyssPaths.Forms}에 FormData 없음 — '{AbyssMenu.GenerateContent}' 먼저 실행.");
+
+            // 파일명 기준 정렬로 빌드 재현성 확보(FindAssets 순서는 비결정적).
+            list.Sort((a, b) => string.CompareOrdinal(a.name, b.name));
             return list.ToArray();
         }
 
