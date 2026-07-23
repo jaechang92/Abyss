@@ -13,7 +13,7 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// 프로토 SO 에셋 일괄 생성 에디터 툴.
-    /// 생성 대상: FormData 3 / SkillData 13 / EnemyData 7 / RunConfig 1.
+    /// 생성 대상: FormData 4 / SkillData 15 / EnemyData 7 / RunConfig 1.
     /// 기본값은 stage-d-analyst.md 확정 스펙 + 03-skill-draft-system.md 스킬 목록.
     /// 이미 존재하는 에셋은 건너뜀(덮어쓰지 않음).
     /// </summary>
@@ -25,8 +25,8 @@ namespace Abyss.EditorTools
             bool proceed = EditorUtility.DisplayDialog(
                 "ContentBuilder",
                 "프로토 SO 에셋 생성:\n" +
-                "  · FormData 3 (dark_blade, void_archer, ancient_shield)\n" +
-                "  · SkillData 13 (불꽃 5 + 심연 5 + 버프 1 + 방패 2)\n" +
+                "  · FormData 4 (dark_blade, void_archer, ancient_shield, void_thrower)\n" +
+                "  · SkillData 15 (불꽃 5 + 심연 5 + 버프 1 + 방패 2 + 투척 2)\n" +
                 "  · EnemyData 7 (근접 2 / 원거리 1 / 엘리트 1 / 보스 1 + Stage2 중간보스 1 / 보스 1)\n" +
                 "  · RunConfig 1\n\n" +
                 "이미 존재하는 에셋은 건너뜁니다.",
@@ -83,6 +83,17 @@ namespace Abyss.EditorTools
                 so.moveSpeedMultiplier = 0.85f;
                 so.jumpCount = 1;
             });
+
+            CreateOrSkip<FormData>($"{AbyssPaths.Forms}/VoidThrower.asset", so =>
+            {
+                so.formId = "void_thrower";
+                so.displayName = "심연 투척사";
+                so.description = "투창과 잔상 이동의 기동형 시프터. 유리대포 근·원거리 혼합. 심연 축 시너지. HP -10%, 이동속도 +15%, 2단 점프.";
+                so.hpMultiplier = 0.9f;
+                so.moveSpeedMultiplier = 1.15f;
+                so.jumpCount = 2;
+                so.castColor = new Color(0.75f, 0.35f, 0.95f, 1f);
+            });
         }
 
         private static void CreateSkills()
@@ -100,6 +111,8 @@ namespace Abyss.EditorTools
             AddSkill(11, "skill_void_volley", "공허 연사", SkillCategory.Active, SkillRarity.Epic, "abyss", "void_archer", "공허궁수 특화: 전방 부채꼴로 화살 3발 동시 발사 (CD 5초)");
             AddSkill(12, "skill_shield_bash", "방패 강타", SkillCategory.Active, SkillRarity.Rare, "guard", "ancient_shield", "고대방패병 특화: 전방 방패로 광역 강타 (CD 4초)");
             AddSkill(13, "skill_iron_guard", "철벽 방어", SkillCategory.Active, SkillRarity.Epic, "guard", "ancient_shield", "고대방패병 특화: 5초간 받는 피해 50% 감소 (CD 10초)");
+            AddSkill(14, "skill_void_javelin", "심연 투창", SkillCategory.Active, SkillRarity.Rare, "abyss", "void_thrower", "심연투척사 특화: 전방으로 고위력 투창을 던진다 (CD 4.5초)");
+            AddSkill(15, "skill_phantom_step", "잔상 질주", SkillCategory.Active, SkillRarity.Epic, "abyss", "void_thrower", "심연투척사 특화: 5초간 이동속도·공격력을 강화한다 (CD 12초)");
         }
 
         private static void AddSkill(int index, string skillId, string displayName, SkillCategory category, SkillRarity rarity, string synergyTag, string formBound, string description)

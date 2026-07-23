@@ -285,6 +285,68 @@ def make_iron_guard():
     )
 
 
+# -----------------------------------------------------------------------
+# void_javelin (32x32) - 보랏빛 단일 투창 (Projectile 고위력 단발)
+#   좌하 원점에서 우상으로 던지는 굵은 창 1자루 + 큰 화살촉.
+# -----------------------------------------------------------------------
+def make_void_javelin():
+    EDGE = (228, 210, 255, 255)  # 밝은 보라-흰 하이라이트
+    MID  = (160, 105, 245, 255)  # 보라
+    DEEP = (100, 55,  180, 255)  # 진보라 심
+
+    img = Image.new("RGBA", (SIZE, SIZE), TRANSPARENT)
+    d = ImageDraw.Draw(img)
+
+    origin = (4, 27)
+    ang = math.radians(-38)
+    dx, dy = math.cos(ang), math.sin(ang)
+    length = 26
+    ex, ey = origin[0] + dx * length, origin[1] + dy * length
+
+    # 자루: 외곽선(굵게) → 진보라 심 → 보라 본체
+    d.line([origin, (ex, ey)], fill=OUTLINE, width=5)
+    d.line([origin, (ex, ey)], fill=DEEP, width=3)
+    d.line([origin, (ex, ey)], fill=MID, width=1)
+
+    # 화살촉: 진행 방향 큰 삼각형
+    head = 8
+    px, py = -dy, dx
+    tip = (ex + dx * head, ey + dy * head)
+    left = (ex + px * head * 0.75, ey + py * head * 0.75)
+    right = (ex - px * head * 0.75, ey - py * head * 0.75)
+    d.polygon([tip, left, right], fill=MID, outline=OUTLINE)
+    # 촉 하이라이트
+    d.line([(int(ex), int(ey)), (int(tip[0]), int(tip[1]))], fill=EDGE, width=1)
+    return img
+
+
+# -----------------------------------------------------------------------
+# phantom_step (32x32) - 보랏빛 잔상 질주 (이동/공격 버프)
+#   진행 방향(우)으로 페이드되는 잔상 실루엣 3개 + 스피드 라인.
+# -----------------------------------------------------------------------
+def make_phantom_step():
+    img = Image.new("RGBA", (SIZE, SIZE), TRANSPARENT)
+    d = ImageDraw.Draw(img)
+
+    # 잔상 3개: 왼(옅음)→오(진함). 각 실루엣은 세로로 선 인간 형태의 캡슐.
+    ghosts = [
+        (7,  (150, 105, 235, 90)),   # 오래된 잔상(옅음)
+        (14, (160, 110, 240, 150)),  # 중간
+        (21, (185, 130, 250, 235)),  # 최신(진함)
+    ]
+    for cx, col in ghosts:
+        # 머리
+        d.ellipse([cx - 3, 5, cx + 3, 11], fill=col)
+        # 몸통(위 넓고 아래 좁은 캡슐)
+        d.polygon([(cx - 4, 12), (cx + 4, 12), (cx + 2, 26), (cx - 2, 26)], fill=col)
+
+    # 스피드 라인(진행 방향 강조)
+    STREAK = (215, 190, 255, 200)
+    for y in (10, 16, 22):
+        d.line([(1, y), (6, y)], fill=STREAK, width=1)
+    return img
+
+
 def main():
     ensure_dir(OUTPUT_DIR)
 
@@ -296,6 +358,8 @@ def main():
         ("void_volley", make_void_volley),
         ("shield_bash", make_shield_bash),
         ("iron_guard", make_iron_guard),
+        ("void_javelin", make_void_javelin),
+        ("phantom_step", make_phantom_step),
     ]
 
     generated = []

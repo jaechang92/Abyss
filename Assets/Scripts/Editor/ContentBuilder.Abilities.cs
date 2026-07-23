@@ -134,6 +134,37 @@ namespace Abyss.EditorTools
                 so.effectColor = new Color(0.55f, 0.7f, 0.95f, 1f);
             });
 
+            CreateOrSkip<GenericAbilityData>($"{AbyssPaths.Abilities}/Ability_VoidJavelin.asset", so =>
+            {
+                so.abilityName = "void_javelin";
+                so.description = "전방으로 고위력 심연 투창을 던진다.";
+                so.cooldownDuration = 4.5f;
+                so.effectType = AbilityEffectType.Projectile;
+                so.damage = 30;
+                so.projectilePrefab = projectile;
+                so.projectileSpeed = 16f;
+                so.projectileLifetime = 2f;
+                so.projectileSpawnOffset = 0.7f;
+                so.projectileCount = 1;
+                so.projectileSpreadAngle = 0f;
+                so.showHitEffect = true;
+                so.effectColor = new Color(0.75f, 0.35f, 0.95f, 1f);
+            });
+
+            CreateOrSkip<GenericAbilityData>($"{AbyssPaths.Abilities}/Ability_PhantomStep.asset", so =>
+            {
+                so.abilityName = "phantom_step";
+                so.description = "5초간 이동속도와 공격력을 끌어올린다.";
+                so.cooldownDuration = 12f;
+                so.effectType = AbilityEffectType.Buff;
+                so.healAmount = 0;
+                so.buffMoveSpeedMultiplier = 1.4f;
+                so.buffAttackMultiplier = 1.3f;
+                so.buffDuration = 5f;
+                so.showHitEffect = true;
+                so.effectColor = new Color(0.75f, 0.35f, 0.95f, 1f);
+            });
+
             // 이미 존재해 CreateOrSkip이 건너뛴 자산에도 연출 설정을 반영(재실행 시 색 갱신).
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_Fireball.asset", new Color(1f, 0.55f, 0.15f, 1f));
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_FlameRoar.asset", new Color(1f, 0.3f, 0.1f, 1f));
@@ -142,6 +173,8 @@ namespace Abyss.EditorTools
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_VoidVolley.asset", new Color(0.6f, 0.42f, 0.95f, 1f));
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_ShieldBash.asset", new Color(0.7f, 0.75f, 0.85f, 1f));
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_IronGuard.asset", new Color(0.55f, 0.7f, 0.95f, 1f));
+            ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_VoidJavelin.asset", new Color(0.75f, 0.35f, 0.95f, 1f));
+            ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_PhantomStep.asset", new Color(0.75f, 0.35f, 0.95f, 1f));
         }
 
         private static void ApplyEffectSettings(string abilityPath, Color color)
@@ -166,6 +199,8 @@ namespace Abyss.EditorTools
             WireOne("skill_void_volley", $"{AbyssPaths.Abilities}/Ability_VoidVolley.asset");
             WireOne("skill_shield_bash", $"{AbyssPaths.Abilities}/Ability_ShieldBash.asset");
             WireOne("skill_iron_guard", $"{AbyssPaths.Abilities}/Ability_IronGuard.asset");
+            WireOne("skill_void_javelin", $"{AbyssPaths.Abilities}/Ability_VoidJavelin.asset");
+            WireOne("skill_phantom_step", $"{AbyssPaths.Abilities}/Ability_PhantomStep.asset");
         }
 
         private static void WireOne(string skillId, string abilityPath)
@@ -221,6 +256,8 @@ namespace Abyss.EditorTools
             WireSfx($"{AbyssPaths.Abilities}/Ability_VoidVolley.asset", "skill_void_volley");
             WireSfx($"{AbyssPaths.Abilities}/Ability_ShieldBash.asset", "skill_shield_bash");
             WireSfx($"{AbyssPaths.Abilities}/Ability_IronGuard.asset", "skill_iron_guard");
+            WireSfx($"{AbyssPaths.Abilities}/Ability_VoidJavelin.asset", "skill_void_javelin");
+            WireSfx($"{AbyssPaths.Abilities}/Ability_PhantomStep.asset", "skill_phantom_step");
         }
 
         private static void WireSfx(string abilityPath, string sfxKey)

@@ -24,6 +24,8 @@ namespace Abyss.EditorTools
             WireIcon("skill_void_volley", "void_volley");
             WireIcon("skill_shield_bash", "shield_bash");
             WireIcon("skill_iron_guard", "iron_guard");
+            WireIcon("skill_void_javelin", "void_javelin");
+            WireIcon("skill_phantom_step", "phantom_step");
         }
 
         private static void WireIcon(string skillId, string iconKey)
