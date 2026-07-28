@@ -201,11 +201,29 @@ namespace Abyss.Runtime.Meta
         }
 
         /// <summary>
+        /// 화면 설정 저장(해상도·전체화면). 적용은 호출자(SettingsPanel)가 담당한다.
+        /// 해상도는 인덱스가 아니라 실제 값으로 저장한다 — 인덱스는 기기마다 목록이 달라 복원이 어긋난다.
+        /// </summary>
+        public void UpdateScreenSettings(int width, int height, bool isFullscreen, bool autoSave = true)
+        {
+            EnsureLoaded();
+            var s = current.settings;
+            s.screenWidth = Mathf.Max(0, width);
+            s.screenHeight = Mathf.Max(0, height);
+            s.isFullscreen = isFullscreen;
+            if (autoSave) Save();
+        }
+
+        /// <summary>
         /// 디버그 리셋. 확인 다이얼로그는 호출자 책임.
+        /// 설정(볼륨·화면)은 진행도가 아니므로 이월한다 — 세이브 초기화가 볼륨까지 되돌리면
+        /// 사용자는 잃을 이유가 없는 것을 잃는다.
         /// </summary>
         public void ResetAll(bool autoSave = true)
         {
+            var preservedSettings = current != null ? current.settings : null;
             current = new MetaSave();
+            if (preservedSettings != null) current.settings = preservedSettings;
             isLoaded = true;
             if (autoSave) Save();
         }
