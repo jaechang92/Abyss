@@ -85,13 +85,26 @@ namespace Abyss.Runtime.Meta
     }
 
     /// <summary>
-    /// 영속 설정(볼륨 등). 실제 UI 연결은 P-22 이후.
+    /// 영속 설정(볼륨·화면). SettingsPanel이 읽고 쓴다.
+    ///
+    /// MetaSave 안에 두는 이유: 별도 파일로 분리하면 스키마 마이그레이션과 기존
+    /// UpdateSettings API 폐기 비용이 드는데, 얻는 것은 "세이브 삭제 시 설정 보존" 하나뿐이다.
+    /// 그 하나는 MetaSaveService.ResetAll이 설정만 이월하는 것으로 국소 해결한다.
+    ///
+    /// 해상도는 인덱스가 아니라 실제 값으로 저장한다 — 인덱스는 기기·드라이버마다
+    /// 목록이 달라 다른 환경에서 엉뚱한 해상도로 복원된다.
     /// </summary>
     [Serializable]
     public sealed class MetaSettings
     {
-        public float masterVolume = 1f;
-        public float bgmVolume = 1f;
-        public float sfxVolume = 1f;
+        // 기본값은 AudioManager의 기존 기본값과 일치시킨다 — 어긋나면 첫 실행 볼륨이 달라진다.
+        public float masterVolume = 0.7f;
+        public float bgmVolume = 0.7f;
+        public float sfxVolume = 0.8f;
+
+        // 0이면 "미설정" — 최초 실행 시 현재 화면 설정을 그대로 쓰고 덮어쓰지 않는다.
+        public int screenWidth;
+        public int screenHeight;
+        public bool isFullscreen = true;
     }
 }

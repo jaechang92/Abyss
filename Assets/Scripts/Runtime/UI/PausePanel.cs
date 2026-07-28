@@ -42,11 +42,8 @@ namespace Abyss.Runtime.UI
                 Debug.LogWarning($"[PausePanel] root 미배선 ({name}) — 자기 자신을 토글하면 구독이 끊긴다. Build HUD 재실행 필요.");
             }
             if (resumeButton != null) resumeButton.onClick.AddListener(RequestResume);
-            if (settingsButton != null)
-            {
-                // 설정 패널은 Phase 0-3에서 연결한다. 그전까지는 눌리지 않게 둬서 '아무 일도 안 일어나는 버튼'을 없앤다.
-                settingsButton.interactable = false;
-            }
+            // 설정 패널은 씬에 배치하지 않고 SettingsPanel이 동적 생성해 공유한다(타이틀과 같은 인스턴스).
+            if (settingsButton != null) settingsButton.onClick.AddListener(SettingsPanel.Open);
             if (toTitleButton != null)
             {
                 toTitleButton.onClick.AddListener(OnToTitleClicked);

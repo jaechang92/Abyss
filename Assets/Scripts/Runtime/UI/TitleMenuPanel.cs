@@ -35,11 +35,8 @@ namespace Abyss.Runtime.UI
         private void Awake()
         {
             if (startButton != null) startButton.onClick.AddListener(StartGame);
-            if (settingsButton != null)
-            {
-                // 설정 패널은 Phase 0-3에서 연결한다. 그전까지 눌리지 않게 둬서 '무동작 버튼'을 만들지 않는다.
-                settingsButton.interactable = false;
-            }
+            // 설정 패널은 씬에 배치하지 않고 SettingsPanel이 동적 생성해 공유한다(일시정지와 같은 인스턴스).
+            if (settingsButton != null) settingsButton.onClick.AddListener(SettingsPanel.Open);
             if (quitButton != null)
             {
                 quitButton.onClick.AddListener(OnQuitClicked);
