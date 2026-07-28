@@ -95,14 +95,13 @@ namespace Abyss.Runtime.UI
             // 정지를 먼저 풀어 timeScale을 되돌린다 — 정지된 채 씬을 넘기면 다음 씬이 멈춘 상태로 시작한다.
             GameEvents.RaiseResumeRequested();
 
-            // Title 씬 도입(Phase 0-2) 전까지는 로비가 복귀 지점이다.
             if (SceneFlowController.HasInstance)
             {
-                _ = SceneFlowController.Instance.LoadLobbyAsync();
+                _ = SceneFlowController.Instance.LoadTitleAsync();
             }
             else
             {
-                Debug.LogWarning("[PausePanel] SceneFlowController 미가동 — 로비 전환 불가.");
+                Debug.LogWarning("[PausePanel] SceneFlowController 미가동 — 타이틀 전환 불가.");
             }
         }
 

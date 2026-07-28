@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 namespace Abyss.EditorTools
 {
     /// <summary>
@@ -15,6 +15,7 @@ namespace Abyss.EditorTools
         private const string Clear = Root + "Clear/";
 
         // Build — 씬·UI 구성
+        public const string BuildTitleScene = Build + "Title Scene";
         public const string BuildLobbyScene = Build + "Lobby Scene";
         public const string BuildHud = Build + "HUD Children";
         public const string BuildDraftPanel = Build + "Draft Panel Children";

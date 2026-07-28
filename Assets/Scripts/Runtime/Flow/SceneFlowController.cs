@@ -20,6 +20,7 @@ namespace Abyss.Runtime.Flow
         private ScreenFader Fader => fader != null ? fader : (fader = ScreenFader.Create());
 
         public Awaitable LoadBootstrapAsync() => LoadSceneAsync(SceneNames.Bootstrap);
+        public Awaitable LoadTitleAsync() => LoadSceneAsync(SceneNames.Title);
         public Awaitable LoadLobbyAsync() => LoadSceneAsync(SceneNames.Lobby);
         public Awaitable LoadRunAsync() => LoadSceneAsync(SceneNames.Run);
 

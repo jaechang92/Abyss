@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 namespace Abyss.EditorTools
 {
     /// <summary>
@@ -43,6 +43,7 @@ namespace Abyss.EditorTools
         public const string FormAltarSprite = Props + "/form_altar.png";
         public const string Frictionless = Physics + "/Frictionless.physicsMaterial2D";
         public const string EnemyProjectilePrefab = CombatPrefabs + "/EnemyProjectile.prefab";
+        public const string TitleScene = "Assets/Scenes/Title.unity";
         public const string LobbyScene = "Assets/Scenes/Lobby.unity";
         public const string InputActions = "Assets/InputSystem_Actions.inputactions";
     }
