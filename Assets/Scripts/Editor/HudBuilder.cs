@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Player;
 using Abyss.Runtime.UI;
@@ -12,13 +12,11 @@ namespace Abyss.EditorTools
     /// HUD 루트(HUDPresenter) 자식 UI를 일괄 생성·연결하는 에디터 툴.
     /// 사용법: Hierarchy에서 HUDPresenter가 붙은 GameObject 선택 → 메뉴 <see cref="AbyssMenu.BuildHud"/>.
     /// 자식이 이미 있으면 삭제 후 재생성(확인 다이얼로그).
+    /// 모달 생성 파트는 HudBuilder.Modals.cs로 분리돼 있다(500줄 규칙).
     /// </summary>
-    public static class HudBuilder
+    public static partial class HudBuilder
     {
         private const string UndoLabel = "Build HUD Children";
-
-        // 모달용 하위 Canvas 정렬 순위. 루트 Canvas 소속인 DraftPanel·ResultPanel(정렬 0)보다 위.
-        private const int MODAL_SORTING_ORDER = 100;
 
         [MenuItem(AbyssMenu.BuildHud)]
         public static void Build()
@@ -58,6 +56,7 @@ namespace Abyss.EditorTools
             var skillSlot0 = CreateSkillSlot(go.transform, "SkillSlot0", new Vector2(24, 24));
             var skillSlot1 = CreateSkillSlot(go.transform, "SkillSlot1", new Vector2(104, 24));
             CreateFormBiasWarning(go.transform); // 편향 경고 배너(자체 이벤트 구독 — HUDPresenter 배선 불필요)
+            CreateSynergyCounter(go.transform); // 시너지 축 카운터(자체 이벤트 구독 — HUDPresenter 배선 불필요)
             var modal = CreateReplacementModal(go.transform);
             var formModal = CreateFormRewardModal(go.transform);
             CreateInteractPrompt(go.transform); // 근접 상호작용 프롬프트(비활성). PlayerInteractor.promptLabel 배선은 FormAltarBuilder가 담당
@@ -70,7 +69,7 @@ namespace Abyss.EditorTools
             EditorUtility.SetDirty(go);
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
 
-            Debug.Log($"[HudBuilder] HUD 자식 UI 생성 완료: HealthBar / FormSlot / FormBiasWarning(비활성) / SkillSlot ×2 / ReplacementModal(비활성)");
+            Debug.Log($"[HudBuilder] HUD 자식 UI 생성 완료: HealthBar / FormSlot / FormBiasWarning(비활성) / SynergyCounter(비활성) / SkillSlot ×2 / ReplacementModal(비활성)");
             Selection.activeGameObject = go;
         }
 
@@ -168,81 +167,6 @@ namespace Abyss.EditorTools
             return presenter;
         }
 
-        // ==================== Replacement Modal ====================
-        private static ReplacementModal CreateReplacementModal(Transform parent)
-        {
-            var root = CreateRectChild(parent, "ReplacementModal", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)root.transform);
-            var bg = root.AddComponent<Image>();
-            bg.color = new Color(0, 0, 0, 0.72f);
-            bg.raycastTarget = true;
-
-            var panel = CreateRectChild(root.transform, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(520, 320));
-            var panelImg = panel.AddComponent<Image>();
-            panelImg.color = new Color(0.12f, 0.12f, 0.18f, 0.98f);
-
-            var titleGo = CreateRectChild(panel.transform, "IncomingText", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -48), new Vector2(480, 40));
-            var title = titleGo.AddComponent<Text>();
-            ApplyDefaultFont(title);
-            title.text = "획득: ???";
-            title.fontSize = 20;
-            title.alignment = TextAnchor.MiddleCenter;
-            title.color = new Color(1f, 0.95f, 0.75f);
-
-            var slot0 = CreateModalButton(panel.transform, "Slot0Button", new Vector2(-120, 20), "슬롯 1");
-            var slot1 = CreateModalButton(panel.transform, "Slot1Button", new Vector2(120, 20), "슬롯 2");
-            var cancel = CreateModalButton(panel.transform, "CancelButton", new Vector2(0, -110), "취소");
-
-            MakeModalOverlay(root);
-
-            var presenter = root.AddComponent<ReplacementModal>();
-            SetPrivateField(presenter, "root", root);
-            SetPrivateField(presenter, "incomingText", title);
-            SetPrivateFieldArray(presenter, "currentSlotButtons", new[] { slot0.button, slot1.button });
-            SetPrivateFieldArray(presenter, "currentSlotLabels", new[] { slot0.label, slot1.label });
-            SetPrivateField(presenter, "cancelButton", cancel.button);
-
-            root.SetActive(false);
-            return presenter;
-        }
-
-        private static FormReplacementModal CreateFormRewardModal(Transform parent)
-        {
-            var root = CreateRectChild(parent, "FormRewardModal", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)root.transform);
-            var bg = root.AddComponent<Image>();
-            bg.color = new Color(0, 0, 0, 0.72f);
-            bg.raycastTarget = true;
-
-            var panel = CreateRectChild(root.transform, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(520, 320));
-            var panelImg = panel.AddComponent<Image>();
-            panelImg.color = new Color(0.12f, 0.14f, 0.2f, 0.98f);
-
-            var titleGo = CreateRectChild(panel.transform, "IncomingText", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -48), new Vector2(480, 40));
-            var title = titleGo.AddComponent<Text>();
-            ApplyDefaultFont(title);
-            title.text = "폼 획득: ???";
-            title.fontSize = 20;
-            title.alignment = TextAnchor.MiddleCenter;
-            title.color = new Color(0.75f, 0.9f, 1f);
-
-            var slot0 = CreateModalButton(panel.transform, "Slot0Button", new Vector2(-120, 20), "슬롯 1");
-            var slot1 = CreateModalButton(panel.transform, "Slot1Button", new Vector2(120, 20), "슬롯 2");
-            var cancel = CreateModalButton(panel.transform, "CancelButton", new Vector2(0, -110), "취소");
-
-            MakeModalOverlay(root);
-
-            var presenter = root.AddComponent<FormReplacementModal>();
-            SetPrivateField(presenter, "root", root);
-            SetPrivateField(presenter, "incomingText", title);
-            SetPrivateFieldArray(presenter, "currentSlotButtons", new[] { slot0.button, slot1.button });
-            SetPrivateFieldArray(presenter, "currentSlotLabels", new[] { slot0.label, slot1.label });
-            SetPrivateField(presenter, "cancelButton", cancel.button);
-
-            root.SetActive(false);
-            return presenter;
-        }
-
         // ==================== Form Bias Warning ====================
         /// <summary>
         /// 폼 편향 경고 배너(FormSlot 바로 아래). Presenter는 항상 활성 상태로 두고 Body만 토글해
@@ -276,52 +200,66 @@ namespace Abyss.EditorTools
             return presenter;
         }
 
+        // ==================== Synergy Counter ====================
         /// <summary>
-        /// 모달 root를 항상 패널 위에 그리게 만든다.
-        /// 모달은 HUD 자식이고 HUD는 Canvas의 첫 자식이라, 형제 순서만으로는 DraftPanel(둘째 자식)을
-        /// 넘을 수 없다(같은 Canvas는 계층 순서대로 그린다). HUD를 뒤로 옮기는 건 답이 아니다 —
-        /// DraftPanel이 평소 HUD를 덮는 것은 의도된 동작이다. 그래서 모달만 하위 Canvas로 분리해
-        /// 정렬을 오버라이드한다. 중첩 Canvas의 그래픽은 부모 GraphicRaycaster가 잡지 못하므로
-        /// 전용 Raycaster를 함께 붙여야 버튼 클릭이 동작한다.
+        /// 시너지 축 카운터(편향 경고 배너 바로 아래). 축 개수가 가변이라 칩을 프리팹 없이
+        /// 템플릿 복제로 만든다 — 빌더는 컨테이너와 비활성 템플릿만 놓고, 개수 조절은 Presenter가 한다.
+        /// FormBiasWarning과 동일하게 Presenter는 항상 활성이고 Body만 토글해 구독을 유지한다.
         /// </summary>
-        private static void MakeModalOverlay(GameObject root)
+        private static SynergyCounterPresenter CreateSynergyCounter(Transform parent)
         {
-            var canvas = root.AddComponent<Canvas>();
-            canvas.overrideSorting = true;
-            canvas.sortingOrder = MODAL_SORTING_ORDER;
-            root.AddComponent<GraphicRaycaster>();
+            var root = CreateRectChild(parent, "SynergyCounter", new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -208), new Vector2(800, 32));
+
+            var body = CreateRectChild(root.transform, "Body", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            StretchFill((RectTransform)body.transform);
+
+            var layout = body.AddComponent<HorizontalLayoutGroup>();
+            layout.childAlignment = TextAnchor.MiddleLeft;
+            layout.spacing = 8f;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = false;
+
+            var template = CreateSynergyChipTemplate(body.transform);
+
+            var presenter = root.AddComponent<SynergyCounterPresenter>();
+            SetPrivateField(presenter, "root", body);
+            SetPrivateField(presenter, "chipContainer", (RectTransform)body.transform);
+            SetPrivateField(presenter, "chipTemplate", template);
+
+            body.SetActive(false); // 보유 축이 생기면 Presenter가 켠다
+            return presenter;
         }
 
-        private struct ButtonHandle
+        /// <summary>
+        /// 칩 1개의 복제 원본(비활성). 폭은 LayoutElement로 고정한다 — 축 이름 길이가 제각각이라
+        /// ContentSizeFitter를 부모 LayoutGroup 안에서 쓰면 재계산이 불안정하다.
+        /// </summary>
+        private static GameObject CreateSynergyChipTemplate(Transform parent)
         {
-            public Button button;
-            public Text label;
-        }
+            var chip = CreateRectChild(parent, "ChipTemplate", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0.5f), Vector2.zero, new Vector2(124, 28));
+            var bg = chip.AddComponent<Image>();
+            bg.color = new Color(0.10f, 0.10f, 0.14f, 0.70f);
+            bg.raycastTarget = false;
 
-        private static ButtonHandle CreateModalButton(Transform parent, string name, Vector2 position, string labelText)
-        {
-            var root = CreateRectChild(parent, name, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), position, new Vector2(200, 72));
-            var img = root.AddComponent<Image>();
-            img.color = new Color(0.25f, 0.25f, 0.32f);
+            var element = chip.AddComponent<LayoutElement>();
+            element.preferredWidth = 124f;
+            element.preferredHeight = 28f;
 
-            var button = root.AddComponent<Button>();
-            button.targetGraphic = img;
-            var colors = button.colors;
-            colors.normalColor = new Color(0.25f, 0.25f, 0.32f);
-            colors.highlightedColor = new Color(0.35f, 0.35f, 0.45f);
-            colors.pressedColor = new Color(0.2f, 0.2f, 0.28f);
-            button.colors = colors;
+            var labelGo = CreateRectChild(chip.transform, "Label", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            StretchFill((RectTransform)labelGo.transform);
+            var label = labelGo.AddComponent<Text>();
+            ApplyDefaultFont(label);
+            label.text = "[축] 0";
+            label.fontSize = 13;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.horizontalOverflow = HorizontalWrapMode.Overflow; // 긴 축 이름이 줄바꿈되지 않게
+            label.color = Color.white;
+            label.raycastTarget = false;
 
-            var textGo = CreateRectChild(root.transform, "Text", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)textGo.transform);
-            var text = textGo.AddComponent<Text>();
-            ApplyDefaultFont(text);
-            text.text = labelText;
-            text.fontSize = 14;
-            text.alignment = TextAnchor.MiddleCenter;
-            text.color = Color.white;
-
-            return new ButtonHandle { button = button, label = text };
+            chip.SetActive(false);
+            return chip;
         }
 
         // ==================== Wiring ====================
