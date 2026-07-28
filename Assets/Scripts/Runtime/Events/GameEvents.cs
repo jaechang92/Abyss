@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Enemy;
@@ -45,6 +45,16 @@ namespace Abyss.Runtime.Events
         public static event Action<RoomData> OnRoomCleared;
         public static event Action<StageData> OnStageCleared;
 
+        // 일시정지는 '요청'과 '사실'을 분리한다.
+        // 요청(Requested)은 입력이 발행하고, 수락 여부는 GameFlowController가 현재 상태를 보고 판정한다
+        // (드래프트·결과 화면처럼 이미 정지된 상태에서는 거부된다).
+        // 구독자(UI·InputRouter)는 반드시 '사실'(Paused/Resumed)을 구독해야 한다 — 요청을 구독하면
+        // 거부된 요청에도 반응해 드래프트 중 게임플레이 입력이 살아나는 식의 어긋남이 생긴다.
+        public static event Action OnPauseRequested;
+        public static event Action OnResumeRequested;
+        public static event Action OnGamePaused;
+        public static event Action OnGameResumed;
+
         public static void RaiseRunStarted() => OnRunStarted?.Invoke();
         public static void RaiseRunEnded() => OnRunEnded?.Invoke();
         public static void RaisePlayerDead() => OnPlayerDead?.Invoke();
@@ -64,5 +74,9 @@ namespace Abyss.Runtime.Events
         public static void RaiseRoomEntered(RoomData room) => OnRoomEntered?.Invoke(room);
         public static void RaiseRoomCleared(RoomData room) => OnRoomCleared?.Invoke(room);
         public static void RaiseStageCleared(StageData stage) => OnStageCleared?.Invoke(stage);
+        public static void RaisePauseRequested() => OnPauseRequested?.Invoke();
+        public static void RaiseResumeRequested() => OnResumeRequested?.Invoke();
+        public static void RaiseGamePaused() => OnGamePaused?.Invoke();
+        public static void RaiseGameResumed() => OnGameResumed?.Invoke();
     }
 }

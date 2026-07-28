@@ -11,6 +11,7 @@ namespace Abyss.Runtime.Flow
         public const string RunActive = "RunActive";
         public const string DraftOpen = "DraftOpen";
         public const string Result = "Result";
+        public const string Paused = "Paused";
     }
 
     /// <summary>
@@ -74,6 +75,22 @@ namespace Abyss.Runtime.Flow
         {
             GameFlowTime.Pause();
             Debug.Log("[GameFlow] Result 진입 (timeScale=0)");
+        }
+    }
+
+    /// <summary>
+    /// 플레이어가 명시적으로 연 일시정지. 복귀는 항상 RunActive다 —
+    /// GameFlowController가 RunActive에서만 진입을 허용하므로 이전 상태를 기억할 필요가 없다.
+    /// (드래프트·결과 화면은 이미 정지 상태라 여기서 정지를 겹치면 복귀 시 그쪽 정지가 풀린다)
+    /// </summary>
+    public sealed class PausedState : State
+    {
+        public override string Name => GameFlowStateIds.Paused;
+
+        protected override void OnEnterStateSync()
+        {
+            GameFlowTime.Pause();
+            Debug.Log("[GameFlow] Paused 진입 (timeScale=0)");
         }
     }
 }
