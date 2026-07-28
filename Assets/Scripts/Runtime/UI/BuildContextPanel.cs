@@ -30,13 +30,8 @@ namespace Abyss.Runtime.UI
                 return;
             }
 
-            synergyCounts.Clear();
-            foreach (var skill in owned)
-            {
-                if (skill == null || string.IsNullOrEmpty(skill.synergyTag)) continue;
-                if (!synergyCounts.ContainsKey(skill.synergyTag)) synergyCounts[skill.synergyTag] = 0;
-                synergyCounts[skill.synergyTag] += 1;
-            }
+            // 집계·표시명은 SynergyAxis(SoT)를 따른다 — HUD 시너지 카운터와 같은 규약.
+            SynergyAxis.Tally(owned, synergyCounts);
 
             stringBuilder.Clear();
             stringBuilder.Append("시너지: ");
@@ -44,7 +39,8 @@ namespace Abyss.Runtime.UI
             foreach (var kv in synergyCounts)
             {
                 if (!first) stringBuilder.Append(" | ");
-                stringBuilder.Append($"[{kv.Key}] {kv.Value}");
+                stringBuilder.Append($"[{SynergyAxis.GetDisplayName(kv.Key)}] {kv.Value}");
+                if (SynergyAxis.IsActivated(kv.Value)) stringBuilder.Append(" ✦");
                 first = false;
             }
             if (first) stringBuilder.Append("—");
