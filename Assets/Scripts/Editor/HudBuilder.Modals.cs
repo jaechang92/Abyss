@@ -17,6 +17,88 @@ namespace Abyss.EditorTools
         // 모달용 하위 Canvas 정렬 순위. 루트 Canvas 소속인 DraftPanel·ResultPanel(정렬 0)보다 위.
         private const int MODAL_SORTING_ORDER = 100;
 
+        // 일시정지는 다른 모달보다 위에 온다. 정지 중에는 다른 모달이 열려 있지 않은 것이 정상이지만,
+        // 겹치는 경우 정지 패널이 가려지면 빠져나갈 수단이 사라진다.
+        private const int PAUSE_SORTING_ORDER = 200;
+
+        // ==================== Pause Panel ====================
+        /// <summary>
+        /// 일시정지 패널. Presenter는 GameEvents를 직접 구독하므로 **항상 활성**으로 두고
+        /// 자식 Body만 토글한다(자기를 끄면 구독이 끊겨 다시 열리지 않는다).
+        /// 모달(ReplacementModal 등)이 HUDPresenter의 호출로 열리는 것과 다른 구조다.
+        /// </summary>
+        private static PausePanel CreatePausePanel(Transform parent)
+        {
+            var root = CreateRectChild(parent, "PausePanel", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            StretchFill((RectTransform)root.transform);
+
+            var body = CreateRectChild(root.transform, "Body", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            StretchFill((RectTransform)body.transform);
+            var dim = body.AddComponent<Image>();
+            dim.color = new Color(0, 0, 0, 0.78f);
+            dim.raycastTarget = true;
+
+            var panel = CreateRectChild(body.transform, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(420, 420));
+            var panelImg = panel.AddComponent<Image>();
+            panelImg.color = new Color(0.10f, 0.10f, 0.15f, 0.98f);
+
+            var titleGo = CreateRectChild(panel.transform, "TitleText", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -44), new Vector2(380, 40));
+            var title = titleGo.AddComponent<Text>();
+            ApplyDefaultFont(title);
+            title.text = "일시정지";
+            title.fontSize = 24;
+            title.alignment = TextAnchor.MiddleCenter;
+            title.color = new Color(0.92f, 0.92f, 1f);
+
+            var resume = CreatePauseButton(panel.transform, "ResumeButton", new Vector2(0, 78), "재개");
+            var settings = CreatePauseButton(panel.transform, "SettingsButton", new Vector2(0, 16), "설정");
+            var toTitle = CreatePauseButton(panel.transform, "ToTitleButton", new Vector2(0, -46), "타이틀로");
+            var quit = CreatePauseButton(panel.transform, "QuitButton", new Vector2(0, -108), "게임 종료");
+
+            var canvas = root.AddComponent<Canvas>();
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = PAUSE_SORTING_ORDER;
+            root.AddComponent<GraphicRaycaster>();
+
+            var presenter = root.AddComponent<PausePanel>();
+            SetPrivateField(presenter, "root", body);
+            SetPrivateField(presenter, "resumeButton", resume.button);
+            SetPrivateField(presenter, "settingsButton", settings.button);
+            SetPrivateField(presenter, "toTitleButton", toTitle.button);
+            SetPrivateField(presenter, "quitButton", quit.button);
+
+            body.SetActive(false); // 정지 진입 시 Presenter가 켠다
+            return presenter;
+        }
+
+        private static ButtonHandle CreatePauseButton(Transform parent, string name, Vector2 position, string labelText)
+        {
+            var root = CreateRectChild(parent, name, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), position, new Vector2(320, 54));
+            var img = root.AddComponent<Image>();
+            img.color = new Color(0.22f, 0.22f, 0.30f);
+
+            var button = root.AddComponent<Button>();
+            button.targetGraphic = img;
+            var colors = button.colors;
+            colors.normalColor = new Color(0.22f, 0.22f, 0.30f);
+            colors.highlightedColor = new Color(0.34f, 0.34f, 0.46f);
+            colors.pressedColor = new Color(0.17f, 0.17f, 0.24f);
+            colors.disabledColor = new Color(0.16f, 0.16f, 0.19f, 0.6f);
+            button.colors = colors;
+
+            var textGo = CreateRectChild(root.transform, "Text", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            StretchFill((RectTransform)textGo.transform);
+            var text = textGo.AddComponent<Text>();
+            ApplyDefaultFont(text);
+            text.text = labelText;
+            text.fontSize = 17;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow; // 2단계 확인 문구가 길어져도 줄바꿈되지 않게
+            text.color = Color.white;
+
+            return new ButtonHandle { button = button, label = text };
+        }
+
         // ==================== Replacement Modal ====================
         private static ReplacementModal CreateReplacementModal(Transform parent)
         {

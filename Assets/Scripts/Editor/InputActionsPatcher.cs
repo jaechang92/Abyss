@@ -22,7 +22,10 @@ namespace Abyss.EditorTools
             ("Dash", "<Keyboard>/d"),
             ("AttackHeavy", "<Keyboard>/x"),
             ("Skill1", "<Keyboard>/a"),
-            ("Skill2", "<Keyboard>/s")
+            ("Skill2", "<Keyboard>/s"),
+            // 일시정지. 정지 중에는 InputRouter가 UI 모드로 전환해 Player 맵이 꺼지므로,
+            // 정지를 '닫는' 입력은 UI 맵의 기존 Cancel 액션(*/{Cancel} — ESC 자동 매핑)이 담당한다.
+            ("Pause", "<Keyboard>/escape")
         };
 
         [MenuItem(AbyssMenu.PatchInputActions)]
@@ -84,7 +87,7 @@ namespace Abyss.EditorTools
             if (wasEnabled) map.Enable();
 
             EditorUtility.DisplayDialog("InputActionsPatcher",
-                $"추가 {added}개 / 건너뜀 {skipped}개\n\n키보드 전용 조작: ←→=이동, Z=공격, X=강공격, A=Skill1, S=Skill2, C=점프, D=대시, LCtrl=폼교체.",
+                $"추가 {added}개 / 건너뜀 {skipped}개\n\n키보드 전용 조작: ←→=이동, Z=공격, X=강공격, A=Skill1, S=Skill2, C=점프, D=대시, LCtrl=폼교체, ESC=일시정지.",
                 "확인");
         }
     }

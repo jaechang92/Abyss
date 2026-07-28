@@ -60,6 +60,7 @@ namespace Abyss.EditorTools
             var modal = CreateReplacementModal(go.transform);
             var formModal = CreateFormRewardModal(go.transform);
             CreateInteractPrompt(go.transform); // 근접 상호작용 프롬프트(비활성). PlayerInteractor.promptLabel 배선은 FormAltarBuilder가 담당
+            CreatePausePanel(go.transform); // 일시정지 패널(자체 이벤트 구독 — HUDPresenter 배선 불필요)
 
             WireHUDPresenter(hud, healthBar, formSlot, new[] { skillSlot0, skillSlot1 }, modal);
             SetPrivateField(hud, "formRewardModal", formModal);
@@ -69,7 +70,7 @@ namespace Abyss.EditorTools
             EditorUtility.SetDirty(go);
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
 
-            Debug.Log($"[HudBuilder] HUD 자식 UI 생성 완료: HealthBar / FormSlot / FormBiasWarning(비활성) / SynergyCounter(비활성) / SkillSlot ×2 / ReplacementModal(비활성)");
+            Debug.Log($"[HudBuilder] HUD 자식 UI 생성 완료: HealthBar / FormSlot / FormBiasWarning(비활성) / SynergyCounter(비활성) / SkillSlot ×2 / ReplacementModal(비활성) / PausePanel(비활성)");
             Selection.activeGameObject = go;
         }
 

@@ -25,6 +25,8 @@ namespace Abyss.Runtime.Flow
             GameEvents.OnDraftOpened += HandleDraftOpened;
             GameEvents.OnDraftClosed += HandleDraftClosed;
             GameEvents.OnRunEnded += HandleRunEnded;
+            GameEvents.OnPauseRequested += HandlePauseRequested;
+            GameEvents.OnResumeRequested += HandleResumeRequested;
         }
 
         private void OnDisable()
@@ -32,7 +34,12 @@ namespace Abyss.Runtime.Flow
             GameEvents.OnDraftOpened -= HandleDraftOpened;
             GameEvents.OnDraftClosed -= HandleDraftClosed;
             GameEvents.OnRunEnded -= HandleRunEnded;
+            GameEvents.OnPauseRequested -= HandlePauseRequested;
+            GameEvents.OnResumeRequested -= HandleResumeRequested;
         }
+
+        /// <summary>현재 일시정지 상태인지. UI·입력이 정지 토글 여부를 판단할 때 참조한다.</summary>
+        public bool IsPaused => fsm != null && fsm.CurrentStateId == GameFlowStateIds.Paused;
 
         private void Start()
         {
@@ -44,6 +51,7 @@ namespace Abyss.Runtime.Flow
             fsm.AddState(new RunActiveState());
             fsm.AddState(new DraftOpenState());
             fsm.AddState(new ResultState());
+            fsm.AddState(new PausedState());
         }
 
         // 동기 전이(ForceTransitionTo → OnEnterSync)로 상태를 바꾼다. 상태의 OnEnterStateSync가 정지/재개를
@@ -53,5 +61,24 @@ namespace Abyss.Runtime.Flow
         private void HandleDraftOpened() => fsm.ForceTransitionTo(GameFlowStateIds.DraftOpen);
         private void HandleDraftClosed() => fsm.ForceTransitionTo(GameFlowStateIds.RunActive);
         private void HandleRunEnded() => fsm.ForceTransitionTo(GameFlowStateIds.Result);
+
+        /// <summary>
+        /// 정지는 RunActive에서만 받는다. 드래프트·결과 화면은 이미 정지 상태이므로 여기서 정지를 겹치면
+        /// 해제할 때 RunActive로 복귀해 그쪽 정지가 풀려버린다(드래프트 창이 열린 채 게임이 돌아감).
+        /// </summary>
+        private void HandlePauseRequested()
+        {
+            if (fsm.CurrentStateId != GameFlowStateIds.RunActive) return;
+            fsm.ForceTransitionTo(GameFlowStateIds.Paused);
+            GameEvents.RaiseGamePaused(); // 수락된 뒤에만 '사실'을 알린다
+        }
+
+        /// <summary>해제도 Paused에서만 받는다 — 다른 상태에서 들어온 해제 요청이 정지를 풀지 않게.</summary>
+        private void HandleResumeRequested()
+        {
+            if (fsm.CurrentStateId != GameFlowStateIds.Paused) return;
+            fsm.ForceTransitionTo(GameFlowStateIds.RunActive);
+            GameEvents.RaiseGameResumed();
+        }
     }
 }

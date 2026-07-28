@@ -46,12 +46,16 @@ namespace Abyss.Runtime.Input
         {
             GameEvents.OnDraftOpened += HandleDraftOpened;
             GameEvents.OnDraftClosed += HandleDraftClosed;
+            GameEvents.OnGamePaused += HandleGamePaused;
+            GameEvents.OnGameResumed += HandleGameResumed;
         }
 
         private void OnDisable()
         {
             GameEvents.OnDraftOpened -= HandleDraftOpened;
             GameEvents.OnDraftClosed -= HandleDraftClosed;
+            GameEvents.OnGamePaused -= HandleGamePaused;
+            GameEvents.OnGameResumed -= HandleGameResumed;
         }
 
         private void Start()
@@ -97,5 +101,9 @@ namespace Abyss.Runtime.Input
 
         private void HandleDraftOpened() => SwitchMode(InputMode.UI);
         private void HandleDraftClosed() => SwitchMode(InputMode.Gameplay);
+
+        // 정지가 실제로 수락됐을 때만 모드를 바꾼다(거부된 요청에 반응하면 드래프트 중 게임플레이 입력이 살아난다).
+        private void HandleGamePaused() => SwitchMode(InputMode.UI);
+        private void HandleGameResumed() => SwitchMode(InputMode.Gameplay);
     }
 }
