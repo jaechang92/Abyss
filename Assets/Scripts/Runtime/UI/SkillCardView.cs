@@ -52,7 +52,7 @@ namespace Abyss.Runtime.UI
             }
 
             if (nameText != null) nameText.text = skill.displayName;
-            if (rarityCategoryText != null) rarityCategoryText.text = $"{RarityLabel(skill.rarity)} · {skill.category} · [{SynergyLabel(skill.synergyTag)}]";
+            if (rarityCategoryText != null) rarityCategoryText.text = $"{RarityLabel(skill.rarity)} · {skill.category} · [{SynergyAxis.GetDisplayName(skill.synergyTag)}]";
             if (descriptionText != null) descriptionText.text = skill.description;
             if (formulaText != null) formulaText.text = string.IsNullOrEmpty(skill.formulaDescription) ? string.Empty : $"공식: {skill.formulaDescription}";
 
@@ -86,11 +86,6 @@ namespace Abyss.Runtime.UI
             SkillRarity.Legendary => "★★★★",
             _ => string.Empty
         };
-
-        private static string SynergyLabel(string tag)
-        {
-            return string.IsNullOrEmpty(tag) ? "일반" : tag;
-        }
 
         private static Color RarityBackground(SkillRarity rarity) => rarity switch
         {
