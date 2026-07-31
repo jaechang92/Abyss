@@ -20,6 +20,14 @@ namespace Abyss.Runtime.Lobby
         private readonly List<IInteractable> candidates = new List<IInteractable>();
         private IInteractable current;
 
+        // 같은 오브젝트의 컨트롤러. 패널이 화면을 점유하는 동안 상호작용을 막는 게이트로 쓴다.
+        private LobbyPlayerController player;
+
+        private void Awake()
+        {
+            player = GetComponent<LobbyPlayerController>();
+        }
+
         private void OnTriggerEnter2D(Collider2D other)
         {
             var it = other.GetComponentInParent<IInteractable>();
@@ -77,6 +85,12 @@ namespace Abyss.Runtime.Lobby
         private void OnInteract(InputValue value)
         {
             if (!value.isPressed) return;
+
+            // 메뉴·대화·폼 선택 등이 화면을 점유한 동안에는 상호작용을 받지 않는다.
+            // 이 게이트가 없으면 로비 메뉴를 띄운 채 G로 던전에 입장할 수 있다
+            // (대화 중 다른 NPC에게 말을 거는 기존 구멍도 같이 막힌다. 대사 진행은 Space/Enter라 영향 없음).
+            if (player != null && player.InputLocked) return;
+
             if (current != null && current.CanInteract) current.Interact(gameObject);
         }
     }
