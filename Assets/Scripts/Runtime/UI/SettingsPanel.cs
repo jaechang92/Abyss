@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Abyss.Runtime.Audio;
 using Abyss.Runtime.Meta;
 using UnityEngine;
@@ -30,6 +31,14 @@ namespace Abyss.Runtime.UI
         private Text masterValue;
         private Text bgmValue;
         private Text sfxValue;
+
+        private Text resolutionValue;
+        private Button resolutionPrev;
+        private Button resolutionNext;
+
+        // 이 기기가 지원하는 해상도 목록(주사율 중복 제거, 내림차순). 인덱스가 아니라 값으로만 저장한다.
+        private readonly List<Vector2Int> resolutionOptions = new();
+        private int resolutionIndex = -1;
 
         // 슬라이더를 코드로 세팅할 때 onValueChanged가 발화해 저장이 도는 것을 막는다.
         private bool isSyncing;
@@ -72,6 +81,7 @@ namespace Abyss.Runtime.UI
             scaler.matchWidthOrHeight = 0.5f;
 
             instance = go.AddComponent<SettingsPanel>();
+            instance.BuildResolutionOptions();   // UI를 만들기 전에 목록이 있어야 버튼 활성 상태를 정할 수 있다
             instance.BuildUI(go.transform);
             instance.body.SetActive(false);
         }
@@ -94,6 +104,7 @@ namespace Abyss.Runtime.UI
 
             isSyncing = false;
             RefreshValueLabels();
+            SyncResolutionFromScreen();
         }
 
         private void RefreshValueLabels()
@@ -133,16 +144,102 @@ namespace Abyss.Runtime.UI
             Screen.fullScreen = isOn;
         }
 
+        // ───────────────────────── 해상도 ─────────────────────────
+
+        /// <summary>
+        /// 이 기기가 지원하는 해상도 목록을 만든다.
+        /// <see cref="Screen.resolutions"/>는 같은 크기를 주사율별로 여러 번 담으므로 크기 기준으로 중복을 제거하고,
+        /// 큰 것부터 보이도록 내림차순 정렬한다(대개 원하는 값이 목록 위쪽에 있다).
+        /// </summary>
+        private void BuildResolutionOptions()
+        {
+            resolutionOptions.Clear();
+            foreach (var r in Screen.resolutions)
+            {
+                var size = new Vector2Int(r.width, r.height);
+                if (!resolutionOptions.Contains(size)) resolutionOptions.Add(size);
+            }
+            resolutionOptions.Sort((a, b) => b.x != a.x ? b.x.CompareTo(a.x) : b.y.CompareTo(a.y));
+        }
+
+        /// <summary>현재 화면 크기를 목록에서 찾아 선택 위치를 맞춘다.</summary>
+        private void SyncResolutionFromScreen()
+        {
+            if (resolutionOptions.Count == 0)
+            {
+                // 목록을 못 얻는 환경(일부 에디터·플랫폼)에서는 현재 크기만 표시하고 조작을 막는다.
+                resolutionIndex = -1;
+                if (resolutionValue != null) resolutionValue.text = $"{Screen.width} x {Screen.height}";
+                SetResolutionInteractable(false, false);
+                return;
+            }
+
+            var current = new Vector2Int(Screen.width, Screen.height);
+            int found = resolutionOptions.IndexOf(current);
+            // 창을 드래그로 늘린 경우처럼 목록에 없는 크기일 수 있어 가장 가까운 항목으로 맞춘다.
+            resolutionIndex = found >= 0 ? found : FindNearestResolution(current);
+            RefreshResolutionLabel();
+        }
+
+        private int FindNearestResolution(Vector2Int current)
+        {
+            int best = 0;
+            int bestDistance = int.MaxValue;
+            for (int i = 0; i < resolutionOptions.Count; i++)
+            {
+                var o = resolutionOptions[i];
+                int distance = Mathf.Abs(o.x - current.x) + Mathf.Abs(o.y - current.y);
+                if (distance >= bestDistance) continue;
+                bestDistance = distance;
+                best = i;
+            }
+            return best;
+        }
+
+        /// <summary>목록에서 delta칸 이동한 해상도를 즉시 적용한다. 양 끝에서는 더 가지 않는다.</summary>
+        private void ShiftResolution(int delta)
+        {
+            if (resolutionOptions.Count == 0) return;
+
+            int next = Mathf.Clamp(resolutionIndex + delta, 0, resolutionOptions.Count - 1);
+            if (next == resolutionIndex) return;
+
+            resolutionIndex = next;
+            var size = resolutionOptions[resolutionIndex];
+            // 창 모드는 전체화면 토글이 소유하므로 여기서는 현재 모드를 그대로 유지한다.
+            Screen.SetResolution(size.x, size.y, Screen.fullScreenMode);
+            RefreshResolutionLabel();
+        }
+
+        private void RefreshResolutionLabel()
+        {
+            if (resolutionIndex < 0 || resolutionIndex >= resolutionOptions.Count) return;
+
+            var size = resolutionOptions[resolutionIndex];
+            if (resolutionValue != null) resolutionValue.text = $"{size.x} x {size.y}";
+            // 목록은 내림차순이라 '이전'이 더 큰 해상도다.
+            SetResolutionInteractable(resolutionIndex > 0, resolutionIndex < resolutionOptions.Count - 1);
+        }
+
+        private void SetResolutionInteractable(bool canPrev, bool canNext)
+        {
+            if (resolutionPrev != null) resolutionPrev.interactable = canPrev;
+            if (resolutionNext != null) resolutionNext.interactable = canNext;
+        }
+
         /// <summary>볼륨과 화면 설정을 세이브에 반영한다(패널을 닫을 때 1회).</summary>
         private void SaveAll()
         {
             AudioManager.GetInstanceSafe()?.SaveVolumes();
 
             var service = MetaSaveService.GetInstanceSafe();
-            if (service != null)
-            {
-                service.UpdateScreenSettings(Screen.width, Screen.height, Screen.fullScreen);
-            }
+            if (service == null) return;
+
+            // Screen.width는 SetResolution 직후 한 프레임 늦게 갱신되므로 화면이 아니라 '선택값'을 저장한다.
+            bool hasSelection = resolutionIndex >= 0 && resolutionIndex < resolutionOptions.Count;
+            int width = hasSelection ? resolutionOptions[resolutionIndex].x : Screen.width;
+            int height = hasSelection ? resolutionOptions[resolutionIndex].y : Screen.height;
+            service.UpdateScreenSettings(width, height, Screen.fullScreen);
         }
 
         // ───────────────────────── UI 구성 ─────────────────────────
@@ -155,27 +252,51 @@ namespace Abyss.Runtime.UI
             dim.color = new Color(0f, 0f, 0f, 0.82f);
             dim.raycastTarget = true;
 
-            var panel = CreateRect(body.transform, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(560, 480));
+            // 행 y는 패널 중심 기준이다. 해상도 행이 늘면서 높이를 480 → 560으로 키우고 전 행을 재배치했다
+            // (이전 배치는 제목 y=-36과 효과음 행 y=-40이 같은 대역이라 겹쳐 있었다).
+            var panel = CreateRect(body.transform, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(560, 560));
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = new Color(0.10f, 0.10f, 0.15f, 0.98f);
 
-            CreateLabel(panel.transform, "TitleText", new Vector2(0, -36), new Vector2(500, 40), "설정", 24, new Color(0.92f, 0.92f, 1f), TextAnchor.MiddleCenter);
+            CreateLabel(panel.transform, "TitleText", new Vector2(0, 228), new Vector2(500, 40), "설정", 24, new Color(0.92f, 0.92f, 1f), TextAnchor.MiddleCenter);
 
-            masterSlider = CreateVolumeRow(panel.transform, "Master", 60, "전체 음량", out masterValue);
-            bgmSlider = CreateVolumeRow(panel.transform, "Bgm", 10, "배경 음악", out bgmValue);
-            sfxSlider = CreateVolumeRow(panel.transform, "Sfx", -40, "효과음", out sfxValue);
+            masterSlider = CreateVolumeRow(panel.transform, "Master", 152, "전체 음량", out masterValue);
+            bgmSlider = CreateVolumeRow(panel.transform, "Bgm", 102, "배경 음악", out bgmValue);
+            sfxSlider = CreateVolumeRow(panel.transform, "Sfx", 52, "효과음", out sfxValue);
 
             masterSlider.onValueChanged.AddListener(OnMasterChanged);
             bgmSlider.onValueChanged.AddListener(OnBgmChanged);
             sfxSlider.onValueChanged.AddListener(OnSfxChanged);
 
-            fullscreenToggle = CreateFullscreenRow(panel.transform, -100);
+            fullscreenToggle = CreateFullscreenRow(panel.transform, -8);
             fullscreenToggle.onValueChanged.AddListener(OnFullscreenChanged);
 
-            CreateLabel(panel.transform, "KeyGuide", new Vector2(0, -160), new Vector2(500, 60), KEY_GUIDE, 14, new Color(0.62f, 0.62f, 0.72f), TextAnchor.MiddleCenter);
+            CreateResolutionRow(panel.transform, -58);
 
-            var close = CreateButton(panel.transform, "CloseButton", new Vector2(0, -212), new Vector2(240, 48), "닫기");
+            CreateLabel(panel.transform, "KeyGuide", new Vector2(0, -132), new Vector2(500, 60), KEY_GUIDE, 14, new Color(0.62f, 0.62f, 0.72f), TextAnchor.MiddleCenter);
+
+            var close = CreateButton(panel.transform, "CloseButton", new Vector2(0, -226), new Vector2(240, 48), "닫기");
             close.onClick.AddListener(Close);
+        }
+
+        /// <summary>
+        /// 해상도 선택 행(◀ 값 ▶).
+        ///
+        /// 드롭다운 대신 좌우 셀렉터인 이유: uGUI Dropdown을 코드로 만들려면 Template·Viewport·Content·Item
+        /// 계층과 스크롤바까지 손으로 배선해야 해 이 패널의 다른 위젯(수제 슬라이더·토글)보다 훨씬 깨지기 쉽다.
+        /// 선택지가 십수 개뿐이라 순차 이동으로 충분하고, 패드 조작과도 잘 맞는다.
+        /// </summary>
+        private void CreateResolutionRow(Transform parent, float y)
+        {
+            CreateLabel(parent, "ResolutionLabel", new Vector2(-180, y), new Vector2(160, 30), "해상도", 17, Color.white, TextAnchor.MiddleLeft);
+
+            resolutionPrev = CreateButton(parent, "ResolutionPrev", new Vector2(-70, y), new Vector2(34, 34), "<");
+            resolutionPrev.onClick.AddListener(() => ShiftResolution(-1));
+
+            resolutionValue = CreateLabel(parent, "ResolutionValue", new Vector2(60, y), new Vector2(200, 30), "-", 17, new Color(0.86f, 0.86f, 0.96f), TextAnchor.MiddleCenter);
+
+            resolutionNext = CreateButton(parent, "ResolutionNext", new Vector2(190, y), new Vector2(34, 34), ">");
+            resolutionNext.onClick.AddListener(() => ShiftResolution(1));
         }
 
         private Slider CreateVolumeRow(Transform parent, string name, float y, string label, out Text valueText)
