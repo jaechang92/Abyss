@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roomId: stage2_room4_event_cache
   roomType: 3
+  displayName: "\uC78A\uD78C \uBCF4\uAE09\uD568"
+  hint: "\uC911\uAC04\uBCF4\uC2A4 \uC804 \uBCF4\uAE09"
   enemies: []
   clearGoldReward: 0
   hasFormReward: 0

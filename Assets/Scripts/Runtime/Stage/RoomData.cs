@@ -15,6 +15,13 @@ namespace Abyss.Runtime.Stage
         public string roomId;
         public RoomType roomType = RoomType.Combat;
 
+        [Header("표시 (노드 맵 분기 선택용)")]
+        [Tooltip("분기 선택지에 표시할 방 이름. 비우면 방 타입 라벨(전투·이벤트 등)이 쓰인다.")]
+        public string displayName;
+
+        [Tooltip("선택 근거가 되는 한 줄 힌트. 예: \"보상 골드 18\" · \"미지의 대가\". 비우면 표시하지 않는다.")]
+        public string hint;
+
         [Header("적 스폰")]
         public List<EnemySpawnEntry> enemies = new();
 
@@ -37,6 +44,10 @@ namespace Abyss.Runtime.Stage
 
         /// <summary>이 방이 이벤트 방인지. <see cref="roomType"/>이 아니라 데이터 유무로 판정한다(보상 룸과 같은 규약).</summary>
         public bool IsEventRoom => eventData != null;
+
+        /// <summary>분기 선택지에 쓸 제목. 방 이름이 없으면 타입 라벨로 폴백한다.</summary>
+        public string ChoiceTitle =>
+            string.IsNullOrEmpty(displayName) ? RoomTypeDisplay.Label(roomType) : displayName;
     }
 
     [System.Serializable]

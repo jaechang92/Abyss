@@ -35,10 +35,10 @@ namespace Abyss.EditorTools
             bool proceed = EditorUtility.DisplayDialog(
                 "StageBuilder",
                 "Stage 1 콘텐츠 생성:\n" +
-                "  · RoomData 8개 (Combat 5 + Event 1 + Rest 1 + Boss 1)\n" +
-                "  · EventData 3종 + 휴식 2종 (Assets/Data/Events)\n" +
-                "  · StageData 1개 (Stage1_AbyssEntrance, 방 8개 순차)\n\n" +
-                "이미 존재하는 SO는 건너뜁니다 (덮어쓰지 않음).",
+                "  · RoomData 8개 (Combat 5 + Event 2 + Rest 1 + Boss 1)\n" +
+                "  · EventData 4종 + 휴식 2종 (Assets/Data/Events)\n" +
+                "  · StageData 1개 (Stage1_AbyssEntrance, 7단계 · 분기 2곳)\n\n" +
+                "이미 존재하는 SO는 건너뜁니다(분기 표시명·힌트는 갱신).",
                 "생성", "취소");
             if (!proceed) return;
 
@@ -61,30 +61,44 @@ namespace Abyss.EditorTools
                 return;
             }
 
-            EventContentBuilder.EnsureAllEvents(out var brokenAltar, out _, out _);
+            EventContentBuilder.EnsureAllEvents(out var brokenAltar, out _, out _, out var sealedDoor);
             EventContentBuilder.EnsureAllRests(out var restEmber, out _);
 
-            // Room 7개 생성 — Room3은 폼 보상 룸(제시 폼은 StageDirector가 FormCatalog에서 미보유 우선 추첨).
-            // 이벤트 방은 첫 전투 두 판 뒤에 둔다 — 자원(골드·HP)이 어느 정도 쌓여야 선택에 무게가 생긴다.
+            // 방 생성. Room3_Crowd는 폼 보상 룸(제시 폼은 StageDirector가 FormCatalog에서 미보유 우선 추첨).
+            // 분기 선택지로 노출되는 방에는 표시명·힌트를 붙인다 — 선택 근거가 화면에 있어야 갈림길이 성립한다.
             var room1 = CreateOrLoadRoom("Room1_Intro",     RoomType.Combat, 5,
                 new[] { (grunt, 2) });
             var room2 = CreateOrLoadRoom("Room2_Skirmish",  RoomType.Combat, 8,
-                new[] { (grunt, 2), (archer, 1) });
-            var roomEvent = CreateOrLoadEventRoom("Room3_Event_BrokenAltar", brokenAltar);
+                new[] { (grunt, 2), (archer, 1) },
+                displayName: "소규모 교전", hint: "보상 골드 8");
+            var roomEvent = CreateOrLoadEventRoom("Room3_Event_BrokenAltar", brokenAltar,
+                displayName: "깨진 제단", hint: "대가를 치르면 응답한다");
             var room3 = CreateOrLoadRoom("Room3_Crowd",     RoomType.Combat, 12,
                 new[] { (grunt, 3), (brute, 1) }, hasFormReward: true);
             var room4 = CreateOrLoadRoom("Room4_Elite",     RoomType.Elite, 20,
                 new[] { (elite, 1), (grunt, 2) });
             var room5 = CreateOrLoadRoom("Room5_Ambush",    RoomType.Combat, 18,
-                new[] { (archer, 2), (brute, 2) });
+                new[] { (archer, 2), (brute, 2) },
+                displayName: "매복", hint: "보상 골드 18");
+            var room5Alt = CreateOrLoadEventRoom("Room5_Alt_SealedDoor", sealedDoor,
+                displayName: "봉인된 문", hint: "골드 또는 피가 필요하다");
             // 휴식은 보스 직전에 둔다 — "지금 내 HP로 보스를 잡을 수 있나"를 스스로 묻게 만드는 자리다.
             var roomRest = CreateOrLoadEventRoom("Room6_Rest_Ember", restEmber, RoomType.Rest);
             var room6 = CreateOrLoadRoom("Room6_Boss",      RoomType.Boss, 50,
                 new[] { (boss, 1) });
 
-            // Stage 생성
-            var stage = CreateOrLoadStage("Stage1_AbyssEntrance", Stage1Id, Stage1Name,
-                new[] { room1, room2, roomEvent, room3, room4, room5, roomRest, room6 });
+            // 분기는 항상 '전투 vs 비전투'다 — 전투끼리 갈리면 고를 이유가 숫자뿐이라 선택이 되지 않는다.
+            // 폼 보상·엘리트·휴식·보스는 고정이다. 놓치면 런의 밀도가 크게 달라지는 방들이다.
+            var stage = CreateOrLoadStage("Stage1_AbyssEntrance", Stage1Id, Stage1Name, new[]
+            {
+                Step(room1),
+                Step(room2, roomEvent),      // 분기 ①
+                Step(room3),
+                Step(room4),
+                Step(room5, room5Alt),       // 분기 ②
+                Step(roomRest),
+                Step(room6),
+            });
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -99,11 +113,11 @@ namespace Abyss.EditorTools
             bool proceed = EditorUtility.DisplayDialog(
                 "StageBuilder",
                 "Stage 2 '불꽃의 회랑' 콘텐츠 생성:\n" +
-                "  · RoomData 9개 (Combat 4 + Event 2 + Rest 1 + Elite 1[중간보스] + Boss 1)\n" +
-                "  · EventData 3종 + 휴식 2종 (Assets/Data/Events)\n" +
-                "  · StageData 1개 (Stage2_FlameCorridor, 방 9개 순차)\n" +
+                "  · RoomData 10개 (Combat 5 + Event 2 + Rest 1 + Elite 1[중간보스] + Boss 1)\n" +
+                "  · EventData 4종 + 휴식 2종 (Assets/Data/Events)\n" +
+                "  · StageData 1개 (Stage2_FlameCorridor, 8단계 · 분기 2곳)\n" +
                 "  · StageSequenceData (Stage1 → Stage2 순차 진행)\n\n" +
-                "이미 존재하는 RoomData/StageData는 건너뜁니다(시퀀스는 갱신).",
+                "이미 존재하는 RoomData/StageData는 건너뜁니다(분기 표시·시퀀스는 갱신).",
                 "생성", "취소");
             if (!proceed) return;
 
@@ -126,30 +140,45 @@ namespace Abyss.EditorTools
                 return;
             }
 
-            EventContentBuilder.EnsureAllEvents(out _, out var forgottenCache, out var abyssalSpring);
+            EventContentBuilder.EnsureAllEvents(out _, out var forgottenCache, out var abyssalSpring, out _);
             EventContentBuilder.EnsureAllRests(out _, out var restCamp);
 
-            // Stage2 Room 8개 — Stage1 대비 적 수·강도 상향, 중간보스 1, 최종보스 1.
-            // 이벤트 2개는 각각 '중간보스 직전(보급)'과 '중간보스 직후(회복)'에 둔다 —
-            // 큰 전투를 앞뒤로 감싸야 선택이 실제 대비·수습으로 작동한다.
+            // Stage1 대비 적 수·강도 상향, 중간보스 1, 최종보스 1.
+            // 분기 2곳은 중간보스를 앞뒤로 감싼다 — 대비(보급 vs 골드)와 수습(회복 vs 골드)이라
+            // 같은 갈림길이라도 묻는 것이 다르다.
             var r1 = CreateOrLoadRoom("Stage2_Room1_Ignition", RoomType.Combat, 10,
                 new[] { (grunt, 3) });
             var r2 = CreateOrLoadRoom("Stage2_Room2_Volley",   RoomType.Combat, 14,
                 new[] { (archer, 2), (grunt, 2) });
             var r3 = CreateOrLoadRoom("Stage2_Room3_Phalanx",  RoomType.Combat, 18,
                 new[] { (brute, 2), (grunt, 2) }, hasFormReward: true);
-            var rEventCache = CreateOrLoadEventRoom("Stage2_Room4_Event_Cache", forgottenCache);
+            var rEventCache = CreateOrLoadEventRoom("Stage2_Room4_Event_Cache", forgottenCache,
+                displayName: "잊힌 보급함", hint: "중간보스 전 보급");
+            var r5 = CreateOrLoadRoom("Stage2_Room5_Gauntlet", RoomType.Combat, 24,
+                new[] { (archer, 2), (brute, 2), (grunt, 2) },
+                displayName: "연속 교전", hint: "보상 골드 24");
             var r4 = CreateOrLoadRoom("Stage2_Room4_Sentinel", RoomType.Elite, 30,
                 new[] { (sentinel, 1), (brute, 1) });
-            var rEventSpring = CreateOrLoadEventRoom("Stage2_Room5_Event_Spring", abyssalSpring);
-            var r5 = CreateOrLoadRoom("Stage2_Room5_Gauntlet", RoomType.Combat, 24,
-                new[] { (archer, 2), (brute, 2), (grunt, 2) });
+            var rEventSpring = CreateOrLoadEventRoom("Stage2_Room5_Event_Spring", abyssalSpring,
+                displayName: "심연의 샘", hint: "회복 또는 대가");
+            var r6Alt = CreateOrLoadRoom("Stage2_Room6_Alt_Emberfall", RoomType.Combat, 28,
+                new[] { (archer, 3), (brute, 1) },
+                displayName: "잿불 낙하", hint: "보상 골드 28");
             var rRest = CreateOrLoadEventRoom("Stage2_Room6_Rest_Camp", restCamp, RoomType.Rest);
             var r6 = CreateOrLoadRoom("Stage2_Room6_Serpent",  RoomType.Boss, 70,
                 new[] { (serpent, 1) });
 
-            var stage2 = CreateOrLoadStage("Stage2_FlameCorridor", Stage2Id, Stage2Name,
-                new[] { r1, r2, r3, rEventCache, r4, rEventSpring, r5, rRest, r6 });
+            var stage2 = CreateOrLoadStage("Stage2_FlameCorridor", Stage2Id, Stage2Name, new[]
+            {
+                Step(r1),
+                Step(r2),
+                Step(r3),
+                Step(rEventCache, r5),       // 분기 ① — 중간보스 대비
+                Step(r4),
+                Step(rEventSpring, r6Alt),   // 분기 ② — 중간보스 수습
+                Step(rRest),
+                Step(r6),
+            });
 
             // Stage1 로드 후 멀티 스테이지 시퀀스(Stage1 → Stage2) 생성/갱신.
             var stage1 = AssetDatabase.LoadAssetAtPath<StageData>($"{AbyssPaths.Stages}/Stage1_AbyssEntrance.asset");
@@ -281,7 +310,7 @@ namespace Abyss.EditorTools
 
         private static RoomData CreateOrLoadRoom(
             string fileName, RoomType roomType, int goldReward, (EnemyData data, int count)[] entries,
-            bool hasFormReward = false)
+            bool hasFormReward = false, string displayName = null, string hint = null)
         {
             string path = $"{AbyssPaths.Rooms}/{fileName}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<RoomData>(path);
@@ -296,7 +325,7 @@ namespace Abyss.EditorTools
                     EditorUtility.SetDirty(existing);
                     Debug.Log($"[StageBuilder] 폼 보상 룸 갱신: {path} → {(hasFormReward ? "보상 룸(추첨)" : "none")}");
                 }
-                else Debug.Log($"[StageBuilder] 건너뜀 (존재): {path}");
+                ApplyChoiceDisplay(existing, path, displayName, hint);
                 return existing;
             }
 
@@ -305,10 +334,40 @@ namespace Abyss.EditorTools
             so.roomType = roomType;
             so.clearGoldReward = goldReward;
             so.hasFormReward = hasFormReward;
+            so.displayName = displayName;
+            so.hint = hint;
             so.enemies = entries.Select(e => new EnemySpawnEntry { data = e.data, count = e.count }).ToList();
             AssetDatabase.CreateAsset(so, path);
             Debug.Log($"[StageBuilder] 생성: {path}");
             return so;
+        }
+
+        /// <summary>
+        /// 분기 선택지 표시 정보를 기존 에셋에 반영한다.
+        /// 방 배치가 바뀌면 어떤 방이 선택지로 노출되는지도 바뀌므로 **재실행으로 갱신되어야 한다**
+        /// (폼 보상 지정과 같은 규약). 인자가 null이면 손대지 않는다 — 인스펙터에서 손으로 적은 문구를
+        /// 빌더가 지우면 안 된다.
+        /// </summary>
+        private static void ApplyChoiceDisplay(RoomData room, string path, string displayName, string hint)
+        {
+            bool changed = false;
+            if (displayName != null && room.displayName != displayName)
+            {
+                room.displayName = displayName;
+                changed = true;
+            }
+            if (hint != null && room.hint != hint)
+            {
+                room.hint = hint;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                EditorUtility.SetDirty(room);
+                Debug.Log($"[StageBuilder] 선택지 표시 갱신: {path} → \"{room.ChoiceTitle}\" / \"{room.hint}\"");
+            }
+            else Debug.Log($"[StageBuilder] 건너뜀 (존재): {path}");
         }
 
         /// <summary>
@@ -318,7 +377,9 @@ namespace Abyss.EditorTools
         /// 기존 에셋이 있으면 eventData 참조만 갱신한다. 방 배치는 데이터 구동이라 재실행으로 반영되어야
         /// 하지만, 인스펙터에서 다른 값을 만졌을 수 있어 전체를 덮어쓰지는 않는다(폼 보상 룸과 같은 규약).
         /// </summary>
-        private static RoomData CreateOrLoadEventRoom(string fileName, EventData eventData, RoomType roomType = RoomType.Event)
+        private static RoomData CreateOrLoadEventRoom(
+            string fileName, EventData eventData, RoomType roomType = RoomType.Event,
+            string displayName = null, string hint = null)
         {
             string path = $"{AbyssPaths.Rooms}/{fileName}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<RoomData>(path);
@@ -331,7 +392,7 @@ namespace Abyss.EditorTools
                     EditorUtility.SetDirty(existing);
                     Debug.Log($"[StageBuilder] {roomType} 룸 갱신: {path} → {(eventData != null ? eventData.eventId : "none")}");
                 }
-                else Debug.Log($"[StageBuilder] 건너뜀 (존재): {path}");
+                ApplyChoiceDisplay(existing, path, displayName, hint);
                 return existing;
             }
 
@@ -340,31 +401,42 @@ namespace Abyss.EditorTools
             so.roomType = roomType;
             so.clearGoldReward = 0;
             so.eventData = eventData;
+            so.displayName = displayName;
+            so.hint = hint;
             so.enemies = new List<EnemySpawnEntry>();
             AssetDatabase.CreateAsset(so, path);
             Debug.Log($"[StageBuilder] 생성: {path}");
             return so;
         }
 
-        private static StageData CreateOrLoadStage(string fileName, string stageId, string displayName, RoomData[] rooms)
+        /// <summary>
+        /// 진행 단계 하나. 방 1개면 고정 진행, 2개 이상이면 갈림길이다.
+        /// 호출부에서 <c>Step(a)</c> / <c>Step(a, b)</c>로 읽히도록 params로 받는다.
+        /// </summary>
+        private static StageStep Step(params RoomData[] options)
+        {
+            return new StageStep { options = options.Where(r => r != null).ToList() };
+        }
+
+        private static StageData CreateOrLoadStage(string fileName, string stageId, string displayName, StageStep[] steps)
         {
             string path = $"{AbyssPaths.Stages}/{fileName}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<StageData>(path);
             if (existing != null)
             {
-                // 기존 StageData에 rooms만 갱신 (방 추가/순서 변경 반영)
+                // 기존 StageData에 steps만 갱신 (방 추가·순서 변경·분기 구성 반영)
                 existing.stageId = stageId;
                 existing.displayName = displayName;
-                existing.rooms = rooms.ToList();
+                existing.steps = steps.ToList();
                 EditorUtility.SetDirty(existing);
-                Debug.Log($"[StageBuilder] rooms 갱신: {path}");
+                Debug.Log($"[StageBuilder] steps 갱신: {path} ({steps.Length}단계)");
                 return existing;
             }
 
             var so = ScriptableObject.CreateInstance<StageData>();
             so.stageId = stageId;
             so.displayName = displayName;
-            so.rooms = rooms.ToList();
+            so.steps = steps.ToList();
             AssetDatabase.CreateAsset(so, path);
             Debug.Log($"[StageBuilder] 생성: {path}");
             return so;

@@ -29,7 +29,12 @@ namespace Abyss.Runtime.Stage
         private const float SEQUENCE_START_DELAY = 0.2f;
 
         private int currentStageIndex = -1;
-        private int currentRoomIndex = -1;
+        private int currentStepIndex = -1;
+
+        // 이번 단계에서 실제로 들어간 방. 분기 단계에서는 플레이어가 고른 것이라
+        // 인덱스만으로는 역산할 수 없어 참조를 들고 있어야 한다.
+        private RoomData currentRoom;
+
         private readonly List<EnemyBase> activeEnemies = new();
         private bool isRoomClearing;  // ProceedToNextRoom 지연 창 동안 룸 이중 클리어(보상 중복·방 스킵) 방지
         private FormController cachedFormController;  // 미보유 폼 판정용 지연 조회 캐시
@@ -41,10 +46,10 @@ namespace Abyss.Runtime.Stage
 
         public StageSequenceData Sequence => sequence;
         public StageData CurrentStage => IsValidStage(currentStageIndex) ? sequence.stages[currentStageIndex] : null;
-        public RoomData CurrentRoom => IsValidRoom(currentRoomIndex) ? CurrentStage.rooms[currentRoomIndex] : null;
+        public RoomData CurrentRoom => currentRoom;
         public int CurrentStageIndex => currentStageIndex;
-        public int CurrentRoomIndex => currentRoomIndex;
-        public int RemainingRooms => CurrentStage != null ? Mathf.Max(0, CurrentStage.rooms.Count - 1 - currentRoomIndex) : 0;
+        public int CurrentStepIndex => currentStepIndex;
+        public int RemainingRooms => CurrentStage != null ? Mathf.Max(0, CurrentStage.steps.Count - 1 - currentStepIndex) : 0;
         public int RemainingStages => sequence != null ? Mathf.Max(0, sequence.stages.Count - 1 - currentStageIndex) : 0;
 
         private void OnEnable()
@@ -81,32 +86,75 @@ namespace Abyss.Runtime.Stage
             if (!IsValidStage(index)) return;
 
             var stage = sequence.stages[index];
-            if (stage == null || stage.rooms.Count == 0)
+            if (stage == null || stage.steps.Count == 0)
             {
-                Debug.LogWarning($"[StageDirector] Stage {index + 1} 또는 rooms 미설정 — 건너뜀");
+                Debug.LogWarning($"[StageDirector] Stage {index + 1} 또는 steps 미설정 — 건너뜀");
                 ProceedToNextStage();
                 return;
             }
 
-            Debug.Log($"[StageDirector] Stage {index + 1}/{sequence.stages.Count} 진입: {stage.displayName} ({stage.rooms.Count}방)");
-            currentRoomIndex = 0;
-            EnterRoom(currentRoomIndex);
+            Debug.Log($"[StageDirector] Stage {index + 1}/{sequence.stages.Count} 진입: {stage.displayName} ({stage.steps.Count}단계)");
+            currentStepIndex = 0;
+            EnterStep(currentStepIndex);
         }
 
         public void ProceedToNextRoom()
         {
-            isRoomClearing = false;  // 다음 방으로 넘어가며 클리어 상태 해제
-            currentRoomIndex += 1;
+            isRoomClearing = false;  // 다음 단계로 넘어가며 클리어 상태 해제
+            currentStepIndex += 1;
 
-            if (CurrentStage == null || currentRoomIndex >= CurrentStage.rooms.Count)
+            if (CurrentStage == null || currentStepIndex >= CurrentStage.steps.Count)
             {
-                // 현재 스테이지의 모든 방 클리어 → 스테이지 클리어 처리 후 다음 스테이지로.
+                // 현재 스테이지의 모든 단계 클리어 → 스테이지 클리어 처리 후 다음 스테이지로.
                 if (CurrentStage != null) GameEvents.RaiseStageCleared(CurrentStage);
                 ProceedToNextStage();
                 return;
             }
 
-            EnterRoom(currentRoomIndex);
+            EnterStep(currentStepIndex);
+        }
+
+        /// <summary>
+        /// 한 단계 진입. 선택지가 둘 이상이면 갈림길 패널을 띄우고 선택을 기다린다.
+        ///
+        /// 룸 게이트를 쓰지 않는 이유: 게이트는 "방을 클리어한 뒤 다음으로 넘어가는 것"을 보류하는데,
+        /// 여기는 이미 넘어온 뒤라 단계 인덱스가 증가한 상태다. 게이트를 잡으면 해제 시
+        /// <see cref="ProceedToNextRoom"/>이 다시 돌아 단계를 한 번 더 건너뛴다.
+        /// 대신 패널 콜백이 곧바로 방 진입으로 이어진다(정지는 패널이 DraftOpen으로 건다).
+        /// </summary>
+        private void EnterStep(int index)
+        {
+            var stage = CurrentStage;
+            if (stage == null || !IsValidStep(index)) return;
+
+            var step = stage.steps[index];
+            if (step == null || step.First == null)
+            {
+                Debug.LogWarning($"[StageDirector] Step {index + 1} 선택지 없음 — 건너뜀");
+                ProceedToNextRoom();
+                return;
+            }
+
+            if (!step.IsBranch)
+            {
+                EnterRoom(step.First);
+                return;
+            }
+
+            Debug.Log($"[StageDirector] 갈림길 — 선택 대기 ({step.options.Count}갈래)");
+            NodeMapPanel.Open(step.options, HandleNodePicked);
+        }
+
+        // 갈림길 선택 결과. 유효한 방이 없으면(데이터 오류) 스톨 대신 다음 단계로 넘긴다.
+        private void HandleNodePicked(RoomData picked)
+        {
+            if (picked == null)
+            {
+                Debug.LogWarning("[StageDirector] 갈림길 선택 결과가 비었다 — 다음 단계로 진행");
+                ProceedToNextRoom();
+                return;
+            }
+            EnterRoom(picked);
         }
 
         private void ProceedToNextStage()
@@ -129,13 +177,13 @@ namespace Abyss.Runtime.Stage
         // Invoke 대상용 무인자 래퍼 (currentStageIndex는 ProceedToNextStage에서 이미 증가).
         private void EnterCurrentStage() => EnterStage(currentStageIndex);
 
-        private void EnterRoom(int index)
+        private void EnterRoom(RoomData room)
         {
-            var stage = CurrentStage;
-            if (stage == null || !IsValidRoom(index)) return;
+            if (room == null) return;
 
-            var room = stage.rooms[index];
-            Debug.Log($"[StageDirector] Room {index + 1}/{stage.rooms.Count} 진입: {room.roomId} ({room.roomType})");
+            currentRoom = room;
+            int total = CurrentStage != null ? CurrentStage.steps.Count : 0;
+            Debug.Log($"[StageDirector] Step {currentStepIndex + 1}/{total} 진입: {room.roomId} ({room.roomType})");
             GameEvents.RaiseRoomEntered(room);
             SpawnEnemies(room);
         }
@@ -310,10 +358,10 @@ namespace Abyss.Runtime.Stage
             return sequence != null && index >= 0 && index < sequence.stages.Count;
         }
 
-        private bool IsValidRoom(int index)
+        private bool IsValidStep(int index)
         {
             var stage = CurrentStage;
-            return stage != null && index >= 0 && index < stage.rooms.Count;
+            return stage != null && index >= 0 && index < stage.steps.Count;
         }
     }
 }
