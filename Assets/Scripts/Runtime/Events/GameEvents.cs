@@ -15,6 +15,11 @@ namespace Abyss.Runtime.Events
         LevelUp,
         BossBonus,
         EliteBonus,
+
+        /// <summary>
+        /// 방 자체가 주는 보상. 완주 루프 계획 1-1의 이벤트 방 선택지가 첫 발행자다
+        /// (그전까지는 정의만 있고 아무도 쓰지 않았다). 후속 상점·휴식 룸도 이 값을 쓴다.
+        /// </summary>
         RoomReward
     }
 
@@ -40,6 +45,7 @@ namespace Abyss.Runtime.Events
         public static event Action<SkillData, IReadOnlyList<SkillData>> OnDraftSlotReplaceRequested;
         public static event Action<FormData> OnFormRewardOffered;
         public static event Action OnFormRewardResolved; // 폼 보상 모달이 닫힘(획득/거절 모두) — 보상 룸 게이트 해제용
+        public static event Action OnEventResolved;      // 이벤트 방 선택 완료 — 이벤트 룸 게이트 해제용
         public static event Action<EnemyData> OnEnemyKilled;
         public static event Action<RoomData> OnRoomEntered;
         public static event Action<RoomData> OnRoomCleared;
@@ -70,6 +76,7 @@ namespace Abyss.Runtime.Events
         public static void RaiseDraftSlotReplaceRequested(SkillData incoming, IReadOnlyList<SkillData> currentActives) => OnDraftSlotReplaceRequested?.Invoke(incoming, currentActives);
         public static void RaiseFormRewardOffered(FormData incoming) => OnFormRewardOffered?.Invoke(incoming);
         public static void RaiseFormRewardResolved() => OnFormRewardResolved?.Invoke();
+        public static void RaiseEventResolved() => OnEventResolved?.Invoke();
         public static void RaiseEnemyKilled(EnemyData data) => OnEnemyKilled?.Invoke(data);
         public static void RaiseRoomEntered(RoomData room) => OnRoomEntered?.Invoke(room);
         public static void RaiseRoomCleared(RoomData room) => OnRoomCleared?.Invoke(room);

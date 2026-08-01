@@ -35,8 +35,9 @@ namespace Abyss.EditorTools
             bool proceed = EditorUtility.DisplayDialog(
                 "StageBuilder",
                 "Stage 1 콘텐츠 생성:\n" +
-                "  · RoomData 6개 (Combat 5 + Boss 1)\n" +
-                "  · StageData 1개 (Stage1_AbyssEntrance, 방 6개 순차)\n\n" +
+                "  · RoomData 7개 (Combat 5 + Event 1 + Boss 1)\n" +
+                "  · EventData 3종 (Assets/Data/Events)\n" +
+                "  · StageData 1개 (Stage1_AbyssEntrance, 방 7개 순차)\n\n" +
                 "이미 존재하는 SO는 건너뜁니다 (덮어쓰지 않음).",
                 "생성", "취소");
             if (!proceed) return;
@@ -60,11 +61,15 @@ namespace Abyss.EditorTools
                 return;
             }
 
-            // Room 6개 생성 — Room3은 폼 보상 룸(제시 폼은 StageDirector가 FormCatalog에서 미보유 우선 추첨).
+            EventContentBuilder.EnsureAllEvents(out var brokenAltar, out _, out _);
+
+            // Room 7개 생성 — Room3은 폼 보상 룸(제시 폼은 StageDirector가 FormCatalog에서 미보유 우선 추첨).
+            // 이벤트 방은 첫 전투 두 판 뒤에 둔다 — 자원(골드·HP)이 어느 정도 쌓여야 선택에 무게가 생긴다.
             var room1 = CreateOrLoadRoom("Room1_Intro",     RoomType.Combat, 5,
                 new[] { (grunt, 2) });
             var room2 = CreateOrLoadRoom("Room2_Skirmish",  RoomType.Combat, 8,
                 new[] { (grunt, 2), (archer, 1) });
+            var roomEvent = CreateOrLoadEventRoom("Room3_Event_BrokenAltar", brokenAltar);
             var room3 = CreateOrLoadRoom("Room3_Crowd",     RoomType.Combat, 12,
                 new[] { (grunt, 3), (brute, 1) }, hasFormReward: true);
             var room4 = CreateOrLoadRoom("Room4_Elite",     RoomType.Elite, 20,
@@ -76,7 +81,7 @@ namespace Abyss.EditorTools
 
             // Stage 생성
             var stage = CreateOrLoadStage("Stage1_AbyssEntrance", Stage1Id, Stage1Name,
-                new[] { room1, room2, room3, room4, room5, room6 });
+                new[] { room1, room2, roomEvent, room3, room4, room5, room6 });
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -91,8 +96,9 @@ namespace Abyss.EditorTools
             bool proceed = EditorUtility.DisplayDialog(
                 "StageBuilder",
                 "Stage 2 '불꽃의 회랑' 콘텐츠 생성:\n" +
-                "  · RoomData 6개 (Combat 4 + Elite 1[중간보스] + Boss 1)\n" +
-                "  · StageData 1개 (Stage2_FlameCorridor, 방 6개 순차)\n" +
+                "  · RoomData 8개 (Combat 4 + Event 2 + Elite 1[중간보스] + Boss 1)\n" +
+                "  · EventData 3종 (Assets/Data/Events)\n" +
+                "  · StageData 1개 (Stage2_FlameCorridor, 방 8개 순차)\n" +
                 "  · StageSequenceData (Stage1 → Stage2 순차 진행)\n\n" +
                 "이미 존재하는 RoomData/StageData는 건너뜁니다(시퀀스는 갱신).",
                 "생성", "취소");
@@ -117,22 +123,28 @@ namespace Abyss.EditorTools
                 return;
             }
 
-            // Stage2 Room 6개 — Stage1 대비 적 수·강도 상향, 4번방 중간보스, 6번방 최종보스.
+            EventContentBuilder.EnsureAllEvents(out _, out var forgottenCache, out var abyssalSpring);
+
+            // Stage2 Room 8개 — Stage1 대비 적 수·강도 상향, 중간보스 1, 최종보스 1.
+            // 이벤트 2개는 각각 '중간보스 직전(보급)'과 '중간보스 직후(회복)'에 둔다 —
+            // 큰 전투를 앞뒤로 감싸야 선택이 실제 대비·수습으로 작동한다.
             var r1 = CreateOrLoadRoom("Stage2_Room1_Ignition", RoomType.Combat, 10,
                 new[] { (grunt, 3) });
             var r2 = CreateOrLoadRoom("Stage2_Room2_Volley",   RoomType.Combat, 14,
                 new[] { (archer, 2), (grunt, 2) });
             var r3 = CreateOrLoadRoom("Stage2_Room3_Phalanx",  RoomType.Combat, 18,
                 new[] { (brute, 2), (grunt, 2) }, hasFormReward: true);
+            var rEventCache = CreateOrLoadEventRoom("Stage2_Room4_Event_Cache", forgottenCache);
             var r4 = CreateOrLoadRoom("Stage2_Room4_Sentinel", RoomType.Elite, 30,
                 new[] { (sentinel, 1), (brute, 1) });
+            var rEventSpring = CreateOrLoadEventRoom("Stage2_Room5_Event_Spring", abyssalSpring);
             var r5 = CreateOrLoadRoom("Stage2_Room5_Gauntlet", RoomType.Combat, 24,
                 new[] { (archer, 2), (brute, 2), (grunt, 2) });
             var r6 = CreateOrLoadRoom("Stage2_Room6_Serpent",  RoomType.Boss, 70,
                 new[] { (serpent, 1) });
 
             var stage2 = CreateOrLoadStage("Stage2_FlameCorridor", Stage2Id, Stage2Name,
-                new[] { r1, r2, r3, r4, r5, r6 });
+                new[] { r1, r2, r3, rEventCache, r4, rEventSpring, r5, r6 });
 
             // Stage1 로드 후 멀티 스테이지 시퀀스(Stage1 → Stage2) 생성/갱신.
             var stage1 = AssetDatabase.LoadAssetAtPath<StageData>($"{AbyssPaths.Stages}/Stage1_AbyssEntrance.asset");
@@ -289,6 +301,41 @@ namespace Abyss.EditorTools
             so.clearGoldReward = goldReward;
             so.hasFormReward = hasFormReward;
             so.enemies = entries.Select(e => new EnemySpawnEntry { data = e.data, count = e.count }).ToList();
+            AssetDatabase.CreateAsset(so, path);
+            Debug.Log($"[StageBuilder] 생성: {path}");
+            return so;
+        }
+
+        /// <summary>
+        /// 이벤트 방. 적을 두지 않는다 — 적이 있으면 전투가 끝나야 이벤트가 열려 '비전투 방'이 아니게 된다.
+        /// 클리어 골드도 0이다(보상은 이벤트 선택이 준다).
+        ///
+        /// 기존 에셋이 있으면 eventData 참조만 갱신한다. 방 배치는 데이터 구동이라 재실행으로 반영되어야
+        /// 하지만, 인스펙터에서 다른 값을 만졌을 수 있어 전체를 덮어쓰지는 않는다(폼 보상 룸과 같은 규약).
+        /// </summary>
+        private static RoomData CreateOrLoadEventRoom(string fileName, EventData eventData)
+        {
+            string path = $"{AbyssPaths.Rooms}/{fileName}.asset";
+            var existing = AssetDatabase.LoadAssetAtPath<RoomData>(path);
+            if (existing != null)
+            {
+                if (existing.eventData != eventData || existing.roomType != RoomType.Event)
+                {
+                    existing.eventData = eventData;
+                    existing.roomType = RoomType.Event;
+                    EditorUtility.SetDirty(existing);
+                    Debug.Log($"[StageBuilder] 이벤트 룸 갱신: {path} → {(eventData != null ? eventData.eventId : "none")}");
+                }
+                else Debug.Log($"[StageBuilder] 건너뜀 (존재): {path}");
+                return existing;
+            }
+
+            var so = ScriptableObject.CreateInstance<RoomData>();
+            so.roomId = fileName.ToLowerInvariant();
+            so.roomType = RoomType.Event;
+            so.clearGoldReward = 0;
+            so.eventData = eventData;
+            so.enemies = new List<EnemySpawnEntry>();
             AssetDatabase.CreateAsset(so, path);
             Debug.Log($"[StageBuilder] 생성: {path}");
             return so;

@@ -14,6 +14,7 @@ namespace Abyss.EditorTools
         public const string Enemies = Data + "/Enemies";
         public const string Rooms = Data + "/Rooms";
         public const string Stages = Data + "/Stages";
+        public const string Events = Data + "/Events"; // 이벤트 방 EventData SO(룸이 직접 참조 — 자동 로드 아님)
         public const string Abilities = Data + "/Abilities";
         public const string Physics = Data + "/Physics";
         public const string Dialogue = Data + "/Dialogue";
