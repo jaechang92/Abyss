@@ -89,6 +89,22 @@ namespace Abyss.Runtime.Player
             OnHpChanged?.Invoke(previous, currentHp);
         }
 
+        /// <summary>
+        /// 전투 외 HP 대가(이벤트 선택지 등). <see cref="TakeDamage"/>와 분리한 이유가 둘 있다.
+        ///
+        /// ① <b>방어 버프가 끼면 안 된다</b> — 제단에 바치는 피가 철벽 방어로 줄어드는 건 말이 안 된다.
+        /// ② <b>이걸로 죽으면 안 된다</b> — 선택 화면은 정지 상태(DraftOpen)라, 여기서 사망하면
+        ///    런 종료가 드래프트 정지 위에 겹친다. 최소 1은 남긴다.
+        /// </summary>
+        public void PayHpCost(int amount)
+        {
+            if (isDead || amount <= 0) return;
+
+            int previous = currentHp;
+            currentHp = Mathf.Max(1, currentHp - amount);
+            OnHpChanged?.Invoke(previous, currentHp);
+        }
+
         private void Die()
         {
             isDead = true;

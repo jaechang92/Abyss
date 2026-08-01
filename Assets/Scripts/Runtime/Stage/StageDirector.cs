@@ -3,6 +3,7 @@ using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Form;
 using Abyss.Runtime.Run;
+using Abyss.Runtime.UI;
 using UnityEngine;
 
 namespace Abyss.Runtime.Stage
@@ -31,8 +32,12 @@ namespace Abyss.Runtime.Stage
         private int currentRoomIndex = -1;
         private readonly List<EnemyBase> activeEnemies = new();
         private bool isRoomClearing;  // ProceedToNextRoom 지연 창 동안 룸 이중 클리어(보상 중복·방 스킵) 방지
-        private bool awaitingFormReward;  // 보상 룸 클리어 후 제단 상호작용을 기다리는 동안 자동 진행 보류
         private FormController cachedFormController;  // 미보유 폼 판정용 지연 조회 캐시
+
+        // 룸 클리어 후 플레이어 상호작용(폼 제단·이벤트 선택)을 기다리는 동안 자동 진행을 보류하는 게이트.
+        // 보류 사유가 둘이 되면서 사유별 플래그 대신 하나로 합쳤다 — 해제 규약이 갈라지면
+        // 한쪽만 고쳐 방이 영영 안 넘어가는 스톨이 난다.
+        private bool isRoomGateHeld;
 
         public StageSequenceData Sequence => sequence;
         public StageData CurrentStage => IsValidStage(currentStageIndex) ? sequence.stages[currentStageIndex] : null;
@@ -46,6 +51,7 @@ namespace Abyss.Runtime.Stage
         {
             GameEvents.OnEnemyKilled += HandleEnemyKilled;
             GameEvents.OnFormRewardResolved += HandleFormRewardResolved;
+            GameEvents.OnEventResolved += HandleEventResolved;
             if (startOnEnable) Invoke(nameof(StartSequence), SEQUENCE_START_DELAY);
         }
 
@@ -53,6 +59,7 @@ namespace Abyss.Runtime.Stage
         {
             GameEvents.OnEnemyKilled -= HandleEnemyKilled;
             GameEvents.OnFormRewardResolved -= HandleFormRewardResolved;
+            GameEvents.OnEventResolved -= HandleEventResolved;
             CancelInvoke();
         }
 
@@ -201,8 +208,17 @@ namespace Abyss.Runtime.Stage
                 RunManager.Instance?.GainGoldShards(room.clearGoldReward);
             }
 
+            // 이벤트 룸: 선택 모달을 열고 선택이 끝날 때까지 자동 진행을 보류한다.
+            // 모달이 DraftOpen 상태로 정지시키므로 게이트 중에는 세계가 멈춘다.
+            if (room.IsEventRoom)
+            {
+                isRoomGateHeld = true;
+                Debug.Log($"[StageDirector] 이벤트 룸 — 선택 대기: {room.eventData.eventId}");
+                EventRoomPanel.Open(room.eventData);
+                return;
+            }
+
             // 폼 보상 룸: 제단을 활성화하고 상호작용(획득/거절)까지 자동 진행을 보류한다.
-            // 모달이 timeScale=0으로 정지시키므로 게이트 중에는 세계가 멈춘다.
             // 제단 미배선이거나 제시할 폼이 없으면 게이트 없이 진행(스톨 방지).
             if (room.IsFormRewardRoom && formAltar != null)
             {
@@ -210,7 +226,7 @@ namespace Abyss.Runtime.Stage
                 if (reward != null)
                 {
                     formAltar.Configure(reward);
-                    awaitingFormReward = true;
+                    isRoomGateHeld = true;
                     Debug.Log($"[StageDirector] 폼 보상 룸 — 제단 활성화({reward.formId}), 상호작용까지 진행 보류");
                     return;
                 }
@@ -218,6 +234,20 @@ namespace Abyss.Runtime.Stage
                 Debug.LogWarning($"[StageDirector] 폼 보상 룸({room.roomId})이나 제시할 폼이 없어 게이트 없이 진행 — FormCatalog 비어 있음 여부 확인");
             }
 
+            Invoke(nameof(ProceedToNextRoom), delayBetweenRooms);
+        }
+
+        /// <summary>
+        /// 보류 중이던 룸 게이트를 풀고 다음 방으로 진행한다.
+        /// 보류하지 않은 상태에서 온 해제 신호는 무시한다 — 다른 경로(로비 제단 등)의 같은 이벤트가
+        /// 방을 이중으로 넘기지 않게.
+        /// </summary>
+        private void ReleaseRoomGate(string reason)
+        {
+            if (!isRoomGateHeld) return;
+            isRoomGateHeld = false;
+
+            Debug.Log($"[StageDirector] {reason} — 다음 방 진행");
             Invoke(nameof(ProceedToNextRoom), delayBetweenRooms);
         }
 
@@ -262,16 +292,18 @@ namespace Abyss.Runtime.Stage
             return cachedFormController;
         }
 
-        // 폼 보상 모달이 닫히면(획득/거절) 게이트를 풀고 제단을 숨긴 뒤 다음 방으로 진행한다.
+        // 폼 보상 모달이 닫히면(획득/거절) 제단을 숨기고 게이트를 푼다.
         private void HandleFormRewardResolved()
         {
-            if (!awaitingFormReward) return;
-            awaitingFormReward = false;
+            if (!isRoomGateHeld) return;
 
             if (formAltar != null) formAltar.gameObject.SetActive(false);
-            Debug.Log("[StageDirector] 폼 보상 해결 — 다음 방 진행");
-            Invoke(nameof(ProceedToNextRoom), delayBetweenRooms);
+            ReleaseRoomGate("폼 보상 해결");
         }
+
+        // 이벤트 선택이 끝나면 게이트를 푼다. 선택 효과가 스킬 드래프트를 열었더라도
+        // ProceedToNextRoom은 스케일 시간 Invoke라 드래프트가 닫힐 때까지 알아서 기다린다.
+        private void HandleEventResolved() => ReleaseRoomGate("이벤트 해결");
 
         private bool IsValidStage(int index)
         {

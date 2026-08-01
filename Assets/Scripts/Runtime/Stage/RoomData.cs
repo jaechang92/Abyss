@@ -28,8 +28,15 @@ namespace Abyss.Runtime.Stage
                  "설정되어 있으면 hasFormReward와 무관하게 보상 룸으로 취급된다(레거시 호환).")]
         public FormData formReward;
 
+        [Header("이벤트 (비전투 방)")]
+        [Tooltip("설정 시 이 방은 이벤트 방이 된다. 적 목록은 비워 둘 것 — 적이 있으면 전투가 끝나야 이벤트가 열린다.")]
+        public EventData eventData;
+
         /// <summary>이 방이 폼 보상 룸인지. 플래그 또는 고정 폼 지정 중 하나라도 있으면 보상 룸.</summary>
         public bool IsFormRewardRoom => hasFormReward || formReward != null;
+
+        /// <summary>이 방이 이벤트 방인지. <see cref="roomType"/>이 아니라 데이터 유무로 판정한다(보상 룸과 같은 규약).</summary>
+        public bool IsEventRoom => eventData != null;
     }
 
     [System.Serializable]
