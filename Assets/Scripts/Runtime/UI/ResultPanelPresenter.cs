@@ -14,9 +14,11 @@ namespace Abyss.Runtime.UI
     /// OnRunEnded 구독 → 활성화 + 기본 포커스 [즉시 재시작] 버튼.
     /// Enter/Space 즉시 재시작, 버튼 클릭 동일.
     ///
-    /// 완주(<see cref="RunEndReason.Cleared"/>) 시에는 <see cref="EndingSequencePanel"/>을 먼저 재생하고
-    /// 크레딧이 끝난 뒤에 이 패널을 띄운다(완주 루프 계획 2-2). 런 종료 후 화면 순서를 이미 이 컴포넌트가
-    /// 쥐고 있어서 여기에 두었다 — 별도 오케스트레이터를 만들면 씬 배선이 하나 더 늘어난다.
+    /// <b>이 패널은 사망 전용이다.</b> 완주(<see cref="RunEndReason.Cleared"/>)는
+    /// <see cref="EndingSequencePanel"/>이 자막·크레딧에 이어 통계까지 검은 화면에 직접 보여주고
+    /// 타이틀로 나간다 — 엔딩 뒤에 [즉시 재시작]이 있는 런 종료 창을 띄우면 톤이 끊긴다.
+    /// 여기서는 분기와 엔딩 종료 후 씬 전환만 담당한다(런 종료 후 화면 순서를 이미 이 컴포넌트가
+    /// 쥐고 있어서 — 별도 오케스트레이터를 만들면 씬 배선이 하나 더 늘어난다).
     /// </summary>
     public sealed class ResultPanelPresenter : MonoBehaviour
     {
@@ -42,10 +44,7 @@ namespace Abyss.Runtime.UI
         [SerializeField] private Button lobbyButton;
         [SerializeField] private Text lobbyLabel;
 
-        // 패널이 켜진 프레임. 크레딧을 끝낸 Enter가 같은 프레임에 '즉시 재시작'까지 누르는 것을 막는다.
-        private int activatedFrame = -1;
-
-        /// <summary>직전 런이 완주로 끝났는가. 제목·버튼·엔딩 재생 여부가 여기에 갈린다.</summary>
+        /// <summary>직전 런이 완주로 끝났는가. 이 패널을 띄울지 엔딩에 넘길지가 여기에 갈린다.</summary>
         private static bool IsClearedRun =>
             RunManager.HasInstance && RunManager.Instance.LastRunEndReason == RunEndReason.Cleared;
 
@@ -69,8 +68,6 @@ namespace Abyss.Runtime.UI
         private void Update()
         {
             if (root == null || !root.activeSelf) return;
-            // 켜진 첫 프레임은 입력을 받지 않는다 — 크레딧을 넘긴 그 Enter가 재시작까지 삼킨다.
-            if (Time.frameCount == activatedFrame) return;
 
             var kb = Keyboard.current;
             if (kb == null) return;
@@ -88,16 +85,25 @@ namespace Abyss.Runtime.UI
                 return;
             }
 
-            // 완주: 엔딩 자막 → 크레딧을 먼저 보여주고 그다음 통계.
-            // 승리 직후 숫자부터 띄우면 연출이 끊긴다.
+            // 완주: 자막 → 크레딧 → 통계를 엔딩이 전부 맡는다. 이 패널은 뜨지 않는다.
             EndingSequencePanel.Play(HandleEndingFinished);
         }
 
+        /// <summary>엔딩(통계 포함)이 끝난 뒤. 완주는 로비가 아니라 타이틀로 돌아간다.</summary>
         private void HandleEndingFinished()
         {
-            // 크레딧을 건너뛰어도 엔딩에 도달한 것으로 본다 — 경로를 끝까지 밟은 것은 같다.
+            // 크레딧·통계를 건너뛰어도 엔딩에 도달한 것으로 본다 — 경로를 끝까지 밟은 것은 같다.
             MetaSaveService.Instance.MarkEndingSeen();
-            ShowPanel();
+
+            Time.timeScale = 1f;
+            if (Abyss.Runtime.Flow.SceneFlowController.HasInstance)
+            {
+                _ = Abyss.Runtime.Flow.SceneFlowController.Instance.LoadTitleAsync();
+            }
+            else
+            {
+                Debug.LogWarning("[ResultPanelPresenter] SceneFlowController 미가동 — 타이틀 전환 불가.");
+            }
         }
 
         private void ShowPanel()
@@ -107,7 +113,6 @@ namespace Abyss.Runtime.UI
                 Populate(RunManager.Instance.Stats);
             }
             if (root != null) root.SetActive(true);
-            activatedFrame = Time.frameCount;
             FocusRestartButton();
         }
 
@@ -122,57 +127,20 @@ namespace Abyss.Runtime.UI
         {
             if (stats == null) return;
 
-            // 완주와 사망은 같은 패널을 쓰되 제목과 두 번째 버튼의 목적지가 다르다.
-            // 라벨만 갈아끼우므로 ResultPanelBuilder 수정·메뉴 재실행이 필요 없다.
-            bool cleared = IsClearedRun;
-            if (titleText != null) titleText.text = cleared ? "심연 탈출" : "런 종료";
+            // 이 패널은 사망 전용이다(완주는 EndingSequencePanel이 통계까지 맡는다).
+            if (titleText != null) titleText.text = "런 종료";
             if (restartLabel != null) restartLabel.text = "즉시 재시작 (Enter)";
-            if (lobbyLabel != null) lobbyLabel.text = cleared ? "타이틀로" : "로비로";
+            if (lobbyLabel != null) lobbyLabel.text = "로비로";
 
-            if (killsText != null) killsText.text = $"처치 수: {stats.enemiesKilled}";
-            if (comboText != null) comboText.text = $"최장 콤보: {stats.maxCombo}";
-
-            string dominantId = stats.GetDominantFormId();
-            float ratio = stats.GetFormRatio(dominantId);
-            if (dominantFormText != null)
-            {
-                dominantFormText.text = string.IsNullOrEmpty(dominantId)
-                    ? "주 사용 폼: —"
-                    : $"주 사용 폼: {dominantId} ({ratio:P0})";
-            }
-
-            if (formsUsedText != null)
-            {
-                formsUsedText.text = stats.formsUsed.Count == 0
-                    ? "사용 폼: —"
-                    : "사용 폼: " + string.Join(", ", stats.formsUsed);
-            }
-
-            if (skillsText != null)
-            {
-                skillsText.text = stats.draftedSkillIds.Count == 0
-                    ? "드래프트 스킬: —"
-                    : $"드래프트 스킬 {stats.draftedSkillIds.Count}개: " + string.Join(", ", stats.draftedSkillIds);
-            }
-
-            if (stageText != null)
-            {
-                stageText.text = string.IsNullOrEmpty(stats.stageReached) ? "도달: —" : $"도달: {stats.stageReached}";
-            }
-
-            if (elapsedText != null)
-            {
-                int mins = Mathf.FloorToInt(stats.totalElapsedSeconds / 60f);
-                int secs = Mathf.FloorToInt(stats.totalElapsedSeconds % 60f);
-                elapsedText.text = $"경과: {mins:D2}:{secs:D2}";
-            }
-
-            if (abyssEarnedText != null)
-            {
-                int earned = RunManager.HasInstance ? RunManager.Instance.LastRunAbyssShardsEarned : 0;
-                int total = MetaSaveService.Instance.Current.abyssShardsTotal;
-                abyssEarnedText.text = $"Abyss 획득: +{earned}  (누적 {total})";
-            }
+            // 문구는 RunSummaryText가 소유한다 — 엔딩 통계 화면과 같은 표기를 쓰기 위함.
+            if (killsText != null) killsText.text = RunSummaryText.Kills(stats);
+            if (comboText != null) comboText.text = RunSummaryText.Combo(stats);
+            if (dominantFormText != null) dominantFormText.text = RunSummaryText.DominantForm(stats);
+            if (formsUsedText != null) formsUsedText.text = RunSummaryText.FormsUsed(stats);
+            if (skillsText != null) skillsText.text = RunSummaryText.Skills(stats);
+            if (stageText != null) stageText.text = RunSummaryText.Stage(stats);
+            if (elapsedText != null) elapsedText.text = RunSummaryText.Elapsed(stats);
+            if (abyssEarnedText != null) abyssEarnedText.text = RunSummaryText.AbyssEarned();
         }
 
         private void HandleRestart()
@@ -191,23 +159,20 @@ namespace Abyss.Runtime.UI
             }
         }
 
-        /// <summary>
-        /// 두 번째 버튼. 사망은 로비로(다음 런 준비), 완주는 타이틀로 —
-        /// 엔딩까지 본 뒤에는 "게임을 한 바퀴 끝냈다"는 지점이 타이틀이다.
-        /// </summary>
+        /// <summary>두 번째 버튼. 이 패널은 사망 전용이므로 목적지는 다음 런을 준비하는 로비다.</summary>
         private void HandleReturnToLobby()
         {
             Time.timeScale = 1f;
 
-            // SceneFlowController 미가동(분리 전 상태) 시 안전하게 무시.
-            if (!Abyss.Runtime.Flow.SceneFlowController.HasInstance)
+            // 로비 씬으로 복귀. SceneFlowController 미가동(분리 전 상태) 시 안전하게 무시.
+            if (Abyss.Runtime.Flow.SceneFlowController.HasInstance)
             {
-                Debug.LogWarning("[ResultPanelPresenter] SceneFlowController 미가동 — 씬 전환 불가.");
-                return;
+                _ = Abyss.Runtime.Flow.SceneFlowController.Instance.LoadLobbyAsync();
             }
-
-            var flow = Abyss.Runtime.Flow.SceneFlowController.Instance;
-            _ = IsClearedRun ? flow.LoadTitleAsync() : flow.LoadLobbyAsync();
+            else
+            {
+                Debug.LogWarning("[ResultPanelPresenter] SceneFlowController 미가동 — 로비 전환 불가.");
+            }
         }
     }
 }
