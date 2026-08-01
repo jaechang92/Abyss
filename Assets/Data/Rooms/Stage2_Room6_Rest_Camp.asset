@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dca2f464adf7b14bb9770618efa96d0, type: 3}
+  m_Name: Stage2_Room6_Rest_Camp
+  m_EditorClassIdentifier: 
+  roomId: stage2_room6_rest_camp
+  roomType: 4
+  enemies: []
+  clearGoldReward: 0
+  hasFormReward: 0
+  formReward: {fileID: 0}
+  eventData: {fileID: 11400000, guid: f8b18ebe7779de5489d1d1d49c90eb34, type: 2}

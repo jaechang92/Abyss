@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dca2f464adf7b14bb9770618efa96d0, type: 3}
+  m_Name: Room6_Rest_Ember
+  m_EditorClassIdentifier: 
+  roomId: room6_rest_ember
+  roomType: 4
+  enemies: []
+  clearGoldReward: 0
+  hasFormReward: 0
+  formReward: {fileID: 0}
+  eventData: {fileID: 11400000, guid: 47a15fbc75bd9754890598f6e67521fe, type: 2}

@@ -16,12 +16,18 @@ namespace Abyss.EditorTools
     ///
     /// 이벤트 3종은 보상 축을 하나씩 나눠 갖는다: 드래프트 / 골드 / 회복.
     /// 셋 다 "대가 없이 지나가는 선택"을 하나씩 두어 무조건 손해 보는 방이 되지 않게 했다.
+    ///
+    /// 휴식 2종(<see cref="EnsureAllRests"/>)도 같은 <see cref="EventData"/>를 쓴다 —
+    /// 선택 모달이 필요한 건 똑같아서 전용 SO·패널을 만들면 복제만 늘어난다. 성격 차이는 내용으로 가른다.
     /// </summary>
     public static class EventContentBuilder
     {
         public const string BrokenAltarFile = "Event_BrokenAltar";
         public const string ForgottenCacheFile = "Event_ForgottenCache";
         public const string AbyssalSpringFile = "Event_AbyssalSpring";
+
+        public const string RestEmberFile = "Rest_Ember";
+        public const string RestCampFile = "Rest_RuinedCamp";
 
         /// <summary>이벤트 SO 3종을 생성하고(없으면) 반환한다. 순서는 파일명 상수와 같다.</summary>
         public static void EnsureAllEvents(
@@ -79,6 +85,47 @@ namespace Abyss.EditorTools
 
                     Choice("지나친다",
                         "바닥이 보이지 않는 물에는 손을 대지 않기로 한다."),
+                });
+        }
+
+        /// <summary>
+        /// 휴식 SO 2종을 생성하고(없으면) 반환한다. 완주 루프 계획 1-3.
+        ///
+        /// 이벤트와 같은 <see cref="EventData"/>를 쓰지만 성격이 다르다 —
+        /// <b>손해 보는 선택지가 없고</b>, 회복과 강화 중 <b>하나만</b> 고르게 해 선택에 무게를 준다
+        /// (StS 캠프파이어형). 보스 직전에 배치되므로 "지금 내 HP로 보스를 잡을 수 있나"를 스스로 묻게 된다.
+        ///
+        /// 두 방의 효과가 같은 것은 의도다 — 휴식 방은 <b>예측 가능해야</b> 계획을 세울 수 있다.
+        /// 스테이지 정체성은 문구로만 가른다.
+        /// </summary>
+        public static void EnsureAllRests(out EventData ember, out EventData ruinedCamp)
+        {
+            EnsureDir(AbyssPaths.Events);
+
+            ember = CreateOrLoad(RestEmberFile, "rest_ember", "불씨 앞에서",
+                "누군가 피우다 만 불씨가 아직 살아 있다. 여기서 잠시 멈출 수 있다.",
+                new[]
+                {
+                    Choice("쉬어간다",
+                        "불에 손을 쬐고 숨을 고른다. 상처가 아물지는 않았지만, 걸을 만해졌다.",
+                        Effect(EventEffectType.HealPercent, 60)),
+
+                    Choice("무기를 보살핀다",
+                        "날을 세우고 이음새를 조인다. 쉬지는 못했지만 손에 익은 감각이 하나 늘었다.",
+                        Effect(EventEffectType.SkillDraft, 0)),
+                });
+
+            ruinedCamp = CreateOrLoad(RestCampFile, "rest_ruined_camp", "무너진 야영지",
+                "먼저 내려온 자들의 흔적이다. 천막은 무너졌지만 불자리는 남아 있다.",
+                new[]
+                {
+                    Choice("눈을 붙인다",
+                        "얕은 잠에서 깨어난다. 아래에서 올라오는 열기가 조금은 견딜 만해졌다.",
+                        Effect(EventEffectType.HealPercent, 60)),
+
+                    Choice("남은 장비를 뒤진다",
+                        "쓸 만한 것은 거의 없었지만, 그들이 남긴 방식 하나를 배웠다.",
+                        Effect(EventEffectType.SkillDraft, 0)),
                 });
         }
 
