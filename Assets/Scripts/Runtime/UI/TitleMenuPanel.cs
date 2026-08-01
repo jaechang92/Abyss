@@ -28,6 +28,8 @@ namespace Abyss.Runtime.UI
         private const string QUIT_DEFAULT = "게임 종료";
         private const string QUIT_ARMED = "게임 종료 — 확정? (다시 클릭)";
         private const string RECORD_FORMAT = "누적 {0}런 · 보스 격파 {1} · 심연 파편 {2}";
+        // 엔딩을 본 플레이어에게만 붙는 꼬리표. 완주 여부는 누적 숫자만으로는 드러나지 않는다.
+        private const string RECORD_CLEARED_SUFFIX = "  ✦ 심연 탈출";
 
         private bool quitArmed;
         private Text quitLabel;
@@ -61,9 +63,15 @@ namespace Abyss.Runtime.UI
             if (recordText != null)
             {
                 // 기록이 없으면 빈 줄로 둔다 — 첫 플레이어에게 "0런"을 보여줄 이유가 없다.
-                recordText.text = hasHistory
-                    ? string.Format(RECORD_FORMAT, records.totalRunCount, records.totalBossKillCount, ResolveShards())
-                    : string.Empty;
+                if (!hasHistory)
+                {
+                    recordText.text = string.Empty;
+                }
+                else
+                {
+                    string line = string.Format(RECORD_FORMAT, records.totalRunCount, records.totalBossKillCount, ResolveShards());
+                    recordText.text = records.hasSeenEnding ? line + RECORD_CLEARED_SUFFIX : line;
+                }
             }
         }
 

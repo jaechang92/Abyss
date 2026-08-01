@@ -103,6 +103,17 @@ namespace Abyss.Runtime.Meta
         }
 
         /// <summary>
+        /// 엔딩 도달 기록. 이미 본 상태면 저장을 건너뛴다 — 완주할 때마다 같은 값을 쓰지 않게.
+        /// </summary>
+        public void MarkEndingSeen(bool autoSave = true)
+        {
+            EnsureLoaded();
+            if (current.records.hasSeenEnding) return;
+            current.records.hasSeenEnding = true;
+            if (autoSave) Save();
+        }
+
+        /// <summary>
         /// 지정 업그레이드의 현재 레벨. 미보유/빈 ID는 0.
         /// </summary>
         public int GetUpgradeLevel(string upgradeId)

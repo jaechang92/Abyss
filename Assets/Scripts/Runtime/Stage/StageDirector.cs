@@ -108,9 +108,10 @@ namespace Abyss.Runtime.Stage
 
             if (currentStageIndex >= sequence.stages.Count)
             {
-                // 시퀀스의 모든 스테이지 클리어 → 런 종료.
-                Debug.Log("[StageDirector] 모든 스테이지 클리어 — 런 종료");
-                RunManager.Instance?.EndRun();
+                // 시퀀스의 모든 스테이지 클리어 → 완주로 런 종료(엔딩 경로).
+                // 트리거를 '시퀀스의 마지막'으로 두면 스테이지 3이 추가돼도 여기는 그대로다.
+                Debug.Log("[StageDirector] 모든 스테이지 클리어 — 완주");
+                RunManager.Instance?.EndRun(RunEndReason.Cleared);
                 return;
             }
 

@@ -82,6 +82,12 @@ namespace Abyss.Runtime.Meta
 
         /// <summary>최고 획득 goldShards(런 내 최대치).</summary>
         public int bestGoldShards;
+
+        /// <summary>
+        /// 엔딩(크레딧)을 끝까지 또는 건너뛰기로 도달했는가. 완주 루프 계획 2-3의 "엔딩을 봤는가".
+        /// 기존 세이브에는 이 필드가 없지만 JsonUtility가 기본값 false로 채우므로 마이그레이션이 필요 없다.
+        /// </summary>
+        public bool hasSeenEnding;
     }
 
     /// <summary>

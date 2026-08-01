@@ -31,6 +31,7 @@ namespace Abyss.Runtime.Run
         private readonly RunStats stats = new();
         private bool isRunActive;
         private int lastRunAbyssShardsEarned;
+        private RunEndReason lastRunEndReason = RunEndReason.Death;
 
         public int CurrentLevel => currentLevel;
         public int CurrentExp => currentExp;
@@ -39,6 +40,16 @@ namespace Abyss.Runtime.Run
         public RunStats Stats => stats;
         public bool IsRunActive => isRunActive;
         public int LastRunAbyssShardsEarned => lastRunAbyssShardsEarned;
+
+        /// <summary>
+        /// 직전 런이 끝난 사유. <see cref="GameEvents.OnRunEnded"/> 구독자가 조회한다.
+        ///
+        /// 이벤트 인자로 싣지 않은 이유: 구독자가 4곳(흐름 FSM·결과 패널·애널리틱스·시너지 HUD)인데
+        /// 사유가 필요한 곳은 결과 패널 하나뿐이다. 이미 <see cref="LastRunAbyssShardsEarned"/>가
+        /// 같은 규약("이벤트는 신호, 값은 조회")을 쓰고 있어 여기에 맞춘다.
+        /// </summary>
+        public RunEndReason LastRunEndReason => lastRunEndReason;
+
         public RunConfig Config => config;
 
         private int BaseExpToLevel => config != null ? config.baseExpToLevel : DEFAULT_BASE_EXP;
@@ -127,6 +138,7 @@ namespace Abyss.Runtime.Run
             goldShards = 0;
             bossKillsThisRun = 0;
             lastRunAbyssShardsEarned = 0;
+            lastRunEndReason = RunEndReason.Death;
             stats.Reset();
             isRunActive = true;
             GameEvents.RaiseGoldShardsChanged(goldShards);
@@ -134,7 +146,11 @@ namespace Abyss.Runtime.Run
             Debug.Log("[RunManager] 런 시작 — isRunActive = true");
         }
 
-        public void EndRun()
+        /// <summary>
+        /// 런 종료·메타 정산. 사유를 생략하면 사망으로 간주한다 —
+        /// 완주(<see cref="RunEndReason.Cleared"/>)는 호출자가 명시해야 엔딩이 열린다.
+        /// </summary>
+        public void EndRun(RunEndReason reason = RunEndReason.Death)
         {
             if (!isRunActive)
             {
@@ -143,6 +159,8 @@ namespace Abyss.Runtime.Run
             }
 
             isRunActive = false;
+            // 구독자가 조회하므로 이벤트 발행보다 먼저 확정해야 한다.
+            lastRunEndReason = reason;
             SettleMetaProgress();
             GameEvents.RaiseRunEnded();
         }
@@ -235,6 +253,14 @@ namespace Abyss.Runtime.Run
                 StartNewRun();
             }
             EndRun();
+        }
+
+        /// <summary>완주 경로 테스트용. 최종 보스까지 20분 넘게 걸려 엔딩만 확인하기 어렵다.</summary>
+        [ContextMenu("Debug: Clear Run (엔딩)")]
+        private void DebugClearRun()
+        {
+            if (!isRunActive) StartNewRun();
+            EndRun(RunEndReason.Cleared);
         }
 
         [ContextMenu("Debug: Gain 100 Exp")]
