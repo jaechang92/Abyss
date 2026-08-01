@@ -2,7 +2,10 @@ using System.Collections.Generic;
 using Abyss.Runtime.Audio;
 using Abyss.Runtime.Meta;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
+// CreateRect·CreateLabel·CreateButton 등 uGUI 조립 헬퍼는 UiFactory가 소유한다(LobbyMenuPanel과 공유).
+using static Abyss.Runtime.UI.UiFactory;
 
 namespace Abyss.Runtime.UI
 {
@@ -14,6 +17,9 @@ namespace Abyss.Runtime.UI
     /// **런타임 동적 생성 + DontDestroyOnLoad**로 하나만 두고 공유한다(씬 배선 불필요).
     ///
     /// timeScale=0인 일시정지 중에도 조작되어야 하므로 시간에 의존하는 연출을 쓰지 않는다.
+    ///
+    /// ESC로 닫는 책임은 이 패널이 갖는다(<see cref="Update"/>) — 씬마다 ESC가 오는 경로가 달라
+    /// 씬별 처리기에만 맡기면 입력 배선이 없는 타이틀 씬에서 닫을 방법이 사라진다.
     /// </summary>
     public sealed class SettingsPanel : MonoBehaviour
     {
@@ -22,6 +28,9 @@ namespace Abyss.Runtime.UI
             "← → 이동   C 점프   D 대시   Z 공격   X 강공격\nA 스킬1   S 스킬2   LCtrl 폼 교체   G 상호작용   ESC 일시정지";
 
         private static SettingsPanel instance;
+
+        // ESC를 이번 프레임에 소비했음을 알리는 표식. WasClosedThisFrame 참고.
+        private static int closedFrame = -1;
 
         private GameObject body;
         private Slider masterSlider;
@@ -58,27 +67,56 @@ namespace Abyss.Runtime.UI
             if (instance == null || instance.body == null) return;
             instance.body.SetActive(false);
             instance.SaveAll();
+            closedFrame = Time.frameCount;
         }
 
         public static bool IsOpen => instance != null && instance.body != null && instance.body.activeSelf;
+
+        /// <summary>
+        /// 이번 프레임에 이 패널이 ESC를 소비했는지.
+        /// 같은 프레임에 도착한 다른 ESC 처리(정지 해제·로비 메뉴)가 한 번의 입력을 두 번 쓰지 않게 막는 가드다.
+        /// </summary>
+        public static bool WasClosedThisFrame => closedFrame == Time.frameCount;
+
+        /// <summary>
+        /// 열려 있는 동안 ESC를 직접 받는다.
+        ///
+        /// 씬마다 ESC가 도착하는 경로가 다르다 — Run은 UI 맵 <c>Cancel</c>, 로비는 Player 맵 <c>Pause</c>,
+        /// 타이틀은 <b>수신자가 아예 없다</b>. 패널이 자기 닫기를 직접 소유하면 타이틀처럼 입력 배선이
+        /// 없는 씬에서도 ESC가 통한다(씬마다 입력을 배선하는 것보다 싸다).
+        ///
+        /// 씬의 ESC 처리기가 먼저 닫는 경우도 있으므로(입력 처리는 Update보다 먼저 돈다) 여기서는 아직
+        /// 열려 있을 때만 동작하고, 반대 순서는 <see cref="WasClosedThisFrame"/>가 막는다.
+        /// timeScale=0에서도 Update는 돌기 때문에 일시정지 중에도 유효하다.
+        /// </summary>
+        private void Update()
+        {
+            if (body == null || !body.activeSelf) return;
+
+            var keyboard = Keyboard.current;
+            if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame) return;
+
+            Close();
+        }
+
+        /// <summary>
+        /// 도메인 리로드 비활성화 대비 정적 상태 리셋(AbyssBootstrap 선례).
+        /// instance는 이전 플레이 세션에서 파괴된 오브젝트를 가리킬 수 있고, closedFrame은
+        /// 리셋된 Time.frameCount와 우연히 맞아떨어질 수 있다.
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            instance = null;
+            closedFrame = -1;
+        }
 
         private static void EnsureInstance()
         {
             if (instance != null) return;
 
-            var go = new GameObject("SettingsPanel");
+            var go = CreateOverlayCanvas("SettingsPanel", SORTING_ORDER);
             DontDestroyOnLoad(go);
-
-            var canvas = go.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = SORTING_ORDER;
-            go.AddComponent<GraphicRaycaster>();
-
-            // 다른 캔버스(HUD·로비·타이틀)와 동일한 기준 해상도로 스케일해 크기가 튀지 않게 한다.
-            var scaler = go.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920, 1080);
-            scaler.matchWidthOrHeight = 0.5f;
 
             instance = go.AddComponent<SettingsPanel>();
             instance.BuildResolutionOptions();   // UI를 만들기 전에 목록이 있어야 버튼 활성 상태를 정할 수 있다
@@ -246,11 +284,7 @@ namespace Abyss.Runtime.UI
 
         private void BuildUI(Transform root)
         {
-            body = CreateRect(root, "Body", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            Stretch((RectTransform)body.transform);
-            var dim = body.AddComponent<Image>();
-            dim.color = new Color(0f, 0f, 0f, 0.82f);
-            dim.raycastTarget = true;
+            body = CreateDimBody(root);
 
             // 행 y는 패널 중심 기준이다. 해상도 행이 늘면서 높이를 480 → 560으로 키우고 전 행을 재배치했다
             // (이전 배치는 제목 y=-36과 효과음 행 y=-40이 같은 대역이라 겹쳐 있었다).
@@ -353,72 +387,5 @@ namespace Abyss.Runtime.UI
             return toggle;
         }
 
-        // ───────────────────────── 헬퍼 ─────────────────────────
-
-        private static Text CreateLabel(Transform parent, string name, Vector2 pos, Vector2 size, string content, int fontSize, Color color, TextAnchor anchor)
-        {
-            var go = CreateRect(parent, name, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), pos, size);
-            var text = go.AddComponent<Text>();
-            ApplyFont(text);
-            text.text = content;
-            text.fontSize = fontSize;
-            text.alignment = anchor;
-            text.color = color;
-            text.horizontalOverflow = HorizontalWrapMode.Overflow;
-            text.raycastTarget = false;
-            return text;
-        }
-
-        private static Button CreateButton(Transform parent, string name, Vector2 pos, Vector2 size, string label)
-        {
-            var go = CreateRect(parent, name, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), pos, size);
-            var img = go.AddComponent<Image>();
-            img.color = new Color(0.22f, 0.22f, 0.30f);
-
-            var button = go.AddComponent<Button>();
-            button.targetGraphic = img;
-            var colors = button.colors;
-            colors.normalColor = new Color(0.22f, 0.22f, 0.30f);
-            colors.highlightedColor = new Color(0.34f, 0.34f, 0.46f);
-            colors.pressedColor = new Color(0.17f, 0.17f, 0.24f);
-            button.colors = colors;
-
-            var textGo = CreateRect(go.transform, "Text", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            Stretch((RectTransform)textGo.transform);
-            var text = textGo.AddComponent<Text>();
-            ApplyFont(text);
-            text.text = label;
-            text.fontSize = 17;
-            text.alignment = TextAnchor.MiddleCenter;
-            text.color = Color.white;
-            return button;
-        }
-
-        private static GameObject CreateRect(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 anchoredPos, Vector2 size)
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            var rect = (RectTransform)go.transform;
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.pivot = pivot;
-            rect.anchoredPosition = anchoredPos;
-            rect.sizeDelta = size;
-            return go;
-        }
-
-        private static void Stretch(RectTransform rect)
-        {
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-        }
-
-        private static void ApplyFont(Text text)
-        {
-            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
-            if (font != null) text.font = font;
-        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Abyss.Runtime.UI;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Abyss.Runtime.Lobby
@@ -56,6 +57,39 @@ namespace Abyss.Runtime.Lobby
         {
             if (inputLocked || !value.isPressed || !isGrounded || body == null) return;
             body.linearVelocity = new Vector2(body.linearVelocity.x, jumpForce);
+        }
+
+        /// <summary>
+        /// ESC(Player 맵 Pause). 로비에는 GameFlowController가 없어 Run의 일시정지 구조를 쓸 수 없으므로
+        /// 이 컨트롤러가 메뉴 개폐를 직접 소유한다. 메뉴가 떠 있어도 입력 맵은 Player 그대로 두기 때문에
+        /// 닫는 ESC도 같은 액션으로 도착한다(Run처럼 Cancel로 갈라지지 않는다).
+        ///
+        /// 가장 안쪽에 열린 것부터 닫는다: 설정 → 메뉴.
+        /// </summary>
+        private void OnPause(InputValue value)
+        {
+            if (!value.isPressed) return;
+
+            if (SettingsPanel.IsOpen)
+            {
+                SettingsPanel.Close();
+                return;
+            }
+            // 설정 패널이 자기 Update에서 먼저 닫았다면 이번 ESC는 이미 소비된 것이다(순서 역전 가드).
+            if (SettingsPanel.WasClosedThisFrame) return;
+
+            if (LobbyMenuPanel.IsOpen)
+            {
+                LobbyMenuPanel.Close();
+                return;
+            }
+
+            // 대화·폼 선택 등 다른 패널이 화면을 점유한 동안에는 메뉴를 열지 않는다.
+            // 그 패널들이 InputLocked의 소유자라, 메뉴를 닫으며 잠금을 풀면 소유권이 어긋난다.
+            if (inputLocked) return;
+
+            InputLocked = true;
+            LobbyMenuPanel.Open(() => InputLocked = false);
         }
 
         private void Update()

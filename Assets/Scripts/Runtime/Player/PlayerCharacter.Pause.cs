@@ -32,6 +32,10 @@ namespace Abyss.Runtime.Player
                 SettingsPanel.Close();
                 return;
             }
+            // 설정 패널이 자기 Update에서 먼저 닫았다면 이번 ESC는 이미 소비된 것이다(순서 역전 가드).
+            // 이게 없으면 한 번의 ESC로 패널이 닫히면서 정지까지 풀린다.
+            if (SettingsPanel.WasClosedThisFrame) return;
+
             GameEvents.RaiseResumeRequested();
         }
     }
