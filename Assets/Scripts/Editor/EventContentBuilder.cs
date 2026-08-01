@@ -14,8 +14,10 @@ namespace Abyss.EditorTools
     /// 이미 존재하는 에셋은 덮어쓰지 않는다 — 인스펙터에서 수치를 만졌을 수 있고,
     /// 빌더 재실행이 기획 조정을 되돌리면 안 된다.
     ///
-    /// 이벤트 3종은 보상 축을 하나씩 나눠 갖는다: 드래프트 / 골드 / 회복.
-    /// 셋 다 "대가 없이 지나가는 선택"을 하나씩 두어 무조건 손해 보는 방이 되지 않게 했다.
+    /// 이벤트 4종은 보상 축을 나눠 갖는다: 드래프트 / 골드 / 회복 / 골드↔드래프트 교환.
+    /// 넷 다 "대가 없이 지나가는 선택"을 하나씩 두어 무조건 손해 보는 방이 되지 않게 했다.
+    /// 개수를 4종으로 맞춘 것은 1-4 분기 지점이 스테이지당 2곳(총 4곳)이라 <b>런에서 같은 이벤트가
+    /// 두 번 나오지 않게</b> 하기 위함이다.
     ///
     /// 휴식 2종(<see cref="EnsureAllRests"/>)도 같은 <see cref="EventData"/>를 쓴다 —
     /// 선택 모달이 필요한 건 똑같아서 전용 SO·패널을 만들면 복제만 늘어난다. 성격 차이는 내용으로 가른다.
@@ -25,13 +27,15 @@ namespace Abyss.EditorTools
         public const string BrokenAltarFile = "Event_BrokenAltar";
         public const string ForgottenCacheFile = "Event_ForgottenCache";
         public const string AbyssalSpringFile = "Event_AbyssalSpring";
+        public const string SealedDoorFile = "Event_SealedDoor";
 
         public const string RestEmberFile = "Rest_Ember";
         public const string RestCampFile = "Rest_RuinedCamp";
 
-        /// <summary>이벤트 SO 3종을 생성하고(없으면) 반환한다. 순서는 파일명 상수와 같다.</summary>
+        /// <summary>이벤트 SO 4종을 생성하고(없으면) 반환한다. 순서는 파일명 상수와 같다.</summary>
         public static void EnsureAllEvents(
-            out EventData brokenAltar, out EventData forgottenCache, out EventData abyssalSpring)
+            out EventData brokenAltar, out EventData forgottenCache, out EventData abyssalSpring,
+            out EventData sealedDoor)
         {
             EnsureDir(AbyssPaths.Events);
 
@@ -85,6 +89,24 @@ namespace Abyss.EditorTools
 
                     Choice("지나친다",
                         "바닥이 보이지 않는 물에는 손을 대지 않기로 한다."),
+                });
+
+            sealedDoor = CreateOrLoad(SealedDoorFile, "sealed_door", "봉인된 문",
+                "쇠사슬로 묶인 문이다. 안쪽에서 무언가 낮게 울린다.",
+                new[]
+                {
+                    Choice("자물쇠를 산다",
+                        "떠돌이가 남긴 열쇠를 값을 치르고 얻는다. 문 안쪽의 것이 순순히 따라 나온다.",
+                        Effect(EventEffectType.GoldSpend, 50),
+                        Effect(EventEffectType.SkillDraft, 0)),
+
+                    Choice("부순다",
+                        "어깨로 밀어붙인다. 쇠사슬이 끊기며 살점을 가져갔지만, 안에 있던 것은 챙겼다.",
+                        Effect(EventEffectType.HpCostPercent, 20),
+                        Effect(EventEffectType.GoldGain, 40)),
+
+                    Choice("돌아선다",
+                        "울림이 잦아들 때까지 기다렸다가 자리를 뜬다."),
                 });
         }
 

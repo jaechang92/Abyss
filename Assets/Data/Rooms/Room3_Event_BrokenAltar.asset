@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roomId: room3_event_brokenaltar
   roomType: 3
+  displayName: "\uAE68\uC9C4 \uC81C\uB2E8"
+  hint: "\uB300\uAC00\uB97C \uCE58\uB974\uBA74 \uC751\uB2F5\uD55C\uB2E4"
   enemies: []
   clearGoldReward: 0
   hasFormReward: 0

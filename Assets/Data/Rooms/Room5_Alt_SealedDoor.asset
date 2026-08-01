@@ -10,18 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9dca2f464adf7b14bb9770618efa96d0, type: 3}
-  m_Name: Room2_Skirmish
+  m_Name: Room5_Alt_SealedDoor
   m_EditorClassIdentifier: 
-  roomId: room2_skirmish
-  roomType: 0
-  displayName: "\uC18C\uADDC\uBAA8 \uAD50\uC804"
-  hint: "\uBCF4\uC0C1 \uACE8\uB4DC 8"
-  enemies:
-  - data: {fileID: 11400000, guid: 1ae865111c7cd9940a8ad5309e5be5a8, type: 2}
-    count: 2
-  - data: {fileID: 11400000, guid: 3825ebf787f068e4591b38e30f222528, type: 2}
-    count: 1
-  clearGoldReward: 8
+  roomId: room5_alt_sealeddoor
+  roomType: 3
+  displayName: "\uBD09\uC778\uB41C \uBB38"
+  hint: "\uACE8\uB4DC \uB610\uB294 \uD53C\uAC00 \uD544\uC694\uD558\uB2E4"
+  enemies: []
+  clearGoldReward: 0
   hasFormReward: 0
   formReward: {fileID: 0}
-  eventData: {fileID: 0}
+  eventData: {fileID: 11400000, guid: 077ebceb0b183b34ca900886a77b3337, type: 2}

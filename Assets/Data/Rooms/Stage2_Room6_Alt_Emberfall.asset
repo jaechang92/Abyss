@@ -10,20 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9dca2f464adf7b14bb9770618efa96d0, type: 3}
-  m_Name: Stage2_Room5_Gauntlet
+  m_Name: Stage2_Room6_Alt_Emberfall
   m_EditorClassIdentifier: 
-  roomId: stage2_room5_gauntlet
+  roomId: stage2_room6_alt_emberfall
   roomType: 0
-  displayName: "\uC5F0\uC18D \uAD50\uC804"
-  hint: "\uBCF4\uC0C1 \uACE8\uB4DC 24"
+  displayName: "\uC7BF\uBD88 \uB099\uD558"
+  hint: "\uBCF4\uC0C1 \uACE8\uB4DC 28"
   enemies:
   - data: {fileID: 11400000, guid: 3825ebf787f068e4591b38e30f222528, type: 2}
-    count: 2
+    count: 3
   - data: {fileID: 11400000, guid: 03c0a0ca364f01848bbbac63dc134c4f, type: 2}
-    count: 2
-  - data: {fileID: 11400000, guid: 1ae865111c7cd9940a8ad5309e5be5a8, type: 2}
-    count: 2
-  clearGoldReward: 24
+    count: 1
+  clearGoldReward: 28
   hasFormReward: 0
   formReward: {fileID: 0}
   eventData: {fileID: 0}
