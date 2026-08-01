@@ -11,6 +11,13 @@ namespace Abyss.Runtime.Stage
         Boss,
 
         /// <summary>비전투 선택 방. 적을 두지 않고 <see cref="EventData"/>를 제시한다.</summary>
-        Event
+        Event,
+
+        /// <summary>
+        /// 휴식 방. 동작은 <see cref="Event"/>와 같은 경로를 타고(둘 다 <c>eventData</c>로 구동),
+        /// 이 값은 <b>표시용 구분</b>이다 — 노드 맵(1-4)에서 모닥불과 물음표를 다른 아이콘으로 보여주려면
+        /// 타입이 갈라져 있어야 한다. 이벤트와 달리 손해 보는 선택지를 두지 않는다.
+        /// </summary>
+        Rest
     }
 }
