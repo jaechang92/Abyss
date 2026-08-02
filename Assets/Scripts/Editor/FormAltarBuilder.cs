@@ -161,7 +161,7 @@ namespace Abyss.EditorTools
 
                 var col = go.AddComponent<BoxCollider2D>();
                 col.isTrigger = true; // 물리 차단 없이 PlayerInteractor가 감지(로비 NPC와 동일)
-
+                col.size = new Vector2(1f, 1.5f);
                 go.AddComponent<FormAltar>();
             }
 
