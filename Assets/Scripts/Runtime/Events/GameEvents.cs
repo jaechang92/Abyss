@@ -45,7 +45,7 @@ namespace Abyss.Runtime.Events
         public static event Action<SkillData, IReadOnlyList<SkillData>> OnDraftSlotReplaceRequested;
         public static event Action<FormData> OnFormRewardOffered;
         public static event Action OnFormRewardResolved; // 폼 보상 모달이 닫힘(획득/거절 모두) — 보상 룸 게이트 해제용
-        public static event Action OnEventResolved;      // 이벤트 방 선택 완료 — 이벤트 룸 게이트 해제용
+        public static event Action OnEventResolved;      // 비전투 방(이벤트·휴식·상점) 상호작용 완료 — 룸 게이트 해제용
         public static event Action<EnemyData> OnEnemyKilled;
         public static event Action<RoomData> OnRoomEntered;
         public static event Action<RoomData> OnRoomCleared;

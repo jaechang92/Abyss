@@ -50,19 +50,8 @@ namespace Abyss.Runtime.Stage
 
         public List<EventEffect> effects = new();
 
-        /// <summary>이 선택지가 요구하는 골드 총액(0이면 무료).</summary>
-        public int GoldCost
-        {
-            get
-            {
-                int sum = 0;
-                foreach (var e in effects)
-                {
-                    if (e.type == EventEffectType.GoldSpend) sum += Mathf.Max(0, e.amount);
-                }
-                return sum;
-            }
-        }
+        /// <summary>이 선택지가 요구하는 골드 총액(0이면 무료). 상점 품목과 같은 계산식을 쓴다.</summary>
+        public int GoldCost => EventEffectApplier.GoldCost(effects);
     }
 
     /// <summary>

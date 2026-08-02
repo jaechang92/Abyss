@@ -39,11 +39,18 @@ namespace Abyss.Runtime.Stage
         [Tooltip("설정 시 이 방은 이벤트 방이 된다. 적 목록은 비워 둘 것 — 적이 있으면 전투가 끝나야 이벤트가 열린다.")]
         public EventData eventData;
 
+        [Header("상점 (비전투 방)")]
+        [Tooltip("설정 시 이 방은 상점 방이 된다. eventData와 동시에 설정하지 말 것 — 이벤트가 먼저 잡힌다.")]
+        public ShopData shopData;
+
         /// <summary>이 방이 폼 보상 룸인지. 플래그 또는 고정 폼 지정 중 하나라도 있으면 보상 룸.</summary>
         public bool IsFormRewardRoom => hasFormReward || formReward != null;
 
         /// <summary>이 방이 이벤트 방인지. <see cref="roomType"/>이 아니라 데이터 유무로 판정한다(보상 룸과 같은 규약).</summary>
         public bool IsEventRoom => eventData != null;
+
+        /// <summary>이 방이 상점 방인지. 이벤트 방과 같은 규약(데이터 유무로 판정).</summary>
+        public bool IsShopRoom => shopData != null;
 
         /// <summary>분기 선택지에 쓸 제목. 방 이름이 없으면 타입 라벨로 폴백한다.</summary>
         public string ChoiceTitle =>

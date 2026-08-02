@@ -18,6 +18,7 @@ namespace Abyss.Runtime.Stage
         private static readonly Color BossColor = new Color(0.85f, 0.30f, 0.55f);
         private static readonly Color EventColor = new Color(0.55f, 0.70f, 0.95f);
         private static readonly Color RestColor = new Color(0.55f, 0.85f, 0.60f);
+        private static readonly Color ShopColor = new Color(0.95f, 0.82f, 0.45f);
         private static readonly Color NeutralColor = new Color(0.80f, 0.80f, 0.86f);
 
         /// <summary>플레이어에게 보여줄 방 타입 이름.</summary>
@@ -28,6 +29,7 @@ namespace Abyss.Runtime.Stage
             RoomType.Boss => "보스",
             RoomType.Event => "이벤트",
             RoomType.Rest => "휴식",
+            RoomType.Shop => "상점",
             _ => type.ToString()
         };
 
@@ -39,6 +41,7 @@ namespace Abyss.Runtime.Stage
             RoomType.Boss => BossColor,
             RoomType.Event => EventColor,
             RoomType.Rest => RestColor,
+            RoomType.Shop => ShopColor,
             _ => NeutralColor
         };
 
@@ -53,6 +56,7 @@ namespace Abyss.Runtime.Stage
             RoomType.Boss => "★",
             RoomType.Event => "?",
             RoomType.Rest => "▲",
+            RoomType.Shop => "◆",
             _ => "·"
         };
 

@@ -266,6 +266,16 @@ namespace Abyss.Runtime.Stage
                 return;
             }
 
+            // 상점 룸: 진열 모달을 열고 [떠난다]까지 자동 진행을 보류한다.
+            // 게이트도 해제 신호도 이벤트 룸과 같은 것을 쓴다 — 비전투 방의 규약은 하나다.
+            if (room.IsShopRoom)
+            {
+                isRoomGateHeld = true;
+                Debug.Log($"[StageDirector] 상점 룸 — 구매 대기: {room.shopData.shopId}");
+                ShopRoomPanel.Open(room.shopData);
+                return;
+            }
+
             // 폼 보상 룸: 제단을 활성화하고 상호작용(획득/거절)까지 자동 진행을 보류한다.
             // 제단 미배선이거나 제시할 폼이 없으면 게이트 없이 진행(스톨 방지).
             if (room.IsFormRewardRoom && formAltar != null)
@@ -349,9 +359,9 @@ namespace Abyss.Runtime.Stage
             ReleaseRoomGate("폼 보상 해결");
         }
 
-        // 이벤트 선택이 끝나면 게이트를 푼다. 선택 효과가 스킬 드래프트를 열었더라도
-        // ProceedToNextRoom은 스케일 시간 Invoke라 드래프트가 닫힐 때까지 알아서 기다린다.
-        private void HandleEventResolved() => ReleaseRoomGate("이벤트 해결");
+        // 비전투 방(이벤트·휴식·상점)의 상호작용이 끝나면 게이트를 푼다. 그 결과로 스킬 드래프트가
+        // 열렸더라도 ProceedToNextRoom은 스케일 시간 Invoke라 드래프트가 닫힐 때까지 알아서 기다린다.
+        private void HandleEventResolved() => ReleaseRoomGate("비전투 방 해결");
 
         private bool IsValidStage(int index)
         {
