@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Abyss.Runtime.Events;
-using Abyss.Runtime.Player;
 using Abyss.Runtime.Run;
 using Abyss.Runtime.Stage;
 using UnityEngine;
@@ -156,54 +155,12 @@ namespace Abyss.Runtime.UI
                 GameEvents.RaiseDraftClosed();
             }
 
-            ApplyEffects(applied);
+            // 잔액은 BindChoices에서 이미 걸렀다. 드래프트는 패널을 닫은 지금 열어야
+            // 정지가 끊기지 않고 이어진다(EventEffectApplier 주석 참조).
+            int drafts = EventEffectApplier.ApplyNonModal(applied?.effects);
+            EventEffectApplier.GrantDrafts(drafts);
+
             GameEvents.RaiseEventResolved();
-        }
-
-        // ───────────────────────── 효과 ─────────────────────────
-
-        private static void ApplyEffects(EventChoice choice)
-        {
-            if (choice == null || choice.effects == null) return;
-
-            var run = RunManager.HasInstance ? RunManager.Instance : null;
-            var player = Object.FindAnyObjectByType<PlayerCharacter>();
-
-            foreach (var effect in choice.effects)
-            {
-                switch (effect.type)
-                {
-                    case EventEffectType.GoldGain:
-                        run?.GainGoldShards(effect.amount);
-                        break;
-
-                    case EventEffectType.GoldSpend:
-                        // 잔액은 BindChoices에서 이미 걸렀지만, 실패해도 조용히 넘긴다(상태 불변).
-                        run?.SpendGoldShards(effect.amount);
-                        break;
-
-                    case EventEffectType.HealPercent:
-                        if (player != null) player.Heal(PercentOfMaxHp(player, effect.amount));
-                        break;
-
-                    case EventEffectType.HpCostPercent:
-                        // 전투 피해가 아니다 — 방어 버프를 타지 않고 최소 1을 남기는 전용 경로.
-                        if (player != null) player.PayHpCost(PercentOfMaxHp(player, effect.amount));
-                        break;
-
-                    case EventEffectType.SkillDraft:
-                        // RoomReward는 정의만 있고 발행자가 없던 값이다 — 방이 주는 보상이라는 뜻이 정확히 맞아 여기서 처음 쓴다.
-                        run?.GrantBonusLevel(DraftTriggerReason.RoomReward);
-                        break;
-                }
-            }
-        }
-
-        /// <summary>최대 HP 대비 백분율을 실제 HP 값으로. 0%가 아닌 이상 최소 1은 나오게 한다.</summary>
-        private static int PercentOfMaxHp(PlayerCharacter player, int percent)
-        {
-            if (percent <= 0) return 0;
-            return Mathf.Max(1, Mathf.RoundToInt(player.BaseHp * percent / 100f));
         }
 
         // ───────────────────────── UI 구성 ─────────────────────────

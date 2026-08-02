@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0157004c1adf7f4798b0ec3b6b3121a, type: 3}
+  m_Name: Shop_AshTrader
+  m_EditorClassIdentifier: 
+  shopId: shop_ash_trader
+  title: "\uC7BF\uB354\uBBF8 \uD589\uC0C1"
+  description: "\uD0C0\uB2E4 \uB9CC \uC218\uB808 \uC704\uC5D0 \uBB3C\uAC74\uC774
+    \uC313\uC5EC \uC788\uB2E4. \uC544\uB798\uB85C \uB0B4\uB824\uC628 \uAC12\uC740
+    \uC704\uC640 \uB2E4\uB974\uB2E4."
+  items:
+  - label: "\uBD88\uD0C4 \uAE30\uC220\uC11C"
+    description: "\uB5A0\uB0A0 \uB54C \uC2A4\uD0AC \uD558\uB098\uB97C \uACE0\uB978\uB2E4"
+    stock: 2
+    effects:
+    - type: 1
+      amount: 70
+    - type: 4
+      amount: 0
+  - label: "\uC9C0\uD608\uB300"
+    description: "\uCCB4\uB825\uC744 25% \uD68C\uBCF5\uD55C\uB2E4"
+    stock: 2
+    effects:
+    - type: 1
+      amount: 40
+    - type: 2
+      amount: 25
+  - label: "\uC7BF\uBD88 \uAC15\uC7A5\uC81C"
+    description: "\uCCB4\uB825\uC744 60% \uD68C\uBCF5\uD55C\uB2E4"
+    stock: 1
+    effects:
+    - type: 1
+      amount: 95
+    - type: 2
+      amount: 60
+  - label: "\uD53C\uC758 \uAC70\uB798"
+    description: "\uCCB4\uB825 20%\uB97C \uD314\uC544 \uACE8\uB4DC\uB97C \uBC1B\uB294\uB2E4"
+    stock: 1
+    effects:
+    - type: 3
+      amount: 20
+    - type: 0
+      amount: 90

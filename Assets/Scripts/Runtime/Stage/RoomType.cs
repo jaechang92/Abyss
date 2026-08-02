@@ -18,6 +18,16 @@ namespace Abyss.Runtime.Stage
         /// 이 값은 <b>표시용 구분</b>이다 — 노드 맵(1-4)에서 모닥불과 물음표를 다른 아이콘으로 보여주려면
         /// 타입이 갈라져 있어야 한다. 이벤트와 달리 손해 보는 선택지를 두지 않는다.
         /// </summary>
-        Rest
+        Rest,
+
+        /// <summary>
+        /// 상점 방. 완주 루프 계획 1-2 — <c>goldShards</c>의 소비처다.
+        ///
+        /// 이벤트·휴식과 결정적으로 다른 점은 <b>한 번 고르고 끝나지 않는다</b>는 것이다.
+        /// 골드가 닿는 만큼 여러 번 사고 나서 떠난다. 그래서 <see cref="EventData"/>를 재사용하지 않고
+        /// <see cref="ShopData"/>를 따로 뒀다(재고·반복 구매는 선택지에 없는 개념이다).
+        /// 판정은 <see cref="RoomData.shopData"/> 유무 — <c>eventData</c>와 같은 규약이다.
+        /// </summary>
+        Shop
     }
 }
