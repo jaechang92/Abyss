@@ -21,13 +21,20 @@ namespace Abyss.EditorTools
     ///   씬 인스턴스 오버라이드로 보강한다(프리팹 GUID 무손상). 폼 프리팹을 force 재생성하면 GUID가 바뀌어
     ///   씬 참조가 끊기므로, 프리팹 대신 씬 인스턴스에 부착한다.
     /// - PlayerInteractor.promptLabel을 HUD의 InteractPrompt Text에 배선한다(근접 안내 문구 표시).
-    /// 멱등: 이미 있으면 건너뛴다. 재실행 시 누락분만 복구.
+    ///
+    /// 멱등: 이미 있으면 건너뛰고 재실행 시 누락분만 복구한다. 단 <b>스프라이트에 종속된 값</b>
+    /// (트리거 콜라이더 크기)은 데이터 구동이므로 재실행으로 갱신한다.
+    /// 씬 조회는 반드시 <c>FindObjectsInactive.Include</c>로 한다 — 제단도 HUD 모달도 비활성으로
+    /// 저장되므로 기본 조회로는 못 찾고, 그러면 "없다"고 판정해 중복 생성한다.
     /// </summary>
     public static class FormAltarBuilder
     {
         private const string AltarName = "FormAltar";
         private const string RewardFormFile = "AncientShield.asset"; // 기본 슬롯(암흑검사/공허궁수) 밖의 3번째 폼
         private const string PromptName = "InteractPrompt";
+
+        // 제단 스프라이트 32x48 @PPU32 = 1x1.5 유닛. 트리거를 여기에 맞춘다.
+        private static readonly Vector2 AltarTriggerSize = new(1f, 1.5f);
 
         [MenuItem(AbyssMenu.BuildFormAltar)]
         public static void BuildFormAltarInActiveScene()
@@ -144,7 +151,11 @@ namespace Abyss.EditorTools
         /// <summary>기존 FormAltar가 있으면 재사용, 없으면 생성. 보상 폼·스프라이트를 주입한다.</summary>
         private static GameObject CreateOrReuseAltar(FormData rewardForm)
         {
-            var existing = Object.FindAnyObjectByType<FormAltar>();
+            // 비활성 포함 검색이 필수다 — 이 빌더는 마지막에 제단을 SetActive(false)로 끄고(룸 게이트),
+            // FindAnyObjectByType의 기본값은 비활성 오브젝트를 제외한다. 기본값으로 두면 재실행 때마다
+            // "제단이 없다"고 판정해 하나씩 새로 만들고, WireStageDirector는 그중 하나만 배선한다
+            // (같은 이유로 아래 HUD 조회도 이미 Include를 쓰고 있다).
+            var existing = Object.FindAnyObjectByType<FormAltar>(FindObjectsInactive.Include);
             GameObject go;
             if (existing != null)
             {
@@ -158,13 +169,10 @@ namespace Abyss.EditorTools
                 Undo.RegisterCreatedObjectUndo(go, "Create FormAltar");
 
                 go.AddComponent<SpriteRenderer>();
-
-                var col = go.AddComponent<BoxCollider2D>();
-                col.isTrigger = true; // 물리 차단 없이 PlayerInteractor가 감지(로비 NPC와 동일)
-
                 go.AddComponent<FormAltar>();
             }
 
+            ApplyAltarTrigger(go);
             ApplyAltarVisual(go);
 
             var altar = go.GetComponent<FormAltar>();
@@ -174,6 +182,23 @@ namespace Abyss.EditorTools
             so.ApplyModifiedProperties();
 
             return go;
+        }
+
+        /// <summary>
+        /// 근접 감지용 트리거 콜라이더를 보장한다. 크기는 제단 스프라이트(32x48@PPU32 = 1x1.5 유닛)에
+        /// 맞춘다 — 기본값 1x1로 두면 제단 위쪽 절반이 감지 범위 밖이라 프롬프트가 잘 뜨지 않는다.
+        ///
+        /// 생성 분기가 아니라 <b>공통 경로</b>에 둔다. 크기는 스프라이트에 종속된 데이터 구동 값이므로
+        /// 이미 배치된 제단도 재실행으로 갱신되어야 한다(StageBuilder가 폼 보상·이벤트 참조를
+        /// 재실행 시 반영하는 것과 같은 규약).
+        /// </summary>
+        private static void ApplyAltarTrigger(GameObject go)
+        {
+            var col = go.GetComponent<BoxCollider2D>();
+            if (col == null) col = Undo.AddComponent<BoxCollider2D>(go);
+
+            col.isTrigger = true; // 물리 차단 없이 PlayerInteractor가 감지(로비 NPC와 동일)
+            col.size = AltarTriggerSize;
         }
 
         /// <summary>제단 스프라이트를 정식 도트로 교체한다(없으면 흰 사각 폴백).</summary>
