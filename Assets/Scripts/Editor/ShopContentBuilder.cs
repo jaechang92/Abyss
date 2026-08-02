@@ -14,18 +14,19 @@ namespace Abyss.EditorTools
     /// 이미 존재하는 에셋은 덮어쓰지 않는다 — 가격은 밸런스 조정 대상이라
     /// 인스펙터에서 만진 수치를 빌더 재실행이 되돌리면 안 된다(<see cref="EventContentBuilder"/>와 같은 규약).
     ///
-    /// 스테이지마다 하나씩, 가격을 다르게 잡는다. 아래 예산 추정 기준:
-    ///   · Stage1 상점 도달 시 누적 골드 ≈ 130 (전투 분기 기준. 적 처치 + 클리어 보상)
-    ///   · Stage2 상점 도달 시 누적 골드 ≈ 300
+    /// 스테이지마다 하나씩, 가격을 다르게 잡는다. 예산 기준:
+    ///   · Stage1 상점 도달 시 누적 골드 <b>142</b> (2026-08-02 완주 플레이테스트 실측)
+    ///   · Stage2 ≈ 300 / Stage3 ≈ 480 (추정 — 실측은 Stage1만 있다)
     /// 진열을 전부 사려면 예산을 넘기게 잡아 <b>무엇을 포기할지</b>가 선택이 되게 한다.
     /// </summary>
     public static class ShopContentBuilder
     {
         public const string PeddlerFile = "Shop_WanderingPeddler";
         public const string AshTraderFile = "Shop_AshTrader";
+        public const string GraveRobberFile = "Shop_GraveRobber";
 
-        /// <summary>상점 SO 2종을 생성하고(없으면) 반환한다. 순서는 스테이지 순.</summary>
-        public static void EnsureAllShops(out ShopData peddler, out ShopData ashTrader)
+        /// <summary>상점 SO 3종을 생성하고(없으면) 반환한다. 순서는 스테이지 순.</summary>
+        public static void EnsureAllShops(out ShopData peddler, out ShopData ashTrader, out ShopData graveRobber)
         {
             EnsureDir(AbyssPaths.Shops);
 
@@ -71,6 +72,29 @@ namespace Abyss.EditorTools
                     Item("피의 거래", "체력 20%를 팔아 골드를 받는다", 1,
                         Effect(EventEffectType.HpCostPercent, 20),
                         Effect(EventEffectType.GoldGain, 90)),
+                });
+
+            graveRobber = CreateOrLoad(GraveRobberFile, "shop_grave_robber", "무덤 도굴꾼",
+                "왕들의 부장품을 자루째 끌고 다닌다. 마지막 손님일 거라는 걸 아는 눈치다.",
+                new[]
+                {
+                    // 마지막 상점이라 남은 골드를 쓸 곳이 여기뿐이다 — 기술서 재고를 3으로 늘려
+                    // "다 털고 보스로 간다"는 선택을 실제로 가능하게 둔다.
+                    Item("왕의 유고", "떠날 때 스킬 하나를 고른다", 3,
+                        Effect(EventEffectType.GoldSpend, 95),
+                        Effect(EventEffectType.SkillDraft, 0)),
+
+                    Item("장례용 향유", "체력을 25% 회복한다", 2,
+                        Effect(EventEffectType.GoldSpend, 55),
+                        Effect(EventEffectType.HealPercent, 25)),
+
+                    Item("부장 성수", "체력을 60% 회복한다", 1,
+                        Effect(EventEffectType.GoldSpend, 130),
+                        Effect(EventEffectType.HealPercent, 60)),
+
+                    Item("피의 거래", "체력 20%를 팔아 골드를 받는다", 1,
+                        Effect(EventEffectType.HpCostPercent, 20),
+                        Effect(EventEffectType.GoldGain, 120)),
                 });
         }
 

@@ -23,6 +23,7 @@ namespace Abyss.EditorTools
         public const string BuildDraftSystem = Build + "Draft System";
         public const string BuildStage1 = Build + "Stage 1 Content";
         public const string BuildStage2 = Build + "Stage 2 Content";
+        public const string BuildStage3 = Build + "Stage 3 Content";
         public const string BuildStageDirector = Build + "StageDirector in Active Scene";
         public const string BuildRoomLayouts = Build + "Room Layouts in Active Scene";
         public const string BuildPlatforms = Build + "Test Platforms in Active Scene";

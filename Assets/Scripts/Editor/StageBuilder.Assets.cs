@@ -199,6 +199,27 @@ namespace Abyss.EditorTools
         }
 
         /// <summary>
+        /// 디스크에 존재하는 스테이지 에셋을 <see cref="StageBuilder.StageFilesInOrder"/> 순서대로 모아
+        /// 시퀀스를 갱신한다.
+        ///
+        /// <b>인자로 받지 않고 경로에서 읽는 이유</b>: 메뉴를 어떤 순서로 실행하든 결과가 같아야 한다.
+        /// 이전에는 Stage2 빌더가 <c>(stage1, stage2)</c>를 넘겼는데, 그 방식이면 Stage3을 만든 뒤
+        /// Stage2를 다시 돌리는 순간 시퀀스에서 <b>Stage3이 조용히 빠진다</b>(완주 경로가 끊긴다).
+        /// 빌더는 여러 번·아무 순서로 돌게 되어 있으므로 순서 의존을 남겨두면 안 된다.
+        /// </summary>
+        private static StageSequenceData RebuildSequence()
+        {
+            var stages = new List<StageData>();
+            foreach (var file in StageFilesInOrder)
+            {
+                var stage = AssetDatabase.LoadAssetAtPath<StageData>($"{AbyssPaths.Stages}/{file}.asset");
+                if (stage != null) stages.Add(stage);
+                else Debug.LogWarning($"[StageBuilder] 시퀀스에서 제외 — 에셋 없음: {file}. 해당 스테이지 빌더를 먼저 실행하세요.");
+            }
+            return CreateOrUpdateSequence(stages.ToArray());
+        }
+
+        /// <summary>
         /// 멀티 스테이지 시퀀스 SO를 생성하거나(없으면), 기존 시퀀스의 stages 목록을 갱신한다.
         /// null 스테이지는 자동 제외(누락 자산 방어). 기존 SO는 식별자·목록만 덮어쓴다(멱등).
         /// </summary>

@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0157004c1adf7f4798b0ec3b6b3121a, type: 3}
+  m_Name: Shop_GraveRobber
+  m_EditorClassIdentifier: 
+  shopId: shop_grave_robber
+  title: "\uBB34\uB364 \uB3C4\uAD74\uAFBC"
+  description: "\uC655\uB4E4\uC758 \uBD80\uC7A5\uD488\uC744 \uC790\uB8E8\uC9F8 \uB04C\uACE0
+    \uB2E4\uB2CC\uB2E4. \uB9C8\uC9C0\uB9C9 \uC190\uB2D8\uC77C \uAC70\uB77C\uB294
+    \uAC78 \uC544\uB294 \uB208\uCE58\uB2E4."
+  items:
+  - label: "\uC655\uC758 \uC720\uACE0"
+    description: "\uB5A0\uB0A0 \uB54C \uC2A4\uD0AC \uD558\uB098\uB97C \uACE0\uB978\uB2E4"
+    stock: 3
+    effects:
+    - type: 1
+      amount: 95
+    - type: 4
+      amount: 0
+  - label: "\uC7A5\uB840\uC6A9 \uD5A5\uC720"
+    description: "\uCCB4\uB825\uC744 25% \uD68C\uBCF5\uD55C\uB2E4"
+    stock: 2
+    effects:
+    - type: 1
+      amount: 55
+    - type: 2
+      amount: 25
+  - label: "\uBD80\uC7A5 \uC131\uC218"
+    description: "\uCCB4\uB825\uC744 60% \uD68C\uBCF5\uD55C\uB2E4"
+    stock: 1
+    effects:
+    - type: 1
+      amount: 130
+    - type: 2
+      amount: 60
+  - label: "\uD53C\uC758 \uAC70\uB798"
+    description: "\uCCB4\uB825 20%\uB97C \uD314\uC544 \uACE8\uB4DC\uB97C \uBC1B\uB294\uB2E4"
+    stock: 1
+    effects:
+    - type: 3
+      amount: 20
+    - type: 0
+      amount: 120

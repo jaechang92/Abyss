@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0849ebed8d0ef3149b6a10c8af3390cd, type: 3}
+  m_Name: Stage3_ThroneRuins
+  m_EditorClassIdentifier: 
+  stageId: stage_3_throne_ruins
+  displayName: "\uC655\uC88C\uC758 \uC794\uD574"
+  steps:
+  - options:
+    - {fileID: 11400000, guid: 0a526e9a51ac14149a1c41fd36339efd, type: 2}
+  - options:
+    - {fileID: 11400000, guid: f43050766d68da54990648e31ed3791f, type: 2}
+  - options:
+    - {fileID: 11400000, guid: 9ec88bc7b811a1141b67b36fa30d4df7, type: 2}
+  - options:
+    - {fileID: 11400000, guid: 4cdea1f909a79514bae5d01c68ed7407, type: 2}
+    - {fileID: 11400000, guid: 7de64d37cfb22454b83eeb8bfd27a26c, type: 2}
+  - options:
+    - {fileID: 11400000, guid: fbada5eb08778ca4391cb686159cbbda, type: 2}
+  - options:
+    - {fileID: 11400000, guid: 26170c338895aeb4c8faf2987c023187, type: 2}
+    - {fileID: 11400000, guid: fdd6e358d73f4394aaa889346acf6cf4, type: 2}
+  - options:
+    - {fileID: 11400000, guid: 579cfe5c8d7301c4ab1a1d4baceb9016, type: 2}
+  - options:
+    - {fileID: 11400000, guid: 2133aecca6fcaf84ca5ad05e1832be6b, type: 2}
+  - options:
+    - {fileID: 11400000, guid: fae7fce6348e7b8419be4de2e7b2245f, type: 2}
