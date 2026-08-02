@@ -57,6 +57,7 @@ namespace Abyss.EditorTools
             var skillSlot1 = CreateSkillSlot(go.transform, "SkillSlot1", new Vector2(104, 24));
             CreateFormBiasWarning(go.transform); // 편향 경고 배너(자체 이벤트 구독 — HUDPresenter 배선 불필요)
             CreateSynergyCounter(go.transform); // 시너지 축 카운터(자체 이벤트 구독 — HUDPresenter 배선 불필요)
+            CreateGoldCounter(go.transform); // 상시 골드 카운터(자체 이벤트 구독 — HUDPresenter 배선 불필요)
             var modal = CreateReplacementModal(go.transform);
             var formModal = CreateFormRewardModal(go.transform);
             CreateInteractPrompt(go.transform); // 근접 상호작용 프롬프트(비활성). PlayerInteractor.promptLabel 배선은 FormAltarBuilder가 담당
@@ -70,7 +71,7 @@ namespace Abyss.EditorTools
             EditorUtility.SetDirty(go);
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
 
-            Debug.Log($"[HudBuilder] HUD 자식 UI 생성 완료: HealthBar / FormSlot / FormBiasWarning(비활성) / SynergyCounter(비활성) / SkillSlot ×2 / ReplacementModal(비활성) / PausePanel(비활성)");
+            Debug.Log($"[HudBuilder] HUD 자식 UI 생성 완료: HealthBar / FormSlot / FormBiasWarning(비활성) / SynergyCounter(비활성) / GoldCounter / SkillSlot ×2 / ReplacementModal(비활성) / PausePanel(비활성)");
             Selection.activeGameObject = go;
         }
 
@@ -261,6 +262,45 @@ namespace Abyss.EditorTools
 
             chip.SetActive(false);
             return chip;
+        }
+
+        // ==================== Gold Counter ====================
+        /// <summary>
+        /// 상시 골드 카운터(우상단). 좌상단 세로줄(HP → 폼 → 편향 경고 → 시너지)이 이미 네 겹이라
+        /// 거기에 더하면 화면이 한쪽으로 쏠린다. 골드는 전투 상태가 아니라 <b>지갑</b>이므로
+        /// 반대편에 따로 두는 편이 읽기도 쉽다.
+        ///
+        /// 다른 자체 구독형 HUD(편향 경고·시너지)와 달리 <b>숨기지 않는다</b> — 잔액 0도 정보다.
+        /// </summary>
+        private static GoldCounterPresenter CreateGoldCounter(Transform parent)
+        {
+            var root = CreateRectChild(parent, "GoldCounter", new Vector2(1, 1), new Vector2(1, 1), new Vector2(1, 1), new Vector2(-24, -24), new Vector2(240, 32));
+
+            var bg = CreateRectChild(root.transform, "Background", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            StretchFill((RectTransform)bg.transform);
+            var bgImg = bg.AddComponent<Image>();
+            bgImg.color = new Color(0.05f, 0.05f, 0.08f, 0.85f);
+            bgImg.raycastTarget = false;
+
+            var labelGo = CreateRectChild(root.transform, "Label", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            var labelRect = (RectTransform)labelGo.transform;
+            StretchFill(labelRect);
+            // 우측 정렬이라 여백이 없으면 숫자가 배경 모서리에 붙는다.
+            labelRect.offsetMin = new Vector2(12f, 0f);
+            labelRect.offsetMax = new Vector2(-12f, 0f);
+
+            var label = labelGo.AddComponent<Text>();
+            ApplyDefaultFont(label);
+            label.text = "골드 0";
+            label.fontSize = 16;
+            label.alignment = TextAnchor.MiddleRight;
+            label.horizontalOverflow = HorizontalWrapMode.Overflow; // 네 자리가 되어도 줄바꿈되지 않게
+            label.color = new Color(0.95f, 0.82f, 0.45f);
+            label.raycastTarget = false;
+
+            var presenter = root.AddComponent<GoldCounterPresenter>();
+            SetPrivateField(presenter, "label", label);
+            return presenter;
         }
 
         // ==================== Wiring ====================
