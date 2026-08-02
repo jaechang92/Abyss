@@ -377,8 +377,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0ab4bdc3dce14984aa084f522d774b1d, type: 2}
   - {fileID: 11400000, guid: 8b43c114418da30489c0566a81e9bcbe, type: 2}
   activeSlot: 0
-  swapCooldown: 1.5
-  swapAnimationDuration: 0.3
+  config: {fileID: 0}
 --- !u!114 &4234838876807071509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -450,6 +449,12 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
+  castFlashColor: {r: 0.6, g: 0.9, b: 1, a: 1}
+  castFlashDuration: 0.15
+  castRingRadius: 1.2
+  castRingDuration: 0.3
+  castHitstop: 0.04
+  castShake: {x: 0.1, y: 0.1}
 --- !u!114 &5577743728559273929
 MonoBehaviour:
   m_ObjectHideFlags: 0
