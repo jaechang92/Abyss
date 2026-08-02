@@ -17,16 +17,29 @@ namespace Abyss.EditorTools
     /// SO를 실제로 만들고 갱신하는 헬퍼는 <c>StageBuilder.Assets.cs</c>(partial)에 있다.
     ///
     /// 방 구성은 전투·엘리트·보스에 비전투 방(이벤트·상점·휴식)이 더해져
-    /// Stage1 8단계 / Stage2 9단계다(각 분기 2곳). 이미 존재하는 SO 에셋은 덮어쓰지 않고 건너뛴다.
+    /// Stage1 8단계 / Stage2 9단계 / Stage3 9단계다(각 분기 2곳).
+    /// 이미 존재하는 SO 에셋은 덮어쓰지 않고 건너뛴다.
+    ///
+    /// 세 빌더는 <b>아무 순서로 여러 번 돌려도 결과가 같다</b> — 시퀀스는 인자가 아니라
+    /// 디스크에 있는 스테이지 에셋에서 재구성한다(<c>RebuildSequence</c>).
     /// </summary>
     public static partial class StageBuilder
     {
 
+        private const string Stage1File = "Stage1_AbyssEntrance";
         private const string Stage1Id = "stage_1_abyss_entrance";
         private const string Stage1Name = "균열의 입구";
 
+        private const string Stage2File = "Stage2_FlameCorridor";
         private const string Stage2Id = "stage_2_flame_corridor";
         private const string Stage2Name = "불꽃의 회랑";
+
+        private const string Stage3File = "Stage3_ThroneRuins";
+        private const string Stage3Id = "stage_3_throne_ruins";
+        private const string Stage3Name = "왕좌의 잔해";
+
+        /// <summary>런 진행 순서. 시퀀스는 이 배열을 그대로 따른다(디스크에 있는 것만 포함).</summary>
+        private static readonly string[] StageFilesInOrder = { Stage1File, Stage2File, Stage3File };
 
         private const string SequenceFile = "MainRunSequence";
         private const string SequenceId = "main_run_sequence";
@@ -39,8 +52,8 @@ namespace Abyss.EditorTools
                 "StageBuilder",
                 "Stage 1 콘텐츠 생성:\n" +
                 "  · RoomData 9개 (Combat 5 + Event 2 + Shop 1 + Rest 1 + Boss 1)\n" +
-                "  · EventData 4종 + 휴식 2종 (Assets/Data/Events)\n" +
-                "  · ShopData 2종 (Assets/Data/Shops)\n" +
+                "  · EventData 6종 + 휴식 3종 (Assets/Data/Events)\n" +
+                "  · ShopData 3종 (Assets/Data/Shops)\n" +
                 "  · StageData 1개 (Stage1_AbyssEntrance, 8단계 · 분기 2곳)\n\n" +
                 "이미 존재하는 SO는 건너뜁니다(분기 표시명·힌트는 갱신).",
                 "생성", "취소");
@@ -65,9 +78,9 @@ namespace Abyss.EditorTools
                 return;
             }
 
-            EventContentBuilder.EnsureAllEvents(out var brokenAltar, out _, out _, out var sealedDoor);
-            EventContentBuilder.EnsureAllRests(out var restEmber, out _);
-            ShopContentBuilder.EnsureAllShops(out var peddler, out _);
+            EventContentBuilder.EnsureAllEvents(out var brokenAltar, out _, out _, out var sealedDoor, out _, out _);
+            EventContentBuilder.EnsureAllRests(out var restEmber, out _, out _);
+            ShopContentBuilder.EnsureAllShops(out var peddler, out _, out _);
 
             // 방 생성. Room3_Crowd는 폼 보상 룸(제시 폼은 StageDirector가 FormCatalog에서 미보유 우선 추첨).
             // 분기 선택지로 노출되는 방에는 표시명·힌트를 붙인다 — 선택 근거가 화면에 있어야 갈림길이 성립한다.
@@ -98,7 +111,7 @@ namespace Abyss.EditorTools
 
             // 분기는 항상 '전투 vs 비전투'다 — 전투끼리 갈리면 고를 이유가 숫자뿐이라 선택이 되지 않는다.
             // 폼 보상·엘리트·상점·휴식·보스는 고정이다. 놓치면 런의 밀도가 크게 달라지는 방들이다.
-            var stage = CreateOrLoadStage("Stage1_AbyssEntrance", Stage1Id, Stage1Name, new[]
+            var stage = CreateOrLoadStage(Stage1File, Stage1Id, Stage1Name, new[]
             {
                 Step(room1),
                 Step(room2, roomEvent),      // 분기 ①
@@ -114,7 +127,7 @@ namespace Abyss.EditorTools
             AssetDatabase.Refresh();
 
             EditorGUIUtility.PingObject(stage);
-            Debug.Log("[StageBuilder] Stage 1 콘텐츠 생성 완료 — Assets/Data/Stages/Stage1_AbyssEntrance.asset");
+            Debug.Log($"[StageBuilder] Stage 1 콘텐츠 생성 완료 — {AbyssPaths.Stages}/{Stage1File}.asset");
         }
 
         [MenuItem(AbyssMenu.BuildStage2)]
@@ -124,10 +137,10 @@ namespace Abyss.EditorTools
                 "StageBuilder",
                 "Stage 2 '불꽃의 회랑' 콘텐츠 생성:\n" +
                 "  · RoomData 11개 (Combat 5 + Event 2 + Shop 1 + Rest 1 + Elite 1[중간보스] + Boss 1)\n" +
-                "  · EventData 4종 + 휴식 2종 (Assets/Data/Events)\n" +
-                "  · ShopData 2종 (Assets/Data/Shops)\n" +
+                "  · EventData 6종 + 휴식 3종 (Assets/Data/Events)\n" +
+                "  · ShopData 3종 (Assets/Data/Shops)\n" +
                 "  · StageData 1개 (Stage2_FlameCorridor, 9단계 · 분기 2곳)\n" +
-                "  · StageSequenceData (Stage1 → Stage2 순차 진행)\n\n" +
+                "  · StageSequenceData (디스크의 스테이지를 순서대로 재구성)\n\n" +
                 "이미 존재하는 RoomData/StageData는 건너뜁니다(분기 표시·시퀀스는 갱신).",
                 "생성", "취소");
             if (!proceed) return;
@@ -151,9 +164,9 @@ namespace Abyss.EditorTools
                 return;
             }
 
-            EventContentBuilder.EnsureAllEvents(out _, out var forgottenCache, out var abyssalSpring, out _);
-            EventContentBuilder.EnsureAllRests(out _, out var restCamp);
-            ShopContentBuilder.EnsureAllShops(out _, out var ashTrader);
+            EventContentBuilder.EnsureAllEvents(out _, out var forgottenCache, out var abyssalSpring, out _, out _, out _);
+            EventContentBuilder.EnsureAllRests(out _, out var restCamp, out _);
+            ShopContentBuilder.EnsureAllShops(out _, out var ashTrader, out _);
 
             // Stage1 대비 적 수·강도 상향, 중간보스 1, 최종보스 1.
             // 분기 2곳은 중간보스를 앞뒤로 감싼다 — 대비(보급 vs 골드)와 수습(회복 vs 골드)이라
@@ -183,7 +196,7 @@ namespace Abyss.EditorTools
             var r6 = CreateOrLoadRoom("Stage2_Room6_Serpent",  RoomType.Boss, 70,
                 new[] { (serpent, 1) });
 
-            var stage2 = CreateOrLoadStage("Stage2_FlameCorridor", Stage2Id, Stage2Name, new[]
+            var stage2 = CreateOrLoadStage(Stage2File, Stage2Id, Stage2Name, new[]
             {
                 Step(r1),
                 Step(r2),
@@ -196,21 +209,105 @@ namespace Abyss.EditorTools
                 Step(r6),
             });
 
-            // Stage1 로드 후 멀티 스테이지 시퀀스(Stage1 → Stage2) 생성/갱신.
-            var stage1 = AssetDatabase.LoadAssetAtPath<StageData>($"{AbyssPaths.Stages}/Stage1_AbyssEntrance.asset");
-            if (stage1 == null)
-            {
-                Debug.LogWarning("[StageBuilder] Stage1_AbyssEntrance.asset 누락 — 시퀀스에 Stage2만 포함됩니다. " +
-                                 "먼저 'Build Stage 1 Content' 권장.");
-            }
-            var sequence = CreateOrUpdateSequence(stage1, stage2);
+            var sequence = RebuildSequence();
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
             EditorGUIUtility.PingObject(sequence);
             Debug.Log($"[StageBuilder] Stage 2 콘텐츠 + 시퀀스 생성 완료 — " +
-                      $"{AbyssPaths.Stages}/Stage2_FlameCorridor.asset, 시퀀스 {sequence.stages.Count} 스테이지");
+                      $"{AbyssPaths.Stages}/{Stage2File}.asset, 시퀀스 {sequence.stages.Count} 스테이지");
+        }
+
+        [MenuItem(AbyssMenu.BuildStage3)]
+        public static void BuildStage3Content()
+        {
+            bool proceed = EditorUtility.DisplayDialog(
+                "StageBuilder",
+                "Stage 3 '왕좌의 잔해' 콘텐츠 생성:\n" +
+                "  · RoomData 11개 (Combat 5 + Event 2 + Shop 1 + Rest 1 + Elite 1[중간보스] + Boss 1)\n" +
+                "  · EventData 6종 + 휴식 3종 (Assets/Data/Events)\n" +
+                "  · ShopData 3종 (Assets/Data/Shops)\n" +
+                "  · StageData 1개 (Stage3_ThroneRuins, 9단계 · 분기 2곳)\n" +
+                "  · StageSequenceData (디스크의 스테이지를 순서대로 재구성)\n\n" +
+                "먼저 'Prototype Content'와 'Prototype Prefabs'를 실행해\n" +
+                "MidBossThroneWarden·BossThronebound가 만들어져 있어야 합니다.\n\n" +
+                "이미 존재하는 RoomData/StageData는 건너뜁니다(분기 표시·시퀀스는 갱신).",
+                "생성", "취소");
+            if (!proceed) return;
+
+            EnsureDir(AbyssPaths.Rooms);
+            EnsureDir(AbyssPaths.Stages);
+
+            var grunt = LoadEnemyData("MeleeGrunt");
+            var brute = LoadEnemyData("MeleeBrute");
+            var archer = LoadEnemyData("RangedArcher");
+            var elite = LoadEnemyData("EliteHunter");
+            var warden = LoadEnemyData("MidBossThroneWarden");
+            var thronebound = LoadEnemyData("BossThronebound");
+
+            if (grunt == null || brute == null || archer == null || elite == null || warden == null || thronebound == null)
+            {
+                EditorUtility.DisplayDialog(
+                    "StageBuilder 실패",
+                    $"EnemyData 누락(Stage3 신규 적 포함). 먼저 '{AbyssMenu.GenerateContent}'를 실행하세요.",
+                    "확인");
+                return;
+            }
+
+            EventContentBuilder.EnsureAllEvents(out _, out _, out _, out _, out var hollowCrown, out var oathStone);
+            EventContentBuilder.EnsureAllRests(out _, out _, out var restThrone);
+            ShopContentBuilder.EnsureAllShops(out _, out _, out var graveRobber);
+
+            // 마지막 스테이지다. 적 밀도를 Stage2보다 올리고 엘리트를 일반 방에도 섞는다
+            // — 여기까지 온 빌드는 이미 스킬 4~6개를 갖췄으므로 앞 스테이지 강도면 밋밋하다.
+            var r1 = CreateOrLoadRoom("Stage3_Room1_Gate",      RoomType.Combat, 14,
+                new[] { (grunt, 3), (archer, 1) });
+            var r2 = CreateOrLoadRoom("Stage3_Room2_Corridor",  RoomType.Combat, 18,
+                new[] { (brute, 2), (archer, 2) });
+            var r3 = CreateOrLoadRoom("Stage3_Room3_Court",     RoomType.Combat, 22,
+                new[] { (grunt, 3), (brute, 2) }, hasFormReward: true);
+            var rEventCrown = CreateOrLoadEventRoom("Stage3_Room4_Event_Crown", hollowCrown,
+                displayName: "빈 왕관", hint: "머리를 내주면 값이 크다");
+            var r4Alt = CreateOrLoadRoom("Stage3_Room4_Alt_Guard", RoomType.Combat, 30,
+                new[] { (elite, 1), (archer, 2) },
+                displayName: "근위대 잔당", hint: "보상 골드 30");
+            var rWarden = CreateOrLoadRoom("Stage3_Room5_Warden", RoomType.Elite, 40,
+                new[] { (warden, 1), (brute, 2) });
+            var rEventOath = CreateOrLoadEventRoom("Stage3_Room6_Event_Oath", oathStone,
+                displayName: "맹세의 돌", hint: "회복 또는 골드 대가");
+            var r6Alt = CreateOrLoadRoom("Stage3_Room6_Alt_Hall",  RoomType.Combat, 34,
+                new[] { (brute, 3), (archer, 2) },
+                displayName: "대회랑", hint: "보상 골드 34");
+            var rShop = CreateOrLoadShopRoom("Stage3_Room7_Shop_GraveRobber", graveRobber);
+            var rRest = CreateOrLoadEventRoom("Stage3_Room7_Rest_ThroneHall", restThrone, RoomType.Rest);
+            var r7 = CreateOrLoadRoom("Stage3_Room8_Thronebound", RoomType.Boss, 100,
+                new[] { (thronebound, 1) });
+
+            // 구조는 Stage1·2와 같다(분기 2곳 · 중간보스를 앞뒤로 감쌈 · 상점 → 휴식 → 보스).
+            // 마지막 스테이지라고 형식을 바꾸지 않는다 — 여기까지 익힌 리듬을 그대로 쓰게 두는 편이
+            // 최종 보스에 집중하기 좋다.
+            var stage3 = CreateOrLoadStage(Stage3File, Stage3Id, Stage3Name, new[]
+            {
+                Step(r1),
+                Step(r2),
+                Step(r3),
+                Step(rEventCrown, r4Alt),    // 분기 ① — 중간보스 대비
+                Step(rWarden),
+                Step(rEventOath, r6Alt),     // 분기 ② — 중간보스 수습
+                Step(rShop),
+                Step(rRest),
+                Step(r7),
+            });
+
+            var sequence = RebuildSequence();
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            EditorGUIUtility.PingObject(stage3);
+            Debug.Log($"[StageBuilder] Stage 3 콘텐츠 + 시퀀스 생성 완료 — " +
+                      $"{AbyssPaths.Stages}/{Stage3File}.asset, 시퀀스 {sequence.stages.Count} 스테이지");
         }
 
         [MenuItem(AbyssMenu.BuildStageDirector)]
@@ -223,20 +320,19 @@ namespace Abyss.EditorTools
                 return;
             }
 
-            // 멀티 스테이지 시퀀스 우선 로드. 없으면 Stage1 단독으로 시퀀스 자동 생성(하위호환).
+            // 멀티 스테이지 시퀀스 우선 로드. 없으면 디스크의 스테이지로 자동 구성(하위호환).
             var sequence = AssetDatabase.LoadAssetAtPath<StageSequenceData>($"{AbyssPaths.Stages}/{SequenceFile}.asset");
             if (sequence == null)
             {
-                var stage1 = AssetDatabase.LoadAssetAtPath<StageData>($"{AbyssPaths.Stages}/Stage1_AbyssEntrance.asset");
-                if (stage1 == null)
+                sequence = RebuildSequence();
+                if (sequence.stages.Count == 0)
                 {
                     EditorUtility.DisplayDialog(
                         "StageBuilder 실패",
-                        $"StageSequenceData·Stage1 모두 누락. 먼저 '{AbyssMenu.BuildStage1}'를 실행하세요.",
+                        $"StageSequenceData·StageData 모두 누락. 먼저 '{AbyssMenu.BuildStage1}'를 실행하세요.",
                         "확인");
                     return;
                 }
-                sequence = CreateOrUpdateSequence(stage1);
                 AssetDatabase.SaveAssets();
             }
 

@@ -70,7 +70,7 @@ namespace Abyss.EditorTools
                 SetPrivateField(enemy, "data", data);
 
                 if (data.isBoss) root.transform.localScale = new Vector3(1.6f, 1.6f, 1f);
-                else if (data.enemyId == "midboss_sentinel") root.transform.localScale = new Vector3(1.45f, 1.45f, 1f);
+                else if (data.enemyId is "midboss_sentinel" or "midboss_throne_warden") root.transform.localScale = new Vector3(1.45f, 1.45f, 1f);
                 else if (data.isElite) root.transform.localScale = new Vector3(1.25f, 1.25f, 1f);
 
                 AttachNametag(root.transform, data);
@@ -166,6 +166,26 @@ namespace Abyss.EditorTools
                     SetPrivateField(serpent, "smashSfx", LoadSfx("serpent_smash"));
                     SetPrivateField(serpent, "breatheSfx", LoadSfx("serpent_breath"));
                     return serpent;
+                }
+                case "midboss_throne_warden":
+                {
+                    // Stage3 중간보스 — 전용 AI 없이 회전베기 패턴을 그대로 쓴다(스탯·이름만 차별화).
+                    var warden = root.AddComponent<MidBossSentinelBoss>();
+                    SetPrivateField(warden, "phaseChangeSfx", LoadSfx("boss_phase"));
+                    SetPrivateField(warden, "telegraphSfx", LoadSfx("boss_telegraph"));
+                    SetPrivateField(warden, "slashSfx", LoadSfx("sentinel_slash"));
+                    return warden;
+                }
+                case "boss_thronebound":
+                {
+                    var thronebound = root.AddComponent<ThroneboundBoss>();
+                    SetPrivateField(thronebound, "phaseChangeSfx", LoadSfx("boss_phase"));
+                    SetPrivateField(thronebound, "telegraphSfx", LoadSfx("boss_telegraph"));
+                    // 전용 효과음(thronebound_blink/slash)이 아직 없다 — PlaySfx는 null이면 무동작이라
+                    // 침묵보다는 기존 베기 소리를 빌려 둔다. 정식 SFX는 4-2에서 교체(placeholder 추적).
+                    SetPrivateField(thronebound, "blinkSfx", LoadSfx("skill_phantom_step"));
+                    SetPrivateField(thronebound, "slashSfx", LoadSfx("sentinel_slash"));
+                    return thronebound;
                 }
             }
 

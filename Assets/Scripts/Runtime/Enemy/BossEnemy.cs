@@ -143,6 +143,16 @@ namespace Abyss.Runtime.Enemy
         }
 
         /// <summary>
+        /// 지정한 위치에 링 이펙트를 띄운다. 보스가 <b>지금 있지 않은 곳</b>을 예고해야 하는 패턴용
+        /// (순간이동 착지 지점 등) — 제자리 패턴은 <see cref="SpawnAreaEffect"/>로 충분하다.
+        /// </summary>
+        protected void SpawnAreaEffectAt(Vector3 position, float radius, Color color, float duration = 0.35f,
+            BossAreaEffect.Mode mode = BossAreaEffect.Mode.Strike)
+        {
+            BossAreaEffect.Spawn(position, radius, color, duration, mode);
+        }
+
+        /// <summary>
         /// 카메라 흔들림 트리거(강타 타격감). 씬의 CameraShake를 1회 탐색해 캐시한다.
         /// CameraShake가 없으면 무동작.
         /// </summary>

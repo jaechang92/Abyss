@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38776e52fc55d374db5f06453d2c679d, type: 3}
+  m_Name: BossThronebound
+  m_EditorClassIdentifier: 
+  enemyId: boss_thronebound
+  displayName: "\uC655\uC88C\uC758 \uC601\uD63C"
+  baseHp: 680
+  baseDamage: 44
+  moveSpeed: 3.2
+  detectionRange: 14
+  attackRange: 2.6
+  attackCooldown: 1.5
+  patrolRadius: 0
+  patrolSpeedMultiplier: 0.5
+  expReward: 340
+  goldReward: 85
+  isElite: 0
+  isRanged: 0
+  isBoss: 1
+  projectilePrefab: {fileID: 6236116468714331731, guid: 54f992f062144484da995449f824a74c, type: 3}
+  projectileSpeed: 8
+  projectileLifetime: 3
+  spawnPrefab: {fileID: 7411227743817549185, guid: eef59ac2b3c55a84c90039afe6c1e42a, type: 3}

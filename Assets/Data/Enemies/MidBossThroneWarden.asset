@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38776e52fc55d374db5f06453d2c679d, type: 3}
+  m_Name: MidBossThroneWarden
+  m_EditorClassIdentifier: 
+  enemyId: midboss_throne_warden
+  displayName: "\uC655\uC88C\uC758 \uD30C\uC218\uAD00"
+  baseHp: 300
+  baseDamage: 34
+  moveSpeed: 3
+  detectionRange: 9
+  attackRange: 2.2
+  attackCooldown: 1.3
+  patrolRadius: 2
+  patrolSpeedMultiplier: 0.5
+  expReward: 120
+  goldReward: 26
+  isElite: 1
+  isRanged: 0
+  isBoss: 0
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 8
+  projectileLifetime: 3
+  spawnPrefab: {fileID: 3231232619673570237, guid: 24afafc1ecffaf244a69f9811cf0db47, type: 3}

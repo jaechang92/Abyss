@@ -115,6 +115,40 @@ namespace Abyss.EditorTools
                 so.isBoss = true;
                 so.patrolRadius = 0f; // 보스는 Patrol 정지
             });
+
+            // Stage 3 "왕좌의 잔해" 신규 2종.
+            // 중간보스는 AI를 새로 만들지 않고 MidBossSentinelBoss(회전베기)를 스탯·이름만 바꿔 재사용한다
+            // — Stage2 신규 적이 세운 선례. 최종보스만 전용 패턴(ThroneboundBoss)을 갖는다.
+            CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/MidBossThroneWarden.asset", so =>
+            {
+                so.enemyId = "midboss_throne_warden";
+                so.displayName = "왕좌의 파수관";
+                so.baseHp = 300;
+                so.baseDamage = 34;
+                so.moveSpeed = 3f;
+                so.detectionRange = 9f;
+                so.attackRange = 2.2f;
+                so.attackCooldown = 1.3f;
+                so.expReward = 120;
+                so.goldReward = 26;
+                so.isElite = true; // Stage3 중간보스 — EliteBonus 드래프트 트리거 재활용(Sentinel과 동일)
+            });
+
+            CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/BossThronebound.asset", so =>
+            {
+                so.enemyId = "boss_thronebound";
+                so.displayName = "왕좌의 영혼";
+                so.baseHp = 680;
+                so.baseDamage = 44;
+                so.moveSpeed = 3.2f;
+                so.detectionRange = 14f; // 순간이동으로 거리를 지우는 보스라 감지 범위가 넓어야 패턴이 돈다
+                so.attackRange = 2.6f;
+                so.attackCooldown = 1.5f;
+                so.expReward = 340;
+                so.goldReward = 85;
+                so.isBoss = true;
+                so.patrolRadius = 0f; // 보스는 Patrol 정지
+            });
         }
     }
 }

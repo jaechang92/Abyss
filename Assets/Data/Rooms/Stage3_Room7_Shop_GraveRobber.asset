@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dca2f464adf7b14bb9770618efa96d0, type: 3}
+  m_Name: Stage3_Room7_Shop_GraveRobber
+  m_EditorClassIdentifier: 
+  roomId: stage3_room7_shop_graverobber
+  roomType: 5
+  displayName: 
+  hint: 
+  enemies: []
+  clearGoldReward: 0
+  hasFormReward: 0
+  formReward: {fileID: 0}
+  eventData: {fileID: 0}
+  shopData: {fileID: 11400000, guid: 6ad46f2bda3c4d44dbb41a91b940a5e5, type: 2}
