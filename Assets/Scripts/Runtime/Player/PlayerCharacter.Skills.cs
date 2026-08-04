@@ -54,6 +54,8 @@ namespace Abyss.Runtime.Player
             // 폼 전용 스킬 발동 개시 시 개시 연출을 띄우기 위해 개시 이벤트 구독(효과 완료 전 발화).
             AbilitySystem.Instance.OnAbilityStarted += HandleAbilityStartedForCastMotion;
             RebuildSkillSlots();
+            // 런 도중 플레이어가 재생성되는 경로(폼 프리팹 교체 등)에서도 시너지 활성 상태가 살아나도록 1회 조회.
+            RecomputeSynergyState();
         }
 
         private void OnDestroy()

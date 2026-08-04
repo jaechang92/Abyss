@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillId: skill_abyss_ally
   displayName: "\uC2EC\uC5F0 \uB3D9\uB8CC"
-  description: "[\uC2EC\uC5F0] 2\uAC1C+ \uC2DC \uB300\uC2DC CD -0.5\uCD08"
+  description: "[\uC2EC\uC5F0] 2\uAC1C+ \uC2DC \uB300\uC2DC CD -0.5\uCD08 (\uCD5C\uC18C 0.3\uCD08)"
   icon: {fileID: 0}
   rarity: 1
   category: 3

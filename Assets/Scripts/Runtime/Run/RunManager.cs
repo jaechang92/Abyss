@@ -216,7 +216,7 @@ namespace Abyss.Runtime.Run
             if (isRunActive) stats.totalElapsedSeconds += Time.unscaledDeltaTime;
         }
 
-        private void HandleEnemyKilled(Abyss.Runtime.Enemy.EnemyData _)
+        private void HandleEnemyKilled(Abyss.Runtime.Enemy.EnemyData _, Vector3 __)
         {
             if (isRunActive) stats.enemiesKilled += 1;
         }

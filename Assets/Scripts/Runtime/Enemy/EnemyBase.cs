@@ -266,7 +266,7 @@ namespace Abyss.Runtime.Enemy
                 else if (data.isElite) RunManager.Instance.NotifyEliteKilled();
             }
 
-            GameEvents.RaiseEnemyKilled(data);
+            GameEvents.RaiseEnemyKilled(data, transform.position);
             Destroy(gameObject, 0.3f);
         }
 

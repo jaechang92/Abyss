@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillId: skill_explosive_theology
   displayName: "\uD3ED\uBC1C \uC2E0\uD559"
-  description: "[\uBD88\uAF43] 2\uAC1C+ \uC2DC \uC801 \uC0AC\uB9DD \uD3ED\uBC1C"
+  description: "[\uBD88\uAF43] 2\uAC1C+ \uC2DC \uC801 \uC0AC\uB9DD \uD3ED\uBC1C (\uC801 \uCD5C\uB300 HP 30%)"
   icon: {fileID: 0}
   rarity: 1
   category: 3

@@ -53,7 +53,8 @@ namespace Abyss.Runtime.Player
         private void OnDash(InputValue value)
         {
             if (!value.isPressed) return;
-            if (Time.time < lastDashTime + dashCooldown) return;
+            // 시너지 '심연 동료'가 활성이면 쿨다운이 줄어든다(Synergy 파트가 하한과 함께 계산).
+            if (Time.time < lastDashTime + EffectiveDashCooldown) return;
 
             lastDashTime = Time.time;
             dashTimer = dashDuration;
@@ -127,6 +128,7 @@ namespace Abyss.Runtime.Player
                 formController.OnSwapStarted += HandleFormSwapStarted;
             }
             SubscribeSkillEvents();
+            SubscribeSynergyEvents();
         }
 
         private void OnDisable()
@@ -136,6 +138,7 @@ namespace Abyss.Runtime.Player
                 formController.OnSwapStarted -= HandleFormSwapStarted;
             }
             UnsubscribeSkillEvents();
+            UnsubscribeSynergyEvents();
         }
 
         /// <summary>

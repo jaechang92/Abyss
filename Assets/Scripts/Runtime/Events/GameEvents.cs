@@ -4,6 +4,7 @@ using Abyss.Runtime.Draft;
 using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Form;
 using Abyss.Runtime.Stage;
+using UnityEngine;
 
 namespace Abyss.Runtime.Events
 {
@@ -46,7 +47,11 @@ namespace Abyss.Runtime.Events
         public static event Action<FormData> OnFormRewardOffered;
         public static event Action OnFormRewardResolved; // 폼 보상 모달이 닫힘(획득/거절 모두) — 보상 룸 게이트 해제용
         public static event Action OnEventResolved;      // 비전투 방(이벤트·휴식·상점) 상호작용 완료 — 룸 게이트 해제용
-        public static event Action<EnemyData> OnEnemyKilled;
+        // 사망 위치를 함께 싣는다 — 시너지 '폭발 신학'처럼 죽은 자리에서 효과가 나는 소비자가 있고,
+        // 발행 시점의 적은 0.3초 뒤 파괴 예약 상태라 구독자가 나중에 위치를 되물을 수 없다.
+        // 이벤트를 새로 만들지 않은 이유: "적이 죽었다"는 사실은 하나뿐이라, 두 채널로 쪼개면
+        // 새 구독자가 어느 쪽을 들어야 하는지 판단할 근거가 사라진다.
+        public static event Action<EnemyData, Vector3> OnEnemyKilled;
         public static event Action<RoomData> OnRoomEntered;
         public static event Action<RoomData> OnRoomCleared;
         public static event Action<StageData> OnStageCleared;
@@ -77,7 +82,7 @@ namespace Abyss.Runtime.Events
         public static void RaiseFormRewardOffered(FormData incoming) => OnFormRewardOffered?.Invoke(incoming);
         public static void RaiseFormRewardResolved() => OnFormRewardResolved?.Invoke();
         public static void RaiseEventResolved() => OnEventResolved?.Invoke();
-        public static void RaiseEnemyKilled(EnemyData data) => OnEnemyKilled?.Invoke(data);
+        public static void RaiseEnemyKilled(EnemyData data, Vector3 position) => OnEnemyKilled?.Invoke(data, position);
         public static void RaiseRoomEntered(RoomData room) => OnRoomEntered?.Invoke(room);
         public static void RaiseRoomCleared(RoomData room) => OnRoomCleared?.Invoke(room);
         public static void RaiseStageCleared(StageData stage) => OnStageCleared?.Invoke(stage);
