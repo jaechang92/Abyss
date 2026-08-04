@@ -60,6 +60,16 @@ namespace Abyss.Runtime.Skill
         [Tooltip("버프 지속시간(초, 0 = 즉시 효과(Heal)만).")]
         [Min(0f)] public float buffDuration = 0f;
 
+        [Header("연소 (불꽃 축)")]
+        [Tooltip("명중한 적에게 부여할 연소 스택. 0이면 연소를 걸지 않는다(불꽃 축이 아닌 스킬).")]
+        [Min(0)] public int burnStacks = 0;
+
+        [Tooltip("연소 지속시간(초).")]
+        [Min(0f)] public float burnDuration = 4f;
+
+        [Tooltip("연소 스택 1개가 1초에 주는 피해. 실제 값은 연소 강화(Passive) 배율이 곱해져 확정된다.")]
+        [Min(0f)] public float burnDamagePerStack = 2f;
+
         [Header("연출")]
         [Tooltip("발동 시 원형 링 이펙트 표시 여부.")]
         public bool showHitEffect = true;
@@ -80,5 +90,11 @@ namespace Abyss.Runtime.Skill
             }
             return true;
         }
+
+        /// <summary>
+        /// 이 어빌리티가 부여할 연소 명세. burnStacks가 0이면 <see cref="BurnPayload.HasBurn"/>이 false라
+        /// 소비처(근접·발사체 효과)가 별도 분기 없이 그대로 넘겨도 된다.
+        /// </summary>
+        public BurnPayload BuildBurnPayload() => new(burnStacks, burnDuration, burnDamagePerStack);
     }
 }

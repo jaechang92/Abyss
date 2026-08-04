@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillId: skill_flame_armor
   displayName: "\uBD88\uAF43 \uAC11\uC637"
-  description: "\uBC1B\uB294 \uD53C\uD574 10% \u2192 \uC5F0\uC18C \uC2A4\uD0DD \uBCC0\uD658"
+  description: "\uBC1B\uB294 \uD53C\uD574 10%\uB97C \uC8FC\uBCC0 \uC801 \uC5F0\uC18C\uB85C \uBCC0\uD658"
   icon: {fileID: 0}
   rarity: 1
   category: 1

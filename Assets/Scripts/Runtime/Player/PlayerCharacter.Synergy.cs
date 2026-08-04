@@ -95,8 +95,8 @@ namespace Abyss.Runtime.Player
             var draft = ResolveDraftSession();
             var owned = draft != null ? draft.Owned : null;
 
-            isExplosiveTheologyActive = SynergyAxis.IsSynergyActive(owned, SynergyAxis.SKILL_EXPLOSIVE_THEOLOGY);
-            isAbyssAllyActive = SynergyAxis.IsSynergyActive(owned, SynergyAxis.SKILL_ABYSS_ALLY);
+            isExplosiveTheologyActive = SynergyAxis.IsSynergyActive(owned, SkillIds.EXPLOSIVE_THEOLOGY);
+            isAbyssAllyActive = SynergyAxis.IsSynergyActive(owned, SkillIds.ABYSS_ALLY);
         }
 
         // ====== 폭발 신학 — [불꽃] 2개+ 시 적 사망 폭발 ======

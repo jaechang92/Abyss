@@ -16,7 +16,7 @@ namespace Abyss.Runtime.Enemy
     /// </summary>
     [RequireComponent(typeof(StateMachine))]
     [RequireComponent(typeof(Rigidbody2D))]
-    public class EnemyBase : MonoBehaviour
+    public partial class EnemyBase : MonoBehaviour
     {
         [SerializeField] private EnemyData data;
         [SerializeField] private Transform target;
@@ -99,6 +99,9 @@ namespace Abyss.Runtime.Enemy
 
         protected virtual void Update()
         {
+            // 상태이상은 FSM 가동 여부와 무관하게 흘러야 한다(FSM 미시작 개체도 타면 탄다).
+            UpdateBurn();
+
             if (fsm == null || !fsm.IsRunning) return;
             EvaluateTransitions();
         }
@@ -241,6 +244,15 @@ namespace Abyss.Runtime.Enemy
 
         public void TakeDamage(int amount)
         {
+            ApplyDamage(amount, causesStagger: true);
+        }
+
+        /// <summary>
+        /// 피해 적용 공통 경로. causesStagger가 false면 HP만 깎고 FSM 경직을 걸지 않는다
+        /// (연소 등 지속 피해용 — 1초마다 경직이 걸리면 DoT가 하드 CC가 된다).
+        /// </summary>
+        private void ApplyDamage(int amount, bool causesStagger)
+        {
             if (isDead || amount <= 0) return;
 
             int previous = currentHp;
@@ -250,7 +262,7 @@ namespace Abyss.Runtime.Enemy
             visuals?.Flash();
 
             if (currentHp <= 0) Die();
-            else staggerQueued = true;
+            else if (causesStagger) staggerQueued = true;
         }
 
         private void Die()

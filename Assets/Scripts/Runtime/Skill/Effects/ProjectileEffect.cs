@@ -31,6 +31,10 @@ namespace Abyss.Runtime.Skill.Effects
             if (baseDir.sqrMagnitude < 0.0001f) baseDir = Vector2.right;
             baseDir.Normalize();
 
+            // 연소 명세는 발사 시점에 확정해 발사체에 실어 보낸다 — 명중까지 시간이 흐르는 사이
+            // 버프가 끝나도 "쏠 때의 불"이 그대로 붙는다.
+            var burn = AbilityBurn.Build(context, data);
+
             int count = Mathf.Max(1, data.projectileCount);
             // count발을 [-spread/2, +spread/2]에 균등 배치. 1발이면 정중앙(직선).
             float spread = data.projectileSpreadAngle;
@@ -46,7 +50,7 @@ namespace Abyss.Runtime.Skill.Effects
                 var proj = PoolManager.Instance.Get(data.projectilePrefab, (Vector3)spawnPos, Quaternion.identity);
                 if (proj == null) continue;  // 풀 고갈·프리팹 불일치 시 NRE 방지
                 proj.Launch(dir, data.damage, data.projectileSpeed, data.projectileLifetime,
-                            data.projectilePrefab, ProjectileFaction.HitsEnemies);
+                            data.projectilePrefab, ProjectileFaction.HitsEnemies, burn);
 
                 // 발사 지점 머즐 플래시(작은 링).
                 if (data.showHitEffect)
