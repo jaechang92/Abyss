@@ -52,8 +52,13 @@ namespace Abyss.Runtime.Skill.Effects
                 hitBuffer.Add(enemy);
             }
 
+            // 연소 명세는 부여 시점에 확정한다 — 시전자의 연소 강화 배율을 여기서 곱해 둬야
+            // 적이 tick마다 플레이어를 되묻지 않는다(BurnPayload 참조).
+            var burn = AbilityBurn.Build(context, data);
+
             foreach (var enemy in hitBuffer)
             {
+                if (burn.HasBurn) enemy.ApplyBurn(burn);
                 enemy.TakeDamage(data.damage);
             }
 

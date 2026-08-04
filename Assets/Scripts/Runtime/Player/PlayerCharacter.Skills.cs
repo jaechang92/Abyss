@@ -56,6 +56,7 @@ namespace Abyss.Runtime.Player
             RebuildSkillSlots();
             // 런 도중 플레이어가 재생성되는 경로(폼 프리팹 교체 등)에서도 시너지 활성 상태가 살아나도록 1회 조회.
             RecomputeSynergyState();
+            RecomputePassiveState();
         }
 
         private void OnDestroy()

@@ -129,6 +129,7 @@ namespace Abyss.Runtime.Player
             }
             SubscribeSkillEvents();
             SubscribeSynergyEvents();
+            SubscribePassiveEvents();
         }
 
         private void OnDisable()
@@ -139,6 +140,7 @@ namespace Abyss.Runtime.Player
             }
             UnsubscribeSkillEvents();
             UnsubscribeSynergyEvents();
+            UnsubscribePassiveEvents();
         }
 
         /// <summary>

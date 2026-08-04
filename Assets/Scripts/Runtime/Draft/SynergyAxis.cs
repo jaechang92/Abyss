@@ -37,11 +37,8 @@ namespace Abyss.Runtime.Draft
         public const string AXIS_FROST = "frost";
         public const string AXIS_SOUL = "soul";
 
-        // ── 발동 로직이 코드에 있는 시너지 스킬 ID ──
-        // 시너지 효과는 데이터로 표현할 수 있는 형태가 아니라(사망 폭발·쿨다운 감소) 스킬별 전용 코드가 필요하다.
-        // 그 코드가 어떤 에셋을 가리키는지 한 곳에서 보이도록 여기에 모은다.
-        public const string SKILL_EXPLOSIVE_THEOLOGY = "skill_explosive_theology";
-        public const string SKILL_ABYSS_ALLY = "skill_abyss_ally";
+        // 전용 발동 코드를 가진 스킬 ID는 SkillIds로 옮겼다 — Passive(연소 강화·불꽃 갑옷)에도
+        // 같은 성격의 상수가 생기면서, 축 규약 클래스가 시너지 스킬만 담을 근거가 사라졌다.
 
         /// <summary>미등록·무축 태그의 표시 색.</summary>
         private static readonly Color NEUTRAL_COLOR = new(0.72f, 0.74f, 0.78f);

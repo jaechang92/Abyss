@@ -45,6 +45,9 @@ namespace Abyss.EditorTools
                 so.projectileSpeed = 12f;
                 so.projectileLifetime = 2f;
                 so.projectileSpawnOffset = 0.7f;
+                so.burnStacks = 2;              // 03 §5 #1 "연소 부여"
+                so.burnDuration = 4f;
+                so.burnDamagePerStack = 2f;
                 so.showHitEffect = true;
                 so.effectColor = new Color(1f, 0.55f, 0.15f, 1f);
             });
@@ -58,6 +61,9 @@ namespace Abyss.EditorTools
                 so.damage = 30;
                 so.meleeBoxSize = new Vector2(3.4f, 2.4f);
                 so.meleeForwardOffset = 0f;
+                so.burnStacks = 3;              // 03 §5 #5 "근처 적 모두 연소 3 부여"
+                so.burnDuration = 4f;
+                so.burnDamagePerStack = 2f;
                 so.showHitEffect = true;
                 so.effectColor = new Color(1f, 0.3f, 0.1f, 1f);
             });
@@ -175,6 +181,21 @@ namespace Abyss.EditorTools
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_IronGuard.asset", new Color(0.55f, 0.7f, 0.95f, 1f));
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_VoidJavelin.asset", new Color(0.75f, 0.35f, 0.95f, 1f));
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_PhantomStep.asset", new Color(0.75f, 0.35f, 0.95f, 1f));
+
+            // 연소는 뒤늦게 추가된 필드라 기존 자산에는 값이 없다(CreateOrSkip이 건너뛴다).
+            // 연출 색과 같은 방식으로 재실행 시 반영한다 — 불꽃 축 Active 2종만 대상.
+            ApplyBurnSettings($"{AbyssPaths.Abilities}/Ability_Fireball.asset", 2, 4f, 2f);
+            ApplyBurnSettings($"{AbyssPaths.Abilities}/Ability_FlameRoar.asset", 3, 4f, 2f);
+        }
+
+        private static void ApplyBurnSettings(string abilityPath, int stacks, float duration, float damagePerStack)
+        {
+            var ability = AssetDatabase.LoadAssetAtPath<GenericAbilityData>(abilityPath);
+            if (ability == null) return;
+            ability.burnStacks = stacks;
+            ability.burnDuration = duration;
+            ability.burnDamagePerStack = damagePerStack;
+            EditorUtility.SetDirty(ability);
         }
 
         private static void ApplyEffectSettings(string abilityPath, Color color)

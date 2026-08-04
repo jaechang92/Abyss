@@ -73,6 +73,9 @@ namespace Abyss.Runtime.Player
                 ? Mathf.Max(1, Mathf.RoundToInt(amount * DefenseMultiplier))
                 : amount;
 
+            // 불꽃 갑옷(Passive) — 남은 피해의 일부를 주변 적의 연소로 옮긴다. 버프 경감 '다음' 단계다.
+            mitigated = ApplyFlameArmor(mitigated);
+
             int previous = currentHp;
             currentHp = Mathf.Max(0, currentHp - mitigated);
             OnHpChanged?.Invoke(previous, currentHp);

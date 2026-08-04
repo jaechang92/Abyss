@@ -21,14 +21,19 @@ namespace Abyss.Runtime.Combat
         private Projectile prefabRef;
         private bool consumed;
         private ProjectileFaction faction = ProjectileFaction.HitsPlayer;
+        private BurnPayload burn;
 
         /// <summary>
         /// 발사 초기화. prefabRef는 풀 반환 키로 사용(EnemyData.projectilePrefab 원본).
         /// faction은 누구를 맞힐지 결정 — 기본 HitsPlayer(적 발사체). 플레이어 스킬은 HitsEnemies.
+        /// burn은 명중한 적에게 부여할 연소(기본 default = 연소 없음). 적 발사체는 이 인자를 넘기지 않아
+        /// 기존 호출부가 그대로 동작한다.
         /// </summary>
         public void Launch(Vector2 dir, int dmg, float spd, float life, Projectile prefab,
-                           ProjectileFaction faction = ProjectileFaction.HitsPlayer)
+                           ProjectileFaction faction = ProjectileFaction.HitsPlayer,
+                           BurnPayload burn = default)
         {
+            this.burn = burn;
             direction = dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector2.right;
             damage = dmg;
             speed = spd;
@@ -65,7 +70,13 @@ namespace Abyss.Runtime.Combat
                 var enemy = other.GetComponentInParent<EnemyBase>();
                 if (enemy != null)
                 {
-                    if (!enemy.IsDead) enemy.TakeDamage(damage);
+                    if (!enemy.IsDead)
+                    {
+                        // 연소를 먼저 건다 — 직격으로 죽는 적에게 불을 붙여 봐야 의미가 없고,
+                        // 순서를 바꾸면 사망 처리 도중 상태이상이 붙는 경로가 생긴다.
+                        if (burn.HasBurn) enemy.ApplyBurn(burn);
+                        enemy.TakeDamage(damage);
+                    }
                     ReturnToPool();
                     return;
                 }
