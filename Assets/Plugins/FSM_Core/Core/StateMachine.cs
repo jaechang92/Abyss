@@ -7,7 +7,15 @@ using FSM.Core.Utils;
 
 namespace FSM.Core
 {
-    public class StateMachine : MonoBehaviour, IStateMachine
+    /// <summary>
+    /// 하이브리드 FSM. 두 가지 전이 경로를 함께 지원한다.
+    ///
+    /// - <b>동기</b>(<see cref="ForceTransitionTo"/>): 즉시성이 필요한 전투용. 호출 즉시 상태가 바뀐다.
+    /// - <b>비동기</b>(자동 전환·<see cref="ForceTransitionToAsync"/>): 페이드 같은 훅이 끼는 흐름용.
+    ///
+    /// 전환 규칙·이벤트 트리거 API는 partial 파일 <c>StateMachine.Transitions.cs</c>에 있다.
+    /// </summary>
+    public partial class StateMachine : MonoBehaviour, IStateMachine
     {
         [Header("디버그 설정")]
         [SerializeField] private bool enableDebugLog = true;
@@ -22,8 +30,6 @@ namespace FSM.Core
         [SerializeField] private StateMachineInspectorHelper inspectorHelper = new StateMachineInspectorHelper();
 
         private Dictionary<string, IState> states = new Dictionary<string, IState>();
-        private List<ITransition> transitions = new List<ITransition>();
-        private Dictionary<string, bool> eventTriggers = new Dictionary<string, bool>();
 
         private IState currentState;
         private string previousStateId = string.Empty;
@@ -35,7 +41,6 @@ namespace FSM.Core
         public bool IsRunning { get; private set; }
 
         public IReadOnlyDictionary<string, IState> States => states;
-        public IReadOnlyList<ITransition> Transitions => transitions;
 
         public event Action<string, string> OnStateChanged;
         public event Action<ITransition> OnTransitionStarted;
@@ -74,6 +79,9 @@ namespace FSM.Core
                 CheckTransitions();
             }
 
+            // 이번 Update에서 처리 기회를 받은 트리거는 폐기한다(무한 잔류 방지).
+            ExpireStaleEventTriggers();
+
 #if UNITY_EDITOR
             // Inspector 헬퍼 업데이트
             UpdateInspectorDisplay();
@@ -81,35 +89,64 @@ namespace FSM.Core
 #endif
         }
 
-        private void CheckTransitions()
-        {
-            // 성능 최적화: for 루프 사용 및 어로케이션 최소화
-            var currentStateId = CurrentStateId;
-            for (int i = transitions.Count - 1; i >= 0; i--)
-            {
-                var transition = transitions[i];
-                if (transition.IsEnabled && transition.FromStateId == currentStateId && transition.CanTransition())
-                {
-                    _ = TransitionToAsync(transition);
-                    return;
-                }
-            }
-        }
+        // ====== 상태 등록 ======
 
+        /// <summary>
+        /// 상태 등록. 등록 키는 <see cref="IState.Name"/>이다.
+        ///
+        /// ⚠ 기본 <see cref="State"/>는 <c>Name => Id</c>이고 Id는 <see cref="IState.Initialize"/>에서야 정해지므로,
+        /// Name을 오버라이드하지 않은 상태는 이름이 비어 있다. 예전에는 이 경우 조용히 무시됐다
+        /// (<see cref="SimpleState"/>는 아예 등록이 불가능했다). 지금은 경고를 남기고,
+        /// id를 직접 주는 <see cref="AddState(string, IState)"/> 오버로드를 안내한다.
+        /// </summary>
         public void AddState(IState state)
         {
-            if (state == null || string.IsNullOrEmpty(state.Name)) return;
-
-            if (states.ContainsKey(state.Name))
+            if (state == null)
             {
-                RemoveState(state.Name);
+                Debug.LogWarning("[FSM] 상태 추가 실패: state가 null");
+                return;
             }
 
-            state.Initialize(state.Name, gameObject, this);
-            states[state.Name] = state;
+            AddState(state.Name, state);
+        }
+
+        /// <summary>
+        /// id를 명시해 상태를 등록한다. Name을 오버라이드하지 않는 상태(SimpleState 등)를 쓸 때 필요하다.
+        /// </summary>
+        public void AddState(string stateId, IState state)
+        {
+            if (state == null)
+            {
+                Debug.LogWarning("[FSM] 상태 추가 실패: state가 null");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(stateId))
+            {
+                Debug.LogWarning($"[FSM] 상태 추가 실패: id가 비어 있음 ({state.GetType().Name}). " +
+                                 "State.Name을 오버라이드하거나 AddState(id, state)로 명시할 것");
+                return;
+            }
+
+            if (states.ContainsKey(stateId))
+            {
+                RemoveState(stateId);
+            }
+
+            state.Initialize(stateId, gameObject, this);
+
+            // 등록 키와 Id가 어긋나면 CurrentStateId(=Id) 기반 비교가 조용히 실패한다.
+            // 기본 State는 Initialize에서 Id를 그대로 받으므로 여기 걸리는 건 커스텀 IState 구현뿐이다.
+            if (state.Id != stateId)
+            {
+                Debug.LogWarning($"[FSM] 상태 '{stateId}' 등록 후 Id가 '{state.Id}'로 다름 — Initialize 구현 확인 필요. " +
+                                 "등록 키와 Id가 다르면 전환 매칭이 어긋난다");
+            }
+
+            states[stateId] = state;
 
             if (enableDebugLog)
-                Debug.Log($"[FSM] 상태 추가됨: {state.Name}");
+                Debug.Log($"[FSM] 상태 추가됨: {stateId}");
         }
 
         public void RemoveState(string stateId)
@@ -141,112 +178,25 @@ namespace FSM.Core
 
         public bool HasState(string stateId)
         {
-            return states.ContainsKey(stateId);
+            return !string.IsNullOrEmpty(stateId) && states.ContainsKey(stateId);
         }
 
         public bool TryGetState(string stateId, out IState state)
         {
+            if (string.IsNullOrEmpty(stateId))
+            {
+                state = null;
+                return false;
+            }
             return states.TryGetValue(stateId, out state);
         }
 
-        public void AddTransition(ITransition transition)
-        {
-            if (transition == null) return;
-
-            if (!HasState(transition.FromStateId) || !HasState(transition.ToStateId))
-            {
-                Debug.LogWarning($"[FSM] 전환 추가 실패: 상태 {transition.FromStateId} 또는 {transition.ToStateId}가 존재하지 않음");
-                return;
-            }
-
-            transitions.Add(transition);
-
-            if (enableDebugLog)
-                Debug.Log($"[FSM] 전환 추가됨: {transition.FromStateId} -> {transition.ToStateId}");
-        }
+        // ====== 강제 전이 ======
 
         /// <summary>
-        /// 이벤트 기반 전환 추가 (편의 메서드)
-        /// </summary>
-        public void AddTransition(string fromStateId, string toStateId, string eventId, int priority = 0)
-        {
-            var transition = new EventBasedTransition($"{fromStateId}_{toStateId}_{eventId}", fromStateId, toStateId, eventId, this, priority);
-            AddTransition(transition);
-        }
-
-        /// <summary>
-        /// 이벤트 트리거
-        /// </summary>
-        public void TriggerEvent(string eventId)
-        {
-            eventTriggers[eventId] = true;
-        }
-
-        /// <summary>
-        /// 이벤트 상태 확인
-        /// </summary>
-        public bool IsEventTriggered(string eventId)
-        {
-            return eventTriggers.TryGetValue(eventId, out bool triggered) && triggered;
-        }
-
-        /// <summary>
-        /// 이벤트 소비 (한 번 확인 후 리셋)
-        /// </summary>
-        public bool ConsumeEvent(string eventId)
-        {
-            if (eventTriggers.TryGetValue(eventId, out bool triggered) && triggered)
-            {
-                eventTriggers[eventId] = false;
-                return true;
-            }
-            return false;
-        }
-
-        public void RemoveTransition(ITransition transition)
-        {
-            if (transitions.Remove(transition))
-            {
-                if (enableDebugLog)
-                    Debug.Log($"[FSM] 전환 제거됨: {transition.FromStateId} -> {transition.ToStateId}");
-            }
-        }
-
-        public bool CanTransitionTo(string stateId)
-        {
-            if (!HasState(stateId) || !IsRunning) return false;
-
-            var currentStateId = CurrentStateId;
-            for (int i = 0; i < transitions.Count; i++)
-            {
-                var t = transitions[i];
-                if (t.IsEnabled && t.FromStateId == currentStateId && t.ToStateId == stateId && t.CanTransition())
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public bool TryTransitionTo(string stateId)
-        {
-            if (!HasState(stateId) || !IsRunning) return false;
-
-            var currentStateId = CurrentStateId;
-            for (int i = 0; i < transitions.Count; i++)
-            {
-                var transition = transitions[i];
-                if (transition.IsEnabled && transition.FromStateId == currentStateId && transition.ToStateId == stateId && transition.CanTransition())
-                {
-                    _ = TransitionToAsync(transition);
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// 동기 상태 전환 (Combat용 - 즉시 전환)
+        /// 동기 상태 전환 (Combat용 - 즉시 전환).
+        /// 진행 중인 비동기 전환이 있어도 <b>막지 않는다</b> — 즉시성이 이 API의 존재 이유이기 때문이다.
+        /// 대신 세대 번호를 올려, 뒤늦게 재개될 비동기 전환이 이 결과를 덮어쓰지 못하게 한다.
         /// </summary>
         public void ForceTransitionTo(string stateId)
         {
@@ -256,7 +206,10 @@ namespace FSM.Core
                 return;
             }
 
+            BeginTransition();
             ChangeStateSync(stateId);
+            // 동기 전환은 await가 없어 여기서 이미 완료 상태다.
+            isTransitioning = false;
         }
 
         /// <summary>
@@ -270,8 +223,18 @@ namespace FSM.Core
                 return;
             }
 
-            await ChangeStateAsync(stateId);
+            int generation = BeginTransition();
+            try
+            {
+                await ChangeStateAsync(stateId);
+            }
+            finally
+            {
+                EndTransition(generation);
+            }
         }
+
+        // ====== 시작 / 중지 ======
 
         public void StartStateMachine(string initialStateId = null)
         {
@@ -290,11 +253,28 @@ namespace FSM.Core
             }
 
             IsRunning = true;
-            _ = ChangeStateAsync(targetStateId);
+            _ = EnterInitialStateAsync(targetStateId);
             OnStarted?.Invoke();
 
             if (enableDebugLog)
                 Debug.Log($"[FSM] 초기 상태로 시작됨: {targetStateId}");
+        }
+
+        /// <summary>
+        /// 초기 상태 진입. 전환 잠금을 거는 이유: <see cref="ChangeStateAsync"/>는 currentState를 먼저 세우고
+        /// OnEnter를 await하므로, 그 사이에 Update가 돌면 아직 진입도 안 끝난 상태에서 자동 전환이 발동한다.
+        /// </summary>
+        private async Awaitable EnterInitialStateAsync(string stateId)
+        {
+            int generation = BeginTransition();
+            try
+            {
+                await ChangeStateAsync(stateId);
+            }
+            finally
+            {
+                EndTransition(generation);
+            }
         }
 
         public void Stop()
@@ -302,6 +282,12 @@ namespace FSM.Core
             if (!IsRunning) return;
 
             IsRunning = false;
+
+            // 진행 중인 비동기 전환 무효화 + 잠금 해제. 정지 후에도 잠금이 남으면 재시작이 막힌다.
+            BeginTransition();
+            isTransitioning = false;
+            ClearEventTriggers();
+
             _ = ExitCurrentStateAsync();
             OnStopped?.Invoke();
 
@@ -312,30 +298,7 @@ namespace FSM.Core
                 Debug.Log("[FSM] 중지됨");
         }
 
-        private async Awaitable TransitionToAsync(ITransition transition)
-        {
-            OnTransitionStarted?.Invoke(transition);
-
-            // 전환 전 비동기 처리 (FadeOut 등)
-            if (OnBeforeTransitionAsync != null)
-            {
-                await OnBeforeTransitionAsync.Invoke(transition);
-            }
-
-            var fromStateId = CurrentStateId;
-            await ChangeStateAsync(transition.ToStateId);
-
-            // 전환 후 비동기 처리 (Scene 검증, FadeIn 등)
-            if (OnAfterTransitionAsync != null)
-            {
-                await OnAfterTransitionAsync.Invoke(transition);
-            }
-
-            OnTransitionCompleted?.Invoke(transition);
-
-            if (enableDebugLog)
-                Debug.Log($"[FSM] 전환 완료: {fromStateId} -> {transition.ToStateId}");
-        }
+        // ====== 상태 교체 ======
 
         /// <summary>
         /// 동기 상태 전환 (Combat용)
@@ -469,13 +432,13 @@ namespace FSM.Core
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void UpdateInspectorDisplay()
         {
             currentStateDisplay = string.IsNullOrEmpty(CurrentStateId) ? "None" : CurrentStateId;
             previousStateDisplay = string.IsNullOrEmpty(previousStateId) ? "None" : previousStateId;
         }
-        #endif
+#endif
 
         private void OnDestroy()
         {

@@ -46,6 +46,15 @@ namespace FSM.Core
             return conditions.All(condition => condition.IsEnabled &&
                 (condition.IsInverted ? !condition.Evaluate(null, null) : condition.Evaluate(null, null)));
         }
+
+        /// <summary>
+        /// 채택 통지. 기본 구현은 <see cref="OnTransitionTriggered"/> 발행뿐이다.
+        /// (이 이벤트는 선언만 되어 있고 아무도 발행하지 않던 것을 여기서 연결했다.)
+        /// </summary>
+        public virtual void NotifyTaken()
+        {
+            OnTransitionTriggered?.Invoke(this);
+        }
     }
 
     public class ConditionalTransition : Transition
@@ -79,10 +88,22 @@ namespace FSM.Core
             this.stateMachine = stateMachine;
         }
 
+        /// <summary>
+        /// 트리거 여부를 <b>조회만</b> 한다. 예전에는 여기서 ConsumeEvent로 소비까지 했는데 두 가지가 깨졌다 —
+        /// ① 우선순위 비교를 위해 여러 후보를 평가하면 채택되지 않은 전환이 트리거를 먹어 치운다
+        /// ② <c>CanTransitionTo</c> 같은 '질의'가 상태를 바꿔 버린다.
+        /// 소비는 실제로 채택된 뒤 <see cref="NotifyTaken"/>에서 한다.
+        /// </summary>
         public override bool CanTransition()
         {
             if (!IsEnabled) return false;
-            return stateMachine?.ConsumeEvent(eventId) ?? false;
+            return stateMachine != null && stateMachine.IsEventTriggered(eventId);
+        }
+
+        public override void NotifyTaken()
+        {
+            stateMachine?.ConsumeEvent(eventId);
+            base.NotifyTaken();
         }
     }
 }
