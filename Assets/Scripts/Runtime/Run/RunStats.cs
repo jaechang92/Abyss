@@ -13,7 +13,17 @@ namespace Abyss.Runtime.Run
         public int enemiesKilled;
         public int maxCombo;
         public float totalElapsedSeconds;
+        /// <summary>
+        /// 마지막으로 들어간 방의 roomId. <b>애널리틱스용 위치 표식</b>이고 진행 깊이가 아니다
+        /// (roomId에는 스테이지·단계가 들어 있지 않다) — 깊이는 <see cref="reached"/>가 쥔다.
+        /// </summary>
         public string stageReached = string.Empty;
+
+        /// <summary>
+        /// 이 런이 도달한 가장 깊은 지점. 방에 들어갈 때마다 <see cref="RegisterReach"/>로 갱신된다.
+        /// </summary>
+        public StageReach reached;
+
         public List<string> formsUsed = new();
         public List<string> draftedSkillIds = new();
         public Dictionary<string, float> formPlaytimeSeconds = new();
@@ -22,12 +32,23 @@ namespace Abyss.Runtime.Run
 
         public float FormExclusiveDraftRatio => totalDraftCount <= 0 ? 0f : (float)formExclusiveDraftCount / totalDraftCount;
 
+        /// <summary>
+        /// 도달 지점 갱신. <b>더 깊을 때만</b> 덮는다 — 대입으로 두면 치트 이동처럼 뒤로 가는 경로가
+        /// 그 런의 최고 기록을 끌어내린다. 런 안에서 이미 최댓값을 유지하므로, 런이 끝날 때
+        /// 이 값 하나만 넘기면 "이 런이 도달한 가장 깊은 곳"이 된다.
+        /// </summary>
+        public void RegisterReach(StageReach reach)
+        {
+            if (reach.IsDeeperThan(reached)) reached = reach;
+        }
+
         public void Reset()
         {
             enemiesKilled = 0;
             maxCombo = 0;
             totalElapsedSeconds = 0f;
             stageReached = string.Empty;
+            reached = default;
             formsUsed.Clear();
             draftedSkillIds.Clear();
             formPlaytimeSeconds.Clear();
@@ -57,6 +78,7 @@ namespace Abyss.Runtime.Run
                 formsUsed = new List<string>(formsUsed),
                 draftedSkillIds = new List<string>(draftedSkillIds),
                 stageReached = stageReached,
+                reached = reached,
                 elapsedSeconds = totalElapsedSeconds,
                 abyssEarned = abyssEarned,
                 abyssTotal = abyssTotal

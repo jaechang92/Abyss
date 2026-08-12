@@ -200,8 +200,24 @@ namespace Abyss.Runtime.Run
             lastRunSummary = stats.ToSummary(lastRunAbyssShardsEarned, meta.Current.abyssShardsTotal);
             meta.RecordLastRunSummary(lastRunSummary, autoSave: false);
 
-            meta.RecordRunResult(stats.stageReached, stats.totalElapsedSeconds, goldShards, bossKillsThisRun, autoSave: true);
+            meta.RecordRunResult(stats.reached, stats.totalElapsedSeconds, goldShards, bossKillsThisRun, autoSave: true);
             Debug.Log($"[RunManager] 메타 정산: abyss +{lastRunAbyssShardsEarned} (gold={goldShards}, rate={AbyssShardsConversionRate:F2}) / 누적 {meta.Current.abyssShardsTotal}");
+        }
+
+        /// <summary>
+        /// StageDirector가 방에 들어갈 때마다 호출해 진행 깊이를 등록한다.
+        ///
+        /// <see cref="GameEvents.OnRoomEntered"/>에 스테이지·단계를 실어 보내지 않은 이유:
+        /// 그 이벤트가 나르는 사실은 "어느 방에 들어갔다" 하나이고, 진행 좌표는 <b>StageDirector가
+        /// 소유한 상태</b>다. 소유자가 직접 넘기면 구독자마다 디렉터를 되묻지 않아도 되고,
+        /// 이미 있는 호출 방향(Stage → Run)을 그대로 쓴다.
+        ///
+        /// 번호는 1부터다 — 저장되는 값의 '없음'이 0이어야 하기 때문이다(<see cref="StageReach"/>).
+        /// </summary>
+        public void RegisterStageProgress(int stageNumber, int stepNumber, string stageName)
+        {
+            if (!isRunActive) return;
+            stats.RegisterReach(StageReach.At(stageNumber, stepNumber, stageName));
         }
 
         /// <summary>

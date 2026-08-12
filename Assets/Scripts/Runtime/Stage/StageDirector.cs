@@ -182,8 +182,18 @@ namespace Abyss.Runtime.Stage
             if (room == null) return;
 
             currentRoom = room;
-            int total = CurrentStage != null ? CurrentStage.steps.Count : 0;
+            var stage = CurrentStage;
+            int total = stage != null ? stage.steps.Count : 0;
             Debug.Log($"[StageDirector] Step {currentStepIndex + 1}/{total} 진입: {room.roomId} ({room.roomType})");
+
+            // 진행 깊이 등록. 인덱스가 아니라 1부터 세는 번호로 넘긴다(StageReach 규약).
+            // 표시명도 함께 넘기는 이유는 기록을 나중에 타이틀 씬에서 보여주기 때문 —
+            // 그 씬에는 시퀀스가 없어 번호로 이름을 되찾을 수 없다.
+            RunManager.Instance?.RegisterStageProgress(
+                currentStageIndex + 1,
+                currentStepIndex + 1,
+                stage != null ? stage.displayName : string.Empty);
+
             GameEvents.RaiseRoomEntered(room);
             SpawnEnemies(room);
         }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Abyss.Runtime.Meta;
+using Abyss.Runtime.Run;
 using NUnit.Framework;
 using SaveSystem_Core;
 using UnityEngine;
@@ -135,8 +136,8 @@ namespace Abyss.Tests.PlayMode
         public IEnumerator RecordRunResult_AggregatesAndPersists()
         {
             var svc = MetaSaveService.Instance;
-            svc.RecordRunResult("stage_2", 120f, 200, 1, autoSave: true);
-            svc.RecordRunResult("stage_3", 90f, 150, 0, autoSave: true);
+            svc.RecordRunResult(StageReach.At(2, 5, "불꽃 회랑"), 120f, 200, 1, autoSave: true);
+            svc.RecordRunResult(StageReach.At(3, 2, "왕좌의 잔해"), 90f, 150, 0, autoSave: true);
             yield return null;
 
             var reloaded = svc.Reload();
@@ -144,6 +145,11 @@ namespace Abyss.Tests.PlayMode
             Assert.AreEqual(1, reloaded.records.totalBossKillCount);
             Assert.AreEqual(120f, reloaded.records.bestRunDurationSeconds);
             Assert.AreEqual(200, reloaded.records.bestGoldShards);
+
+            // 구조체가 디스크를 왕복해도 살아남는지 — 표시명까지 굳혀 두는 것이 이 설계의 전제다.
+            Assert.AreEqual(3, reloaded.records.bestReach.stageNumber);
+            Assert.AreEqual(2, reloaded.records.bestReach.stepNumber);
+            Assert.AreEqual("왕좌의 잔해", reloaded.records.bestReach.stageName);
         }
 
         // ───────────────────── 스키마 버전 / 손상 세이브 ─────────────────────

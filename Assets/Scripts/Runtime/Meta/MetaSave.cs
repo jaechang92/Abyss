@@ -22,7 +22,7 @@ namespace Abyss.Runtime.Meta
         /// 틀리게 되는 변경. <b>올리지 않아도 되는 때</b>: 순수 필드 추가 — JsonUtility가 없는 필드를
         /// 생성자 기본값으로 남기므로 기본값이 곧 기존 동작이면 변환할 것이 없다.
         /// </summary>
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 2;
 
         /// <summary>
         /// 취급 가능한 가장 낮은 스키마 버전. JSON에 `version`이 없거나 0·음수인 파일은
@@ -136,7 +136,25 @@ namespace Abyss.Runtime.Meta
         /// <summary>전체 보스 처치 횟수.</summary>
         public int totalBossKillCount;
 
-        /// <summary>최고 도달 스테이지 ID(roomId 기준).</summary>
+        /// <summary>
+        /// 역대 최고 도달 지점. <b>비교해서 더 깊을 때만</b> 갱신된다
+        /// (<see cref="MetaSaveService.RecordRunResult"/>).
+        ///
+        /// 옛 <see cref="bestStageId"/>를 대체한다 — 저쪽은 이름과 달리 "직전 런의 최종 도달"이었고,
+        /// 담기는 값도 스테이지가 아니라 roomId였다. 그래서 스테이지 3까지 갔다가 다음 런에서
+        /// 1스테이지에 죽으면 화면의 "최고 도달"이 뒷걸음질쳤다.
+        /// </summary>
+        public StageReach bestReach;
+
+        /// <summary>
+        /// ⚠️ <b>v1 레거시 — 읽지 말 것.</b> 새 코드는 <see cref="bestReach"/>만 쓴다.
+        ///
+        /// 그런데도 필드를 남긴 이유는 <b>마이그레이션의 입력이기 때문</b>이다. JsonUtility는
+        /// 클래스에 없는 JSON 키를 그냥 버리므로, 필드를 지우는 순간 값은 변환기가 객체를 받기
+        /// <b>전에</b> 사라진다 — 즉 이 직렬화 방식에서 "필드 제거"와 "값 이전"은 같은 버전에
+        /// 담을 수 없다. v1 → v2 변환이 이 값을 <see cref="bestReach"/>로 옮기고 빈 문자열로 비운다.
+        /// 실제 삭제는 v2 세이브만 남았다고 볼 수 있는 시점에 별도 버전으로 한다.
+        /// </summary>
         public string bestStageId = string.Empty;
 
         /// <summary>최장 런 경과 시간(unscaled seconds).</summary>

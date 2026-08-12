@@ -138,6 +138,19 @@ namespace Abyss.Tests.EditMode
         }
 
         [Test]
+        public void RegisterReach_KeepsDeepest_WithinRun()
+        {
+            var stats = new RunStats();
+            stats.RegisterReach(StageReach.At(1, 3, "균열의 입구"));
+            stats.RegisterReach(StageReach.At(2, 1, "불꽃의 회랑"));
+            // 치트 이동처럼 뒤로 가는 경로가 그 런의 최고를 끌어내리면 안 된다.
+            stats.RegisterReach(StageReach.At(1, 9, "균열의 입구"));
+
+            Assert.AreEqual(2, stats.reached.stageNumber);
+            Assert.AreEqual(1, stats.reached.stepNumber);
+        }
+
+        [Test]
         public void Reset_ClearsAllFields()
         {
             var stats = new RunStats
@@ -146,6 +159,7 @@ namespace Abyss.Tests.EditMode
                 maxCombo = 5,
                 totalElapsedSeconds = 90f,
                 stageReached = "stage_3",
+                reached = StageReach.At(3, 8, "왕좌의 잔해"),
                 totalDraftCount = 4,
                 formExclusiveDraftCount = 1
             };
@@ -159,6 +173,8 @@ namespace Abyss.Tests.EditMode
             Assert.AreEqual(0, stats.maxCombo);
             Assert.AreEqual(0f, stats.totalElapsedSeconds);
             Assert.AreEqual(string.Empty, stats.stageReached);
+            // 다음 런이 이전 런의 도달 지점을 물려받으면 그 런의 기록이 부풀려진다.
+            Assert.IsFalse(stats.reached.HasRecord);
             Assert.IsEmpty(stats.formsUsed);
             Assert.IsEmpty(stats.draftedSkillIds);
             Assert.IsEmpty(stats.formPlaytimeSeconds);
