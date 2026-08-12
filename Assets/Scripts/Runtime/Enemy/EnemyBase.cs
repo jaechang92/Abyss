@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Abyss.Runtime.Combat;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Player;
@@ -27,7 +27,8 @@ namespace Abyss.Runtime.Enemy
         private StateMachine fsm;
         private Rigidbody2D body;
         private EnemyVisuals visuals;
-        private int currentHp;
+
+        [SerializeField] private int currentHp;
         private float lastAttackTime = -999f;
         private bool staggerQueued;
         private bool isDead;

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillId: skill_abyss_charge
   displayName: "\uC2EC\uC5F0 \uCDA9\uC804"
-  description: "\uD3FC \uAD50\uCCB4 \uC2DC \uB2E4\uC74C \uACF5\uACA9 \uD53C\uD574
-    2\uBC30"
+  description: "\uD3FC \uAD50\uCCB4 \uC2DC \uB2E4\uC74C \uAE30\uBCF8 \uACF5\uACA9
+    \uD53C\uD574 2\uBC30"
   icon: {fileID: 0}
   rarity: 1
   category: 1

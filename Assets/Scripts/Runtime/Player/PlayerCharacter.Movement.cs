@@ -62,6 +62,9 @@ namespace Abyss.Runtime.Player
             dashDirection = moveInput.sqrMagnitude > 0.01f
                 ? moveInput.normalized
                 : new Vector2(facingSign, 0f);
+
+            // Passive '잔상'은 출발 지점에 남는다 — 이동이 시작되기 전인 여기서 호출해야 위치가 맞다.
+            TryLeaveAfterimage();
         }
 
         private void UpdateGrounded()
