@@ -14,7 +14,7 @@ namespace Abyss.Runtime.Stage
     /// 시퀀스의 마지막 스테이지까지 클리어하면 런을 종료한다.
     /// Critic S3 반영: 노드 분기 없이 스테이지별 선형 5~7방 하드코딩.
     /// </summary>
-    public sealed class StageDirector : MonoBehaviour
+    public sealed partial class StageDirector : MonoBehaviour
     {
         [SerializeField] private StageSequenceData sequence;
         [SerializeField] private Transform[] spawnPoints;

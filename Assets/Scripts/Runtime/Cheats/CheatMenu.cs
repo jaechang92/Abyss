@@ -374,6 +374,32 @@ namespace Abyss.Runtime.Cheats
             {
                 st.ProceedToNextRoom();
             }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // 스테이지 이동 — 스테이지 3의 방 하나를 보려고 31방을 처음부터 도는 비용을 없앤다.
+            // '다음 룸으로'는 한 단계씩만 가고 갈림길마다 선택 패널이 떠서 스무 번을 눌러야 했다.
+            if (st != null && st.DebugStageCount > 0)
+            {
+                string where = st.CurrentStageIndex < 0
+                    ? "미시작"
+                    : $"Stage {st.CurrentStageIndex + 1}/{st.DebugStageCount} · Step {st.CurrentStepIndex + 1}/{st.DebugStepCount}";
+                string roomId = st.CurrentRoom != null ? st.CurrentRoom.roomId : "-";
+                GUILayout.Label($"위치: {where}  ({roomId})");
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("이동", GUILayout.Width(30));
+                for (int i = 0; i < st.DebugStageCount; i++)
+                {
+                    if (GUILayout.Button($"S{i + 1}")) st.DebugJumpTo(i, 0);
+                }
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("◀ 이전 단계")) st.DebugStepBy(-1);
+                if (GUILayout.Button("다음 단계 ▶")) st.DebugStepBy(1);
+                GUILayout.EndHorizontal();
+            }
+#endif
             GUILayout.Space(6);
         }
 
