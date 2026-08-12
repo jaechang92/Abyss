@@ -14,6 +14,37 @@ namespace Abyss.Runtime.Meta
     {
         public const string FileName = "abyss_meta.json";
 
+        /// <summary>
+        /// 현재 코드가 읽고 쓰는 스키마 버전. 스키마 SoT — 이 값과 <see cref="MetaSaveMigration"/>의
+        /// 단계표는 항상 함께 움직인다(버전을 N으로 올리면 N-1 → N 단계가 반드시 있어야 한다).
+        ///
+        /// <b>올려야 할 때</b>: 필드 제거·개명, 타입/단위/의미 변경 등 기존 값을 그대로 읽으면
+        /// 틀리게 되는 변경. <b>올리지 않아도 되는 때</b>: 순수 필드 추가 — JsonUtility가 없는 필드를
+        /// 생성자 기본값으로 남기므로 기본값이 곧 기존 동작이면 변환할 것이 없다.
+        /// </summary>
+        public const int CurrentVersion = 1;
+
+        /// <summary>
+        /// 취급 가능한 가장 낮은 스키마 버전. JSON에 `version`이 없거나 0·음수인 파일은
+        /// 이 버전으로 간주해 마이그레이션 출발점으로 삼는다.
+        ///
+        /// ⚠️ <b><see cref="SaveDataBase.version"/>의 필드 초기값과 같아야 한다.</b> 그 초기값이
+        /// 곧 "version 키가 없는 JSON을 읽었을 때의 값"이기 때문이다. SaveDataBase는 범용 코어라
+        /// 이 상수를 참조할 수 없어 결합이 암묵적이다 —
+        /// `MetaSaveMigrationTests.DefaultConstructor_StaysAtMinimumVersion`이 어긋남을 잡는다.
+        /// </summary>
+        public const int MinimumVersion = 1;
+
+        /// <summary>
+        /// 새 세이브 인스턴스 생성. <b>현재 버전을 찍는 유일한 지점</b>이다.
+        ///
+        /// `new MetaSave()`가 아니라 팩토리를 두는 이유: 생성자에서 <see cref="CurrentVersion"/>을
+        /// 찍으면 JsonUtility가 역직렬화할 때도 그 값이 먼저 들어가, `version` 키가 <b>없는</b> 낡은
+        /// 파일이 "이미 최신"으로 위장한다. 필드 초기값은 <see cref="MinimumVersion"/>으로 두고
+        /// (= 버전 표기가 없으면 가장 오래된 스키마), 진짜 새 파일만 여기서 현재 버전으로 올린다.
+        /// </summary>
+        public static MetaSave CreateNew() => new() { version = CurrentVersion };
+
         /// <summary>해제된 폼 ID 목록. formId 기준.</summary>
         public List<string> unlockedFormIds = new();
 
@@ -68,13 +99,17 @@ namespace Abyss.Runtime.Meta
         public MetaSettings settings = new();
 
         /// <summary>
-        /// 직렬화 버전 갱신 + 저장 시간 스탬프.
-        /// 호출 시 `version = 1`, 필드 추가 시 마이그레이션 경로 필요.
+        /// 저장 시간 스탬프 + 버전 하한 보정.
+        ///
+        /// <b>여기서 <see cref="CurrentVersion"/>을 찍지 않는다.</b> 버전을 올리는 권한은
+        /// <see cref="CreateNew"/>(새 파일)와 <see cref="MetaSaveMigration"/>(변환 완료)만 갖는다.
+        /// 저장할 때마다 현재 버전을 찍으면, 변환에 실패한 세이브가 "변환된 척" 기록되어
+        /// 다음 로드에서 마이그레이션을 건너뛴다.
         /// </summary>
         public void Touch()
         {
             UpdateSaveTime();
-            if (version <= 0) version = 1;
+            if (version < MinimumVersion) version = MinimumVersion;
         }
     }
 

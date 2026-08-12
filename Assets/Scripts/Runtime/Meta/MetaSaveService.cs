@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using Abyss.Runtime.Run;
 using SaveSystem_Core;
 using Singleton_Core;
@@ -6,6 +8,34 @@ using UnityEngine;
 
 namespace Abyss.Runtime.Meta
 {
+    /// <summary>
+    /// 마지막 로드가 어떤 경로로 끝났는지. 치트 메뉴·테스트가 "세이브가 정상적으로 이어졌는가"를
+    /// 확인하는 근거다 — 로그만으로는 사후에 알 수 없다.
+    /// </summary>
+    public enum MetaSaveLoadResult
+    {
+        /// <summary>아직 로드하지 않았다.</summary>
+        NotLoaded,
+
+        /// <summary>파일이 없어 새로 만들었다.</summary>
+        NewFile,
+
+        /// <summary>현재 스키마 버전 그대로 읽었다.</summary>
+        UpToDate,
+
+        /// <summary>구버전을 변환해 읽었다.</summary>
+        Migrated,
+
+        /// <summary>현재 코드보다 높은 버전이다. 원본은 백업됐다.</summary>
+        FutureVersion,
+
+        /// <summary>변환 단계가 없어 변환하지 못했다. 원본 값 그대로 사용 중이다.</summary>
+        MigrationFailed,
+
+        /// <summary>파싱에 실패해 새 세이브로 시작했다. 원본은 백업됐다.</summary>
+        Corrupted
+    }
+
     /// <summary>
     /// MetaSave 읽기/쓰기 게이트웨이. SaveSystem을 경유하고 상위 시스템은 이 API만 사용.
     /// AbyssBootstrap에서 SaveSystem 이후 RunManager 이전에 초기화해야 RunManager.EndRun 정산이 정상 동작.
@@ -27,6 +57,13 @@ namespace Abyss.Runtime.Meta
 
         /// <summary>로드 완료 여부. Analyst SoT 외 디버그용.</summary>
         public bool IsLoaded => isLoaded;
+
+        /// <summary>
+        /// 마지막 로드 경로. <see cref="MetaSaveLoadResult.Corrupted"/>·
+        /// <see cref="MetaSaveLoadResult.FutureVersion"/>·<see cref="MetaSaveLoadResult.MigrationFailed"/>는
+        /// 백업 파일이 생겼다는 뜻이다.
+        /// </summary>
+        public MetaSaveLoadResult LastLoadResult { get; private set; } = MetaSaveLoadResult.NotLoaded;
 
         /// <summary>
         /// 강제 재로드. 옵션 초기화 등 예외 경로에서만 사용.
@@ -286,9 +323,10 @@ namespace Abyss.Runtime.Meta
         public void ResetAll(bool autoSave = true)
         {
             var preservedSettings = current != null ? current.settings : null;
-            current = new MetaSave();
+            current = MetaSave.CreateNew();
             if (preservedSettings != null) current.settings = preservedSettings;
             isLoaded = true;
+            LastLoadResult = MetaSaveLoadResult.NewFile;
             if (autoSave) Save();
         }
 
@@ -299,31 +337,126 @@ namespace Abyss.Runtime.Meta
         private void DebugLogSummary()
         {
             EnsureLoaded();
-            Debug.Log($"[MetaSaveService] abyss={current.abyssShardsTotal} forms={string.Join(",", current.unlockedFormIds)} skills={current.unlockedSkillIds.Count}개 runs={current.records.totalRunCount}");
+            Debug.Log($"[MetaSaveService] v{current.version}(코드 v{MetaSave.CurrentVersion}, 로드={LastLoadResult}) abyss={current.abyssShardsTotal} forms={string.Join(",", current.unlockedFormIds)} skills={current.unlockedSkillIds.Count}개 runs={current.records.totalRunCount}");
         }
 
         private void EnsureLoaded()
         {
             if (isLoaded && current != null) return;
 
-            var path = SaveSystem.Instance.GetFilePath(MetaSave.FileName);
-            if (System.IO.File.Exists(path))
+            string path = SaveSystem.Instance.GetFilePath(MetaSave.FileName);
+            bool loadedFromDisk = false;
+
+            if (!File.Exists(path))
             {
-                current = SaveSystem.Instance.Load<MetaSave>(MetaSave.FileName);
-                if (current == null)
-                {
-                    Debug.LogWarning("[MetaSaveService] 기존 메타 파일 로드 실패 → 빈 인스턴스로 폴백");
-                    current = new MetaSave();
-                }
+                current = MetaSave.CreateNew();
+                LastLoadResult = MetaSaveLoadResult.NewFile;
+                Debug.Log("[MetaSaveService] 신규 MetaSave 생성");
             }
             else
             {
-                current = new MetaSave();
-                Debug.Log("[MetaSaveService] 신규 MetaSave 생성");
+                var loaded = SaveSystem.Instance.Load<MetaSave>(MetaSave.FileName);
+                if (loaded == null)
+                {
+                    // 파싱 실패. 예전에는 여기서 빈 인스턴스로 넘어갔는데, 그러면 곧이어 일어나는
+                    // 아무 저장(Discover*·UpdateSettings 등)이 원본을 덮어써 복구 가능성까지 지웠다.
+                    // 파일이 깨진 것과 진행도가 사라지는 것은 별개여야 한다 — 사람이 손볼 수 있게 먼저 치워 둔다.
+                    string backup = BackupSaveFile(path, $"corrupt-{DateTime.Now:yyyyMMdd-HHmmss}", overwrite: true);
+                    current = MetaSave.CreateNew();
+                    LastLoadResult = MetaSaveLoadResult.Corrupted;
+                    Debug.LogError(
+                        $"[MetaSaveService] 메타 세이브 파싱 실패 → 새 세이브로 시작한다. " +
+                        $"원본 백업: {backup ?? "실패"}");
+                }
+                else
+                {
+                    current = loaded;
+                    loadedFromDisk = true;
+                }
             }
 
+            // 마이그레이션 단계가 하위 컬렉션을 만질 수 있으므로 변환보다 먼저 채운다.
             NormalizeLists(current);
+            // 아래 Save()가 EnsureLoaded를 재귀 호출하지 않도록 먼저 세운다.
             isLoaded = true;
+
+            if (loadedFromDisk) ApplyMigration(path);
+        }
+
+        /// <summary>
+        /// 디스크에서 읽은 세이브의 스키마 버전을 처리한다.
+        ///
+        /// 네 경우 모두 <b>원본 백업이 먼저다</b>. 변환이 틀렸거나(Migrated) 현재 코드가 모르는
+        /// 필드가 있는(FutureVersion) 세이브는 다음 저장 한 번으로 되돌릴 수 없게 되는데,
+        /// 백업 파일 하나면 그 되돌림이 항상 가능하다.
+        /// </summary>
+        private void ApplyMigration(string path)
+        {
+            var outcome = MetaSaveMigration.Run(current, out int fileVersion);
+
+            switch (outcome)
+            {
+                case MetaSaveMigrationOutcome.UpToDate:
+                    LastLoadResult = MetaSaveLoadResult.UpToDate;
+                    break;
+
+                case MetaSaveMigrationOutcome.Migrated:
+                    LastLoadResult = MetaSaveLoadResult.Migrated;
+                    BackupSaveFile(path, $"v{fileVersion}", overwrite: false);
+                    Debug.Log($"[MetaSaveService] 세이브 스키마 v{fileVersion} → v{MetaSave.CurrentVersion} 변환 완료");
+                    Save();
+                    break;
+
+                case MetaSaveMigrationOutcome.FutureVersion:
+                    LastLoadResult = MetaSaveLoadResult.FutureVersion;
+                    BackupSaveFile(path, $"v{fileVersion}", overwrite: false);
+                    // 저장을 잠그는 안은 기각했다 — 그러면 이번 세션의 진행이 통째로 사라진다.
+                    // 계속 쓰되 백업으로 복구 가능성만 남긴다. 잃는 쪽을 사용자가 고를 수 있어야 한다.
+                    Debug.LogError(
+                        $"[MetaSaveService] 세이브 버전 v{fileVersion}이 현재 코드(v{MetaSave.CurrentVersion})보다 높다. " +
+                        $"모르는 필드는 다음 저장에서 사라진다 — 원본은 백업해 두었다.");
+                    break;
+
+                case MetaSaveMigrationOutcome.Incomplete:
+                    LastLoadResult = MetaSaveLoadResult.MigrationFailed;
+                    BackupSaveFile(path, $"v{fileVersion}", overwrite: false);
+                    // 변환은 하나도 적용되지 않았다(하한 보정 외에는 version도 그대로).
+                    // Touch()가 CurrentVersion을 찍지 않으므로, 단계를 채워 다시 실행하면 그때 정상 변환된다.
+                    Debug.LogError(
+                        $"[MetaSaveService] v{fileVersion} 세이브를 변환하지 못했다(단계 누락). " +
+                        $"원본 값 그대로 사용한다 — MetaSaveMigration 단계표를 확인할 것.");
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 세이브 파일을 <c>abyss_meta.{tag}.bak</c>으로 복사한다. 실패해도 로드를 막지 않는다
+        /// (백업은 안전망이지 진행 조건이 아니다).
+        /// </summary>
+        /// <param name="overwrite">
+        /// false면 같은 이름의 백업이 이미 있을 때 건너뛴다 — 버전 태그 백업은 <b>먼저 남긴 것이
+        /// 더 온전하다</b>(두 번째 실행 시점의 파일은 이미 현재 코드가 덮어쓴 뒤일 수 있다).
+        /// 손상 백업은 타임스탬프라 이름이 겹치지 않으므로 true를 쓴다.
+        /// </param>
+        private static string BackupSaveFile(string sourcePath, string tag, bool overwrite)
+        {
+            try
+            {
+                string dir = Path.GetDirectoryName(sourcePath);
+                string stem = Path.GetFileNameWithoutExtension(sourcePath);
+                string backupPath = Path.Combine(dir ?? string.Empty, $"{stem}.{tag}.bak");
+
+                if (!overwrite && File.Exists(backupPath)) return backupPath;
+
+                File.Copy(sourcePath, backupPath, overwrite: true);
+                Debug.Log($"[MetaSaveService] 세이브 백업 생성: {backupPath}");
+                return backupPath;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[MetaSaveService] 세이브 백업 실패: {e.Message}");
+                return null;
+            }
         }
 
         private static void NormalizeLists(MetaSave save)
