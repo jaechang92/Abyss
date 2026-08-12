@@ -77,12 +77,15 @@ namespace Abyss.EditorTools
             var projectile = BuildProjectilePrefab(sprite, forceRebuildEnemies);
             int rangedLinked = LinkProjectileToRangedEnemies(projectile);
 
+            var arcShell = BuildArcProjectilePrefab(sprite, forceRebuildEnemies);
+            int mortarLinked = LinkArcProjectileToMortars(arcShell);
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
             Debug.Log($"[PrefabBuilder] 완료 — 적 {enemyCount}종{(forceRebuildEnemies ? " (force)" : "")}, " +
                       $"플레이어 {(playerBuilt ? 1 : 0)}종{(forceRebuildPlayer ? " (force)" : "")}, " +
-                      $"발사체 1종(원거리 적 {rangedLinked}종 연결).");
+                      $"발사체 직진 1종(원거리 적 {rangedLinked}종 연결) · 곡사 1종(곡사병 {mortarLinked}종 연결).");
         }
 
         /// <summary>Assets/Audio/SFX/{name}.wav 로드. 미import/부재 시 null(보스 측 PlaySfx가 무음 가드).</summary>

@@ -173,10 +173,19 @@ namespace Abyss.Runtime.Enemy
         {
             if (target == null || data == null) return;
 
+            // 곡사가 우선한다. 프리팹 연결이 없으면 아래 직진탄으로 자연히 폴백되므로,
+            // 배선이 빠져도 이 적이 무해해지지는 않는다.
+            if (data.isRanged && data.usesArcProjectile && data.arcProjectilePrefab != null)
+            {
+                FireArcShell();
+                return;
+            }
+
             // 원거리 적: 발사체 발사(즉발 대신). projectilePrefab 미연결 시 근접으로 폴백.
             if (data.isRanged && data.projectilePrefab != null)
             {
-                FireProjectile();
+                if (data.burstCount > 1) FireBurstAsync();
+                else FireProjectile();
                 return;
             }
 
@@ -195,6 +204,55 @@ namespace Abyss.Runtime.Enemy
         {
             Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
             SpawnProjectile(toTarget);
+        }
+
+        /// <summary>
+        /// 연사. 탄 사이 간격은 Coroutine 금지 규약(ADR-002)에 따라 Awaitable로 벌린다.
+        ///
+        /// 매 발 <see cref="FireProjectile"/>로 <b>조준을 다시 한다</b> — 첫 발 방향으로 세 발을
+        /// 몰아 쏘면 옆으로 한 걸음만 움직여도 전부 빗나가 연사라는 위협이 성립하지 않는다.
+        /// 대신 사이를 벌려 두었으므로 계속 움직이면 뒷발은 피할 수 있다.
+        /// </summary>
+        private async void FireBurstAsync()
+        {
+            try
+            {
+                int shots = Mathf.Max(1, data.burstCount);
+                for (int i = 0; i < shots; i++)
+                {
+                    // 연사 도중 죽거나 타겟이 사라질 수 있다 — 대기 구간을 사이에 두면
+                    // "그동안 세상이 바뀌었을 수 있다"를 매번 확인해야 한다.
+                    if (isDead || target == null || data == null) return;
+
+                    FireProjectile();
+
+                    if (i < shots - 1 && data.burstInterval > 0f)
+                    {
+                        await Awaitable.WaitForSecondsAsync(data.burstInterval, destroyCancellationToken);
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // 파괴·씬 전환으로 취소됨. 남은 탄은 쏘지 않는다.
+            }
+        }
+
+        /// <summary>
+        /// 곡사 폭발탄 1발. 조준점은 <b>발사 시점의 플레이어 위치</b>다 —
+        /// 착탄까지 <see cref="EnemyData.arcFlightTime"/>초가 걸리므로 그 자리에 서 있으면 맞고,
+        /// 움직이면 피한다. 이것이 이 적의 유일한 회피 규칙이라 예고 링과 함께 읽히게 했다.
+        /// </summary>
+        private void FireArcShell()
+        {
+            if (data.arcProjectilePrefab == null || target == null) return;
+
+            // 자기 콜라이더 위에서 출발 — 발밑에서 나오면 발사 즉시 지형에 닿아 터진다.
+            Vector2 spawnPos = (Vector2)transform.position + Vector2.up * 0.7f;
+
+            var shell = PoolManager.Instance.Get(data.arcProjectilePrefab, (Vector3)spawnPos, Quaternion.identity);
+            shell.Launch((Vector2)target.position, GetAttackDamage(),
+                         data.arcFlightTime, data.arcExplosionRadius, data.arcProjectilePrefab);
         }
 
         /// <summary>

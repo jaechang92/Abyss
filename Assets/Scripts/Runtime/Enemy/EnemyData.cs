@@ -43,6 +43,20 @@ namespace Abyss.Runtime.Enemy
         [Min(0f)] public float projectileSpeed = 8f;
         [Min(0.1f)] public float projectileLifetime = 3f;
 
+        [Tooltip("한 번의 공격에 쏘는 탄 수. 1이면 단발. 매 발 조준을 다시 하므로 연사 중 플레이어를 따라간다.")]
+        [Min(1)] public int burstCount = 1;
+        [Tooltip("연사 탄 사이 간격(초). burstCount가 1이면 무시된다.")]
+        [Min(0f)] public float burstInterval = 0.12f;
+
+        [Header("곡사 (체크 시 직진탄 대신 포물선 폭발탄)")]
+        [Tooltip("이 적이 곡사병인지. PrefabBuilder가 이 플래그를 보고 arcProjectilePrefab을 연결한다. " +
+                 "플래그만 켜고 프리팹 연결이 실패하면 직진탄으로 폴백한다(무력화되지 않는다).")]
+        public bool usesArcProjectile;
+        public ArcProjectile arcProjectilePrefab;
+        [Tooltip("발사에서 착탄까지의 시간(초). 거리와 무관하게 일정해 예고 리듬이 고정된다.")]
+        [Min(0.1f)] public float arcFlightTime = 1.1f;
+        [Min(0.1f)] public float arcExplosionRadius = 1.8f;
+
         [Header("스폰 프리팹 (StageDirector가 Instantiate)")]
         public GameObject spawnPrefab;
     }
