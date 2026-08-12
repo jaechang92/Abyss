@@ -278,11 +278,37 @@ namespace Abyss.Runtime.UI
         // ───────────────────────── 기록 탭 ─────────────────────────
 
         /// <summary>
-        /// 기록 탭 본문. 이미 영속된 <see cref="MetaRecords"/>만 읽는다.
+        /// 기록 탭 <b>왼쪽 열</b> — 직전 런 8줄.
         ///
-        /// 엔딩 화면이 보여주는 '직전 런 8줄'은 아직 여기에 없다 — 그 값은 살아 있는
-        /// <see cref="Abyss.Runtime.Run.RunStats"/>에 있고 내부가 Dictionary라 세이브에 담기지 않는다.
-        /// 담으려면 요약 값 타입을 추출해 결과·엔딩 패널까지 함께 손봐야 하므로 후속 작업으로 분리했다.
+        /// 왼쪽에 둔 이유: 도감을 여는 가장 흔한 순간이 방금 런을 끝낸 직후이고, 그때 알고 싶은 것은
+        /// 누적 통계가 아니라 "방금 그 런이 어땠나"다. 읽기 시작하는 자리에 그것을 둔다.
+        ///
+        /// 문구는 결과·엔딩 화면과 같은 <see cref="RunSummaryText"/>를 쓴다 —
+        /// 여기서 따로 조립하면 같은 런이 화면에 따라 다르게 보인다.
+        /// </summary>
+        private static string BuildLastRunText()
+        {
+            var summary = MetaSaveService.Instance.Current.lastRunSummary;
+
+            var lines = new List<string> { "■ 직전 런" };
+
+            if (summary != null && summary.hasRecord)
+            {
+                lines.AddRange(RunSummaryText.AllLines(summary));
+            }
+            else
+            {
+                // 아직 런을 끝낸 적이 없다. 8줄을 0으로 채워 보여주면 "0킬로 끝난 런"과 구분되지 않는다.
+                lines.Add("아직 기록이 없다. 한 번 내려가 보라.");
+            }
+
+            return string.Join("\n", lines);
+        }
+
+        /// <summary>
+        /// 기록 탭 <b>오른쪽 열</b> — 역대 최고 기록·메타·도감 발견 수.
+        /// 직전 런(<see cref="BuildLastRunText"/>)과 나눈 기준은 <b>수명</b>이다:
+        /// 이쪽은 갱신될 때만 바뀌고, 저쪽은 매 런 덮인다.
         /// </summary>
         private static string BuildRecordsText()
         {

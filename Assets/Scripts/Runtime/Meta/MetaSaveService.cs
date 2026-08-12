@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Abyss.Runtime.Run;
 using SaveSystem_Core;
 using Singleton_Core;
 using UnityEngine;
@@ -119,6 +120,22 @@ namespace Abyss.Runtime.Meta
 
         private static bool Contains(List<string> list, string id) =>
             !string.IsNullOrEmpty(id) && list != null && list.Contains(id);
+
+        /// <summary>
+        /// 직전 런 요약을 덮어쓴다. <see cref="RecordRunResult"/>(최고 기록 갱신)와 달리
+        /// <b>비교 없이 항상 교체</b>한다 — "직전"은 최고가 아니라 가장 최근이기 때문이다.
+        ///
+        /// RunManager가 정산 도중 호출하며, 저장은 마지막 <see cref="RecordRunResult"/> 한 번으로 묶는다
+        /// (autoSave 기본값을 false로 두지 않은 이유: 단독 호출자가 생겼을 때 저장을 잊는 쪽이
+        /// 중복 저장보다 나쁘다).
+        /// </summary>
+        public void RecordLastRunSummary(RunSummary summary, bool autoSave = true)
+        {
+            if (summary == null) return;
+
+            Current.lastRunSummary = summary;
+            if (autoSave) Save();
+        }
 
         /// <summary>
         /// 런 기록 갱신. 각 필드 최대값 유지 전략. autoSave=true 시 즉시 디스크 반영.
@@ -318,6 +335,9 @@ namespace Abyss.Runtime.Meta
             save.discoveredEnemyIds ??= new List<string>();
             save.upgradeLevels ??= new List<MetaUpgradeEntry>();
             save.records ??= new MetaRecords();
+            save.lastRunSummary ??= new RunSummary();
+            save.lastRunSummary.formsUsed ??= new List<string>();
+            save.lastRunSummary.draftedSkillIds ??= new List<string>();
             save.settings ??= new MetaSettings();
         }
     }

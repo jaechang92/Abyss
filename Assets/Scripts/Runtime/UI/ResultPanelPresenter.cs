@@ -110,7 +110,9 @@ namespace Abyss.Runtime.UI
         {
             if (RunManager.HasInstance)
             {
-                Populate(RunManager.Instance.Stats);
+                // 진행 중 통계(Stats)가 아니라 정산 시점에 굳은 요약을 읽는다 —
+                // 세이브에 들어간 것과 화면에 뜨는 것이 같은 객체다.
+                Populate(RunManager.Instance.LastRunSummary);
             }
             if (root != null) root.SetActive(true);
             FocusRestartButton();
@@ -123,7 +125,7 @@ namespace Abyss.Runtime.UI
             EventSystem.current.SetSelectedGameObject(restartButton.gameObject);
         }
 
-        private void Populate(RunStats stats)
+        private void Populate(RunSummary stats)
         {
             if (stats == null) return;
 
@@ -140,7 +142,7 @@ namespace Abyss.Runtime.UI
             if (skillsText != null) skillsText.text = RunSummaryText.Skills(stats);
             if (stageText != null) stageText.text = RunSummaryText.Stage(stats);
             if (elapsedText != null) elapsedText.text = RunSummaryText.Elapsed(stats);
-            if (abyssEarnedText != null) abyssEarnedText.text = RunSummaryText.AbyssEarned();
+            if (abyssEarnedText != null) abyssEarnedText.text = RunSummaryText.AbyssEarned(stats);
         }
 
         private void HandleRestart()

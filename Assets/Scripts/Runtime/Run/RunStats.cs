@@ -35,6 +35,34 @@ namespace Abyss.Runtime.Run
             formExclusiveDraftCount = 0;
         }
 
+        /// <summary>
+        /// 끝난 런의 결과 요약을 만든다. 심연 조각 수치는 정산이 끝나야 확정되므로 호출자가 넘긴다
+        /// (RunStats는 화폐 정산을 모른다 — 여기서 조회하면 통계 집계기가 메타 저장에 의존하게 된다).
+        ///
+        /// 사전(<see cref="formPlaytimeSeconds"/>)은 넘기지 않고 <b>주 사용 폼과 비율만 뽑아 굳힌다</b>.
+        /// 목록은 새 리스트로 복사한다 — 같은 참조를 넘기면 다음 런의 <see cref="Reset"/>이
+        /// 이미 저장된 요약의 내용을 비운다.
+        /// </summary>
+        public RunSummary ToSummary(int abyssEarned, int abyssTotal)
+        {
+            string dominant = GetDominantFormId();
+
+            return new RunSummary
+            {
+                hasRecord = true,
+                enemiesKilled = enemiesKilled,
+                maxCombo = maxCombo,
+                dominantFormId = dominant,
+                dominantFormRatio = GetFormRatio(dominant),
+                formsUsed = new List<string>(formsUsed),
+                draftedSkillIds = new List<string>(draftedSkillIds),
+                stageReached = stageReached,
+                elapsedSeconds = totalElapsedSeconds,
+                abyssEarned = abyssEarned,
+                abyssTotal = abyssTotal
+            };
+        }
+
         public string GetDominantFormId()
         {
             string dominant = string.Empty;

@@ -260,9 +260,10 @@ namespace Abyss.Runtime.UI
                 return;
             }
 
-            var stats = RunManager.HasInstance ? RunManager.Instance.Stats : null;
-            statsBody.text = stats != null
-                ? string.Join("\n", RunSummaryText.AllLines(stats))
+            // 결과 패널과 같은 객체(정산 시점에 굳은 요약)를 읽는다.
+            var summary = RunManager.HasInstance ? RunManager.Instance.LastRunSummary : null;
+            statsBody.text = summary != null
+                ? string.Join("\n", RunSummaryText.AllLines(summary))
                 : string.Empty;
 
             statsGroup.alpha = 0f;
