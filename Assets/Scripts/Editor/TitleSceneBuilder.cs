@@ -12,7 +12,7 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// 타이틀 씬을 생성하고 빌드 설정에 등록한다. 메뉴 경로는 <see cref="AbyssMenu.BuildTitleScene"/>.
-    /// 구성: 카메라 + EventSystem + 캔버스(타이틀 로고·메뉴 버튼 3종·누적 기록 줄).
+    /// 구성: 카메라 + EventSystem + 캔버스(타이틀 로고·메뉴 버튼 4종·누적 기록 줄).
     /// 완주 루프 계획 Phase 0-2 — 게임을 켜고 끌 수 있는 앱 셸의 진입점.
     /// </summary>
     public static class TitleSceneBuilder
@@ -111,9 +111,11 @@ namespace Abyss.EditorTools
             subtitle.color = new Color(0.55f, 0.55f, 0.68f);
             subtitle.raycastTarget = false;
 
-            var start = CreateMenuButton(root.transform, "StartButton", new Vector2(0, 40), "게임 시작");
-            var settings = CreateMenuButton(root.transform, "SettingsButton", new Vector2(0, -30), "설정");
-            var quit = CreateMenuButton(root.transform, "QuitButton", new Vector2(0, -100), "게임 종료");
+            // 버튼이 4개로 늘어 세로 간격(70)을 유지하며 위로 30 올렸다 — 아래 누적 기록 줄과 겹치지 않게.
+            var start = CreateMenuButton(root.transform, "StartButton", new Vector2(0, 70), "게임 시작");
+            var codex = CreateMenuButton(root.transform, "CodexButton", new Vector2(0, 0), "도감");
+            var settings = CreateMenuButton(root.transform, "SettingsButton", new Vector2(0, -70), "설정");
+            var quit = CreateMenuButton(root.transform, "QuitButton", new Vector2(0, -140), "게임 종료");
 
             // 누적 기록 줄(기록이 없으면 TitleMenuPanel이 빈 문자열로 비운다)
             var recordGo = CreateRect(root.transform, "RecordText", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 60), new Vector2(1000, 34));
@@ -127,6 +129,7 @@ namespace Abyss.EditorTools
 
             var panel = root.AddComponent<TitleMenuPanel>();
             SetPrivateField(panel, "startButton", start.button);
+            SetPrivateField(panel, "codexButton", codex.button);
             SetPrivateField(panel, "settingsButton", settings.button);
             SetPrivateField(panel, "quitButton", quit.button);
             SetPrivateField(panel, "startLabel", start.label);

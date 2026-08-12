@@ -84,6 +84,42 @@ namespace Abyss.Runtime.Meta
             return true;
         }
 
+        // ───────────────────────── 도감 발견 (완주 루프 계획 3-1) ─────────────────────────
+        //
+        // 발견은 "해금"(unlockedFormIds 등)과 별개 목록이다 — MetaSave 주석 참조.
+        //
+        // 세 API 모두 신규 ID일 때만 저장한다. 발견 신호는 방에 들어갈 때마다 도착하지만
+        // 중복은 Contains에서 조기 반환되므로, 디스크 쓰기는 게임 수명 동안 '항목 수'만큼만 일어난다.
+        // 그래서 호출부가 저장 빈도를 신경 쓰지 않아도 되고 autoSave 기본값을 true로 둘 수 있다.
+
+        /// <summary>도감에 폼 발견 등록. 신규 등록 시에만 true(그때만 저장한다).</summary>
+        public bool DiscoverForm(string formId, bool autoSave = true) =>
+            Discover(Current.discoveredFormIds, formId, autoSave);
+
+        /// <summary>도감에 스킬 발견 등록. 신규 등록 시에만 true.</summary>
+        public bool DiscoverSkill(string skillId, bool autoSave = true) =>
+            Discover(Current.discoveredSkillIds, skillId, autoSave);
+
+        /// <summary>도감에 적·보스 발견 등록. 신규 등록 시에만 true.</summary>
+        public bool DiscoverEnemy(string enemyId, bool autoSave = true) =>
+            Discover(Current.discoveredEnemyIds, enemyId, autoSave);
+
+        public bool IsFormDiscovered(string formId) => Contains(Current.discoveredFormIds, formId);
+        public bool IsSkillDiscovered(string skillId) => Contains(Current.discoveredSkillIds, skillId);
+        public bool IsEnemyDiscovered(string enemyId) => Contains(Current.discoveredEnemyIds, enemyId);
+
+        private bool Discover(List<string> target, string id, bool autoSave)
+        {
+            if (string.IsNullOrEmpty(id)) return false;
+            if (target.Contains(id)) return false;
+            target.Add(id);
+            if (autoSave) Save();
+            return true;
+        }
+
+        private static bool Contains(List<string> list, string id) =>
+            !string.IsNullOrEmpty(id) && list != null && list.Contains(id);
+
         /// <summary>
         /// 런 기록 갱신. 각 필드 최대값 유지 전략. autoSave=true 시 즉시 디스크 반영.
         /// RunManager.EndRun에서 RunStats/GoldShards 최종값과 함께 호출.
@@ -277,6 +313,9 @@ namespace Abyss.Runtime.Meta
         {
             save.unlockedFormIds ??= new List<string>();
             save.unlockedSkillIds ??= new List<string>();
+            save.discoveredFormIds ??= new List<string>();
+            save.discoveredSkillIds ??= new List<string>();
+            save.discoveredEnemyIds ??= new List<string>();
             save.upgradeLevels ??= new List<MetaUpgradeEntry>();
             save.records ??= new MetaRecords();
             save.settings ??= new MetaSettings();

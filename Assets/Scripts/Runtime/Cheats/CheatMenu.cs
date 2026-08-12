@@ -79,6 +79,7 @@ namespace Abyss.Runtime.Cheats
             DrawPlayerSection();
             DrawCurrencySection();
             DrawStorySection();
+            DrawCodexSection();
             DrawProgressSection();
             DrawEnemySection();
             DrawSkillSection();
@@ -212,6 +213,53 @@ namespace Abyss.Runtime.Cheats
             if (GUILayout.Button("단계 +1")) meta.DebugSetStoryStage(meta.StoryStage + 1);
             GUILayout.EndHorizontal();
             GUILayout.Label("※ 설정 시 스냅샷 0 리셋 — 다음 대화에서 해당 다음 챕터 열람 가능(누적 기준)");
+            GUILayout.Space(6);
+        }
+
+        // ====== 도감 ======
+        // 발견 상태는 영속 메타라 한 번 차면 되돌릴 방법이 없어, 실루엣·??? 표시를 다시 보려면
+        // 초기화 수단이 반드시 필요하다. MetaSaveService가 아니라 여기에 두는 이유는
+        // 카탈로그 3종(폼·스킬·적)을 훑어야 하고 그 의존을 저장 게이트웨이에 들일 이유가 없기 때문이다.
+        private void DrawCodexSection()
+        {
+            GUILayout.Label("■ 도감", headerStyle);
+            var meta = MetaSaveService.Instance;
+            if (meta == null)
+            {
+                GUILayout.Label("(MetaSaveService 없음)");
+                GUILayout.Space(6);
+                return;
+            }
+
+            var save = meta.Current;
+            GUILayout.Label($"발견 — 폼 {save.discoveredFormIds.Count} · 스킬 {save.discoveredSkillIds.Count} · 적/보스 {save.discoveredEnemyIds.Count}");
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("전체 발견"))
+            {
+                foreach (var form in FormCatalog.All)
+                {
+                    if (form != null) meta.DiscoverForm(form.formId, autoSave: false);
+                }
+                foreach (var skill in SkillCatalog.All)
+                {
+                    if (skill != null) meta.DiscoverSkill(skill.skillId, autoSave: false);
+                }
+                foreach (var enemy in EnemyCatalog.All)
+                {
+                    if (enemy != null) meta.DiscoverEnemy(enemy.enemyId, autoSave: false);
+                }
+                meta.Save();
+            }
+            if (GUILayout.Button("발견 초기화"))
+            {
+                save.discoveredFormIds.Clear();
+                save.discoveredSkillIds.Clear();
+                save.discoveredEnemyIds.Clear();
+                meta.Save();
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.Label("※ 도감은 타이틀·로비 메뉴에서 열 수 있다(런 중에는 진입점 없음)");
             GUILayout.Space(6);
         }
 

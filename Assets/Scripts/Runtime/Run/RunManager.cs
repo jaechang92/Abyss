@@ -33,6 +33,10 @@ namespace Abyss.Runtime.Run
         private int lastRunAbyssShardsEarned;
         private RunEndReason lastRunEndReason = RunEndReason.Death;
 
+        // 직전에 플레이타임을 누적한 폼. RegisterFormPlaytime은 매 프레임 호출되므로
+        // '폼이 바뀐 프레임'만 골라내는 표식으로 쓴다(사용 등록·도감 발견을 프레임마다 하지 않게).
+        private string lastPlaytimeFormId = string.Empty;
+
         public int CurrentLevel => currentLevel;
         public int CurrentExp => currentExp;
         public int ExpToNextLevel => CalcExpRequirement(currentLevel);
@@ -139,6 +143,7 @@ namespace Abyss.Runtime.Run
             bossKillsThisRun = 0;
             lastRunAbyssShardsEarned = 0;
             lastRunEndReason = RunEndReason.Death;
+            lastPlaytimeFormId = string.Empty;   // 새 런의 시작 폼도 '변경'으로 잡혀 사용 등록되게
             stats.Reset();
             isRunActive = true;
             GameEvents.RaiseGoldShardsChanged(goldShards);
@@ -185,12 +190,35 @@ namespace Abyss.Runtime.Run
 
         /// <summary>
         /// FormController가 매 프레임 호출해 현재 폼 플레이타임 누적.
+        /// 활성 폼이 바뀐 프레임에는 사용 등록(<see cref="RegisterFormUsage"/>)도 함께 한다 —
+        /// 여기가 "이 폼으로 플레이했다"는 사실이 도착하는 유일한 지점이라, 폼 교체 이벤트만 듣던
+        /// 기존 경로가 놓치던 <b>시작 폼</b>까지 덮는다.
         /// </summary>
         public void RegisterFormPlaytime(string formId, float delta)
         {
             if (!isRunActive || string.IsNullOrEmpty(formId) || delta <= 0f) return;
+
+            if (formId != lastPlaytimeFormId)
+            {
+                lastPlaytimeFormId = formId;
+                RegisterFormUsage(formId);
+            }
+
             if (!stats.formPlaytimeSeconds.ContainsKey(formId)) stats.formPlaytimeSeconds[formId] = 0f;
             stats.formPlaytimeSeconds[formId] += delta;
+        }
+
+        /// <summary>
+        /// "이 폼을 사용했다"의 단일 처리 지점 — 런 통계 누적 + 도감 발견 등록.
+        ///
+        /// 두 소비자(플레이타임 누적·폼 교체 이벤트)가 각자 formsUsed에 넣으면 같은 규약이
+        /// 두 곳으로 갈라진다. 도감 발견까지 붙으면서 소비자가 늘었으므로 여기로 모았다.
+        /// </summary>
+        private void RegisterFormUsage(string formId)
+        {
+            if (string.IsNullOrEmpty(formId)) return;
+            if (!stats.formsUsed.Contains(formId)) stats.formsUsed.Add(formId);
+            MetaSaveService.Instance.DiscoverForm(formId);
         }
 
         private void OnEnable()
@@ -227,17 +255,43 @@ namespace Abyss.Runtime.Run
             stats.draftedSkillIds.Add(skill.skillId);
             stats.totalDraftCount += 1;
             if (!string.IsNullOrEmpty(skill.formBound)) stats.formExclusiveDraftCount += 1;
+
+            // 도감은 '획득' 기준으로 등록한다 — 드래프트에 제시된 것까지 세면 리롤만으로 도감이 차서
+            // 진척 표식으로서의 의미를 잃는다.
+            MetaSaveService.Instance.DiscoverSkill(skill.skillId);
         }
 
         private void HandleFormSwapped(FormData previous, FormData next)
         {
-            if (previous != null && !stats.formsUsed.Contains(previous.formId)) stats.formsUsed.Add(previous.formId);
-            if (next != null && !stats.formsUsed.Contains(next.formId)) stats.formsUsed.Add(next.formId);
+            if (previous != null) RegisterFormUsage(previous.formId);
+            if (next != null) RegisterFormUsage(next.formId);
         }
 
         private void HandleRoomEntered(RoomData room)
         {
-            if (room != null) stats.stageReached = room.roomId;
+            if (room == null) return;
+            stats.stageReached = room.roomId;
+            DiscoverRoomEnemies(room);
+        }
+
+        /// <summary>
+        /// 방에 배치된 적·보스를 도감에 발견 등록한다(완주 루프 계획 3-1).
+        ///
+        /// 기준을 '처치'가 아니라 <b>입장</b>으로 둔 이유: 처치 기준이면 최종 보스에게 죽은 플레이어의
+        /// 도감에는 방금 2분간 싸운 보스가 <c>???</c>로 남는다. 도감이 기록하는 것은 전과가 아니라
+        /// 만난 사실이므로(계획서 "처음 만난 시점에 해금") 입장이 옳은 시점이다.
+        /// </summary>
+        private static void DiscoverRoomEnemies(RoomData room)
+        {
+            if (room.enemies == null) return;
+
+            var meta = MetaSaveService.Instance;
+            for (int i = 0; i < room.enemies.Count; i++)
+            {
+                var entry = room.enemies[i];
+                if (entry?.data == null) continue;
+                meta.DiscoverEnemy(entry.data.enemyId);
+            }
         }
 
         private void HandlePlayerDead()

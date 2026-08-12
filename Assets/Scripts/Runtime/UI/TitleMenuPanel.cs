@@ -16,6 +16,7 @@ namespace Abyss.Runtime.UI
     {
         [Header("버튼")]
         [SerializeField] private Button startButton;
+        [SerializeField] private Button codexButton;
         [SerializeField] private Button settingsButton;
         [SerializeField] private Button quitButton;
 
@@ -37,7 +38,9 @@ namespace Abyss.Runtime.UI
         private void Awake()
         {
             if (startButton != null) startButton.onClick.AddListener(StartGame);
-            // 설정 패널은 씬에 배치하지 않고 SettingsPanel이 동적 생성해 공유한다(일시정지와 같은 인스턴스).
+            // 설정·도감 패널은 씬에 배치하지 않고 각 패널이 동적 생성해 공유한다
+            // (설정은 일시정지와, 도감은 로비 메뉴와 같은 인스턴스를 쓴다).
+            if (codexButton != null) codexButton.onClick.AddListener(CodexPanel.Open);
             if (settingsButton != null) settingsButton.onClick.AddListener(SettingsPanel.Open);
             if (quitButton != null)
             {
