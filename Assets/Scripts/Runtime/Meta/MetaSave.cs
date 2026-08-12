@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Abyss.Runtime.Run;
 using SaveSystem_Core;
 
 namespace Abyss.Runtime.Meta
@@ -34,6 +35,16 @@ namespace Abyss.Runtime.Meta
 
         /// <summary>도감에 발견 등록된 적·보스 ID 목록. enemyId 기준(보스도 EnemyData라 한 목록을 공유).</summary>
         public List<string> discoveredEnemyIds = new();
+
+        /// <summary>
+        /// 직전에 끝난 런의 8줄 요약. 도감 기록 탭이 보여준다.
+        ///
+        /// <see cref="records"/>(최고 기록의 누적)와 별개다 — 저쪽은 "역대 최고"라 갱신될 때만 바뀌고,
+        /// 이쪽은 "방금 무슨 일이 있었나"라 매 런 덮인다. 한 곳에 섞으면 최고 기록이 직전 런으로
+        /// 내려앉거나 그 반대가 된다.
+        /// 기존 세이브에는 이 필드가 없지만 JsonUtility가 생성자 기본값을 유지하므로 마이그레이션이 필요 없다.
+        /// </summary>
+        public RunSummary lastRunSummary = new();
 
         /// <summary>메타 화폐 누적 총량. 런 종료 시 `abyssShardsConversionRate` 환산분 추가.</summary>
         public int abyssShardsTotal;

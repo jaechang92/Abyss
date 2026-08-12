@@ -33,6 +33,10 @@ namespace Abyss.Runtime.Run
         private int lastRunAbyssShardsEarned;
         private RunEndReason lastRunEndReason = RunEndReason.Death;
 
+        // 직전에 끝난 런의 요약. StartNewRun에서 초기화하지 않는다 —
+        // 다음 런이 시작돼도 "직전 런"으로 남아야 도감 기록 탭이 보여줄 것이 있다.
+        private RunSummary lastRunSummary = new();
+
         // 직전에 플레이타임을 누적한 폼. RegisterFormPlaytime은 매 프레임 호출되므로
         // '폼이 바뀐 프레임'만 골라내는 표식으로 쓴다(사용 등록·도감 발견을 프레임마다 하지 않게).
         private string lastPlaytimeFormId = string.Empty;
@@ -44,6 +48,12 @@ namespace Abyss.Runtime.Run
         public RunStats Stats => stats;
         public bool IsRunActive => isRunActive;
         public int LastRunAbyssShardsEarned => lastRunAbyssShardsEarned;
+
+        /// <summary>
+        /// 직전에 끝난 런의 요약. 결과·엔딩 화면이 표시에 쓰고, 같은 값이 세이브에도 들어간다.
+        /// 런이 아직 한 번도 끝나지 않았으면 <c>hasRecord = false</c>인 빈 요약이다(null 아님).
+        /// </summary>
+        public RunSummary LastRunSummary => lastRunSummary;
 
         /// <summary>
         /// 직전 런이 끝난 사유. <see cref="GameEvents.OnRunEnded"/> 구독자가 조회한다.
@@ -184,6 +194,12 @@ namespace Abyss.Runtime.Run
             {
                 meta.AddAbyssShards(lastRunAbyssShardsEarned, autoSave: false);
             }
+
+            // 요약은 심연 조각 적립 뒤에 만든다 — 화면의 "(누적 M)"이 이번 획득분을 포함한 값이어야 한다.
+            // 결과·엔딩 화면도 이 객체를 그대로 읽으므로, 보이는 값과 저장되는 값이 어긋날 방법이 없다.
+            lastRunSummary = stats.ToSummary(lastRunAbyssShardsEarned, meta.Current.abyssShardsTotal);
+            meta.RecordLastRunSummary(lastRunSummary, autoSave: false);
+
             meta.RecordRunResult(stats.stageReached, stats.totalElapsedSeconds, goldShards, bossKillsThisRun, autoSave: true);
             Debug.Log($"[RunManager] 메타 정산: abyss +{lastRunAbyssShardsEarned} (gold={goldShards}, rate={AbyssShardsConversionRate:F2}) / 누적 {meta.Current.abyssShardsTotal}");
         }

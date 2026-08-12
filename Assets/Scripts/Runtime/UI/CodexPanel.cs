@@ -66,6 +66,7 @@ namespace Abyss.Runtime.UI
         private Text detailStats;
 
         private Text recordsText;
+        private Text recordsSecondaryText;
 
         private CodexTab currentTab = CodexTab.Form;
         private int currentPage;
@@ -182,12 +183,14 @@ namespace Abyss.Runtime.UI
             gridRoot.SetActive(!isRecords);
             detailRoot.SetActive(!isRecords);
             recordsText.gameObject.SetActive(isRecords);
+            recordsSecondaryText.gameObject.SetActive(isRecords);
 
             if (isRecords)
             {
                 pagerRoot.SetActive(false);
                 countLabel.text = string.Empty;
-                recordsText.text = BuildRecordsText();
+                recordsText.text = BuildLastRunText();
+                recordsSecondaryText.text = BuildRecordsText();
                 return;
             }
 

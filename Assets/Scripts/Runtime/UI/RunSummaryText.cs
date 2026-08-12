@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Abyss.Runtime.Meta;
 using Abyss.Runtime.Run;
 using UnityEngine;
 
@@ -8,9 +7,13 @@ namespace Abyss.Runtime.UI
     /// <summary>
     /// 런 결과 통계 문구의 단일 소스. 완주 루프 계획 2-2.
     ///
-    /// 같은 8줄을 두 화면이 쓴다 — <see cref="ResultPanelPresenter"/>(사망)와
-    /// <see cref="EndingSequencePanel"/>(완주). 라벨·단위·"기록 없음" 표기가 갈리면
-    /// 같은 런이 화면에 따라 다르게 보이므로 여기로 모았다.
+    /// 같은 8줄을 세 화면이 쓴다 — <see cref="ResultPanelPresenter"/>(사망),
+    /// <see cref="EndingSequencePanel"/>(완주), 도감 기록 탭(직전 런). 라벨·단위·"기록 없음" 표기가
+    /// 갈리면 같은 런이 화면에 따라 다르게 보이므로 여기로 모았다.
+    ///
+    /// 입력은 <see cref="RunSummary"/>다 — 진행 중인 <see cref="RunStats"/>가 아니라 <b>끝난 런의
+    /// 확정값</b>을 받는다. 도감이 세 번째 소비자가 되면서 "저장된 기록도 같은 문구로 보여야 한다"가
+    /// 요구사항이 됐고, 그러려면 입력이 직렬화 가능한 값 타입이어야 했다.
     ///
     /// 표시 문구만 담당하고 집계는 <see cref="RunStats"/>가 소유한다.
     /// </summary>
@@ -19,47 +22,46 @@ namespace Abyss.Runtime.UI
         /// <summary>값이 없을 때 공통으로 쓰는 표기.</summary>
         private const string EMPTY = "—";
 
-        public static string Kills(RunStats s) => $"처치 수: {s.enemiesKilled}";
+        public static string Kills(RunSummary s) => $"처치 수: {s.enemiesKilled}";
 
-        public static string Combo(RunStats s) => $"최장 콤보: {s.maxCombo}";
+        public static string Combo(RunSummary s) => $"최장 콤보: {s.maxCombo}";
 
-        public static string DominantForm(RunStats s)
+        public static string DominantForm(RunSummary s)
         {
-            string id = s.GetDominantFormId();
-            if (string.IsNullOrEmpty(id)) return $"주 사용 폼: {EMPTY}";
-            return $"주 사용 폼: {id} ({s.GetFormRatio(id):P0})";
+            if (string.IsNullOrEmpty(s.dominantFormId)) return $"주 사용 폼: {EMPTY}";
+            return $"주 사용 폼: {s.dominantFormId} ({s.dominantFormRatio:P0})";
         }
 
-        public static string FormsUsed(RunStats s) =>
-            s.formsUsed.Count == 0 ? $"사용 폼: {EMPTY}" : "사용 폼: " + string.Join(", ", s.formsUsed);
+        public static string FormsUsed(RunSummary s) =>
+            s.formsUsed == null || s.formsUsed.Count == 0
+                ? $"사용 폼: {EMPTY}"
+                : "사용 폼: " + string.Join(", ", s.formsUsed);
 
-        public static string Skills(RunStats s) =>
-            s.draftedSkillIds.Count == 0
+        public static string Skills(RunSummary s) =>
+            s.draftedSkillIds == null || s.draftedSkillIds.Count == 0
                 ? $"드래프트 스킬: {EMPTY}"
                 : $"드래프트 스킬 {s.draftedSkillIds.Count}개: " + string.Join(", ", s.draftedSkillIds);
 
-        public static string Stage(RunStats s) =>
+        public static string Stage(RunSummary s) =>
             string.IsNullOrEmpty(s.stageReached) ? $"도달: {EMPTY}" : $"도달: {s.stageReached}";
 
-        public static string Elapsed(RunStats s)
+        public static string Elapsed(RunSummary s)
         {
-            int mins = Mathf.FloorToInt(s.totalElapsedSeconds / 60f);
-            int secs = Mathf.FloorToInt(s.totalElapsedSeconds % 60f);
+            int mins = Mathf.FloorToInt(s.elapsedSeconds / 60f);
+            int secs = Mathf.FloorToInt(s.elapsedSeconds % 60f);
             return $"경과: {mins:D2}:{secs:D2}";
         }
 
         /// <summary>
-        /// 메타 정산 라인. <see cref="RunStats"/>가 아니라 런 종료 시점의 정산 결과를 읽는다.
+        /// 메타 정산 라인. 살아 있는 <see cref="RunManager"/>·세이브를 조회하지 않고
+        /// <b>요약에 굳어 있는 값</b>을 읽는다 — 저장된 기록을 나중에 다시 보여줄 때
+        /// 그때의 누적치가 아니라 지금의 누적치가 찍히면 기록이 아니게 된다.
         /// </summary>
-        public static string AbyssEarned()
-        {
-            int earned = RunManager.HasInstance ? RunManager.Instance.LastRunAbyssShardsEarned : 0;
-            int total = MetaSaveService.Instance.Current.abyssShardsTotal;
-            return $"Abyss 획득: +{earned}  (누적 {total})";
-        }
+        public static string AbyssEarned(RunSummary s) =>
+            $"Abyss 획득: +{s.abyssEarned}  (누적 {s.abyssTotal})";
 
-        /// <summary>결과 화면 표시 순서 그대로의 전체 줄. 한 덩어리로 보여주는 화면(엔딩)이 쓴다.</summary>
-        public static IEnumerable<string> AllLines(RunStats s)
+        /// <summary>결과 화면 표시 순서 그대로의 전체 줄. 한 덩어리로 보여주는 화면(엔딩·도감)이 쓴다.</summary>
+        public static IEnumerable<string> AllLines(RunSummary s)
         {
             yield return Kills(s);
             yield return Combo(s);
@@ -68,7 +70,7 @@ namespace Abyss.Runtime.UI
             yield return Skills(s);
             yield return Stage(s);
             yield return Elapsed(s);
-            yield return AbyssEarned();
+            yield return AbyssEarned(s);
         }
     }
 }
