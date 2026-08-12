@@ -177,16 +177,18 @@ namespace Abyss.Runtime.Meta
         /// <summary>
         /// 런 기록 갱신. 각 필드 최대값 유지 전략. autoSave=true 시 즉시 디스크 반영.
         /// RunManager.EndRun에서 RunStats/GoldShards 최종값과 함께 호출.
+        ///
+        /// 도달 지점도 <b>다른 필드들과 같은 규칙</b>(더 좋을 때만 갱신)을 따른다. 예전에는 여기만
+        /// 비교 없이 덮어써서 이름은 <c>best</c>인데 실제로는 '직전'이었고, 도감이 그것을
+        /// "최고 도달"로 보여주고 있었다.
         /// </summary>
-        public void RecordRunResult(string reachedStageId, float runDurationSeconds, int goldShards, int bossKillDelta, bool autoSave = true)
+        public void RecordRunResult(StageReach reached, float runDurationSeconds, int goldShards, int bossKillDelta, bool autoSave = true)
         {
             EnsureLoaded();
             var r = current.records;
             r.totalRunCount += 1;
             r.totalBossKillCount += Mathf.Max(0, bossKillDelta);
-            // bestStageId는 roomId 문자열이라 대소 비교가 불가 → '최근 런의 최종 도달 스테이지'로 갱신한다
-            // (런은 진행할수록 깊어지므로 대개 최고와 일치). 정밀한 최고 비교는 스테이지 인덱스 도입 후속.
-            if (!string.IsNullOrEmpty(reachedStageId)) r.bestStageId = reachedStageId;
+            if (reached.IsDeeperThan(r.bestReach)) r.bestReach = reached;
             if (runDurationSeconds > r.bestRunDurationSeconds) r.bestRunDurationSeconds = runDurationSeconds;
             if (goldShards > r.bestGoldShards) r.bestGoldShards = goldShards;
             if (autoSave) Save();

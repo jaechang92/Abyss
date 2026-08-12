@@ -320,7 +320,7 @@ namespace Abyss.Runtime.UI
                 "■ 런 기록",
                 $"누적 런: {r.totalRunCount}회",
                 $"보스 격파: {r.totalBossKillCount}회",
-                $"최고 도달: {Resolve(r.bestStageId, EMPTY_VALUE)}",
+                $"최고 도달: {r.bestReach.Describe(EMPTY_VALUE)}",
                 $"최장 런: {FormatDuration(r.bestRunDurationSeconds)}",
                 $"최고 골드 파편: {r.bestGoldShards}",
                 $"엔딩: {(r.hasSeenEnding ? "도달 ✦ 심연 탈출" : "미도달")}",

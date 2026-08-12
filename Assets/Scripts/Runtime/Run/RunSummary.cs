@@ -40,7 +40,16 @@ namespace Abyss.Runtime.Run
         public List<string> formsUsed = new();
         public List<string> draftedSkillIds = new();
 
+        /// <summary>마지막으로 들어간 방의 roomId. 진행 깊이는 <see cref="reached"/>가 쥔다.</summary>
         public string stageReached = string.Empty;
+
+        /// <summary>
+        /// 이 런이 도달한 가장 깊은 지점. 이 필드가 없던 옛 요약은 JsonUtility가 0으로 채우고,
+        /// 0은 곧 "기록 없음"이라 <see cref="UI.RunSummaryText.Stage"/>가 roomId 표기로 되돌아간다
+        /// — 옛 기록이 사라지지 않고, 마이그레이션도 필요 없다.
+        /// </summary>
+        public StageReach reached;
+
         public float elapsedSeconds;
 
         /// <summary>이 런으로 획득한 심연 조각. 정산 시점 값이라 나중에 조회하면 달라진다.</summary>

@@ -42,8 +42,16 @@ namespace Abyss.Runtime.UI
                 ? $"드래프트 스킬: {EMPTY}"
                 : $"드래프트 스킬 {s.draftedSkillIds.Count}개: " + string.Join(", ", s.draftedSkillIds);
 
-        public static string Stage(RunSummary s) =>
-            string.IsNullOrEmpty(s.stageReached) ? $"도달: {EMPTY}" : $"도달: {s.stageReached}";
+        /// <summary>
+        /// 도달 지점. <see cref="RunSummary.reached"/>가 있으면 스테이지 이름으로,
+        /// 없으면 roomId로 되돌아간다 — 이 필드가 생기기 전에 저장된 요약도 계속 읽히게 하기 위함이고,
+        /// 그래서 이 화면 하나 때문에 세이브를 변환할 필요가 없다.
+        /// </summary>
+        public static string Stage(RunSummary s)
+        {
+            if (s.reached.HasRecord) return $"도달: {s.reached.Describe(EMPTY)}";
+            return string.IsNullOrEmpty(s.stageReached) ? $"도달: {EMPTY}" : $"도달: {s.stageReached}";
+        }
 
         public static string Elapsed(RunSummary s)
         {

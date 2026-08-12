@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Abyss.Runtime.Run;
 using UnityEngine;
 
 namespace Abyss.Runtime.Meta
@@ -48,12 +50,69 @@ namespace Abyss.Runtime.Meta
         /// </summary>
         private static readonly Dictionary<int, UpgradeStep> UpgradeSteps = new()
         {
-            // v1이 현재 스키마다 — 아직 단계가 없다.
-            //
-            // 첫 파괴적 변경이 생기면 (1) 여기에 { 1, UpgradeV1ToV2 } 를 추가하고
-            // (2) MetaSave.CurrentVersion 을 2로 올린다. 둘 중 하나만 하면 각각
+            { 1, UpgradeV1ToV2 }
+
+            // 다음 파괴적 변경 때는 (1) { 2, UpgradeV2ToV3 } 추가와
+            // (2) MetaSave.CurrentVersion = 3 을 함께 한다. 둘 중 하나만 하면 각각
             // Incomplete(단계 누락) 또는 변환 미실행으로 드러나므로 조용히 어긋나지 않는다.
         };
+
+        /// <summary>
+        /// v1 → v2: <c>records.bestStageId</c>(roomId 문자열) → <c>records.bestReach</c>.
+        ///
+        /// 옛 값은 이름과 달리 "직전 런의 최종 도달 방"이었다. 그래서 이 변환은 <b>최고 기록의 하한</b>을
+        /// 복원한다 — 그 방에 실제로 들어간 적이 있다는 것만은 확실하므로, 실제 최고보다 얕을 수는 있어도
+        /// 부풀려질 수는 없다. 이후 런이 더 깊이 가면 비교 갱신이 알아서 따라잡는다.
+        ///
+        /// 단계 번호는 <b>복원하지 않는다</b>(0 = 미상). roomId의 방 번호는 단계 번호가 아니다 —
+        /// Stage1은 방 번호가 6까지인데 단계는 9개다. 아는 척한 숫자는 빈 값보다 나쁘다.
+        /// </summary>
+        private static void UpgradeV1ToV2(MetaSave save)
+        {
+            var records = save.records;
+            if (records == null) return;
+
+            records.bestReach = ParseLegacyRoomId(records.bestStageId);
+            // 레거시 필드는 비운다 — 남겨 두면 v2 세이브를 다시 v1으로 읽었을 때
+            // 이미 옮긴 값이 한 번 더 살아나 최고 기록이 과거로 되돌아간다.
+            records.bestStageId = string.Empty;
+        }
+
+        /// <summary>
+        /// roomId에서 스테이지 번호를 최선으로 읽어낸다.
+        ///
+        /// 규약은 <c>stageN_roomM_...</c>인데 <b>Stage1만 접두어가 없다</b>(<c>room1_intro</c>) —
+        /// 접두어가 Stage2를 만들면서 도입됐기 때문이다. 그래서 "stage 접두어 없이 room으로 시작" =
+        /// 스테이지 1로 본다. 둘 다 아니면 기록 없음으로 두고 소리를 낸다 —
+        /// 모르는 형식을 스테이지 1로 뭉뚱그리면 잘못된 기록이 조용히 만들어진다.
+        /// </summary>
+        private static StageReach ParseLegacyRoomId(string roomId)
+        {
+            if (string.IsNullOrEmpty(roomId)) return default;
+
+            if (roomId.StartsWith("stage", StringComparison.OrdinalIgnoreCase))
+            {
+                int digitStart = "stage".Length;
+                int digitEnd = digitStart;
+                while (digitEnd < roomId.Length && char.IsDigit(roomId[digitEnd])) digitEnd += 1;
+
+                if (digitEnd > digitStart &&
+                    int.TryParse(roomId[digitStart..digitEnd], out int stageNumber) &&
+                    stageNumber > 0)
+                {
+                    return StageReach.At(stageNumber, 0, string.Empty);
+                }
+            }
+            else if (roomId.StartsWith("room", StringComparison.OrdinalIgnoreCase))
+            {
+                return StageReach.At(1, 0, string.Empty);
+            }
+
+            Debug.LogWarning(
+                $"[MetaSaveMigration] 옛 최고 기록 '{roomId}'에서 스테이지를 읽지 못했다 — 기록 없음으로 시작한다. " +
+                "다음 런에서 다시 세워진다.");
+            return default;
+        }
 
         /// <summary>
         /// 세이브를 현재 스키마 버전까지 끌어올린다. 기본 단계표를 사용한다.
