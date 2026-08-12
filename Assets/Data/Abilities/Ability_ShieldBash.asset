@@ -33,6 +33,9 @@ MonoBehaviour:
   buffAttackMultiplier: 1
   buffDefenseMultiplier: 1
   buffDuration: 0
+  burnStacks: 0
+  burnDuration: 4
+  burnDamagePerStack: 2
   showHitEffect: 1
   effectColor: {r: 0.7, g: 0.75, b: 0.85, a: 1}
   castSfx: {fileID: 8300000, guid: 031a679ce1ad74143aaf7ebcfa21316d, type: 3}
