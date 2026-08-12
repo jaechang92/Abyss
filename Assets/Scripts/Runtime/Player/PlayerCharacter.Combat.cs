@@ -153,6 +153,12 @@ namespace Abyss.Runtime.Player
                 reusableHitList.Add(enemy);
             }
 
+            if (reusableHitList.Count == 0) return 0;
+
+            // Passive '심연 충전'은 적중이 확정된 뒤에 적용·소비한다 — 헛스윙으로 장전이 풀리지 않게
+            // 하기 위함(Passives 파트 참조). 수집이 끝난 이 지점이 "맞았다"가 확정되는 유일한 곳이다.
+            damage = ConsumeAbyssCharge(damage);
+
             foreach (var enemy in reusableHitList)
             {
                 enemy.TakeDamage(damage);

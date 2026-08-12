@@ -27,6 +27,12 @@ namespace Abyss.Runtime.Draft
         /// <summary>불꽃 갑옷 — 받는 피해 10%를 주변 적의 연소로 변환.</summary>
         public const string FLAME_ARMOR = "skill_flame_armor";
 
+        /// <summary>잔상 — 대시 시 잔상 생성, 0.5초 후 폭발(기본 공격 × 0.5).</summary>
+        public const string AFTERIMAGE = "skill_afterimage";
+
+        /// <summary>심연 충전 — 폼 교체 시 다음 기본 공격 피해 2배.</summary>
+        public const string ABYSS_CHARGE = "skill_abyss_charge";
+
         /// <summary>보유 목록에 해당 스킬이 있는지. 상시 효과(Passive) 판정의 공통 진입점.</summary>
         public static bool IsOwned(System.Collections.Generic.IReadOnlyList<SkillData> owned, string skillId)
         {
