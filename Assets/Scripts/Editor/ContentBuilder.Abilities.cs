@@ -171,6 +171,25 @@ namespace Abyss.EditorTools
                 so.effectColor = new Color(0.75f, 0.35f, 0.95f, 1f);
             });
 
+            // 화염 폭발(2026-08-12) — 전역 Common. 화염구가 원거리 단발이라 근접 광역 자리가 비어 있었다.
+            // 화염의 포효(Epic·dark_blade 전용)와 형태는 같고 등급만큼 좁고 약하다
+            // (박스 2.6×2.0 vs 3.4×2.4, 피해 16 vs 30, 연소 2 vs 3) — 상위호환 관계가 등급과 일치한다.
+            CreateOrSkip<GenericAbilityData>($"{AbyssPaths.Abilities}/Ability_FlameBurst.asset", so =>
+            {
+                so.abilityName = "flame_burst";
+                so.description = "주변을 화염으로 터뜨린다.";
+                so.cooldownDuration = 5f;
+                so.effectType = AbilityEffectType.MeleeArea;
+                so.damage = 16;
+                so.meleeBoxSize = new Vector2(2.6f, 2f);
+                so.meleeForwardOffset = 0.9f;
+                so.burnStacks = 2;
+                so.burnDuration = 4f;
+                so.burnDamagePerStack = 2f;
+                so.showHitEffect = true;
+                so.effectColor = new Color(1f, 0.45f, 0.12f, 1f);
+            });
+
             // 이미 존재해 CreateOrSkip이 건너뛴 자산에도 연출 설정을 반영(재실행 시 색 갱신).
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_Fireball.asset", new Color(1f, 0.55f, 0.15f, 1f));
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_FlameRoar.asset", new Color(1f, 0.3f, 0.1f, 1f));
@@ -181,11 +200,13 @@ namespace Abyss.EditorTools
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_IronGuard.asset", new Color(0.55f, 0.7f, 0.95f, 1f));
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_VoidJavelin.asset", new Color(0.75f, 0.35f, 0.95f, 1f));
             ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_PhantomStep.asset", new Color(0.75f, 0.35f, 0.95f, 1f));
+            ApplyEffectSettings($"{AbyssPaths.Abilities}/Ability_FlameBurst.asset", new Color(1f, 0.45f, 0.12f, 1f));
 
             // 연소는 뒤늦게 추가된 필드라 기존 자산에는 값이 없다(CreateOrSkip이 건너뛴다).
-            // 연출 색과 같은 방식으로 재실행 시 반영한다 — 불꽃 축 Active 2종만 대상.
+            // 연출 색과 같은 방식으로 재실행 시 반영한다 — 불꽃 축 Active 3종만 대상.
             ApplyBurnSettings($"{AbyssPaths.Abilities}/Ability_Fireball.asset", 2, 4f, 2f);
             ApplyBurnSettings($"{AbyssPaths.Abilities}/Ability_FlameRoar.asset", 3, 4f, 2f);
+            ApplyBurnSettings($"{AbyssPaths.Abilities}/Ability_FlameBurst.asset", 2, 4f, 2f);
         }
 
         private static void ApplyBurnSettings(string abilityPath, int stacks, float duration, float damagePerStack)
@@ -222,6 +243,7 @@ namespace Abyss.EditorTools
             WireOne("skill_iron_guard", $"{AbyssPaths.Abilities}/Ability_IronGuard.asset");
             WireOne("skill_void_javelin", $"{AbyssPaths.Abilities}/Ability_VoidJavelin.asset");
             WireOne("skill_phantom_step", $"{AbyssPaths.Abilities}/Ability_PhantomStep.asset");
+            WireOne("skill_flame_burst", $"{AbyssPaths.Abilities}/Ability_FlameBurst.asset");
         }
 
         private static void WireOne(string skillId, string abilityPath)
@@ -279,6 +301,7 @@ namespace Abyss.EditorTools
             WireSfx($"{AbyssPaths.Abilities}/Ability_IronGuard.asset", "skill_iron_guard");
             WireSfx($"{AbyssPaths.Abilities}/Ability_VoidJavelin.asset", "skill_void_javelin");
             WireSfx($"{AbyssPaths.Abilities}/Ability_PhantomStep.asset", "skill_phantom_step");
+            WireSfx($"{AbyssPaths.Abilities}/Ability_FlameBurst.asset", "skill_flame_burst");
         }
 
         private static void WireSfx(string abilityPath, string sfxKey)

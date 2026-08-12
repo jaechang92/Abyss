@@ -13,7 +13,7 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// 프로토 SO 에셋 일괄 생성 에디터 툴.
-    /// 생성 대상: FormData 4 / SkillData 15 / EnemyData 10 / RunConfig 1.
+    /// 생성 대상: FormData 4 / SkillData 18 / EnemyData 10 / RunConfig 1.
     /// 기본값은 stage-d-analyst.md 확정 스펙 + 03-skill-draft-system.md 스킬 목록.
     /// 이미 존재하는 에셋은 건너뜀(덮어쓰지 않음).
     /// </summary>
@@ -26,7 +26,7 @@ namespace Abyss.EditorTools
                 "ContentBuilder",
                 "프로토 SO 에셋 생성:\n" +
                 "  · FormData 4 (dark_blade, void_archer, ancient_shield, void_thrower)\n" +
-                "  · SkillData 15 (불꽃 5 + 심연 5 + 버프 1 + 방패 2 + 투척 2)\n" +
+                "  · SkillData 18 (불꽃 6 + 심연 6 + 버프 1 + 방패 3 + 투척 2)\n" +
                 "  · EnemyData 10 (근접 2 / 원거리 4 / 엘리트 1 / 보스 1 + Stage2 중간보스 1 / 보스 1)\n" +
                 "  · RunConfig 1\n\n" +
                 "이미 존재하는 에셋은 건너뜁니다.",
@@ -113,6 +113,19 @@ namespace Abyss.EditorTools
             AddSkill(13, "skill_iron_guard", "철벽 방어", SkillCategory.Active, SkillRarity.Epic, "guard", "ancient_shield", "고대방패병 특화: 5초간 받는 피해 50% 감소 (CD 10초)");
             AddSkill(14, "skill_void_javelin", "심연 투창", SkillCategory.Active, SkillRarity.Rare, "abyss", "void_thrower", "심연투척사 특화: 전방으로 고위력 투창을 던진다 (CD 4.5초)");
             AddSkill(15, "skill_phantom_step", "잔상 질주", SkillCategory.Active, SkillRarity.Epic, "abyss", "void_thrower", "심연투척사 특화: 5초간 이동속도·공격력을 강화한다 (CD 12초)");
+
+            // ── 16~18 (2026-08-12) ──
+            // 등급을 Common에 몰아준 이유는 취향이 아니라 분포다. 추첨은 등급을 먼저 고르는 2단계가
+            // 아니라 스킬마다 등급 가중치(Common 60 / Rare 28 / Epic 10)를 붙인 단일 가중 추첨인데,
+            // 풀의 Common이 3장뿐이라(화염구·연소 강화·잔상) 그 세 장이 실효 점유의 절반 이상을
+            // 가져갔다(암흑검사 기준 180/330 ≈ 55%) — 3지선다마다 같은 카드가 반복됐다.
+            // 또 폼 전용이 15장 중 7장(47%)이라 로드맵 하한(30%+)을 이미 넘겨, 신규 Common 2종은 전역(any).
+            AddSkill(16, "skill_flame_burst", "화염 폭발", SkillCategory.Active, SkillRarity.Common, "fire", "", "주변을 화염으로 터뜨린다. 연소 2 부여 (CD 5초)");
+            AddSkill(17, "skill_soul_reclaim", "영혼 회수", SkillCategory.Passive, SkillRarity.Common, "abyss", "", "적 처치 시 HP 2 회복");
+            // 수호 축은 시너지 스킬이 없어 08 §3 체크리스트 3번이 미충족이었다. ancient_shield 귀속인
+            // 이유는 그 축의 다른 스킬 2종이 모두 이 폼 전용이라, 전역으로 두면 다른 폼 런에서
+            // 발동 조건을 영영 못 채우는 '무용 카드'가 되기 때문이다.
+            AddSkill(18, "skill_counter_stance", "반격 태세", SkillCategory.Synergy, SkillRarity.Rare, "guard", "ancient_shield", "[수호] 2개+ 시 피격당하면 받은 피해의 40%를 주변 적에게 되돌린다");
         }
 
         private static void AddSkill(int index, string skillId, string displayName, SkillCategory category, SkillRarity rarity, string synergyTag, string formBound, string description)

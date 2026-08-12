@@ -452,6 +452,7 @@ MonoBehaviour:
   flameArmorConversionRatio: 0.1
   flameArmorRadius: 3
   flameArmorBurnDuration: 4
+  soulReclaimHealPerKill: 2
   afterimageRadius: 1.6
   afterimageDelay: 0.5
   afterimageDamageRatio: 0.5
@@ -467,6 +468,9 @@ MonoBehaviour:
   deathExplosionHpRatio: 0.3
   deathExplosionDamageCap: 60
   deathExplosionRingDuration: 0.28
+  counterStanceReflectRatio: 0.4
+  counterStanceRadius: 3
+  counterStanceRingDuration: 0.2
 --- !u!114 &5577743728559273929
 MonoBehaviour:
   m_ObjectHideFlags: 0

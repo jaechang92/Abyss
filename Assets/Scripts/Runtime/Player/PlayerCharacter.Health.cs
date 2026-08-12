@@ -80,6 +80,12 @@ namespace Abyss.Runtime.Player
             currentHp = Mathf.Max(0, currentHp - mitigated);
             OnHpChanged?.Invoke(previous, currentHp);
 
+            // 반격 태세(Synergy) — 실제로 깎인 피해를 기준으로 되돌린다. 불꽃 갑옷과 달리
+            // 받는 피해를 줄이지 않으므로 HP 차감 '뒤'가 맞는 자리다.
+            // 죽는 피격에서도 한 번은 나간다 — 마지막 일격을 되갚는 그림이 이 축의 성격이고,
+            // Die() 전에 두면 사망 처리와 순서가 뒤엉키지 않는다.
+            ReflectCounterStance(mitigated);
+
             if (currentHp <= 0) Die();
         }
 
