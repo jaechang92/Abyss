@@ -11,10 +11,12 @@ namespace Abyss.Runtime.Player
     /// 시너지 카테고리 스킬(<see cref="SkillCategory.Synergy"/>)의 실제 발동 파트.
     ///
     /// 시너지 효과는 SkillData의 수치 필드(flatBonus/multiplier)로 표현할 수 있는 형태가 아니라
-    /// (적 사망 시 폭발·대시 쿨다운 감소) 스킬마다 전용 코드가 필요하다. 그래서 이 파트가
+    /// (적 사망 시 폭발·대시 쿨다운 감소·피격 반사) 스킬마다 전용 코드가 필요하다. 그래서 이 파트가
     /// <see cref="SynergyAxis.IsSynergyActive"/>로 활성 여부만 판정하고 효과 자체는 직접 구현한다.
     ///
-    /// <b>전용 씬 오브젝트를 만들지 않은 이유</b>: 두 효과가 필요로 하는 것이 플레이어의 대시 쿨다운과
+    /// 현재 3종 — 불꽃 <b>폭발 신학</b>, 심연 <b>심연 동료</b>, 수호 <b>반격 태세</b>.
+    ///
+    /// <b>전용 씬 오브젝트를 만들지 않은 이유</b>: 세 효과가 필요로 하는 것이 플레이어의 대시 쿨다운과
     /// 플레이어 기준 적 탐색이라 소유자가 명백히 플레이어다. 별도 컨트롤러를 두면 씬·빌더를 손대야 하고
     /// (HUD·제단 빌더 재실행 사고 전례), 얻는 것은 파일 분리뿐이다.
     /// </summary>
@@ -28,6 +30,13 @@ namespace Abyss.Runtime.Player
         [Tooltip("피해 상한. 보스는 baseHp가 수백이라 비율만 쓰면 폭발 한 번이 방을 지운다.")]
         [SerializeField, Min(1)] private int deathExplosionDamageCap = 60;
         [SerializeField, Min(0.05f)] private float deathExplosionRingDuration = 0.28f;
+
+        [Header("시너지 — 반격 태세 (수호 2+)")]
+        [Tooltip("받은 피해 중 주변 적에게 되돌리는 비율")]
+        [SerializeField, Range(0f, 1f)] private float counterStanceReflectRatio = 0.4f;
+        [Tooltip("반격이 닿는 반경(월드 유닛)")]
+        [SerializeField, Min(0f)] private float counterStanceRadius = 3f;
+        [SerializeField, Min(0.05f)] private float counterStanceRingDuration = 0.2f;
 
         /// <summary>심연 동료 대시 쿨다운 감소량(초). 03-skill-draft-system.md §5 #9.</summary>
         private const float ABYSS_ALLY_DASH_CD_REDUCTION = 0.5f;
@@ -43,6 +52,7 @@ namespace Abyss.Runtime.Player
 
         private bool isExplosiveTheologyActive;
         private bool isAbyssAllyActive;
+        private bool isCounterStanceActive;
 
         // 폭발이 죽인 적이 다시 폭발하는 연쇄를 1단계에서 끊는다. 없으면 밀집 구간에서 무한 재귀로 스택이 넘친다.
         private bool isResolvingDeathExplosion;
@@ -53,6 +63,12 @@ namespace Abyss.Runtime.Player
         private static readonly Collider2D[] explosionOverlapBuffer = new Collider2D[32];
         private static readonly List<EnemyBase> explosionHitList = new();
         private static ContactFilter2D explosionFilter = new ContactFilter2D().NoFilter();
+
+        // 반격 전용 버퍼. 피격은 적의 공격 처리 도중에 발생하므로 어느 순회 안에 끼어들지 알 수 없다
+        // (불꽃 갑옷이 자기 버퍼를 따로 두는 것과 같은 이유이고, 그 둘은 같은 피격에서 연달아 돈다).
+        private static readonly Collider2D[] counterOverlapBuffer = new Collider2D[32];
+        private static readonly List<EnemyBase> counterHitList = new();
+        private static ContactFilter2D counterFilter = new ContactFilter2D().NoFilter();
 
         /// <summary>대시 쿨다운 감소량(초). 심연 동료 활성 시에만 0보다 크다.</summary>
         public float DashCooldownReduction => isAbyssAllyActive ? ABYSS_ALLY_DASH_CD_REDUCTION : 0f;
@@ -66,6 +82,9 @@ namespace Abyss.Runtime.Player
 
         /// <summary>심연 동료가 발동 조건을 만족한 상태인지(디버그·후속 UI 조회용).</summary>
         public bool IsAbyssAllyActive => isAbyssAllyActive;
+
+        /// <summary>반격 태세가 발동 조건을 만족한 상태인지(디버그·후속 UI 조회용).</summary>
+        public bool IsCounterStanceActive => isCounterStanceActive;
 
         // PlayerCharacter.Movement의 OnEnable/OnDisable에서 호출(partial 중복 정의 회피).
         private void SubscribeSynergyEvents()
@@ -97,6 +116,51 @@ namespace Abyss.Runtime.Player
 
             isExplosiveTheologyActive = SynergyAxis.IsSynergyActive(owned, SkillIds.EXPLOSIVE_THEOLOGY);
             isAbyssAllyActive = SynergyAxis.IsSynergyActive(owned, SkillIds.ABYSS_ALLY);
+            isCounterStanceActive = SynergyAxis.IsSynergyActive(owned, SkillIds.COUNTER_STANCE);
+        }
+
+        // ====== 반격 태세 — [수호] 2개+ 시 받은 피해의 일부를 주변 적에게 되돌린다 ======
+
+        /// <summary>
+        /// 실제로 HP에서 깎인 피해의 일부를 주변 적에게 되돌린다. <see cref="TakeDamage"/>가
+        /// 경감·변환을 모두 끝낸 뒤 호출한다 — 반사 기준이 "받은 피해"라야 설명과 화면이 일치한다
+        /// (경감 전 값을 쓰면 철벽 방어를 켤수록 반격이 세지는 이상한 규칙이 된다).
+        ///
+        /// <b>피해를 줄이지 않는다</b>는 점이 불꽃 갑옷과 갈리는 지점이다. 저쪽은 받을 피해를
+        /// 덜어 적에게 옮기는 '변환'이고, 이쪽은 맞은 만큼 그대로 맞으면서 되돌려주는 '반격'이다.
+        /// 그래서 둘을 함께 들면 순서대로 각자 동작한다(변환 후 남은 피해가 반사의 기준이 된다).
+        /// </summary>
+        private void ReflectCounterStance(int takenDamage)
+        {
+            if (!isCounterStanceActive || takenDamage <= 0 || counterStanceRadius <= 0f) return;
+
+            int reflected = Mathf.FloorToInt(takenDamage * counterStanceReflectRatio);
+            // 올림하지 않는다 — 1 피해를 맞고 1을 되돌리면 비율(40%)이 설명과 어긋난다.
+            if (reflected <= 0) return;
+
+            BossAreaEffect.Spawn(transform.position, counterStanceRadius,
+                                 SynergyAxis.GetColor(SynergyAxis.AXIS_GUARD), counterStanceRingDuration);
+
+            counterFilter.useTriggers = Physics2D.queriesHitTriggers;
+            int count = Physics2D.OverlapCircle(
+                (Vector2)transform.position, counterStanceRadius, counterFilter, counterOverlapBuffer);
+
+            counterHitList.Clear();
+            for (int i = 0; i < count; i++)
+            {
+                var col = counterOverlapBuffer[i];
+                if (col == null) continue;
+                var enemy = col.GetComponentInParent<EnemyBase>();
+                if (enemy == null || enemy.IsDead) continue;
+                if (counterHitList.Contains(enemy)) continue;
+                counterHitList.Add(enemy);
+            }
+
+            // 수집을 끝낸 뒤 적용 — 반격으로 적이 죽으면 폭발 신학이 같은 프레임에 끼어들 수 있다.
+            for (int i = 0; i < counterHitList.Count; i++)
+            {
+                counterHitList[i].TakeDamage(reflected);
+            }
         }
 
         // ====== 폭발 신학 — [불꽃] 2개+ 시 적 사망 폭발 ======

@@ -9,6 +9,7 @@ Pillow(PIL) 필요: pip install Pillow
 키 매핑(ContentBuilder.WireSkillIcons와 일치):
   fireball   - 주황 화염구 (Projectile)
   flame_roar - 적색 화염 폭발/포효 (MeleeArea 광역)
+  flame_burst - 주황 즉발 폭발 (MeleeArea, 링 + 8방 스파이크)
   swift_slash- 청록 베기 궤적 (MeleeArea 전방)
   void_volley- 보랏빛 부채꼴 3화살 (Projectile 다발)
 """
@@ -347,6 +348,42 @@ def make_phantom_step():
     return img
 
 
+# -----------------------------------------------------------------------
+# flame_burst (32x32) - 주황 즉발 폭발 (중심에서 터지는 4방향 스파이크 + 링)
+# flame_roar(적색 사방 분출)와 같은 축이지만 형태를 다르게 잡는다 —
+# 아이콘이 비슷하면 드래프트 카드에서 두 스킬을 구분할 수 없다.
+# -----------------------------------------------------------------------
+def make_flame_burst():
+    CORE  = (255, 240, 190, 255)  # 백황 코어
+    MID   = (255, 140, 40,  255)  # 주황
+    DEEP  = (215, 70,  20,  255)  # 진한 주황
+    RING  = (255, 175, 70,  170)  # 충격파 링
+
+    img = Image.new("RGBA", (SIZE, SIZE), TRANSPARENT)
+    d = ImageDraw.Draw(img)
+
+    cx = cy = 16
+
+    # 충격파 링(폭발이 '퍼지는' 순간임을 알린다 — 포효는 링이 없다)
+    d.ellipse([cx - 14, cy - 14, cx + 14, cy + 14], outline=RING, width=2)
+
+    # 4방향 스파이크(대각 포함 8방). 바깥은 진하고 안쪽은 밝게.
+    spikes = [(0, -1), (1, 0), (0, 1), (-1, 0), (1, -1), (1, 1), (-1, 1), (-1, -1)]
+    for dx, dy in spikes:
+        length = 11 if dx == 0 or dy == 0 else 8
+        ex, ey = cx + dx * length, cy + dy * length
+        d.line([(cx, cy), (ex, ey)], fill=OUTLINE, width=4)
+        d.line([(cx, cy), (ex, ey)], fill=DEEP, width=3)
+        d.line([(cx, cy), (cx + dx * (length - 3), cy + dy * (length - 3))], fill=MID, width=2)
+
+    # 코어 — 외곽선 → 주황 → 백황 순으로 겹쳐 중심이 가장 밝게 보이도록.
+    d.ellipse([cx - 7, cy - 7, cx + 7, cy + 7], fill=OUTLINE)
+    d.ellipse([cx - 6, cy - 6, cx + 6, cy + 6], fill=DEEP)
+    d.ellipse([cx - 4, cy - 4, cx + 4, cy + 4], fill=MID)
+    d.ellipse([cx - 2, cy - 2, cx + 2, cy + 2], fill=CORE)
+    return img
+
+
 def main():
     ensure_dir(OUTPUT_DIR)
 
@@ -360,6 +397,7 @@ def main():
         ("iron_guard", make_iron_guard),
         ("void_javelin", make_void_javelin),
         ("phantom_step", make_phantom_step),
+        ("flame_burst", make_flame_burst),
     ]
 
     generated = []

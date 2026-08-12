@@ -20,6 +20,9 @@ namespace Abyss.Runtime.Draft
         /// <summary>심연 동료 — [심연] 2+ 시 대시 CD 감소.</summary>
         public const string ABYSS_ALLY = "skill_abyss_ally";
 
+        /// <summary>반격 태세 — [수호] 2+ 시 피격 피해의 일부를 주변 적에게 되돌린다.</summary>
+        public const string COUNTER_STANCE = "skill_counter_stance";
+
         // ── Passive ──
         /// <summary>연소 강화 — 모든 연소 피해 +50%.</summary>
         public const string BURN_ENHANCEMENT = "skill_burn_enhancement";
@@ -32,6 +35,9 @@ namespace Abyss.Runtime.Draft
 
         /// <summary>심연 충전 — 폼 교체 시 다음 기본 공격 피해 2배.</summary>
         public const string ABYSS_CHARGE = "skill_abyss_charge";
+
+        /// <summary>영혼 회수 — 적 처치 시 HP 회복.</summary>
+        public const string SOUL_RECLAIM = "skill_soul_reclaim";
 
         /// <summary>보유 목록에 해당 스킬이 있는지. 상시 효과(Passive) 판정의 공통 진입점.</summary>
         public static bool IsOwned(System.Collections.Generic.IReadOnlyList<SkillData> owned, string skillId)

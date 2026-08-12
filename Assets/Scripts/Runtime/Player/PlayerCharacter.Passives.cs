@@ -11,9 +11,10 @@ using UnityEngine;
 namespace Abyss.Runtime.Player
 {
     /// <summary>
-    /// 전용 발동 코드가 필요한 Passive 스킬 파트. 현재 4종 —
+    /// 전용 발동 코드가 필요한 Passive 스킬 파트. 현재 5종 —
     /// 불꽃 축의 <b>연소 강화</b>(모든 연소 피해 +50%)·<b>불꽃 갑옷</b>(받는 피해 10%를 주변 적의 연소로 변환),
-    /// 심연 축의 <b>잔상</b>(대시 자리에 남아 0.5초 후 폭발)·<b>심연 충전</b>(폼 교체 시 다음 기본 공격 2배).
+    /// 심연 축의 <b>잔상</b>(대시 자리에 남아 0.5초 후 폭발)·<b>심연 충전</b>(폼 교체 시 다음 기본 공격 2배)·
+    /// <b>영혼 회수</b>(적 처치 시 HP 회복).
     ///
     /// <see cref="PlayerCharacter.Synergy"/>와 같은 구조(보유 스킬 조회 → 플래그 재계산)이지만
     /// 파일을 나눈 이유는 <b>카테고리가 다르면 함께 바뀌지 않기 때문</b>이다. 시너지는 축 임계 판정이,
@@ -27,6 +28,10 @@ namespace Abyss.Runtime.Player
         [Tooltip("변환된 연소를 부여할 반경(월드 유닛)")]
         [SerializeField, Min(0f)] private float flameArmorRadius = 3f;
         [SerializeField, Min(0.5f)] private float flameArmorBurnDuration = 4f;
+
+        [Header("Passive — 영혼 회수")]
+        [Tooltip("적 하나를 처치할 때 회복하는 HP")]
+        [SerializeField, Min(0)] private int soulReclaimHealPerKill = 2;
 
         [Header("Passive — 잔상")]
         [Tooltip("대시 자리에 남은 잔상이 터지는 반경(월드 유닛)")]
@@ -49,6 +54,7 @@ namespace Abyss.Runtime.Player
         private bool isFlameArmorActive;
         private bool isAfterimageActive;
         private bool isAbyssChargeActive;
+        private bool isSoulReclaimActive;
 
         /// <summary>심연 충전이 장전된 상태(폼 교체 후 아직 적중시키지 않음).</summary>
         private bool isAbyssChargeReady;
@@ -86,17 +92,22 @@ namespace Abyss.Runtime.Player
         /// <summary>심연 충전이 장전돼 다음 적중이 2배가 되는 상태인지(디버그·후속 HUD 조회용).</summary>
         public bool IsAbyssChargeReady => isAbyssChargeReady;
 
+        /// <summary>영혼 회수 보유 여부(디버그·후속 UI 조회용).</summary>
+        public bool IsSoulReclaimActive => isSoulReclaimActive;
+
         // PlayerCharacter.Movement의 OnEnable/OnDisable에서 호출(partial 중복 정의 회피).
         private void SubscribePassiveEvents()
         {
             GameEvents.OnSkillDrafted += HandleSkillDraftedForPassives;
             GameEvents.OnFormSwapped += HandleFormSwappedForPassives;
+            GameEvents.OnEnemyKilled += HandleEnemyKilledForPassives;
         }
 
         private void UnsubscribePassiveEvents()
         {
             GameEvents.OnSkillDrafted -= HandleSkillDraftedForPassives;
             GameEvents.OnFormSwapped -= HandleFormSwappedForPassives;
+            GameEvents.OnEnemyKilled -= HandleEnemyKilledForPassives;
         }
 
         private void HandleSkillDraftedForPassives(SkillData skill, DraftTriggerReason reason)
@@ -117,10 +128,27 @@ namespace Abyss.Runtime.Player
             isFlameArmorActive = SkillIds.IsOwned(owned, SkillIds.FLAME_ARMOR);
             isAfterimageActive = SkillIds.IsOwned(owned, SkillIds.AFTERIMAGE);
             isAbyssChargeActive = SkillIds.IsOwned(owned, SkillIds.ABYSS_CHARGE);
+            isSoulReclaimActive = SkillIds.IsOwned(owned, SkillIds.SOUL_RECLAIM);
 
             // 스킬을 잃으면 장전분도 함께 사라진다 — 미보유 스킬의 효과가 한 대 더 나가면
             // "지금 무엇을 가졌는가"와 화면에서 벌어지는 일이 어긋난다.
             if (!isAbyssChargeActive) isAbyssChargeReady = false;
+        }
+
+        // ====== 영혼 회수 — 적 처치 시 HP 회복 ======
+
+        /// <summary>
+        /// 적이 죽을 때마다 소량 회복한다. 런 중 회복 수단이 휴식 방·이벤트뿐이라, <b>전투를 잘하는 것</b>이
+        /// 회복이 되는 경로를 하나 연다.
+        ///
+        /// 거리·가해자를 따지지 않는다 — 스킬 설명이 "적 처치 시"이므로 조건을 더 붙이면 설명이 거짓이 된다.
+        /// (잔상·폭발 신학이 죽인 적도 포함된다. 그것도 플레이어가 만든 처치다.)
+        /// <see cref="Heal"/>이 최대 HP에서 잘리므로 만피에서는 아무 일도 일어나지 않는다.
+        /// </summary>
+        private void HandleEnemyKilledForPassives(EnemyData _, Vector3 __)
+        {
+            if (!isSoulReclaimActive || isDead || soulReclaimHealPerKill <= 0) return;
+            Heal(soulReclaimHealPerKill);
         }
 
         // ====== 불꽃 갑옷 — 받는 피해 10% → 주변 적 연소로 변환 ======

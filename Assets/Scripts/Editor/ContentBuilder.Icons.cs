@@ -26,6 +26,7 @@ namespace Abyss.EditorTools
             WireIcon("skill_iron_guard", "iron_guard");
             WireIcon("skill_void_javelin", "void_javelin");
             WireIcon("skill_phantom_step", "phantom_step");
+            WireIcon("skill_flame_burst", "flame_burst");
         }
 
         private static void WireIcon(string skillId, string iconKey)
