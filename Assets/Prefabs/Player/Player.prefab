@@ -449,12 +449,24 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
+  flameArmorConversionRatio: 0.1
+  flameArmorRadius: 3
+  flameArmorBurnDuration: 4
+  afterimageRadius: 1.6
+  afterimageDelay: 0.5
+  afterimageDamageRatio: 0.5
+  afterimageGhostAlpha: 0.45
+  afterimageRingDuration: 0.24
   castFlashColor: {r: 0.6, g: 0.9, b: 1, a: 1}
   castFlashDuration: 0.15
   castRingRadius: 1.2
   castRingDuration: 0.3
   castHitstop: 0.04
   castShake: {x: 0.1, y: 0.1}
+  deathExplosionRadius: 2.2
+  deathExplosionHpRatio: 0.3
+  deathExplosionDamageCap: 60
+  deathExplosionRingDuration: 0.28
 --- !u!114 &5577743728559273929
 MonoBehaviour:
   m_ObjectHideFlags: 0

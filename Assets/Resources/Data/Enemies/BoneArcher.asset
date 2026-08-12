@@ -10,30 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38776e52fc55d374db5f06453d2c679d, type: 3}
-  m_Name: MidBossThroneWarden
+  m_Name: BoneArcher
   m_EditorClassIdentifier: 
-  enemyId: midboss_throne_warden
-  displayName: "\uC655\uC88C\uC758 \uD30C\uC218\uAD00"
-  baseHp: 300
-  baseDamage: 34
-  moveSpeed: 3
-  detectionRange: 9
-  attackRange: 2.2
-  attackCooldown: 1.3
+  enemyId: bone_archer
+  displayName: "\uBF08 \uAD81\uC218"
+  baseHp: 22
+  baseDamage: 16
+  moveSpeed: 1.8
+  detectionRange: 10
+  attackRange: 7.5
+  attackCooldown: 2.4
   patrolRadius: 2
   patrolSpeedMultiplier: 0.5
-  expReward: 120
-  goldReward: 26
-  isElite: 1
-  isRanged: 0
+  expReward: 22
+  goldReward: 5
+  isElite: 0
+  isRanged: 1
   isBoss: 0
-  projectilePrefab: {fileID: 0}
-  projectileSpeed: 8
-  projectileLifetime: 3
+  projectilePrefab: {fileID: 6236116468714331731, guid: 54f992f062144484da995449f824a74c, type: 3}
+  projectileSpeed: 13
+  projectileLifetime: 3.5
   burstCount: 1
   burstInterval: 0.12
   usesArcProjectile: 0
   arcProjectilePrefab: {fileID: 0}
   arcFlightTime: 1.1
   arcExplosionRadius: 1.8
-  spawnPrefab: {fileID: 3231232619673570237, guid: 24afafc1ecffaf244a69f9811cf0db47, type: 3}
+  spawnPrefab: {fileID: 4323412734336234157, guid: f98c10c13d8d0584a96a3dbf54208475, type: 3}

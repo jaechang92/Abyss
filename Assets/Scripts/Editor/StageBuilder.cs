@@ -51,10 +51,10 @@ namespace Abyss.EditorTools
             bool proceed = EditorUtility.DisplayDialog(
                 "StageBuilder",
                 "Stage 1 콘텐츠 생성:\n" +
-                "  · RoomData 9개 (Combat 5 + Event 2 + Shop 1 + Rest 1 + Boss 1)\n" +
+                "  · RoomData 10개 (Combat 6 + Event 2 + Shop 1 + Rest 1 + Boss 1)\n" +
                 "  · EventData 6종 + 휴식 3종 (Assets/Data/Events)\n" +
                 "  · ShopData 3종 (Assets/Data/Shops)\n" +
-                "  · StageData 1개 (Stage1_AbyssEntrance, 8단계 · 분기 2곳)\n\n" +
+                "  · StageData 1개 (Stage1_AbyssEntrance, 9단계 · 분기 2곳)\n\n" +
                 "이미 존재하는 SO는 건너뜁니다(분기 표시명·힌트는 갱신).",
                 "생성", "취소");
             if (!proceed) return;
@@ -66,10 +66,11 @@ namespace Abyss.EditorTools
             var grunt = LoadEnemyData("MeleeGrunt");
             var brute = LoadEnemyData("MeleeBrute");
             var archer = LoadEnemyData("RangedArcher");
+            var boneArcher = LoadEnemyData("BoneArcher");
             var elite = LoadEnemyData("EliteHunter");
             var boss = LoadEnemyData("BossAbyssKeeper");
 
-            if (grunt == null || brute == null || archer == null || elite == null || boss == null)
+            if (grunt == null || brute == null || archer == null || boneArcher == null || elite == null || boss == null)
             {
                 EditorUtility.DisplayDialog(
                     "StageBuilder 실패",
@@ -93,6 +94,10 @@ namespace Abyss.EditorTools
                 displayName: "깨진 제단", hint: "대가를 치르면 응답한다");
             var room3 = CreateOrLoadRoom("Room3_Crowd",     RoomType.Combat, 12,
                 new[] { (grunt, 3), (brute, 1) }, hasFormReward: true);
+            // 뼈 궁수 도입 방. 폼 보상 직후에 둔다 — 새 폼을 쥔 직후가 새 위협을 배우기 좋은 자리다.
+            // 근접 병사를 하나 섞어 "쫓아오는 것을 상대하며 먼 것을 처리"라는 이 적의 과제를 만든다.
+            var roomBone = CreateOrLoadRoom("Room4_Bonefield", RoomType.Combat, 14,
+                new[] { (boneArcher, 2), (grunt, 1) });
             var room4 = CreateOrLoadRoom("Room4_Elite",     RoomType.Elite, 20,
                 new[] { (elite, 1), (grunt, 2) });
             var room5 = CreateOrLoadRoom("Room5_Ambush",    RoomType.Combat, 18,
@@ -116,6 +121,7 @@ namespace Abyss.EditorTools
                 Step(room1),
                 Step(room2, roomEvent),      // 분기 ①
                 Step(room3),
+                Step(roomBone),              // 뼈 궁수 도입
                 Step(room4),
                 Step(room5, room5Alt),       // 분기 ②
                 Step(roomShop),
@@ -136,10 +142,10 @@ namespace Abyss.EditorTools
             bool proceed = EditorUtility.DisplayDialog(
                 "StageBuilder",
                 "Stage 2 '불꽃의 회랑' 콘텐츠 생성:\n" +
-                "  · RoomData 11개 (Combat 5 + Event 2 + Shop 1 + Rest 1 + Elite 1[중간보스] + Boss 1)\n" +
+                "  · RoomData 12개 (Combat 6 + Event 2 + Shop 1 + Rest 1 + Elite 1[중간보스] + Boss 1)\n" +
                 "  · EventData 6종 + 휴식 3종 (Assets/Data/Events)\n" +
                 "  · ShopData 3종 (Assets/Data/Shops)\n" +
-                "  · StageData 1개 (Stage2_FlameCorridor, 9단계 · 분기 2곳)\n" +
+                "  · StageData 1개 (Stage2_FlameCorridor, 10단계 · 분기 2곳)\n" +
                 "  · StageSequenceData (디스크의 스테이지를 순서대로 재구성)\n\n" +
                 "이미 존재하는 RoomData/StageData는 건너뜁니다(분기 표시·시퀀스는 갱신).",
                 "생성", "취소");
@@ -152,10 +158,11 @@ namespace Abyss.EditorTools
             var grunt = LoadEnemyData("MeleeGrunt");
             var brute = LoadEnemyData("MeleeBrute");
             var archer = LoadEnemyData("RangedArcher");
+            var caster = LoadEnemyData("VoidCaster");
             var sentinel = LoadEnemyData("MidBossSentinel");
             var serpent = LoadEnemyData("BossFlameSerpent");
 
-            if (grunt == null || brute == null || archer == null || sentinel == null || serpent == null)
+            if (grunt == null || brute == null || archer == null || caster == null || sentinel == null || serpent == null)
             {
                 EditorUtility.DisplayDialog(
                     "StageBuilder 실패",
@@ -177,6 +184,10 @@ namespace Abyss.EditorTools
                 new[] { (archer, 2), (grunt, 2) });
             var r3 = CreateOrLoadRoom("Stage2_Room3_Phalanx",  RoomType.Combat, 18,
                 new[] { (brute, 2), (grunt, 2) }, hasFormReward: true);
+            // 공허 술사 도입. 3연사는 "계속 움직여라"를 가르치는데, 중장 강적이 함께 있으면
+            // 멈춰 서서 때릴 수밖에 없어 교훈이 뒤집힌다 — 그래서 근접은 빠른 쪽(근접 병사)만 붙였다.
+            var rCaster = CreateOrLoadRoom("Stage2_Room3_Caster", RoomType.Combat, 20,
+                new[] { (caster, 2), (grunt, 2) });
             var rEventCache = CreateOrLoadEventRoom("Stage2_Room4_Event_Cache", forgottenCache,
                 displayName: "잊힌 보급함", hint: "중간보스 전 보급");
             var r5 = CreateOrLoadRoom("Stage2_Room5_Gauntlet", RoomType.Combat, 24,
@@ -201,6 +212,7 @@ namespace Abyss.EditorTools
                 Step(r1),
                 Step(r2),
                 Step(r3),
+                Step(rCaster),               // 공허 술사 도입
                 Step(rEventCache, r5),       // 분기 ① — 중간보스 대비
                 Step(r4),
                 Step(rEventSpring, r6Alt),   // 분기 ② — 중간보스 수습
@@ -225,10 +237,10 @@ namespace Abyss.EditorTools
             bool proceed = EditorUtility.DisplayDialog(
                 "StageBuilder",
                 "Stage 3 '왕좌의 잔해' 콘텐츠 생성:\n" +
-                "  · RoomData 11개 (Combat 5 + Event 2 + Shop 1 + Rest 1 + Elite 1[중간보스] + Boss 1)\n" +
+                "  · RoomData 12개 (Combat 6 + Event 2 + Shop 1 + Rest 1 + Elite 1[중간보스] + Boss 1)\n" +
                 "  · EventData 6종 + 휴식 3종 (Assets/Data/Events)\n" +
                 "  · ShopData 3종 (Assets/Data/Shops)\n" +
-                "  · StageData 1개 (Stage3_ThroneRuins, 9단계 · 분기 2곳)\n" +
+                "  · StageData 1개 (Stage3_ThroneRuins, 10단계 · 분기 2곳)\n" +
                 "  · StageSequenceData (디스크의 스테이지를 순서대로 재구성)\n\n" +
                 "먼저 'Prototype Content'와 'Prototype Prefabs'를 실행해\n" +
                 "MidBossThroneWarden·BossThronebound가 만들어져 있어야 합니다.\n\n" +
@@ -242,11 +254,12 @@ namespace Abyss.EditorTools
             var grunt = LoadEnemyData("MeleeGrunt");
             var brute = LoadEnemyData("MeleeBrute");
             var archer = LoadEnemyData("RangedArcher");
+            var mortar = LoadEnemyData("FlameMortar");
             var elite = LoadEnemyData("EliteHunter");
             var warden = LoadEnemyData("MidBossThroneWarden");
             var thronebound = LoadEnemyData("BossThronebound");
 
-            if (grunt == null || brute == null || archer == null || elite == null || warden == null || thronebound == null)
+            if (grunt == null || brute == null || archer == null || mortar == null || elite == null || warden == null || thronebound == null)
             {
                 EditorUtility.DisplayDialog(
                     "StageBuilder 실패",
@@ -267,6 +280,10 @@ namespace Abyss.EditorTools
                 new[] { (brute, 2), (archer, 2) });
             var r3 = CreateOrLoadRoom("Stage3_Room3_Court",     RoomType.Combat, 22,
                 new[] { (grunt, 3), (brute, 2) }, hasFormReward: true);
+            // 화염 박격포 도입. 곡사는 붙으면 무력해지므로 "먼저 도달해야 하는 적"이고,
+            // 중장 강적을 앞에 세워 그 접근을 방해한다 — 이 방의 과제가 곧 이 적의 공략법이다.
+            var rMortar = CreateOrLoadRoom("Stage3_Room3_Bombard", RoomType.Combat, 26,
+                new[] { (mortar, 2), (brute, 1) });
             var rEventCrown = CreateOrLoadEventRoom("Stage3_Room4_Event_Crown", hollowCrown,
                 displayName: "빈 왕관", hint: "머리를 내주면 값이 크다");
             var r4Alt = CreateOrLoadRoom("Stage3_Room4_Alt_Guard", RoomType.Combat, 30,
@@ -292,6 +309,7 @@ namespace Abyss.EditorTools
                 Step(r1),
                 Step(r2),
                 Step(r3),
+                Step(rMortar),               // 화염 박격포 도입
                 Step(rEventCrown, r4Alt),    // 분기 ① — 중간보스 대비
                 Step(rWarden),
                 Step(rEventOath, r6Alt),     // 분기 ② — 중간보스 수습

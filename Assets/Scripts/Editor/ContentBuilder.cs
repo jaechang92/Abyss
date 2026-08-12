@@ -13,7 +13,7 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// 프로토 SO 에셋 일괄 생성 에디터 툴.
-    /// 생성 대상: FormData 4 / SkillData 15 / EnemyData 7 / RunConfig 1.
+    /// 생성 대상: FormData 4 / SkillData 15 / EnemyData 10 / RunConfig 1.
     /// 기본값은 stage-d-analyst.md 확정 스펙 + 03-skill-draft-system.md 스킬 목록.
     /// 이미 존재하는 에셋은 건너뜀(덮어쓰지 않음).
     /// </summary>
@@ -27,7 +27,7 @@ namespace Abyss.EditorTools
                 "프로토 SO 에셋 생성:\n" +
                 "  · FormData 4 (dark_blade, void_archer, ancient_shield, void_thrower)\n" +
                 "  · SkillData 15 (불꽃 5 + 심연 5 + 버프 1 + 방패 2 + 투척 2)\n" +
-                "  · EnemyData 7 (근접 2 / 원거리 1 / 엘리트 1 / 보스 1 + Stage2 중간보스 1 / 보스 1)\n" +
+                "  · EnemyData 10 (근접 2 / 원거리 4 / 엘리트 1 / 보스 1 + Stage2 중간보스 1 / 보스 1)\n" +
                 "  · RunConfig 1\n\n" +
                 "이미 존재하는 에셋은 건너뜁니다.",
                 "생성", "취소");

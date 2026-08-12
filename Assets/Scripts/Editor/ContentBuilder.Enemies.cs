@@ -52,6 +52,68 @@ namespace Abyss.EditorTools
                 so.projectileLifetime = 3f;    // 미명중 시 소멸 시간
             });
 
+            // ── 원거리 3종 (M2-Q1 잔여) ──
+            // 셋 다 전용 AI 클래스 없이 데이터만으로 만든다. EnemyData의 isRanged·burstCount·
+            // arcProjectilePrefab 조합이 행동을 정하므로, 다음 원거리 적은 이 블록에 항목만 늘리면 된다.
+
+            CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/BoneArcher.asset", so =>
+            {
+                so.enemyId = "bone_archer";
+                so.displayName = "뼈 궁수";
+                // RangedArcher(25/12/사거리5)보다 멀리서 세게 쏘고 대신 더 느리고 무르다.
+                // "더 센 궁수"가 아니라 "다른 거리에서 싸우는 궁수"가 되게 사거리를 벌렸다.
+                so.baseHp = 22;
+                so.baseDamage = 16;
+                so.moveSpeed = 1.8f;
+                so.detectionRange = 10f;
+                so.attackRange = 7.5f;
+                so.attackCooldown = 2.4f;
+                so.expReward = 22;
+                so.goldReward = 5;
+                so.isRanged = true;
+                so.projectileSpeed = 13f;      // 빠른 탄 — 멀어서 느리면 걸어서 피해진다
+                so.projectileLifetime = 3.5f;
+            });
+
+            CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/VoidCaster.asset", so =>
+            {
+                so.enemyId = "void_caster";
+                so.displayName = "공허 술사";
+                so.baseHp = 28;
+                so.baseDamage = 7;             // 3연사라 발당 피해는 낮다(총 21)
+                so.moveSpeed = 2.2f;
+                so.detectionRange = 8f;
+                so.attackRange = 5.5f;
+                so.attackCooldown = 2.6f;      // 연사 뒤 긴 휴식 — 이 틈이 접근 기회다
+                so.expReward = 24;
+                so.goldReward = 5;
+                so.isRanged = true;
+                so.projectileSpeed = 7f;       // 느린 탄 — 세 발이 흩어져 날아오는 게 보여야 한다
+                so.projectileLifetime = 3f;
+                so.burstCount = 3;
+                so.burstInterval = 0.18f;
+            });
+
+            CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/FlameMortar.asset", so =>
+            {
+                so.enemyId = "flame_mortar";
+                so.displayName = "화염 박격포";
+                // 사거리가 가장 길고 가장 무르다. 곡사는 근접하면 무력해지므로
+                // "먼저 붙어야 하는 적"이라는 역할이 스탯으로도 읽히게 했다.
+                so.baseHp = 34;
+                so.baseDamage = 20;
+                so.moveSpeed = 1.4f;
+                so.detectionRange = 12f;
+                so.attackRange = 9f;
+                so.attackCooldown = 3.2f;
+                so.expReward = 28;
+                so.goldReward = 6;
+                so.isRanged = true;
+                so.usesArcProjectile = true;
+                so.arcFlightTime = 1.15f;      // 예고 링이 떠 있는 시간 = 회피 창
+                so.arcExplosionRadius = 2f;
+            });
+
             CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/EliteHunter.asset", so =>
             {
                 so.enemyId = "elite_hunter";
