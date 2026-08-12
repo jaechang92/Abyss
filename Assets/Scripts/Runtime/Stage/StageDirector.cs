@@ -188,18 +188,32 @@ namespace Abyss.Runtime.Stage
             SpawnEnemies(room);
         }
 
+        /// <summary>
+        /// 방의 적을 스폰하고 클리어 판정 대상(<see cref="activeEnemies"/>)으로 등록한다.
+        ///
+        /// <b>등록에 실패한 적은 화면에 서 있는데도 클리어 판정에서 빠진다</b> — 남은 적을 두고 방이
+        /// 넘어가므로 증상이 "적이 안 죽는다"가 아니라 "방이 일찍 끝난다"로 나타나 원인을 짐작하기 어렵다.
+        /// 그래서 스폰 의도(<paramref name="room"/>의 합계)와 실제 등록 수가 어긋나면 반드시 소리를 낸다.
+        /// (조용한 실패는 FSM AddState Bug-032와 같은 종류다.)
+        /// </summary>
         private void SpawnEnemies(RoomData room)
         {
             activeEnemies.Clear();
             int spawnIndex = 0;
+            int expected = 0;
 
             foreach (var entry in room.enemies)
             {
-                if (entry.data == null || entry.data.spawnPrefab == null)
+                // entry 자체가 null일 수 있다(직렬화된 리스트의 빈 원소) — 조건에서 먼저 걸러야
+                // entry.data 접근에서 NRE가 나며 이후 적이 통째로 안 나오는 사태를 막는다.
+                if (entry == null || entry.data == null || entry.data.spawnPrefab == null)
                 {
-                    Debug.LogWarning($"[StageDirector] 적 스폰 누락: entry={entry?.data?.enemyId ?? "null"}");
+                    Debug.LogWarning($"[StageDirector] 적 스폰 누락: entry={entry?.data?.enemyId ?? "null"} " +
+                                     $"(room={room.roomId}) — 이 적은 클리어 판정에서 빠진다");
                     continue;
                 }
+
+                expected += entry.count;
 
                 for (int i = 0; i < entry.count; i++)
                 {
@@ -207,15 +221,64 @@ namespace Abyss.Runtime.Stage
                     spawnIndex += 1;
 
                     var go = Instantiate(entry.data.spawnPrefab, spawn.position, Quaternion.identity);
-                    var enemy = go.GetComponent<EnemyBase>();
-                    if (enemy != null) activeEnemies.Add(enemy);
+
+                    // 프리팹 루트가 아닌 자식에 EnemyBase가 붙어 있으면 GetComponent가 놓친다.
+                    // 예전에는 조용히 건너뛰어, 스폰은 됐는데 추적만 빠지는 상태가 됐다.
+                    var enemy = go.GetComponentInChildren<EnemyBase>(true);
+                    if (enemy == null)
+                    {
+                        Debug.LogError($"[StageDirector] '{entry.data.enemyId}' 프리팹에 EnemyBase가 없다 " +
+                                       $"— 스폰은 됐지만 클리어 판정에서 빠져 방이 조기 클리어된다");
+                        continue;
+                    }
+
+                    activeEnemies.Add(enemy);
                 }
             }
+
+            if (activeEnemies.Count != expected)
+            {
+                Debug.LogError($"[StageDirector] {room.roomId} 적 추적 불일치 — 스폰 의도 {expected}마리 / 추적 {activeEnemies.Count}마리. " +
+                               $"차이만큼 살아 있어도 방이 클리어된다");
+            }
+            else
+            {
+                Debug.Log($"[StageDirector] {room.roomId} 스폰 완료 — 추적 {activeEnemies.Count}마리");
+            }
+
+            WarnUntrackedEnemies(room);
 
             if (activeEnemies.Count == 0)
             {
                 Debug.Log($"[StageDirector] 빈 방 감지 → 즉시 클리어: {room.roomId}");
                 HandleRoomCleared(room);
+            }
+        }
+
+        /// <summary>
+        /// 씬에 존재하지만 이 디렉터가 스폰하지 않은 적을 경고한다.
+        ///
+        /// 클리어 판정은 <see cref="activeEnemies"/>만 본다. 그래서 <b>디렉터를 거치지 않고 씬에 직접
+        /// 배치된 적</b>은 살아 있어도 판정에 잡히지 않아, 화면에 적이 남았는데 방이 넘어간다.
+        /// 스폰 수 대조로는 절대 드러나지 않는다 — 스폰 의도와 실제 등록은 서로 맞기 때문이다.
+        /// (2026-08-12 Run 씬에 프로토타이핑 잔재 EliteHunter가 남아 있어 실제로 발생했다.)
+        ///
+        /// 경고만 하고 <b>목록에 넣지는 않는다</b>. 넣으면 죽지 않는 배치 적 하나가 방을 영영 막아
+        /// 런이 스톨한다 — 잘못 넘어가는 것보다 나쁘다. 잔재는 씬에서 지우는 것이 옳은 해결이다.
+        /// </summary>
+        private void WarnUntrackedEnemies(RoomData room)
+        {
+            var all = FindObjectsByType<EnemyBase>(FindObjectsSortMode.None);
+            for (int i = 0; i < all.Length; i++)
+            {
+                var enemy = all[i];
+                // 직전 방에서 죽어 파괴 대기(0.3초) 중인 개체는 잔재가 아니다.
+                if (enemy == null || enemy.IsDead) continue;
+                if (activeEnemies.Contains(enemy)) continue;
+
+                Debug.LogWarning($"[StageDirector] 추적되지 않는 적이 씬에 있다: '{enemy.name}' " +
+                                 $"(room={room.roomId}, pos={enemy.transform.position}) — 클리어 판정에서 제외되므로 " +
+                                 $"살아 있어도 방이 넘어간다. 씬에 직접 배치된 잔재인지 확인할 것");
             }
         }
 
@@ -235,6 +298,12 @@ namespace Abyss.Runtime.Stage
             // EnemyBase.Die는 Destroy(gameObject, 0.3f) 지연 파괴라 이 시점에는 e != null.
             // IsDead 플래그로 즉시 제거해야 마지막 적 사망 시 룸이 즉시 클리어됨.
             activeEnemies.RemoveAll(e => e == null || e.IsDead);
+
+            // 남은 수를 남긴다 — "왜 벌써 클리어됐나"는 이 수열(3→2→1→0)이 없으면 사후 추적이 불가능하다.
+            if (CurrentRoom != null)
+            {
+                Debug.Log($"[StageDirector] {CurrentRoom.roomId} 잔여 적 {activeEnemies.Count}마리");
+            }
 
             if (!isRoomClearing && activeEnemies.Count == 0 && CurrentRoom != null)
             {
