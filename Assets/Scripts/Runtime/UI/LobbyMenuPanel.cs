@@ -126,26 +126,30 @@ namespace Abyss.Runtime.UI
         {
             body = CreateDimBody(root, 0.72f);
 
-            var panel = CreateRect(body.transform, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(420, 400));
+            var panel = CreateRect(body.transform, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(420, 464));
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = new Color(0.10f, 0.10f, 0.15f, 0.98f);
 
-            CreateLabel(panel.transform, "TitleText", new Vector2(0, 152), new Vector2(360, 40), "메뉴", 24, new Color(0.92f, 0.92f, 1f), TextAnchor.MiddleCenter);
+            CreateLabel(panel.transform, "TitleText", new Vector2(0, 184), new Vector2(360, 40), "메뉴", 24, new Color(0.92f, 0.92f, 1f), TextAnchor.MiddleCenter);
 
-            var resume = CreateButton(panel.transform, "ResumeButton", new Vector2(0, 72), new Vector2(300, 54), "돌아가기", 20);
+            var resume = CreateButton(panel.transform, "ResumeButton", new Vector2(0, 104), new Vector2(300, 54), "돌아가기", 20);
             resume.onClick.AddListener(Close);
 
-            var settings = CreateButton(panel.transform, "SettingsButton", new Vector2(0, 8), new Vector2(300, 54), "설정", 20);
+            // 도감은 메뉴를 닫지 않고 그 위에 덮는다(sortingOrder 300 > 200) — 닫으면 이 메뉴로 돌아온다.
+            var codex = CreateButton(panel.transform, "CodexButton", new Vector2(0, 40), new Vector2(300, 54), "도감", 20);
+            codex.onClick.AddListener(CodexPanel.Open);
+
+            var settings = CreateButton(panel.transform, "SettingsButton", new Vector2(0, -24), new Vector2(300, 54), "설정", 20);
             settings.onClick.AddListener(SettingsPanel.Open);
 
-            var toTitle = CreateButton(panel.transform, "ToTitleButton", new Vector2(0, -56), new Vector2(300, 54), "타이틀로", 20);
+            var toTitle = CreateButton(panel.transform, "ToTitleButton", new Vector2(0, -88), new Vector2(300, 54), "타이틀로", 20);
             toTitle.onClick.AddListener(OnToTitleClicked);
 
-            var quit = CreateButton(panel.transform, "QuitButton", new Vector2(0, -120), new Vector2(300, 54), QUIT_DEFAULT, 20);
+            var quit = CreateButton(panel.transform, "QuitButton", new Vector2(0, -152), new Vector2(300, 54), QUIT_DEFAULT, 20);
             quit.onClick.AddListener(OnQuitClicked);
             quitLabel = quit.GetComponentInChildren<Text>();
 
-            CreateLabel(panel.transform, "HintText", new Vector2(0, -172), new Vector2(360, 30), "ESC로 닫기", 14, new Color(0.55f, 0.55f, 0.66f), TextAnchor.MiddleCenter);
+            CreateLabel(panel.transform, "HintText", new Vector2(0, -204), new Vector2(360, 30), "ESC로 닫기", 14, new Color(0.55f, 0.55f, 0.66f), TextAnchor.MiddleCenter);
         }
     }
 }

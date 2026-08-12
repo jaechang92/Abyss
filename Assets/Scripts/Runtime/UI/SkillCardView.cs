@@ -52,7 +52,7 @@ namespace Abyss.Runtime.UI
             }
 
             if (nameText != null) nameText.text = skill.displayName;
-            if (rarityCategoryText != null) rarityCategoryText.text = $"{RarityLabel(skill.rarity)} · {skill.category} · [{SynergyAxis.GetDisplayName(skill.synergyTag)}]";
+            if (rarityCategoryText != null) rarityCategoryText.text = SkillDisplay.Headline(skill);
             if (descriptionText != null) descriptionText.text = skill.description;
             if (formulaText != null) formulaText.text = string.IsNullOrEmpty(skill.formulaDescription) ? string.Empty : $"공식: {skill.formulaDescription}";
 
@@ -62,7 +62,7 @@ namespace Abyss.Runtime.UI
                 iconImage.enabled = skill.icon != null;
             }
 
-            if (background != null) background.color = RarityBackground(skill.rarity);
+            if (background != null) background.color = SkillDisplay.RarityBackground(skill.rarity);
         }
 
         public void TriggerSelectFromKeyboard()
@@ -77,23 +77,5 @@ namespace Abyss.Runtime.UI
         {
             OnSelected?.Invoke(cardIndex);
         }
-
-        private static string RarityLabel(SkillRarity rarity) => rarity switch
-        {
-            SkillRarity.Common => "★☆☆☆",
-            SkillRarity.Rare => "★★☆☆",
-            SkillRarity.Epic => "★★★☆",
-            SkillRarity.Legendary => "★★★★",
-            _ => string.Empty
-        };
-
-        private static Color RarityBackground(SkillRarity rarity) => rarity switch
-        {
-            SkillRarity.Common => new Color(0.18f, 0.2f, 0.22f),
-            SkillRarity.Rare => new Color(0.15f, 0.22f, 0.32f),
-            SkillRarity.Epic => new Color(0.28f, 0.18f, 0.32f),
-            SkillRarity.Legendary => new Color(0.4f, 0.32f, 0.1f),
-            _ => new Color(0.15f, 0.15f, 0.18f)
-        };
     }
 }

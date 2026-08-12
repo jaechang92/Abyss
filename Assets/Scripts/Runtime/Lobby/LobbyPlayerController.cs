@@ -64,7 +64,7 @@ namespace Abyss.Runtime.Lobby
         /// 이 컨트롤러가 메뉴 개폐를 직접 소유한다. 메뉴가 떠 있어도 입력 맵은 Player 그대로 두기 때문에
         /// 닫는 ESC도 같은 액션으로 도착한다(Run처럼 Cancel로 갈라지지 않는다).
         ///
-        /// 가장 안쪽에 열린 것부터 닫는다: 설정 → 메뉴.
+        /// 가장 안쪽에 열린 것부터 닫는다: 설정 → 도감 → 메뉴.
         /// </summary>
         private void OnPause(InputValue value)
         {
@@ -77,6 +77,14 @@ namespace Abyss.Runtime.Lobby
             }
             // 설정 패널이 자기 Update에서 먼저 닫았다면 이번 ESC는 이미 소비된 것이다(순서 역전 가드).
             if (SettingsPanel.WasClosedThisFrame) return;
+
+            // 도감도 ESC를 자체 소유하므로 설정과 같은 양방향 가드를 둔다.
+            if (CodexPanel.IsOpen)
+            {
+                CodexPanel.Close();
+                return;
+            }
+            if (CodexPanel.WasClosedThisFrame) return;
 
             if (LobbyMenuPanel.IsOpen)
             {

@@ -11,7 +11,6 @@ namespace Abyss.EditorTools
     {
         // 데이터 (ScriptableObject) 디렉터리
         private const string Data = "Assets/Data";
-        public const string Enemies = Data + "/Enemies";
         public const string Rooms = Data + "/Rooms";
         public const string Stages = Data + "/Stages";
         public const string Events = Data + "/Events"; // 이벤트 방 EventData SO(룸이 직접 참조 — 자동 로드 아님)
@@ -24,6 +23,10 @@ namespace Abyss.EditorTools
         public const string MetaUpgrades = RunConfigDir + "/MetaUpgrades"; // 메타 영구 업그레이드 SO(런타임 Resources.LoadAll)
         public const string Skills = RunConfigDir + "/Skills"; // 드래프트 스킬 SO(런타임 SkillCatalog.LoadAll) — 폴더에 추가 시 자동 편입
         public const string Forms = RunConfigDir + "/Forms"; // 폼 SO(런타임 FormCatalog.LoadAll) — 폴더에 추가 시 자동 편입
+        // 적 SO는 방·스테이지가 직접 참조하므로 원래 Assets/Data 아래에 있었지만, 도감(3-1)이 타이틀 씬에서
+        // 열려야 해서 Resources로 옮겼다 — 타이틀에는 StageData·RoomData 참조가 하나도 로드되지 않으므로
+        // 전체 적 목록을 얻는 길이 Resources.LoadAll뿐이다(런타임 EnemyCatalog.LoadAll).
+        public const string Enemies = RunConfigDir + "/Enemies";
 
         // 프리팹 디렉터리
         private const string Prefabs = "Assets/Prefabs";

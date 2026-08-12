@@ -19,6 +19,22 @@ namespace Abyss.Runtime.Meta
         /// <summary>해제된 스킬 ID 목록. skillId 기준.</summary>
         public List<string> unlockedSkillIds = new();
 
+        // ── 도감 발견 목록 (완주 루프 계획 3-1) ──
+        // unlocked* 를 재사용하지 않는다: 그쪽은 "플레이에 쓸 수 있다"(해금)이고 이쪽은 "만난 적 있다"(발견)로
+        // 의미가 다르다. 한 목록에 섞으면 도감을 채우는 것이 폼 해금이 되거나, 해금 폼이 도감에서 이미
+        // 발견 처리되는 식으로 두 규칙이 서로를 오염시킨다.
+        // 기존 세이브에는 이 필드들이 없지만 JsonUtility가 생성자 기본값(빈 리스트)을 유지하므로
+        // 마이그레이션이 필요 없다(records.hasSeenEnding 선례).
+
+        /// <summary>도감에 발견 등록된 폼 ID 목록. formId 기준.</summary>
+        public List<string> discoveredFormIds = new();
+
+        /// <summary>도감에 발견 등록된 스킬 ID 목록. skillId 기준.</summary>
+        public List<string> discoveredSkillIds = new();
+
+        /// <summary>도감에 발견 등록된 적·보스 ID 목록. enemyId 기준(보스도 EnemyData라 한 목록을 공유).</summary>
+        public List<string> discoveredEnemyIds = new();
+
         /// <summary>메타 화폐 누적 총량. 런 종료 시 `abyssShardsConversionRate` 환산분 추가.</summary>
         public int abyssShardsTotal;
 
