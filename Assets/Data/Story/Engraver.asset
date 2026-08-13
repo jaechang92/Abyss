@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40e1e444e88d80946bd90dfaa42c1dcc, type: 3}
+  m_Name: Engraver
+  m_EditorClassIdentifier: 
+  chapters:
+  - chapterStage: 1
+    minRunCount: 0
+    minBossKills: 0
+    requiredFormId: dark_blade
+    lines:
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_DarkBlade_Line1
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_DarkBlade_Line2
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_DarkBlade_Line3
+  - chapterStage: 2
+    minRunCount: 0
+    minBossKills: 0
+    requiredFormId: void_archer
+    lines:
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_VoidArcher_Line1
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_VoidArcher_Line2
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_VoidArcher_Line3
+  - chapterStage: 3
+    minRunCount: 0
+    minBossKills: 0
+    requiredFormId: ancient_shield
+    lines:
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_AncientShield_Line1
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_AncientShield_Line2
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_AncientShield_Line3
+  - chapterStage: 4
+    minRunCount: 0
+    minBossKills: 0
+    requiredFormId: void_thrower
+    lines:
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_VoidThrower_Line1
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_VoidThrower_Line2
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_VoidThrower_Line3
+  idleLines:
+  - speakerKey: Npc_Engraver_Name
+    textKey: Story_Engraver_Idle_Line1
+  - speakerKey: Npc_Engraver_Name
+    textKey: Story_Engraver_Idle_Line2

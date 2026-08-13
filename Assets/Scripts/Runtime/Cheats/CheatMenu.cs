@@ -190,10 +190,10 @@ namespace Abyss.Runtime.Cheats
             GUILayout.Space(6);
         }
 
-        // ====== 스토리(기록자) ======
+        // ====== 스토리(화자별) ======
         private void DrawStorySection()
         {
-            GUILayout.Label("■ 스토리(기록자)", headerStyle);
+            GUILayout.Label("■ 스토리", headerStyle);
             var meta = MetaSaveService.Instance;
             if (meta == null)
             {
@@ -202,18 +202,44 @@ namespace Abyss.Runtime.Cheats
                 return;
             }
 
+            DrawStorySpeaker(meta, "기록자", StorySpeakerIds.Chronicler);
+            DrawStorySpeaker(meta, "각인사", StorySpeakerIds.Engraver);
+            GUILayout.Label("※ 설정 시 스냅샷 0 리셋 — 다음 대화에서 해당 다음 챕터 열람 가능(누적 기준)");
+            GUILayout.Label("※ 각인사 내력은 폼 해금이 조건이라 단계 +1만으로는 안 열린다(폼 해금 병행)");
+            GUILayout.Space(6);
+        }
+
+        /// <summary>
+        /// 화자 1명의 진행도 줄. 시청 기록이 집합이라 ±1은 "가장 높은 단계 하나를 넣고/빼기"로 옮긴다 —
+        /// 순차 화자(기록자)에서는 옛 단계 ±1과 같고, 각인사에서는 리셋이 실질적인 도구다.
+        /// </summary>
+        private void DrawStorySpeaker(MetaSaveService meta, string label, string speakerId)
+        {
             var save = meta.Current;
-            int runDelta = save.records.totalRunCount - save.storyRunSnapshot;
-            int bossDelta = save.records.totalBossKillCount - save.storyBossSnapshot;
-            GUILayout.Label($"storyStage = {meta.StoryStage}  (런델타 {runDelta} / 보스델타 {bossDelta})");
+            meta.GetStorySnapshots(speakerId, out int runSnapshot, out int bossSnapshot);
+            int runDelta = save.records.totalRunCount - runSnapshot;
+            int bossDelta = save.records.totalBossKillCount - bossSnapshot;
+
+            var viewed = meta.GetViewedChapterStages(speakerId);
+            int highest = 0;
+            foreach (int stage in viewed)
+            {
+                if (stage > highest) highest = stage;
+            }
+
+            string viewedText = viewed.Count > 0 ? string.Join(",", viewed) : "없음";
+            GUILayout.Label($"{label}: 시청 [{viewedText}]  (런델타 {runDelta} / 보스델타 {bossDelta})");
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("리셋(0)")) meta.DebugSetStoryStage(0);
-            if (GUILayout.Button("단계 -1")) meta.DebugSetStoryStage(meta.StoryStage - 1);
-            if (GUILayout.Button("단계 +1")) meta.DebugSetStoryStage(meta.StoryStage + 1);
+            if (GUILayout.Button("리셋")) meta.DebugSetViewedChapters(speakerId, null);
+            if (GUILayout.Button("단계 -1")) meta.DebugSetViewedChapters(speakerId, StageRange(highest - 1));
+            if (GUILayout.Button("단계 +1")) meta.DebugSetViewedChapters(speakerId, StageRange(highest + 1));
             GUILayout.EndHorizontal();
-            GUILayout.Label("※ 설정 시 스냅샷 0 리셋 — 다음 대화에서 해당 다음 챕터 열람 가능(누적 기준)");
-            GUILayout.Space(6);
+        }
+
+        private static IEnumerable<int> StageRange(int highest)
+        {
+            for (int stage = 1; stage <= highest; stage++) yield return stage;
         }
 
         // ====== 도감 ======

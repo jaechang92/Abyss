@@ -86,5 +86,22 @@ namespace Abyss.Runtime.Localization
         public const string Story_Ch3_Line1 = "Story_Ch3_Line1";
         public const string Story_Ch3_Line2 = "Story_Ch3_Line2";
         public const string Story_Idle_Line1 = "Story_Idle_Line1";
+
+        // ---- 서사 (각인사 NPC — 폼 4종 내력, N-2) ----
+        public const string Npc_Engraver_Name = "Npc_Engraver_Name";
+        public const string Story_Engraver_DarkBlade_Line1 = "Story_Engraver_DarkBlade_Line1";
+        public const string Story_Engraver_DarkBlade_Line2 = "Story_Engraver_DarkBlade_Line2";
+        public const string Story_Engraver_DarkBlade_Line3 = "Story_Engraver_DarkBlade_Line3";
+        public const string Story_Engraver_VoidArcher_Line1 = "Story_Engraver_VoidArcher_Line1";
+        public const string Story_Engraver_VoidArcher_Line2 = "Story_Engraver_VoidArcher_Line2";
+        public const string Story_Engraver_VoidArcher_Line3 = "Story_Engraver_VoidArcher_Line3";
+        public const string Story_Engraver_AncientShield_Line1 = "Story_Engraver_AncientShield_Line1";
+        public const string Story_Engraver_AncientShield_Line2 = "Story_Engraver_AncientShield_Line2";
+        public const string Story_Engraver_AncientShield_Line3 = "Story_Engraver_AncientShield_Line3";
+        public const string Story_Engraver_VoidThrower_Line1 = "Story_Engraver_VoidThrower_Line1";
+        public const string Story_Engraver_VoidThrower_Line2 = "Story_Engraver_VoidThrower_Line2";
+        public const string Story_Engraver_VoidThrower_Line3 = "Story_Engraver_VoidThrower_Line3";
+        public const string Story_Engraver_Idle_Line1 = "Story_Engraver_Idle_Line1";
+        public const string Story_Engraver_Idle_Line2 = "Story_Engraver_Idle_Line2";
     }
 }

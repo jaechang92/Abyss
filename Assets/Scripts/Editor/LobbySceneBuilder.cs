@@ -1,9 +1,12 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using Abyss.Runtime.Camera;
+using Abyss.Runtime.Dialogue;
 using Abyss.Runtime.Form;
 using Abyss.Runtime.Lobby;
 using Abyss.Runtime.Localization;
+using Abyss.Runtime.Meta;
+using Abyss.Runtime.Story;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -65,7 +68,9 @@ namespace Abyss.EditorTools
             WireController(controller, groundCheck);
             WireInteractor(interactor, prompt);
             WirePortal(portal);
-            WireServiceNpc(serviceNpc, panel.component, controller);
+            // 각인사 내력은 정비 NPC가 폼 선택 패널보다 먼저 재생하므로 와이어링 전에 만들어 둔다.
+            var engraverData = LoadOrCreateEngraverStoryData();
+            WireServiceNpc(serviceNpc, panel.component, controller, engraverData, dialogueUI);
             WireDialogueNpc(guideNpc, dialogueUI, controller);
             LoadOrCreateMetaUpgrades();
             WireAltarNpc(altarNpc, altarPanel, controller);
@@ -332,11 +337,20 @@ namespace Abyss.EditorTools
             so.ApplyModifiedProperties();
         }
 
-        private static void WireServiceNpc(ServiceNpc npc, FormSelectPanel panel, LobbyPlayerController player)
+        /// <summary>
+        /// 정비 NPC(각인사) 배선. 폼 선택 패널에 더해 내력 재생용 StoryData·DialogueUI를 물린다.
+        /// DialogueUI는 기록자·안내자와 공용이다 — 셋이 동시에 열릴 일이 없어 인스턴스를 나눌 이유가 없다.
+        /// </summary>
+        private static void WireServiceNpc(
+            ServiceNpc npc, FormSelectPanel panel, LobbyPlayerController player,
+            StoryData engraverStory, DialogueUI dialogueUI)
         {
             var so = new SerializedObject(npc);
             SetObject(so, "formSelectPanel", panel);
             SetObject(so, "player", player);
+            SetObject(so, "story", engraverStory);
+            SetObject(so, "dialogueUI", dialogueUI);
+            SetString(so, "speakerId", StorySpeakerIds.Engraver);
             ApplyNpcPrompt(so, StringKey.Npc_Service_Prompt);
         }
 
@@ -424,6 +438,12 @@ namespace Abyss.EditorTools
         {
             var prop = so.FindProperty(field);
             if (prop != null) prop.objectReferenceValue = value;
+        }
+
+        private static void SetString(SerializedObject so, string field, string value)
+        {
+            var prop = so.FindProperty(field);
+            if (prop != null) prop.stringValue = value;
         }
 
         private static void SetObjectArray(SerializedObject so, string field, List<Object> values)
