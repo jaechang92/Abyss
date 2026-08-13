@@ -3,6 +3,7 @@ using System.IO;
 using Abyss.Runtime.Dialogue;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Lobby;
+using Abyss.Runtime.Meta;
 using Abyss.Runtime.Story;
 using UnityEditor;
 using UnityEngine;
@@ -31,6 +32,7 @@ namespace Abyss.EditorTools
             SetObject(so, "story", story);
             SetObject(so, "dialogueUI", dialogueUI);
             SetObject(so, "player", player);
+            SetString(so, "speakerId", StorySpeakerIds.Chronicler);
             ApplyNpcPrompt(so, StringKey.Npc_Chronicler_Prompt);
         }
 
@@ -75,8 +77,78 @@ namespace Abyss.EditorTools
             return data;
         }
 
+        /// <summary>
+        /// 각인사 내력 StoryData 에셋 load-or-create (N-2). 폼 4종의 선행자 내력 4편 + idle.
+        ///
+        /// 기록자와 달리 <b>진행 델타 조건이 없다</b>(minRunCount·minBossKills 0) — 해금 조건은
+        /// <c>requiredFormId</c> 하나뿐이다. 각인사는 연재가 아니라 사전이라,
+        /// 폼을 얻는 순간이 곧 그 항목이 열리는 순간이어야 한다.
+        ///
+        /// formId 문자열의 SoT는 <c>ContentBuilder</c>가 만드는 FormData 에셋이다 — 오타가 나면
+        /// 그 폼의 내력이 <b>영원히 안 열리는데 오류는 안 난다</b>. 값을 고칠 때는 둘을 함께 볼 것.
+        /// </summary>
+        private static StoryData LoadOrCreateEngraverStoryData()
+        {
+            if (!Directory.Exists(AbyssPaths.Story)) Directory.CreateDirectory(AbyssPaths.Story);
+
+            string path = AbyssPaths.Story + "/Engraver.asset";
+            var data = AssetDatabase.LoadAssetAtPath<StoryData>(path);
+            if (data == null)
+            {
+                data = ScriptableObject.CreateInstance<StoryData>();
+                AssetDatabase.CreateAsset(data, path);
+            }
+
+            data.chapters = new[]
+            {
+                EngraverChapter(1, "dark_blade",
+                    StringKey.Story_Engraver_DarkBlade_Line1,
+                    StringKey.Story_Engraver_DarkBlade_Line2,
+                    StringKey.Story_Engraver_DarkBlade_Line3),
+                EngraverChapter(2, "void_archer",
+                    StringKey.Story_Engraver_VoidArcher_Line1,
+                    StringKey.Story_Engraver_VoidArcher_Line2,
+                    StringKey.Story_Engraver_VoidArcher_Line3),
+                EngraverChapter(3, "ancient_shield",
+                    StringKey.Story_Engraver_AncientShield_Line1,
+                    StringKey.Story_Engraver_AncientShield_Line2,
+                    StringKey.Story_Engraver_AncientShield_Line3),
+                EngraverChapter(4, "void_thrower",
+                    StringKey.Story_Engraver_VoidThrower_Line1,
+                    StringKey.Story_Engraver_VoidThrower_Line2,
+                    StringKey.Story_Engraver_VoidThrower_Line3),
+            };
+            data.idleLines = new[]
+            {
+                EngraverLine(StringKey.Story_Engraver_Idle_Line1),
+                EngraverLine(StringKey.Story_Engraver_Idle_Line2),
+            };
+
+            EditorUtility.SetDirty(data);
+            AssetDatabase.SaveAssets();
+            return data;
+        }
+
+        private static StoryChapter EngraverChapter(int chapterStage, string formId, params string[] textKeys)
+        {
+            var lines = new DialogueLine[textKeys.Length];
+            for (int i = 0; i < textKeys.Length; i++) lines[i] = EngraverLine(textKeys[i]);
+
+            return new StoryChapter
+            {
+                chapterStage = chapterStage,
+                minRunCount = 0,
+                minBossKills = 0,
+                requiredFormId = formId,
+                lines = lines,
+            };
+        }
+
         private static DialogueLine Line(string textKey)
             => new DialogueLine { speakerKey = StringKey.Npc_Chronicler_Name, textKey = textKey };
+
+        private static DialogueLine EngraverLine(string textKey)
+            => new DialogueLine { speakerKey = StringKey.Npc_Engraver_Name, textKey = textKey };
     }
 }
 #endif

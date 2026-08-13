@@ -50,12 +50,19 @@ namespace Abyss.Runtime.Meta
         /// </summary>
         private static readonly Dictionary<int, UpgradeStep> UpgradeSteps = new()
         {
-            { 1, UpgradeV1ToV2 }
+            { 1, UpgradeV1ToV2 },
+            { 2, UpgradeV2ToV3 }
 
-            // 다음 파괴적 변경 때는 (1) { 2, UpgradeV2ToV3 } 추가와
-            // (2) MetaSave.CurrentVersion = 3 을 함께 한다. 둘 중 하나만 하면 각각
+            // 다음 파괴적 변경 때는 (1) { 3, UpgradeV3ToV4 } 추가와
+            // (2) MetaSave.CurrentVersion = 4 를 함께 한다. 둘 중 하나만 하면 각각
             // Incomplete(단계 누락) 또는 변환 미실행으로 드러나므로 조용히 어긋나지 않는다.
         };
+
+        /// <summary>
+        /// 손상된 <c>storyStage</c>가 거대한 리스트를 만드는 것을 막는 상한.
+        /// <b>콘텐츠 제한이 아니라 파일 방어값</b>이다 — 실제 챕터 수는 화자당 한 자릿수다.
+        /// </summary>
+        private const int MaxCarriedChapterStage = 999;
 
         /// <summary>
         /// v1 → v2: <c>records.bestStageId</c>(roomId 문자열) → <c>records.bestReach</c>.
@@ -76,6 +83,59 @@ namespace Abyss.Runtime.Meta
             // 레거시 필드는 비운다 — 남겨 두면 v2 세이브를 다시 v1으로 읽었을 때
             // 이미 옮긴 값이 한 번 더 살아나 최고 기록이 과거로 되돌아간다.
             records.bestStageId = string.Empty;
+        }
+
+        /// <summary>
+        /// v2 → v3: 전역 <c>storyStage</c>/<c>storyRunSnapshot</c>/<c>storyBossSnapshot</c> →
+        /// <c>storyProgress</c>의 기록자(<see cref="StorySpeakerIds.Chronicler"/>) 항목.
+        ///
+        /// 옛 필드에는 화자 구분이 없었지만 <b>당시 화자는 기록자 하나뿐</b>이었으므로 귀속은 확정적이다
+        /// (추정이 아니다). 단계 N은 시청 이력 1..N으로 편다 — 기록자는 연재라 N까지 봤다는 것이
+        /// 곧 그 앞을 다 봤다는 뜻이고, 이렇게 펴야 새 집합 모델에서 미시청 판정이 변환 전과 같아진다.
+        ///
+        /// 단계가 0이면(미시청) 항목을 만들지 않는다 — 빈 항목과 "항목 없음"은 같은 뜻이라,
+        /// 굳이 적으면 두 표현이 생겨 나중에 어느 쪽이 정본인지 물어야 한다.
+        /// </summary>
+        private static void UpgradeV2ToV3(MetaSave save)
+        {
+            save.storyProgress ??= new List<StoryProgressEntry>();
+
+            int stage = save.storyStage;
+            if (stage > MaxCarriedChapterStage)
+            {
+                Debug.LogWarning(
+                    $"[MetaSaveMigration] 기록자 storyStage가 {stage} — 손상된 값으로 보고 " +
+                    $"{MaxCarriedChapterStage}까지만 옮긴다.");
+                stage = MaxCarriedChapterStage;
+            }
+
+            // 이미 기록자 항목이 있다면 손댄 파일이다. 덮어쓰면 새 값이 옛 값에 밀려 사라지므로 그대로 둔다.
+            if (stage > 0 && FindProgress(save.storyProgress, StorySpeakerIds.Chronicler) == null)
+            {
+                var entry = new StoryProgressEntry
+                {
+                    speakerId = StorySpeakerIds.Chronicler,
+                    runSnapshot = save.storyRunSnapshot,
+                    bossSnapshot = save.storyBossSnapshot,
+                };
+                for (int s = 1; s <= stage; s++) entry.viewedChapterStages.Add(s);
+                save.storyProgress.Add(entry);
+            }
+
+            // 레거시 필드는 비운다 — 남겨 두면 v3 세이브를 다시 v2로 읽었을 때 이미 옮긴 값이
+            // 한 번 더 살아나 기록자 진행도가 두 곳에서 서로 다른 답을 낸다.
+            save.storyStage = 0;
+            save.storyRunSnapshot = 0;
+            save.storyBossSnapshot = 0;
+        }
+
+        private static StoryProgressEntry FindProgress(List<StoryProgressEntry> list, string speakerId)
+        {
+            foreach (var e in list)
+            {
+                if (e != null && e.speakerId == speakerId) return e;
+            }
+            return null;
         }
 
         /// <summary>

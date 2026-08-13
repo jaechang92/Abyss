@@ -22,7 +22,7 @@ namespace Abyss.Runtime.Meta
         /// 틀리게 되는 변경. <b>올리지 않아도 되는 때</b>: 순수 필드 추가 — JsonUtility가 없는 필드를
         /// 생성자 기본값으로 남기므로 기본값이 곧 기존 동작이면 변환할 것이 없다.
         /// </summary>
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
 
         /// <summary>
         /// 취급 가능한 가장 낮은 스키마 버전. JSON에 `version`이 없거나 0·음수인 파일은
@@ -83,13 +83,28 @@ namespace Abyss.Runtime.Meta
         /// <summary>심연의 제단 영구 업그레이드 레벨 목록. upgradeId 기준.</summary>
         public List<MetaUpgradeEntry> upgradeLevels = new();
 
-        /// <summary>마지막으로 시청한 스토리 챕터 단계(0 = 미시청). 서사 NPC가 다음 챕터 해금에 사용.</summary>
+        /// <summary>
+        /// 화자별 스토리 진행도. 화자 1명당 항목 1개(speakerId 기준, <see cref="StorySpeakerIds"/>).
+        ///
+        /// 옛 전역 <see cref="storyStage"/> 3인방을 대체한다 — 저쪽은 화자가 기록자 하나뿐이던 시절의
+        /// 스키마라, 두 번째 화자(각인사)를 놓는 순간 <b>한쪽 대화가 다른 쪽 진행도를 소진</b>한다.
+        /// 경합이 아니라 결정론적 결함이라 화자를 늘리면 100% 발생한다.
+        /// </summary>
+        public List<StoryProgressEntry> storyProgress = new();
+
+        /// <summary>
+        /// ⚠️ <b>v2 레거시 — 읽지 말 것.</b> 새 코드는 <see cref="storyProgress"/>만 쓴다.
+        ///
+        /// <see cref="MetaRecords.bestStageId"/>와 같은 이유로 필드를 남긴다: JsonUtility는 클래스에 없는
+        /// JSON 키를 버리므로, 지우는 순간 값이 변환기에 닿기 전에 사라진다. v2 → v3 변환이 이 셋을
+        /// 기록자 항목으로 옮기고 0으로 비운다. 실제 삭제는 v3 세이브만 남았다고 볼 수 있는 시점에.
+        /// </summary>
         public int storyStage;
 
-        /// <summary>마지막 챕터 시청 시점의 누적 런 수 스냅샷. 다음 챕터는 이 이후 추가 진전으로 해금.</summary>
+        /// <summary>⚠️ v2 레거시 — <see cref="storyStage"/> 참조.</summary>
         public int storyRunSnapshot;
 
-        /// <summary>마지막 챕터 시청 시점의 누적 보스 처치 스냅샷.</summary>
+        /// <summary>⚠️ v2 레거시 — <see cref="storyStage"/> 참조.</summary>
         public int storyBossSnapshot;
 
         /// <summary>런 기록(최고 스테이지·최장 런 등).</summary>
@@ -122,6 +137,36 @@ namespace Abyss.Runtime.Meta
     {
         public string upgradeId;
         public int level;
+    }
+
+    /// <summary>
+    /// 화자 1명의 스토리 진행도. JsonUtility가 Dictionary를 직렬화하지 못하므로
+    /// List&lt;StoryProgressEntry&gt;로 speakerId→진행도 매핑을 보관한다(<see cref="MetaUpgradeEntry"/> 선례).
+    ///
+    /// struct가 아니라 class인 이유: <see cref="viewedChapterStages"/>가 참조 타입이라
+    /// struct로 두면 읽을 때마다 복사본이 생겨 "리스트에 담아 두고 Add" 같은 실수가 조용히 통과한다.
+    /// </summary>
+    [Serializable]
+    public sealed class StoryProgressEntry
+    {
+        /// <summary>화자 식별자. <see cref="StorySpeakerIds"/>의 상수를 쓴다.</summary>
+        public string speakerId;
+
+        /// <summary>
+        /// 시청을 마친 챕터의 <c>chapterStage</c> 목록.
+        ///
+        /// <b>"마지막 단계" 정수 하나로는 안 된다.</b> 기록자는 연재라 시청 이력이 항상 1..N 접두사지만,
+        /// 각인사는 사전이라 <b>폼 획득 순서대로</b> 열린다 — 3번을 먼저 보고 1번을 나중에 볼 수 있다.
+        /// 최댓값 하나만 들고 있으면 3번을 본 순간 1·2번이 시청 처리되어, 화자를 분리하고도
+        /// <b>한 화자 안에서 같은 결함이 되풀이된다.</b> 집합이 두 모델을 모두 담는 최소 구조다.
+        /// </summary>
+        public List<int> viewedChapterStages = new();
+
+        /// <summary>마지막 챕터 시청 시점의 누적 런 수 스냅샷. 다음 챕터는 이 이후 추가 진전으로 해금.</summary>
+        public int runSnapshot;
+
+        /// <summary>마지막 챕터 시청 시점의 누적 보스 처치 스냅샷.</summary>
+        public int bossSnapshot;
     }
 
     /// <summary>

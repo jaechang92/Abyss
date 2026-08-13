@@ -16,6 +16,7 @@ MonoBehaviour:
   - chapterStage: 1
     minRunCount: 0
     minBossKills: 0
+    requiredFormId: 
     lines:
     - speakerKey: Npc_Chronicler_Name
       textKey: Story_Ch1_Line1
@@ -24,6 +25,7 @@ MonoBehaviour:
   - chapterStage: 2
     minRunCount: 1
     minBossKills: 0
+    requiredFormId: 
     lines:
     - speakerKey: Npc_Chronicler_Name
       textKey: Story_Ch2_Line1
@@ -32,6 +34,7 @@ MonoBehaviour:
   - chapterStage: 3
     minRunCount: 0
     minBossKills: 1
+    requiredFormId: 
     lines:
     - speakerKey: Npc_Chronicler_Name
       textKey: Story_Ch3_Line1
