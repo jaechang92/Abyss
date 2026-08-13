@@ -40,7 +40,7 @@ namespace Abyss.Runtime.Meta
     /// MetaSave 읽기/쓰기 게이트웨이. SaveSystem을 경유하고 상위 시스템은 이 API만 사용.
     /// AbyssBootstrap에서 SaveSystem 이후 RunManager 이전에 초기화해야 RunManager.EndRun 정산이 정상 동작.
     /// </summary>
-    public sealed class MetaSaveService : SingletonManager<MetaSaveService>
+    public sealed partial class MetaSaveService : SingletonManager<MetaSaveService>
     {
         private MetaSave current;
         private bool isLoaded;
@@ -108,6 +108,11 @@ namespace Abyss.Runtime.Meta
             if (autoSave) Save();
             return true;
         }
+
+        // ⚠️ unlockedFormIds 조회 API는 두지 않는다. UnlockForm의 호출부가 코드베이스에 0곳이라
+        // 이 목록은 **항상 비어 있고**, 조회 API가 있으면 "해금 여부"를 묻는 코드가 조용히 전부 false를
+        // 받는다(각인사 내력 게이트가 실제로 이 함정에 빠졌다 — 2026-08-14).
+        // 폼 보유 판정이 필요하면 IsFormDiscovered(실제로 써 본 폼)를 쓸 것.
 
         /// <summary>
         /// 스킬 해제. 중복 ID·빈 문자열 무시.
@@ -253,42 +258,7 @@ namespace Abyss.Runtime.Meta
             current.upgradeLevels.Add(new MetaUpgradeEntry { upgradeId = upgradeId, level = level });
         }
 
-        /// <summary>마지막으로 시청한 스토리 챕터 단계(0 = 미시청).</summary>
-        public int StoryStage
-        {
-            get
-            {
-                EnsureLoaded();
-                return current.storyStage;
-            }
-        }
-
-        /// <summary>
-        /// 스토리 진행 단계를 전진시키고, 시청 시점의 런/보스 누적 스냅샷을 기록한다.
-        /// 다음 챕터는 이 스냅샷 이후의 추가 진전으로 해금된다. 현재 단계 이하 값은 무시(후퇴 방지).
-        /// </summary>
-        public void AdvanceStory(int stage, int runSnapshot, int bossSnapshot, bool autoSave = true)
-        {
-            EnsureLoaded();
-            if (stage <= current.storyStage) return;
-            current.storyStage = stage;
-            current.storyRunSnapshot = runSnapshot;
-            current.storyBossSnapshot = bossSnapshot;
-            if (autoSave) Save();
-        }
-
-        /// <summary>
-        /// 디버그/치트: 스토리 단계를 임의 설정(후퇴 포함). 스냅샷은 0으로 리셋해
-        /// 델타 조건을 누적 기준으로 만든다(치트로 다음 챕터를 곧바로 열람하기 위함).
-        /// </summary>
-        public void DebugSetStoryStage(int stage, bool autoSave = true)
-        {
-            EnsureLoaded();
-            current.storyStage = Mathf.Max(0, stage);
-            current.storyRunSnapshot = 0;
-            current.storyBossSnapshot = 0;
-            if (autoSave) Save();
-        }
+        // 스토리 진행도(화자별) API는 MetaSaveService.Story.cs — 500줄 규약으로 분리.
 
         /// <summary>
         /// 옵션 창 등에서 볼륨 변경 시 호출. 일괄 저장은 호출자가 컨트롤.
@@ -469,6 +439,13 @@ namespace Abyss.Runtime.Meta
             save.discoveredSkillIds ??= new List<string>();
             save.discoveredEnemyIds ??= new List<string>();
             save.upgradeLevels ??= new List<MetaUpgradeEntry>();
+            save.storyProgress ??= new List<StoryProgressEntry>();
+            // 항목이 참조 타입이라 안쪽 리스트도 null일 수 있다 — 바깥만 채우면
+            // 시청 기록을 Add하는 순간 NullReference로 터진다.
+            foreach (var progress in save.storyProgress)
+            {
+                if (progress != null) progress.viewedChapterStages ??= new List<int>();
+            }
             save.records ??= new MetaRecords();
             save.lastRunSummary ??= new RunSummary();
             save.lastRunSummary.formsUsed ??= new List<string>();

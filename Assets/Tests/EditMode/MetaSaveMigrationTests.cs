@@ -245,6 +245,121 @@ namespace Abyss.Tests.EditMode
             Assert.IsFalse(save.records.bestReach.HasRecord);
         }
 
+        // ───────────────────────── v2 → v3 (스토리 진행도 화자 분리) ─────────────────────────
+
+        private static MetaSave V2WithStory(int stage, int runSnapshot, int bossSnapshot)
+        {
+            var save = SaveAt(2);
+            save.storyStage = stage;
+            save.storyRunSnapshot = runSnapshot;
+            save.storyBossSnapshot = bossSnapshot;
+            return save;
+        }
+
+        private static StoryProgressEntry ProgressOf(MetaSave save, string speakerId)
+        {
+            foreach (var entry in save.storyProgress)
+            {
+                if (entry != null && entry.speakerId == speakerId) return entry;
+            }
+            return null;
+        }
+
+        [Test]
+        public void V2ToV3_MovesGlobalStoryProgress_ToChronicler()
+        {
+            var save = V2WithStory(stage: 2, runSnapshot: 5, bossSnapshot: 1);
+
+            MetaSaveMigration.Run(save, out _);
+
+            var chronicler = ProgressOf(save, StorySpeakerIds.Chronicler);
+            Assert.IsNotNull(chronicler, "옛 전역 진행도의 화자는 기록자로 확정된다(당시 화자가 하나뿐이었다).");
+            Assert.AreEqual(5, chronicler.runSnapshot);
+            Assert.AreEqual(1, chronicler.bossSnapshot);
+        }
+
+        [Test]
+        public void V2ToV3_ExpandsStageIntoFullViewedHistory()
+        {
+            // 기록자는 연재라 3단계까지 봤다면 1·2도 봤다는 뜻이다. 최댓값만 옮기면
+            // 새 집합 모델에서 1·2가 미시청으로 되살아나 이미 본 이야기가 다시 열린다.
+            var save = V2WithStory(stage: 3, runSnapshot: 0, bossSnapshot: 0);
+
+            MetaSaveMigration.Run(save, out _);
+
+            CollectionAssert.AreEquivalent(
+                new[] { 1, 2, 3 }, ProgressOf(save, StorySpeakerIds.Chronicler).viewedChapterStages);
+        }
+
+        [Test]
+        public void V2ToV3_ClearsLegacyFields()
+        {
+            // 남겨 두면 v3 세이브를 v2로 읽었을 때 이미 옮긴 값이 한 번 더 살아난다.
+            var save = V2WithStory(stage: 2, runSnapshot: 5, bossSnapshot: 1);
+
+            MetaSaveMigration.Run(save, out _);
+
+            Assert.AreEqual(0, save.storyStage);
+            Assert.AreEqual(0, save.storyRunSnapshot);
+            Assert.AreEqual(0, save.storyBossSnapshot);
+        }
+
+        [Test]
+        public void V2ToV3_UnwatchedStory_CreatesNoEntry()
+        {
+            // 빈 항목과 '항목 없음'이 둘 다 미시청을 뜻하면 어느 쪽이 정본인지 물어야 한다.
+            var save = V2WithStory(stage: 0, runSnapshot: 0, bossSnapshot: 0);
+
+            MetaSaveMigration.Run(save, out _);
+
+            Assert.AreEqual(0, save.storyProgress.Count);
+        }
+
+        [Test]
+        public void V2ToV3_LeavesOtherSpeakersUntouched()
+        {
+            // 각인사 진행도를 기록자 변환이 건드리면, 화자를 나눈 이유가 마이그레이션에서 무너진다.
+            var save = V2WithStory(stage: 1, runSnapshot: 0, bossSnapshot: 0);
+            save.storyProgress.Add(new StoryProgressEntry
+            {
+                speakerId = StorySpeakerIds.Engraver,
+                viewedChapterStages = new List<int> { 3 },
+            });
+
+            MetaSaveMigration.Run(save, out _);
+
+            CollectionAssert.AreEquivalent(
+                new[] { 3 }, ProgressOf(save, StorySpeakerIds.Engraver).viewedChapterStages);
+            CollectionAssert.AreEquivalent(
+                new[] { 1 }, ProgressOf(save, StorySpeakerIds.Chronicler).viewedChapterStages);
+        }
+
+        [Test]
+        public void V2ToV3_CorruptStage_IsClampedWithWarning()
+        {
+            var save = V2WithStory(stage: 5000, runSnapshot: 0, bossSnapshot: 0);
+            LogAssert.Expect(LogType.Warning, new Regex("손상된 값으로 보고"));
+
+            MetaSaveMigration.Run(save, out _);
+
+            Assert.AreEqual(999, ProgressOf(save, StorySpeakerIds.Chronicler).viewedChapterStages.Count);
+        }
+
+        [Test]
+        public void V1Save_ReachesCurrentVersion_ThroughEveryStep()
+        {
+            // 단계를 하나 더 이었으므로 v1 파일이 끝까지 올라오는지 확인한다 —
+            // CurrentVersion만 올리고 단계를 빠뜨리면 Incomplete로 조용히 멈춘다.
+            var save = SaveAt(1);
+            save.storyStage = 1;
+
+            var outcome = MetaSaveMigration.Run(save, out _);
+
+            Assert.AreEqual(MetaSaveMigrationOutcome.Migrated, outcome);
+            Assert.AreEqual(MetaSave.CurrentVersion, save.version);
+            Assert.IsNotNull(ProgressOf(save, StorySpeakerIds.Chronicler));
+        }
+
         // ───────────────────────── StageReach 비교 규칙 ─────────────────────────
 
         [Test]
