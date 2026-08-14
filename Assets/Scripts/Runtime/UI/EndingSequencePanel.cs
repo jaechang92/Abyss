@@ -28,11 +28,7 @@ namespace Abyss.Runtime.UI
     {
         private const int SORTING_ORDER = 400;   // 결과 패널(씬 캔버스)보다 위, 설정(500)보다 아래
 
-        // 자막 한 문단의 페이드 인 → 유지 → 페이드 아웃 (초, unscaled).
-        private const float FADE_IN = 0.9f;
-        private const float HOLD = 2.8f;
-        private const float FADE_OUT = 0.9f;
-        private const float PARAGRAPH_DURATION = FADE_IN + HOLD + FADE_OUT;
+        // 자막 한 문단의 호흡은 SubtitleSequence가 소유한다 — 프롤로그와 같은 값을 써야 하므로.
 
         private const float CREDITS_SCROLL_SPEED = 110f;   // px/s (기준 해상도 1080 높이 기준)
         private const float CREDITS_FALLBACK_HEIGHT = 600f;
@@ -76,7 +72,7 @@ namespace Abyss.Runtime.UI
         private static EndingSequencePanel instance;
 
         private GameObject body;
-        private Text subtitleText;
+        private SubtitleSequence subtitles;
         private RectTransform creditsRect;
         private Text creditsText;
         private CanvasGroup statsGroup;
@@ -84,7 +80,6 @@ namespace Abyss.Runtime.UI
         private Text skipHint;
 
         private Phase phase;
-        private int paragraphIndex;
         private float phaseTimer;
         private float creditsHeight;
         private Action onFinished;
@@ -125,11 +120,9 @@ namespace Abyss.Runtime.UI
             SceneManager.sceneLoaded -= HandleSceneLoaded;
 
             phase = Phase.Subtitles;
-            paragraphIndex = 0;
             phaseTimer = 0f;
 
-            SetSubtitleAlpha(0f);
-            if (subtitleText != null) subtitleText.text = Paragraphs.Length > 0 ? Paragraphs[0] : string.Empty;
+            subtitles?.Restart(Paragraphs);
             if (creditsText != null) creditsText.gameObject.SetActive(false);
             if (statsGroup != null) statsGroup.gameObject.SetActive(false);
             if (skipHint != null) skipHint.text = HINT_SKIP;
@@ -146,10 +139,16 @@ namespace Abyss.Runtime.UI
             // 정지 중에도 흘러야 하므로 unscaled. 스킵 입력을 먼저 처리해 같은 프레임에 시간이 겹쳐 흐르지 않게 한다.
             if (ConsumeSkipInput()) return;
 
+            // 자막 페이즈의 시간은 SubtitleSequence가 자기 것으로 센다. 여기서 함께 더하면 두 배로 흐른다.
+            if (phase == Phase.Subtitles)
+            {
+                if (subtitles == null || subtitles.Tick(Time.unscaledDeltaTime)) BeginCredits();
+                return;
+            }
+
             phaseTimer += Time.unscaledDeltaTime;
 
-            if (phase == Phase.Subtitles) TickSubtitles();
-            else if (phase == Phase.Credits) TickCredits();
+            if (phase == Phase.Credits) TickCredits();
             else if (phase == Phase.Stats) TickStats();
             else if (phase == Phase.Done && phaseTimer >= COVER_TIMEOUT) HideCover();
         }
@@ -166,49 +165,21 @@ namespace Abyss.Runtime.UI
             if (!kb.escapeKey.wasPressedThisFrame && !kb.enterKey.wasPressedThisFrame && !kb.spaceKey.wasPressedThisFrame) return false;
 
             // 끝난 뒤(씬 전환 대기 중)에는 입력을 소비하지 않는다 — 다음 화면이 받아야 한다.
-            if (phase == Phase.Subtitles) AdvanceParagraph();
+            if (phase == Phase.Subtitles)
+            {
+                if (subtitles == null || subtitles.Skip()) BeginCredits();
+            }
             else if (phase == Phase.Credits) BeginStats();
             else if (phase == Phase.Stats) Finish();
             else return false;
             return true;
         }
 
-        private void TickSubtitles()
-        {
-            SetSubtitleAlpha(CalcParagraphAlpha(phaseTimer));
-
-            if (phaseTimer < PARAGRAPH_DURATION) return;
-            AdvanceParagraph();
-        }
-
-        /// <summary>페이드 인 → 유지 → 페이드 아웃 구간별 알파.</summary>
-        private static float CalcParagraphAlpha(float t)
-        {
-            if (t < FADE_IN) return Mathf.Clamp01(t / FADE_IN);
-            if (t < FADE_IN + HOLD) return 1f;
-            return Mathf.Clamp01(1f - (t - FADE_IN - HOLD) / FADE_OUT);
-        }
-
-        private void AdvanceParagraph()
-        {
-            paragraphIndex += 1;
-            phaseTimer = 0f;
-
-            if (paragraphIndex >= Paragraphs.Length)
-            {
-                BeginCredits();
-                return;
-            }
-
-            if (subtitleText != null) subtitleText.text = Paragraphs[paragraphIndex];
-            SetSubtitleAlpha(0f);
-        }
-
         private void BeginCredits()
         {
             phase = Phase.Credits;
             phaseTimer = 0f;
-            SetSubtitleAlpha(0f);
+            subtitles?.Clear();
 
             if (creditsText == null || creditsRect == null)
             {
@@ -251,7 +222,7 @@ namespace Abyss.Runtime.UI
         {
             phase = Phase.Stats;
             phaseTimer = 0f;
-            SetSubtitleAlpha(0f);
+            subtitles?.Clear();
             if (creditsText != null) creditsText.gameObject.SetActive(false);
 
             if (statsGroup == null || statsBody == null)
@@ -299,7 +270,7 @@ namespace Abyss.Runtime.UI
             phase = Phase.Done;
             phaseTimer = 0f;
 
-            SetSubtitleAlpha(0f);
+            subtitles?.Clear();
             if (creditsText != null) creditsText.gameObject.SetActive(false);
             if (statsGroup != null) statsGroup.gameObject.SetActive(false);
             if (skipHint != null) skipHint.text = string.Empty;
@@ -323,14 +294,6 @@ namespace Abyss.Runtime.UI
 
         private void OnDestroy() => SceneManager.sceneLoaded -= HandleSceneLoaded;
 
-        private void SetSubtitleAlpha(float a)
-        {
-            if (subtitleText == null) return;
-            var c = subtitleText.color;
-            c.a = Mathf.Clamp01(a);
-            subtitleText.color = c;
-        }
-
         // ───────────────────────── UI 구성 ─────────────────────────
 
         private void BuildUI(Transform root)
@@ -338,11 +301,7 @@ namespace Abyss.Runtime.UI
             // 완전 불투명 검정 — 엔딩 뒤로 멈춰 있는 전투 화면이 비치면 몰입이 깨진다.
             body = CreateDimBody(root, 1f);
 
-            subtitleText = CreateLabel(body.transform, "Subtitle", Vector2.zero, new Vector2(1100, 260),
-                string.Empty, 30, new Color(0.94f, 0.94f, 1f, 0f), TextAnchor.MiddleCenter);
-            // 문단이 두 줄 이상이라 가로 오버플로 대신 줄바꿈이 필요하다(CreateLabel 기본값은 Overflow).
-            subtitleText.horizontalOverflow = HorizontalWrapMode.Wrap;
-            subtitleText.lineSpacing = 1.4f;
+            subtitles = SubtitleSequence.Create(body.transform);
 
             creditsText = CreateLabel(body.transform, "Credits", Vector2.zero, new Vector2(CREDITS_WIDTH, CREDITS_FALLBACK_HEIGHT),
                 CREDITS_TEXT, 24, new Color(0.86f, 0.86f, 0.96f), TextAnchor.UpperCenter);

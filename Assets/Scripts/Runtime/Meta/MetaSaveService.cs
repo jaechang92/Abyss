@@ -210,6 +210,39 @@ namespace Abyss.Runtime.Meta
             if (autoSave) Save();
         }
 
+        /// <summary>프롤로그 자막을 이미 봤는가. 세이브가 없으면 false(= 아직 안 봤다).</summary>
+        public bool HasSeenPrologue
+        {
+            get
+            {
+                EnsureLoaded();
+                return current.records.hasSeenPrologue;
+            }
+        }
+
+        /// <summary>
+        /// 프롤로그 시청 기록. <see cref="MarkEndingSeen"/>과 같은 형태로, 이미 본 상태면 저장을 건너뛴다.
+        /// </summary>
+        public void MarkPrologueSeen(bool autoSave = true)
+        {
+            EnsureLoaded();
+            if (current.records.hasSeenPrologue) return;
+            current.records.hasSeenPrologue = true;
+            if (autoSave) Save();
+        }
+
+        /// <summary>
+        /// 프롤로그를 다시 볼 수 있게 되돌린다. <b>치트 메뉴 전용</b> —
+        /// 프롤로그는 세이브당 1회라, 이 경로가 없으면 확인할 때마다 세이브를 지워야 한다.
+        /// </summary>
+        public void ResetPrologueSeen(bool autoSave = true)
+        {
+            EnsureLoaded();
+            if (!current.records.hasSeenPrologue) return;
+            current.records.hasSeenPrologue = false;
+            if (autoSave) Save();
+        }
+
         /// <summary>
         /// 지정 업그레이드의 현재 레벨. 미보유/빈 ID는 0.
         /// </summary>

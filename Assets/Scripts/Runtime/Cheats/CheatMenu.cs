@@ -204,6 +204,11 @@ namespace Abyss.Runtime.Cheats
 
             DrawStorySpeaker(meta, "기록자", StorySpeakerIds.Chronicler);
             DrawStorySpeaker(meta, "각인사", StorySpeakerIds.Engraver);
+            // 프롤로그는 세이브당 1회라, 이 버튼이 없으면 확인할 때마다 세이브를 지워야 한다.
+            GUILayout.BeginHorizontal();
+            GUILayout.Label($"프롤로그: {(meta.HasSeenPrologue ? "시청함" : "미시청")}");
+            if (GUILayout.Button("다시 보기")) meta.ResetPrologueSeen();
+            GUILayout.EndHorizontal();
             GUILayout.Label("※ 설정 시 스냅샷 0 리셋 — 다음 대화에서 해당 다음 챕터 열람 가능(누적 기준)");
             GUILayout.Label("※ 각인사 내력은 폼 해금이 조건이라 단계 +1만으로는 안 열린다(폼 해금 병행)");
             GUILayout.Space(6);

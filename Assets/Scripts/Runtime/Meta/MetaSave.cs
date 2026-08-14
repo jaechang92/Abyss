@@ -213,6 +213,16 @@ namespace Abyss.Runtime.Meta
         /// 기존 세이브에는 이 필드가 없지만 JsonUtility가 기본값 false로 채우므로 마이그레이션이 필요 없다.
         /// </summary>
         public bool hasSeenEnding;
+
+        /// <summary>
+        /// 프롤로그 자막을 봤는가(4-3). 세이브당 <b>한 번만</b> 재생하기 위한 플래그다 —
+        /// 프롤로그는 1인칭 확정 서술이라 매 런 반복되면 "추락은 한 번뿐"이라는 전제가 무너진다.
+        ///
+        /// <see cref="hasSeenEnding"/>과 마찬가지로 순수 필드 추가라 마이그레이션이 필요 없다.
+        /// 기본값 false는 <b>기존 세이브를 가진 플레이어도 다음 실행에서 한 번 본다</b>는 뜻인데,
+        /// 신규 콘텐츠이므로 그것이 맞는 동작이다.
+        /// </summary>
+        public bool hasSeenPrologue;
     }
 
     /// <summary>

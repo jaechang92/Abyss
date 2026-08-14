@@ -91,7 +91,29 @@ namespace Abyss.Runtime.UI
             return service != null && service.Current != null ? service.Current.abyssShardsTotal : 0;
         }
 
+        /// <summary>
+        /// 게임 시작. 프롤로그(4-3)를 아직 안 봤으면 <b>로비로 넘어가기 전에</b> 한 번 재생한다.
+        ///
+        /// 판단을 여기서 하는 이유: 프롤로그 패널은 "틀면 튼다"만 하고 재생 여부를 모른다.
+        /// 한쪽에 몰아 두어야 치트로 다시 보는 경로(<see cref="MetaSaveService.ResetPrologueSeen"/>)가
+        /// 판단을 우회하지 않고 그대로 통한다.
+        /// </summary>
         private void StartGame()
+        {
+            var service = MetaSaveService.GetInstanceSafe();
+            if (service != null && !service.HasSeenPrologue)
+            {
+                // 재생 직전에 기록한다 — 콜백에서 기록하면 도중에 앱을 끈 플레이어가 다음에 또 본다.
+                // 프롤로그는 건너뛰기가 있으므로 "봤다"의 기준은 재생 시작으로 충분하다.
+                service.MarkPrologueSeen();
+                PrologueSequencePanel.Play(EnterLobby);
+                return;
+            }
+
+            EnterLobby();
+        }
+
+        private static void EnterLobby()
         {
             if (SceneFlowController.HasInstance)
             {
