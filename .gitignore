@@ -138,3 +138,6 @@ memory/
 .claude/
 # 에이전트 지침(로컬 전용). 공유 규칙은 CONVENTIONS.md로 분리해 추적한다.
 CLAUDE.md
+
+# Python 생성기 캐시 (Tools/PixelArt)
+__pycache__/

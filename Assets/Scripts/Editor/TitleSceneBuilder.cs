@@ -15,7 +15,7 @@ namespace Abyss.EditorTools
     /// 구성: 카메라 + EventSystem + 캔버스(타이틀 로고·메뉴 버튼 4종·누적 기록 줄).
     /// 완주 루프 계획 Phase 0-2 — 게임을 켜고 끌 수 있는 앱 셸의 진입점.
     /// </summary>
-    public static class TitleSceneBuilder
+    public static partial class TitleSceneBuilder
     {
         [MenuItem(AbyssMenu.BuildTitleScene)]
         public static void Build()
@@ -92,6 +92,9 @@ namespace Abyss.EditorTools
             bg.color = new Color(0.04f, 0.04f, 0.07f, 1f);
             bg.raycastTarget = false;
 
+            // 배경 레이어를 UI보다 먼저 만든다 — uGUI는 계층 순서가 곧 렌더 순서다.
+            var backdrop = BuildBackdrop(root.transform);
+
             var titleGo = CreateRect(root.transform, "TitleText", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -220), new Vector2(900, 120));
             var title = titleGo.AddComponent<Text>();
             ApplyFont(title);
@@ -134,6 +137,9 @@ namespace Abyss.EditorTools
             SetPrivateField(panel, "quitButton", quit.button);
             SetPrivateField(panel, "startLabel", start.label);
             SetPrivateField(panel, "recordText", record);
+
+            // 로고는 배경보다 나중에 생성되므로 여기서 연결한다(등장 페이드·숨쉬기 대상).
+            if (backdrop != null) SetPrivateField(backdrop, "logo", title);
         }
 
         private struct ButtonHandle

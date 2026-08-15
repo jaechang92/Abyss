@@ -39,6 +39,8 @@ namespace Abyss.EditorTools
         public const string EnemySprites = Sprites + "/Enemies";
         public const string SkillIcons = Sprites + "/SkillIcons";
         public const string Props = Sprites + "/Props"; // 월드 오브젝트 스프라이트(제단 등)
+        // 배경 레이어는 Sprite가 아니라 Texture로 임포트한다(RawImage.uvRect 스크롤 대상).
+        public const string TitleBackdrop = "Assets/Art/Backgrounds/Title";
 
         // 오디오
         public const string Sfx = "Assets/Audio/SFX";
