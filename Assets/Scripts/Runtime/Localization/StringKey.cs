@@ -103,5 +103,18 @@ namespace Abyss.Runtime.Localization
         public const string Story_Engraver_VoidThrower_Line3 = "Story_Engraver_VoidThrower_Line3";
         public const string Story_Engraver_Idle_Line1 = "Story_Engraver_Idle_Line1";
         public const string Story_Engraver_Idle_Line2 = "Story_Engraver_Idle_Line2";
+
+        // ---- 서사 (자막 — 프롤로그·엔딩, 4-3) ----
+        // NPC 대사와 달리 화자가 주인공 자신이다. 인칭은 1인칭 「나」로 고정된다
+        // (NPC는 주인공을 「자네」로 부른다 — 12-prologue-ending-text.md §3-1).
+        // 프롤로그 마지막 문단과 엔딩 마지막 문단은 「내려다보던 것」으로 짝을 이룬다. 한쪽만 고치지 말 것.
+        public const string Story_Prologue_Line1 = "Story_Prologue_Line1";
+        public const string Story_Prologue_Line2 = "Story_Prologue_Line2";
+        public const string Story_Prologue_Line3 = "Story_Prologue_Line3";
+        public const string Story_Prologue_Line4 = "Story_Prologue_Line4";
+        public const string Story_Ending_Line1 = "Story_Ending_Line1";
+        public const string Story_Ending_Line2 = "Story_Ending_Line2";
+        public const string Story_Ending_Line3 = "Story_Ending_Line3";
+        public const string Story_Ending_Line4 = "Story_Ending_Line4";
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -30,16 +31,21 @@ namespace Abyss.Runtime.UI
         private const float COVER_TIMEOUT = 5f;
 
         /// <summary>
-        /// 임시 프롤로그 텍스트. <b>확정본은 GameText.csv(<c>Story_Prologue_Line{N}</c>)로 옮긴다</b> —
-        /// 지금은 재생 경로를 먼저 검증하기 위한 자리표시자다(서사 텍스트 규약: 10-narrative-plan §5).
+        /// 프롤로그 문단 순서. 텍스트 자체는 GameText.csv에 있다(서사 텍스트 규약: 10-narrative-plan §5).
         ///
         /// 인칭 규약: <b>자막은 주인공 1인칭「나」, NPC 대사는 주인공을 「자네」로 부른다.</b>
         /// 1인칭이되 단정하지 않는다 — 폼이 계속 바뀌는 본편이 "아직 나였다"의 소멸 과정이 된다.
+        ///
+        /// 마지막 문단의 <i>내려다보고 있었다</i>는 로비 첫 대사 "또 하나의 낙오자인가"가
+        /// <b>응답</b>이 되게 하는 자리다. 기록자를 등장시키지 않고 암시만 남긴다
+        /// (이름 「하란」의 회수는 M4 히든 엔딩 — 12-prologue-ending-text.md §2-2).
         /// </summary>
-        private static readonly string[] Paragraphs =
+        private static readonly string[] ParagraphKeys =
         {
-            "떨어지는 동안에도\n나는 아직 나였다.",
-            "바닥에 닿았을 때\n무엇이 남을지는 몰랐다.",
+            StringKey.Story_Prologue_Line1,
+            StringKey.Story_Prologue_Line2,
+            StringKey.Story_Prologue_Line3,
+            StringKey.Story_Prologue_Line4,
         };
 
         private static PrologueSequencePanel instance;
@@ -103,7 +109,7 @@ namespace Abyss.Runtime.UI
             // 진입해 이 문제가 없었지만 여기서는 100% 재현되므로, 재생을 시작한 프레임의 입력은 버린다.
             startFrame = Time.frameCount;
 
-            subtitles?.Restart(Paragraphs);
+            subtitles?.Restart(SubtitleSequence.Localize(ParagraphKeys));
             if (skipHint != null) skipHint.text = HINT_SKIP;
 
             body.SetActive(true);

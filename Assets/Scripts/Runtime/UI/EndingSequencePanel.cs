@@ -1,4 +1,5 @@
 using System;
+using Abyss.Runtime.Localization;
 using Abyss.Runtime.Run;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -44,13 +45,22 @@ namespace Abyss.Runtime.UI
         // 씬 전환이 끝내 오지 않을 때(SceneFlowController 미가동 등) 검은 화면이 영원히 남지 않도록 하는 상한.
         private const float COVER_TIMEOUT = 5f;
 
-        /// <summary>임시 엔딩 텍스트. 내용은 4-3에서 교체하고 경로는 그대로 둔다.</summary>
-        private static readonly string[] Paragraphs =
+        /// <summary>
+        /// 엔딩 문단 순서. 텍스트 자체는 GameText.csv에 있다(서사 텍스트 규약: 10-narrative-plan §5).
+        ///
+        /// 착수 시점의 자막은 <b>2인칭</b>이었다("당신은 심연을 벗어났다"). 프롤로그가 1인칭으로
+        /// 확정되면서 여는 자막과 닫는 자막이 서로 다른 사람을 가리키게 되어 함께 교체했다 —
+        /// "엔딩은 내용만 갈아끼우면 된다"는 전제가 깨진 지점이다(12-prologue-ending-text.md §3-1).
+        ///
+        /// 마지막 문단의 <i>내려다보던 것은 아래에 남았다</i>가 프롤로그 마지막 문단과 짝이다.
+        /// 주인공은 나왔고 <b>남은 자가 있다</b>는 사실만 남긴다 — 내력도 이름도 내지 않는다(§2-2).
+        /// </summary>
+        private static readonly string[] ParagraphKeys =
         {
-            "심연의 밑바닥에서, 마지막 불꽃이 꺼졌다.",
-            "당신이 걸어 내려온 길은 이제 닫힌다.\n올라가는 길만이 남았다.",
-            "무너진 왕좌 너머로, 오래 잊혔던 빛이 스며든다.",
-            "당신은 심연을 벗어났다.",
+            StringKey.Story_Ending_Line1,
+            StringKey.Story_Ending_Line2,
+            StringKey.Story_Ending_Line3,
+            StringKey.Story_Ending_Line4,
         };
 
         private const string CREDITS_TEXT =
@@ -122,7 +132,7 @@ namespace Abyss.Runtime.UI
             phase = Phase.Subtitles;
             phaseTimer = 0f;
 
-            subtitles?.Restart(Paragraphs);
+            subtitles?.Restart(SubtitleSequence.Localize(ParagraphKeys));
             if (creditsText != null) creditsText.gameObject.SetActive(false);
             if (statsGroup != null) statsGroup.gameObject.SetActive(false);
             if (skipHint != null) skipHint.text = HINT_SKIP;

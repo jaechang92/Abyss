@@ -170,6 +170,19 @@ namespace Abyss.Runtime.Localization
             return text;
         }
 
+        /// <summary>
+        /// 셀 안의 두 글자 <c>\n</c>을 실제 줄바꿈으로 푼다.
+        ///
+        /// RFC4180은 따옴표로 감싸면 셀 안에 진짜 줄바꿈을 넣을 수 있게 하지만, 그 방식은
+        /// <b>한 레코드가 여러 물리 행에 걸치게 만들어</b> 스프레드시트 밖(diff·grep·리뷰)에서
+        /// 행 단위로 읽히지 않는다. 자막 문단처럼 줄바꿈이 곧 호흡인 텍스트가 늘어나는 참에
+        /// 이스케이프 표기로 통일한다 — <b>한 키는 언제나 한 줄이다.</b>
+        ///
+        /// 기존 CSV에 백슬래시가 한 글자도 없어(2026-08-19 전수 확인) 과거 행의 뜻은 바뀌지 않는다.
+        /// </summary>
+        public static string UnescapeNewlines(string value)
+            => string.IsNullOrEmpty(value) ? value : value.Replace("\\n", "\n");
+
         // --- 타입 파싱 헬퍼 (향후 데이터 임포터 확장용) ---
 
         public static int ParseInt(string val, int defaultVal)
