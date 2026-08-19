@@ -1,4 +1,5 @@
 ﻿using System;
+using Abyss.Runtime.Audio;
 using Abyss.Runtime.Combat;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Player;
@@ -319,6 +320,8 @@ namespace Abyss.Runtime.Enemy
             OnHpChanged?.Invoke(previous, currentHp);
 
             visuals?.Flash();
+            // 사망 프레임에는 피격음 대신 사망음만 낸다 — 둘이 겹치면 마지막 타격이 뭉개진다.
+            if (currentHp > 0) PlaySfx(data?.hitSfx);
 
             if (currentHp <= 0) Die();
             else if (causesStagger) staggerQueued = true;
@@ -337,8 +340,22 @@ namespace Abyss.Runtime.Enemy
                 else if (data.IsElite) RunManager.Instance.NotifyEliteKilled();
             }
 
+            PlaySfx(data?.deathSfx);
             GameEvents.RaiseEnemyKilled(data, transform.position);
             Destroy(gameObject, 0.3f);
+        }
+
+        /// <summary>
+        /// 효과음 1회 재생. <b>클립이 없으면 조용히 넘어간다</b> — 4-2 단계에서는 파일이
+        /// 아직 대부분 없고, 없다고 로그를 남기면 적 하나 잡을 때마다 콘솔이 찬다.
+        ///
+        /// <see cref="AudioManager"/>는 <c>HasInstance</c>로 본다(자동 생성 안 함) —
+        /// 부트스트랩을 안 거친 씬 단독 재생에서 소리 때문에 매니저가 생기지 않게.
+        /// </summary>
+        private static void PlaySfx(AudioClip clip)
+        {
+            if (clip == null || !AudioManager.HasInstance) return;
+            AudioManager.Instance.PlaySfx(clip);
         }
 
         private void RegisterStates()

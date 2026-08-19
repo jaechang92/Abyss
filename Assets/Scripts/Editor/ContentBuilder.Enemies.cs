@@ -1,5 +1,7 @@
 ﻿#if UNITY_EDITOR
 using Abyss.Runtime.Enemy;
+using UnityEditor;
+using UnityEngine;
 
 namespace Abyss.EditorTools
 {
@@ -212,6 +214,64 @@ namespace Abyss.EditorTools
                 so.patrolRadius = 0f; // 보스는 Patrol 정지
             });
         }
+
+        /// <summary>
+        /// 적 피격/사망 효과음을 <b>등급별로</b> 연결한다(4-2).
+        ///
+        /// <see cref="CreateOrSkip"/>는 기존 에셋을 건너뛰므로 생성 시점의 값만으로는
+        /// 이미 있는 12종에 소리가 안 붙는다 — 그래서 <b>매번 도는 별도 패스</b>로 뒀다.
+        /// 이미 같은 클립이면 아무것도 안 하므로 몇 번 돌려도 안전하다(발동음 연결과 같은 형태).
+        ///
+        /// 🔑 <b>적마다가 아니라 등급마다 나눈다.</b> 피격음은 한 런에서 가장 많이 듣는 소리라
+        /// 전부 같으면 잡몹과 보스를 때리는 감각이 구분되지 않고, 12종을 다 다르게 하면 피로해진다.
+        /// 중간보스는 <see cref="EnemyTier.MidBoss"/>지만 <b>소리는 중량 쪽</b>이다 —
+        /// 보스음은 스테이지 보스에게만 남겨 둬야 그 등장이 무거워진다.
+        /// </summary>
+        private static void LinkEnemySfx()
+        {
+            var normalHit = LoadSfx("enemy_hit");
+            var normalDeath = LoadSfx("enemy_death");
+            var heavyHit = LoadSfx("enemy_hit_heavy");
+            var heavyDeath = LoadSfx("enemy_death_heavy");
+            var bossHit = LoadSfx("boss_hit");
+            var bossDeath = LoadSfx("boss_death");
+
+            if (normalHit == null)
+            {
+                Debug.LogWarning(
+                    "[ContentBuilder] 적 효과음이 없다 — _enemy_sfx_generator.py를 먼저 실행할 것. " +
+                    "(파일이 없어도 게임은 조용히 돌아간다)");
+                return;
+            }
+
+            int linked = 0;
+            foreach (var guid in AssetDatabase.FindAssets("t:EnemyData", new[] { AbyssPaths.Enemies }))
+            {
+                var data = AssetDatabase.LoadAssetAtPath<EnemyData>(AssetDatabase.GUIDToAssetPath(guid));
+                if (data == null) continue;
+
+                // 중장 강적은 등급이 Normal이지만 덩치로는 중량이다 — id로 예외를 둔다.
+                bool heavy = data.tier == EnemyTier.Elite
+                             || data.tier == EnemyTier.MidBoss
+                             || data.enemyId == "melee_brute";
+
+                var hit = data.tier == EnemyTier.Boss ? bossHit : heavy ? heavyHit : normalHit;
+                var death = data.tier == EnemyTier.Boss ? bossDeath : heavy ? heavyDeath : normalDeath;
+
+                if (data.hitSfx == hit && data.deathSfx == death) continue;
+                data.hitSfx = hit;
+                data.deathSfx = death;
+                EditorUtility.SetDirty(data);
+                linked += 1;
+            }
+
+            if (linked > 0) AssetDatabase.SaveAssets();
+            Debug.Log($"[ContentBuilder] 적 효과음 연결: {linked}종 갱신.");
+        }
+
+        /// <summary>Assets/Audio/SFX/{name}.wav 로드. 없으면 null(런타임이 무음 가드).</summary>
+        private static AudioClip LoadSfx(string name)
+            => AssetDatabase.LoadAssetAtPath<AudioClip>($"{AbyssPaths.Sfx}/{name}.wav");
     }
 }
 #endif
