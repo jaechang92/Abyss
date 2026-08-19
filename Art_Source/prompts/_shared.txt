@@ -1,0 +1,20 @@
+[IDENTITY — copy verbatim, never edit between poses]
+the same hooded dark knight character, dark fantasy roguelike hero,
+deep crimson-red plate armor with jagged spiked pauldrons and torn layered tabard,
+tattered dark cloth skirt with ragged hem, black chainmail sleeves,
+skull-shaped belt buckle, hood fully covering the face leaving only shadow, no visible face,
+gripping a large jagged greatsword firmly in his right hand,
+the blade has a glowing molten orange crack running down its center
+
+[STYLE — copy verbatim, never edit between poses]
+2D game character sprite, hand-drawn illustrative style like Skul: The Hero Slayer,
+clean confident linework, soft cel shading with two shadow steps,
+single light source from the upper left, subtle rim light along the right edge,
+saturated but grounded palette, no texture noise, no painterly brush strokes
+
+[FRAMING — copy verbatim, never edit between poses]
+side view facing right, three-quarter profile, full body entirely inside the frame
+with a small even margin on all four sides,
+flat solid magenta #FF00FF background, perfectly uniform, no gradient no vignette,
+no ground, no floor, no platform, no cast shadow, nothing under the feet,
+character isolated on the magenta, single figure only, PNG

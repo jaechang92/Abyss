@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: AncientShield
   m_EditorClassIdentifier: 
   formId: ancient_shield
+  requiresMetaUnlock: 0
   displayName: "\uACE0\uB300 \uBC29\uD328\uBCD1"
+  bodySprite: {fileID: 21300000, guid: 5bdb4b033a07bf84cbfe999fa012ac5c, type: 3}
   description: "\uBC29\uD328\uB85C \uBC84\uD2F0\uB294 \uCCA0\uBCBD \uADFC\uC811.
     \uCD5C\uACE0 HP\xB7\uC800\uC18D\xB7\uBB35\uC9C1\uD55C \uB2E8\uC77C \uC810\uD504.
     \uCCA0\uBCBD \uCD95 \uC2DC\uB108\uC9C0. HP +50%, \uC774\uB3D9\uC18D\uB3C4 -15%."

@@ -19,6 +19,9 @@ namespace Abyss.Runtime.Form
 
         [Header("표시 정보")]
         public string displayName;
+
+        [Tooltip("게임 화면에 그려질 몸통 스프라이트. 비우면 기존 흰 사각형 + castColor 틴트로 폴백.")]
+        public Sprite bodySprite;
         [TextArea(2, 4)] public string description;
         public Sprite icon;
 

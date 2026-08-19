@@ -42,10 +42,12 @@ namespace Abyss.EditorTools
             CreateForms();
             CreateSkills();
             CreateEnemies();
+            LinkEnemySfx();   // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다
             CreateRunConfig();
             CreateAbilities();
             WireActiveAbilities();
             WireSkillIcons();
+            WireFormBodySprites();   // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다
             WireAbilitySfx();
 
             AssetDatabase.SaveAssets();
@@ -182,6 +184,35 @@ namespace Abyss.EditorTools
                 if (p.Length > 1) sb.Append(p.Substring(1));
             }
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// 폼 몸통 스프라이트를 <c>Assets/Art/Sprites/Forms/{formId}.png</c>에서 연결한다(4-1 아트).
+        ///
+        /// <see cref="CreateOrSkip"/>는 기존 에셋을 건너뛰므로 생성 시점 값만으로는 이미 있는 4종에
+        /// 안 붙는다 — 적 효과음 연결과 같은 이유로 <b>매번 도는 별도 패스</b>다.
+        /// 그림이 아직 없는 폼은 <b>조용히 건너뛴다</b>: 비어 있으면 흰 사각형 + castColor 폴백이
+        /// 그대로 돌아가므로, 없다고 경고를 쌓을 이유가 없다(4종을 한꺼번에 만들지 않는다).
+        /// </summary>
+        private static void WireFormBodySprites()
+        {
+            int linked = 0, missing = 0;
+            foreach (var guid in AssetDatabase.FindAssets("t:FormData", new[] { AbyssPaths.Forms }))
+            {
+                var form = AssetDatabase.LoadAssetAtPath<FormData>(AssetDatabase.GUIDToAssetPath(guid));
+                if (form == null || string.IsNullOrEmpty(form.formId)) continue;
+
+                string path = $"Assets/Art/Sprites/Forms/{form.formId}.png";
+                var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+                if (sprite == null) { missing += 1; continue; }
+                if (form.bodySprite == sprite) continue;
+
+                form.bodySprite = sprite;
+                EditorUtility.SetDirty(form);
+                linked += 1;
+            }
+            if (linked > 0) AssetDatabase.SaveAssets();
+            Debug.Log($"[ContentBuilder] 폼 몸통 스프라이트 연결: {linked}종 갱신, {missing}종은 그림 없음(폴백 유지).");
         }
     }
 }

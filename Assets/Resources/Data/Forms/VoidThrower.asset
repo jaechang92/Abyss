@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: VoidThrower
   m_EditorClassIdentifier: 
   formId: void_thrower
+  requiresMetaUnlock: 0
   displayName: "\uC2EC\uC5F0 \uD22C\uCC99\uC0AC"
+  bodySprite: {fileID: 21300000, guid: f3a594599201be042a835029745d98e3, type: 3}
   description: "\uD22C\uCC3D\uACFC \uC794\uC0C1 \uC774\uB3D9\uC758 \uAE30\uB3D9\uD615
     \uC2DC\uD504\uD130. \uC720\uB9AC\uB300\uD3EC \uADFC\xB7\uC6D0\uAC70\uB9AC \uD63C\uD569.
     \uC2EC\uC5F0 \uCD95 \uC2DC\uB108\uC9C0. HP -10%, \uC774\uB3D9\uC18D\uB3C4 +15%,

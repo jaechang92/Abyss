@@ -1,0 +1,33 @@
+Use case: style-transfer
+Asset type: polished 2D game character form PNG
+Input image role: the base image is the single source of truth for character identity, proportions, art style, rendering density, lighting, line quality, and hidden-face design.
+
+Primary request:
+Transform the referenced dark blade character into void_archer, a different form of the same person. This must still feel like the exact same character artist, same franchise, same production quality, and same detailed finish as the reference image.
+
+Subject:
+Same lean adult figure, same height and proportions as the reference, three-quarter side view facing right. The face is completely covered by a deep hood shadow, with no visible face, no eyes, no mouth, no skin, and no facial details. Make this the slightest and thinnest form: agile, narrow, and lightly armored. Replace the crimson heavy plate with layered violet-purple leather, dark cloth, segmented light armor plates, wrapped forearms, soft silent boots, and torn ragged hems. Shoulders must be light and mostly unarmored, not bulky. Add a long tattered hood-scarf streaming backward. Add a quiver of shadow-fletched arrows at the hip.
+
+Weapon and silhouette:
+The character holds a tall recurved longbow in the left hand. The bow is nearly as tall as the body and forms a grand elegant arc beside the figure; this bow curve is the main silhouette read. The bowstring is pale violet light. The single glowing accent color is violet #A36BF5, appearing in the bowstring, small trim lines, arrow details, and a few inner-lit void cracks or runes.
+
+Style/medium:
+Match the reference image closely: hand-drawn illustrative 2D game art, clean confident linework with dark outlines, sharp readable armor shapes, layered torn cloth, worn battle-scarred surfaces, soft cel shading with two shadow steps, crisp highlight edges, saturated colors over a dark value base, and glowing accents as inner light. Keep the rendering rich and detailed like the reference, not simplified, not flat, not icon-like.
+
+Composition/framing:
+Single centered full-body figure, entirely inside the frame with even margin on all four sides. Three-quarter side view facing right. No ground contact effects. The whole figure must read clearly against the background. The silhouette must read as the thinnest form and the only curved form, dominated by the tall recurved bow arc beside the body.
+
+Lighting/mood:
+Single light source from upper left, with warm rim light along lit edges matching the reference. Deep controlled shadows under the hood and cloth folds. Violet glow should illuminate only nearby trim and bowstring edges.
+
+Color palette:
+Dominant dark violet, black-purple, and rich saturated purple leather/cloth. Accent color exactly violet #A36BF5. Avoid returning to crimson/red as the main armor color.
+
+Scene/background:
+Flat solid magenta #FF00FF background, perfectly uniform edge to edge, no gradient, no vignette, no texture.
+
+Hard constraints:
+Single figure only. Full body only. Same character identity and proportions as the reference. Face fully hidden. No visible face ever. No ground, no floor, no platform, no cast shadow, and nothing under the feet. PNG output.
+
+Avoid:
+simplified cartoon style, chibi proportions, low-detail flat vector look, visible eyes, visible skin, exposed face, bulky shoulders, heavy crimson plate armor, extra characters, duplicate weapons, crossbow, gun, background scenery, floor, platform, cast shadow, gradient, vignette, watermark, text, logo, photorealism, painterly brush strokes, noisy texture.

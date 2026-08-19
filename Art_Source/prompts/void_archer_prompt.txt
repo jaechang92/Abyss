@@ -1,0 +1,30 @@
+Use case: style-transfer
+Asset type: 2D game character form concept PNG
+Input image: the provided base image is the single source of truth for art style, character identity, proportions, height, pose language, line quality, shading, and facial concealment.
+
+Primary request:
+Convert the referenced character into a different form of the same person: void_archer, a lean void archer and the slightest build of all forms.
+
+Subject:
+The same lean adult figure from the reference image, identical body proportions and height. The hood or headgear fully covers the face, leaving only deep shadow; no visible face, eyes, mouth, skin, or facial details. Replace the crimson plate-heavy design with violet-purple leather and cloth. The shoulders are light and unarmored. Add a long tattered hood-scarf trailing backward, wrapped forearms, soft boots for silent movement, and a quiver of shadow-fletched arrows at the hip. The character carries a tall recurved longbow held in the left hand; the bowstring is made of pale violet light.
+
+Style/medium:
+Match the reference exactly: hand-drawn illustrative 2D game art, clean confident linework with dark outlines, soft cel shading with two shadow steps and crisp highlight edges, single light source from the upper left, warm rim light along lit edges, rich saturated colors on a dark value base, glowing accents rendered as inner light. No texture noise, no painterly brush strokes, no photorealism.
+
+Composition/framing:
+Three-quarter side view facing right. Full body entirely inside the frame with even margin on all four sides. Single centered figure. The silhouette must read at a glance even as pure black: the thinnest silhouette of the forms, and the only one built on a curve. The great arc of the bow beside the body is the memorable silhouette. Keep the body slender and agile; emphasize the tall recurved bow's sweeping crescent-like curve beside the figure.
+
+Lighting/mood:
+Single upper-left light source matching the reference, crisp warm rim light on lit edges, deep controlled shadows under the hood and cloth folds.
+
+Color palette:
+Dark value base with violet-purple leather and cloth. The single glowing accent color is violet #A36BF5, running along the bowstring and armor trim. Use pale violet inner glow on the string and subtle trim accents. Do not use the original crimson as the dominant armor color.
+
+Scene/background:
+Flat solid magenta #FF00FF background, perfectly uniform. No gradient, no vignette, no texture.
+
+Constraints:
+Preserve identity as the same person from the reference: same proportions, same height, same hidden-face hooded identity, same dark outlined hand-drawn game-art finish. Output a single figure PNG. No ground, no floor, no platform, no cast shadow, and nothing under the feet.
+
+Avoid:
+visible face, visible eyes, exposed skin, extra characters, duplicate weapons, guns, crossbows, bulky armor, heavy shoulder plate, photorealism, painterly brush strokes, noisy texture, background scenery, floor, platform, cast shadow, gradient background, vignette, watermark, text, logo.

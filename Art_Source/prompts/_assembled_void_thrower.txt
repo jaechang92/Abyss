@@ -1,0 +1,40 @@
+BASE IMAGE (style and identity reference):
+  D:\JaeChang\Abyss\Art_Source\base\dark_blade.png
+  (POSIX: /d/JaeChang/Abyss/Art_Source/base/dark_blade.png)
+
+Read that file and use it as the single source of truth for art style and character identity.
+If you cannot read local files, the same image is attached to this message — use the attachment.
+
+Match that reference image exactly for art style and character identity.
+
+STYLE (from the reference):
+hand-drawn illustrative 2D game art, clean confident linework with dark outlines,
+soft cel shading with two shadow steps and crisp highlight edges,
+single light source from the upper left, warm rim light along the lit edges,
+rich saturated colors on a dark value base, glowing accents rendered as inner light,
+no texture noise, no painterly brush strokes, no photorealism
+
+CHARACTER IDENTITY (shared by every form — this is the same person):
+the same lean adult figure, identical body proportions and height as the reference,
+hood or headgear fully covering the face leaving only shadow, no visible face ever,
+layered torn cloth over segmented armor, ragged hems, worn battle-scarred surfaces,
+a single glowing accent color that runs through the weapon and armor trim
+
+FRAMING:
+three-quarter side view facing right, full body entirely inside the frame
+with an even margin on all four sides,
+flat solid magenta #FF00FF background, perfectly uniform, no gradient no vignette,
+no ground, no floor, no platform, no cast shadow, nothing under the feet,
+single figure, PNG
+
+Convert the referenced character into a different form of the same person:
+an agile void thrower, light and fast,
+deep teal and blackened leather harness, bare wrapped arms, no heavy plate,
+a long ragged cloak that flares wide toward the ground,
+a bandolier of throwing javelins across the chest, one javelin raised in the right hand ready to throw,
+the javelin tip burns with cold teal light,
+the glowing accent color is cold teal #7AC8BE, running along the javelins and harness trim
+
+SILHOUETTE — this must read at a glance, even as a pure black shape:
+built on a TRIANGLE — narrow at the shoulders and flaring wide at the hem,
+the cloak spreading toward the feet is the shape people remember
