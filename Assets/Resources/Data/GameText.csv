@@ -48,13 +48,13 @@ Upgrade_Attack_Name,메타,업그레이드 이름,,,공격력 강화,Power,攻�
 Upgrade_Attack_Desc,메타,업그레이드 설명,,,레벨당 공격력 +8%,+8% Attack per level,レベルごとに攻撃力 +8%
 Npc_Chronicler_Name,대화,로비-기록자 이름,,,기록자,Chronicler,記録者
 Npc_Chronicler_Prompt,대화,로비-기록자 프롬프트,,,이야기 듣기 (G),Listen (G),話を聞く (G)
-Story_Ch1_Line1,서사,챕터1-1,,,또 하나의 낙오자인가. 심연은 언제나 새로운 손님을 기다려 왔지.,Another castaway. The Abyss has always awaited new guests.,また一人の落伍者か。深淵は常に新たな客を待っていた。
-Story_Ch1_Line2,서사,챕터1-2,,,"수많은 이가 이 아래로 내려갔고, 돌아온 자는 없었다. 허나 자네에게선... 낯선 냄새가 나는군.","Many descended below, and none returned. Yet from you... I sense something unfamiliar.",幾多の者が下へ降り、戻った者はいない。だが君からは…見知らぬ気配がする。
-Story_Ch2_Line1,서사,챕터2-1,,,돌아왔군. 첫 추락에서 삼켜지지 않은 자는 드물다.,You have returned. Few survive being swallowed by the first fall.,戻ってきたか。最初の落下で呑まれぬ者は稀だ。
-Story_Ch2_Line2,서사,챕터2-2,,,"명심하게. 심연은 살아 숨쉬며, 지금 자네를 시험하고 있어.","Remember this. The Abyss breathes, and it is testing you now.",心に刻め。深淵は息づき、今も君を試している。
-Story_Ch3_Line1,서사,챕터3-1,,,수호자를 쓰러뜨렸다고? 그 아래엔 더 오래된 것들이 잠들어 있네.,You felled the Keeper? Below it slumber things far older.,守護者を倒しただと？その下にはさらに古きものが眠っている。
-Story_Ch3_Line2,서사,챕터3-2,,,자네가 찾는 답은 가장 깊은 곳에 있어. 허나 그 대가를 치를 각오는 되었는가.,The answer you seek lies at the deepest point. But are you prepared to pay its price?,君が求める答えは最も深き場所にある。だが、その代償を払う覚悟はあるか。
-Story_Idle_Line1,서사,기록자 대기,,,지금은 더 들려줄 이야기가 없군. 더 깊이 내려가 보게.,I have no more tales for now. Descend deeper.,今は語る話がない。さらに深く降りてみよ。
+Story_Ch1_Line1,서사,챕터1-1,,,또 하나의 낙오자인가. 물에 닿는 소리를 들었다. 종이 소리와 달랐지.,,
+Story_Ch1_Line2,서사,챕터1-2,,,낙오자라는 말은 내가 지은 게 아니다. 열한째가 그렇게 말했지. 옮긴 건 옮겼다고 하면 쓸 수 있다.,,
+Story_Ch2_Line1,서사,챕터2-1,,,돌아왔군. 앞서 온 이들 중 둘째는 안 살아 있었다. 셋째는 오래 있었지.,,
+Story_Ch2_Line2,서사,챕터2-2,,,심연이 무엇인지는 나도 못 잰다. 못 재는 건 안 찍는다. 그렇게 적어 두었지.,,
+Story_Ch3_Line1,서사,챕터3-1,,,수호자를 넘었다고. 나는 그 아래를 안 봤다. 내려간 이들이 안 돌아와서 못 물었지.,,
+Story_Ch3_Line2,서사,챕터3-2,,,자네가 무엇을 찾는지는 안 물었다. 나는 잰 것만 적는다. 그건 자네가 잴 몫이지.,,
+Story_Idle_Line1,서사,기록자 대기,,,새로 적은 것이 없다. 자네가 더 가면 적을 것이 생기지.,,
 Npc_Engraver_Name,대화,로비-각인사 이름,,,각인사,,
 Story_Engraver_DarkBlade_Line1,서사,각인사-암흑 검사,,,이 날에 새긴 이름은 이레브다. 삼백 해 이어진 전쟁을 끝냈다고 적혀 있지. 몇 해였는지는 말이 갈린다.,,
 Story_Engraver_DarkBlade_Line2,서사,각인사-암흑 검사,,,끝내는 법은 배웠고 그만두는 법은 못 배웠다. 이 줄만은 적은 이가 지었다고 밝혀 뒀지. 그이가 한 말이 아니다.,,
