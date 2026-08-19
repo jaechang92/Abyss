@@ -44,6 +44,7 @@ namespace Abyss.Tests.EditMode
                 FormChapter(2, "void_archer"),
                 FormChapter(3, "ancient_shield"),
                 FormChapter(4, "void_thrower"),
+                ClosingChapter(99, minViewedChapters: 4),
             };
         }
 
@@ -60,6 +61,10 @@ namespace Abyss.Tests.EditMode
 
         private static StoryChapter FormChapter(int stage, string formId) =>
             new() { chapterStage = stage, requiredFormId = formId };
+
+        /// <summary>폼 조건 없이 "이 화자의 것을 이만큼 본 뒤"로만 열리는 챕터(각인사 닫는 말).</summary>
+        private static StoryChapter ClosingChapter(int stage, int minViewedChapters) =>
+            new() { chapterStage = stage, minViewedChapters = minViewedChapters };
 
         private void SetTotals(int runCount, int bossKills)
         {
@@ -207,6 +212,72 @@ namespace Abyss.Tests.EditMode
 
             service.GetStorySnapshots(StorySpeakerIds.Chronicler, out int runSnapshot, out _);
             Assert.AreEqual(2, runSnapshot, "이미 본 챕터의 재기록은 델타 기준점을 밀면 안 된다.");
+        }
+
+        // ───────────────────── 각인사 닫는 말 — "다 본 뒤"에만 열린다 ─────────────────────
+
+        /// <summary>
+        /// 🔴 이 테스트가 조건을 추가한 이유다. 닫는 말은 폼 조건이 없어서, 그것만으로는
+        /// <b>아무 폼도 안 써 본 새 세이브에서 제일 먼저 열린다</b> — 사전 모델에 순서가 없기 때문이다.
+        /// </summary>
+        [Test]
+        public void Engraver_FreshSave_DoesNotOfferClosingChapter()
+        {
+            Assert.IsFalse(TryPickEngraver(out _), "폼을 하나도 안 써 봤는데 닫는 말이 열리면 안 된다.");
+        }
+
+        [Test]
+        public void Engraver_ClosingChapter_StaysShutUntilAllFourViewed()
+        {
+            for (int stage = 1; stage <= 3; stage++)
+            {
+                service.MarkChapterViewed(StorySpeakerIds.Engraver, stage, 0, 0, autoSave: false);
+            }
+            // 넷째 폼을 발견했지만 아직 그 내력을 안 봤다 → 닫는 말이 아니라 넷째가 나와야 한다.
+            service.DiscoverForm("void_thrower", autoSave: false);
+
+            Assert.IsTrue(TryPickEngraver(out var picked));
+            Assert.AreEqual(4, picked.chapterStage, "셋만 본 상태에서 닫는 말이 넷째를 가로채면 안 된다.");
+        }
+
+        [Test]
+        public void Engraver_ClosingChapter_OpensAfterAllFourViewed()
+        {
+            for (int stage = 1; stage <= 4; stage++)
+            {
+                service.MarkChapterViewed(StorySpeakerIds.Engraver, stage, 0, 0, autoSave: false);
+            }
+
+            Assert.IsTrue(TryPickEngraver(out var picked), "넷을 다 본 뒤에는 닫는 말이 열려야 한다.");
+            Assert.AreEqual(99, picked.chapterStage);
+        }
+
+        /// <summary>닫는 말은 <b>한 번뿐</b>이다 — 반복되면 아크 씨앗의 무게가 사라진다.</summary>
+        [Test]
+        public void Engraver_ClosingChapter_PlaysOnlyOnce()
+        {
+            for (int stage = 1; stage <= 4; stage++)
+            {
+                service.MarkChapterViewed(StorySpeakerIds.Engraver, stage, 0, 0, autoSave: false);
+            }
+            Assert.IsTrue(TryPickEngraver(out var picked));
+            service.MarkChapterViewed(StorySpeakerIds.Engraver, picked.chapterStage, 0, 0, autoSave: false);
+
+            Assert.IsFalse(TryPickEngraver(out _), "닫는 말이 두 번 나오면 안 된다.");
+        }
+
+        /// <summary>기록자 에셋은 minViewedChapters가 0이라 조건 추가 전과 똑같이 동작해야 한다.</summary>
+        [Test]
+        public void Chronicler_Unaffected_ByViewedCountCondition()
+        {
+            Assert.IsTrue(TryPickChronicler(out var first));
+            Assert.AreEqual(1, first.chapterStage);
+
+            service.MarkChapterViewed(StorySpeakerIds.Chronicler, 1, 0, 0, autoSave: false);
+            SetTotals(runCount: 1, bossKills: 0);
+
+            Assert.IsTrue(TryPickChronicler(out var second));
+            Assert.AreEqual(2, second.chapterStage);
         }
     }
 }

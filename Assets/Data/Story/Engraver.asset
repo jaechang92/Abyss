@@ -17,6 +17,7 @@ MonoBehaviour:
     minRunCount: 0
     minBossKills: 0
     requiredFormId: dark_blade
+    minViewedChapters: 0
     lines:
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_DarkBlade_Line1
@@ -28,6 +29,7 @@ MonoBehaviour:
     minRunCount: 0
     minBossKills: 0
     requiredFormId: void_archer
+    minViewedChapters: 0
     lines:
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_VoidArcher_Line1
@@ -39,6 +41,7 @@ MonoBehaviour:
     minRunCount: 0
     minBossKills: 0
     requiredFormId: ancient_shield
+    minViewedChapters: 0
     lines:
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_AncientShield_Line1
@@ -50,6 +53,7 @@ MonoBehaviour:
     minRunCount: 0
     minBossKills: 0
     requiredFormId: void_thrower
+    minViewedChapters: 0
     lines:
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_VoidThrower_Line1
@@ -57,8 +61,14 @@ MonoBehaviour:
       textKey: Story_Engraver_VoidThrower_Line2
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_VoidThrower_Line3
-  idleLines:
-  - speakerKey: Npc_Engraver_Name
-    textKey: Story_Engraver_Idle_Line1
-  - speakerKey: Npc_Engraver_Name
-    textKey: Story_Engraver_Idle_Line2
+  - chapterStage: 99
+    minRunCount: 0
+    minBossKills: 0
+    requiredFormId: 
+    minViewedChapters: 4
+    lines:
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_Closing_Line1
+    - speakerKey: Npc_Engraver_Name
+      textKey: Story_Engraver_Closing_Line2
+  idleLines: []
