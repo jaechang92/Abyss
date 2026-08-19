@@ -9,7 +9,7 @@ namespace Abyss.Runtime.Enemy
     /// 근접 광역 베기로, 페이즈가 오를수록 연속 베기 횟수가 늘고(P1:1 / P2:2 / P3:3)
     /// 페이즈3에서는 사거리·데미지가 강화된다. 탄막(projectilePrefab) 없이 근접만 수행.
     ///
-    /// EnemyData.isElite=true이지만 PrefabBuilder가 enemyId로 이 컴포넌트를 부착해
+    /// EnemyData.tier == MidBoss라 보스 처치 수에는 안 들어가지만 PrefabBuilder가 enemyId로 이 컴포넌트를 부착해
     /// BossEnemy 페이즈 시스템(데미지 배율·HP 임계 전환)을 그대로 획득한다(중간보스 승격).
     /// 연속 베기 사이 간격은 Coroutine 금지 규약(ADR-002)에 따라 Awaitable로 처리한다.
     /// </summary>

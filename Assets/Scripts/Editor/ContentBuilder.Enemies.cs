@@ -126,7 +126,7 @@ namespace Abyss.EditorTools
                 so.attackCooldown = 1.3f;
                 so.expReward = 60;
                 so.goldReward = 15;
-                so.isElite = true;
+                so.tier = EnemyTier.Elite;
             });
 
             CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/BossAbyssKeeper.asset", so =>
@@ -141,7 +141,7 @@ namespace Abyss.EditorTools
                 so.attackCooldown = 1.8f;
                 so.expReward = 200;
                 so.goldReward = 50;
-                so.isBoss = true;
+                so.tier = EnemyTier.Boss;
                 so.patrolRadius = 0f; // 보스는 Patrol 정지 (수동 페이즈 스크립트로 제어)
             });
 
@@ -159,7 +159,7 @@ namespace Abyss.EditorTools
                 so.attackCooldown = 1.4f;
                 so.expReward = 90;
                 so.goldReward = 20;
-                so.isElite = true; // Stage2 중간보스 — EliteBonus 드래프트 트리거 재활용
+                so.tier = EnemyTier.MidBoss;   // 보상은 엘리트와 같고(같은 트리거) 표시는 보스 탭
             });
 
             CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/BossFlameSerpent.asset", so =>
@@ -174,7 +174,7 @@ namespace Abyss.EditorTools
                 so.attackCooldown = 1.6f;
                 so.expReward = 260;
                 so.goldReward = 65;
-                so.isBoss = true;
+                so.tier = EnemyTier.Boss;
                 so.patrolRadius = 0f; // 보스는 Patrol 정지
             });
 
@@ -193,7 +193,7 @@ namespace Abyss.EditorTools
                 so.attackCooldown = 1.3f;
                 so.expReward = 120;
                 so.goldReward = 26;
-                so.isElite = true; // Stage3 중간보스 — EliteBonus 드래프트 트리거 재활용(Sentinel과 동일)
+                so.tier = EnemyTier.MidBoss;   // Sentinel과 동일
             });
 
             CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/BossThronebound.asset", so =>
@@ -208,7 +208,7 @@ namespace Abyss.EditorTools
                 so.attackCooldown = 1.5f;
                 so.expReward = 340;
                 so.goldReward = 85;
-                so.isBoss = true;
+                so.tier = EnemyTier.Boss;
                 so.patrolRadius = 0f; // 보스는 Patrol 정지
             });
         }

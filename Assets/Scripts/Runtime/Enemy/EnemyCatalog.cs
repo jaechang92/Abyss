@@ -37,12 +37,17 @@ namespace Abyss.Runtime.Enemy
         }
 
         /// <summary>
-        /// 보스 여부로 걸러낸 목록. 도감의 '적' 탭과 '보스' 탭이 같은 카탈로그를 두 기준으로 나눠 쓴다.
-        /// 판정은 <see cref="EnemyData.isBoss"/> 하나로, 이름 규칙(MidBoss*)에 기대지 않는다 —
-        /// 그래서 <c>isBoss=0, isElite=1</c>인 미드보스는 '적' 탭의 엘리트로 나온다.
-        /// 이를 바꿀 곳은 도감이 아니라 에셋의 플래그다(플래그는 전투 동작에도 걸려 있어 여기서 건드리지 않는다).
+        /// 도감의 '적' 탭과 '보스' 탭이 같은 카탈로그를 나눠 쓴다.
+        /// <b>'보스' 탭은 <see cref="EnemyTier.Boss"/>와 <see cref="EnemyTier.MidBoss"/>를 함께</b> 담는다.
+        ///
+        /// 전에는 <c>isBoss</c> 하나로 갈랐고, 미드보스는 엘리트 보상 트리거를 재활용하느라
+        /// <c>isBoss=0, isElite=1</c>이라 <b>'적' 탭에 엘리트로 나왔다.</b> 그렇다고 <c>isBoss</c>를 켜면
+        /// 처치 판정·프리팹 크기·발사체 연결이 함께 바뀐다 — <b>동작 스위치와 분류가 한 플래그에 얹혀 있었다.</b>
+        /// 등급을 <see cref="EnemyTier"/>로 뽑고 나서야 도감만 정확해지는 수정이 가능해졌다.
+        ///
+        /// 이름 규칙(<c>MidBoss*</c>)에는 여전히 기대지 않는다 — 등급은 에셋이 들고 있다.
         /// </summary>
-        public static List<EnemyData> GetByBossFlag(bool isBoss)
+        public static List<EnemyData> GetByBossTab(bool bossTab)
         {
             var result = new List<EnemyData>();
             var catalog = All;
@@ -50,7 +55,9 @@ namespace Abyss.Runtime.Enemy
             for (int i = 0; i < catalog.Length; i++)
             {
                 var enemy = catalog[i];
-                if (enemy == null || enemy.isBoss != isBoss) continue;
+                if (enemy == null) continue;
+                bool belongsToBossTab = enemy.tier == EnemyTier.Boss || enemy.tier == EnemyTier.MidBoss;
+                if (belongsToBossTab != bossTab) continue;
                 result.Add(enemy);
             }
             return result;

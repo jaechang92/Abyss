@@ -14,6 +14,9 @@ namespace Abyss.Runtime.Form
         [Tooltip("로깅·세이브에 쓰이는 고유 ID. 예: dark_blade, void_archer")]
         public string formId;
 
+        [Tooltip("제단에서 해금해야 쓸 수 있는가. 기본 false = 처음부터 열려 있다.")]
+        public bool requiresMetaUnlock;
+
         [Header("표시 정보")]
         public string displayName;
         [TextArea(2, 4)] public string description;

@@ -120,10 +120,18 @@ namespace Abyss.Runtime.Draft
             GameEvents.OnPlayerLevelUp -= HandleLevelUp;
         }
 
+        /// <summary>
+        /// 이번 리롤의 비용. 상한(<c>ladder.Length</c>)을 넘으면 <see cref="int.MaxValue"/>.
+        ///
+        /// 무료 리롤 특전(3-2)은 <b>앞에서부터 그 횟수만큼을 0으로</b> 만든다.
+        /// 리롤 <b>가능 횟수</b>는 안 늘린다 — 상한을 건드리면 드래프트 한 번에 볼 수 있는
+        /// 카드 수가 바뀌어 밸런스가 흔들린다. 특전이 없으면 0회라 지금까지와 같다.
+        /// </summary>
         public int GetRerollCost()
         {
             var ladder = RerollCostLadder;
             if (rerollsUsed >= ladder.Length) return int.MaxValue;
+            if (rerollsUsed < Meta.MetaUpgrades.FreeRerollCount()) return 0;
             return ladder[rerollsUsed];
         }
 

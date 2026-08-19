@@ -52,7 +52,7 @@ namespace Abyss.EditorTools
                 rb.freezeRotation = true;
 
                 var col = root.AddComponent<BoxCollider2D>();
-                col.size = data.isBoss ? new Vector2(2f, 2f) : Vector2.one;
+                col.size = data.IsBoss ? new Vector2(2f, 2f) : Vector2.one;
 
                 // 도트 스프라이트 우선 로드. 없으면 WhiteSquare 폴백 + 틴팅 유지.
                 var enemySprite = GetEnemySpriteByEnemyId(data.enemyId, sprite);
@@ -69,9 +69,9 @@ namespace Abyss.EditorTools
                 EnemyBase enemy = AddEnemyComponent(root, data);
                 SetPrivateField(enemy, "data", data);
 
-                if (data.isBoss) root.transform.localScale = new Vector3(1.6f, 1.6f, 1f);
+                if (data.IsBoss) root.transform.localScale = new Vector3(1.6f, 1.6f, 1f);
                 else if (data.enemyId is "midboss_sentinel" or "midboss_throne_warden") root.transform.localScale = new Vector3(1.45f, 1.45f, 1f);
-                else if (data.isElite) root.transform.localScale = new Vector3(1.25f, 1.25f, 1f);
+                else if (data.IsElite) root.transform.localScale = new Vector3(1.25f, 1.25f, 1f);
 
                 AttachNametag(root.transform, data);
 
@@ -189,7 +189,7 @@ namespace Abyss.EditorTools
                 }
             }
 
-            if (data.isBoss)
+            if (data.IsBoss)
             {
                 var boss = root.AddComponent<BossEnemy>();
                 SetPrivateField(boss, "phaseChangeSfx", LoadSfx("boss_phase"));
@@ -200,8 +200,8 @@ namespace Abyss.EditorTools
 
         private static Color GetEnemyColor(EnemyData data)
         {
-            if (data.isBoss) return new Color(0.8f, 0.15f, 0.15f);
-            if (data.isElite) return new Color(0.95f, 0.6f, 0.1f);
+            if (data.IsBoss) return new Color(0.8f, 0.15f, 0.15f);
+            if (data.IsElite) return new Color(0.95f, 0.6f, 0.1f);
             if (data.isRanged) return new Color(0.3f, 0.55f, 0.9f);
             return new Color(0.55f, 0.55f, 0.58f);
         }

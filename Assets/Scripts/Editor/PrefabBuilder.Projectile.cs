@@ -157,7 +157,7 @@ namespace Abyss.EditorTools
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var data = AssetDatabase.LoadAssetAtPath<EnemyData>(path);
-                if (data == null || !(data.isRanged || data.isBoss)) continue;
+                if (data == null || !(data.isRanged || data.IsBoss)) continue;
 
                 var so = new SerializedObject(data);
                 var prop = so.FindProperty("projectilePrefab");

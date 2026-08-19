@@ -149,7 +149,8 @@ namespace Abyss.Runtime.Run
 
             currentLevel = 1;
             currentExp = 0;
-            goldShards = 0;
+            // 시작 골드 특전(3-2). 업그레이드가 없으면 0이라 지금까지와 같다.
+            goldShards = Mathf.Max(0, MetaUpgrades.StartingGoldBonus());
             bossKillsThisRun = 0;
             lastRunAbyssShardsEarned = 0;
             lastRunEndReason = RunEndReason.Death;

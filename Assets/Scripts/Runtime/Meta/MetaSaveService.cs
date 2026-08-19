@@ -96,37 +96,6 @@ namespace Abyss.Runtime.Meta
             if (autoSave) Save();
         }
 
-        /// <summary>
-        /// 폼 해제. 중복 ID·빈 문자열 무시.
-        /// </summary>
-        public bool UnlockForm(string formId, bool autoSave = true)
-        {
-            if (string.IsNullOrEmpty(formId)) return false;
-            EnsureLoaded();
-            if (current.unlockedFormIds.Contains(formId)) return false;
-            current.unlockedFormIds.Add(formId);
-            if (autoSave) Save();
-            return true;
-        }
-
-        // ⚠️ unlockedFormIds 조회 API는 두지 않는다. UnlockForm의 호출부가 코드베이스에 0곳이라
-        // 이 목록은 **항상 비어 있고**, 조회 API가 있으면 "해금 여부"를 묻는 코드가 조용히 전부 false를
-        // 받는다(각인사 내력 게이트가 실제로 이 함정에 빠졌다 — 2026-08-14).
-        // 폼 보유 판정이 필요하면 IsFormDiscovered(실제로 써 본 폼)를 쓸 것.
-
-        /// <summary>
-        /// 스킬 해제. 중복 ID·빈 문자열 무시.
-        /// </summary>
-        public bool UnlockSkill(string skillId, bool autoSave = true)
-        {
-            if (string.IsNullOrEmpty(skillId)) return false;
-            EnsureLoaded();
-            if (current.unlockedSkillIds.Contains(skillId)) return false;
-            current.unlockedSkillIds.Add(skillId);
-            if (autoSave) Save();
-            return true;
-        }
-
         // ───────────────────────── 도감 발견 (완주 루프 계획 3-1) ─────────────────────────
         //
         // 발견은 "해금"(unlockedFormIds 등)과 별개 목록이다 — MetaSave 주석 참조.
@@ -260,6 +229,14 @@ namespace Abyss.Runtime.Meta
         /// <summary>
         /// 업그레이드 1레벨 구매 시도. 최대 레벨 도달·잔액 부족 시 false(변경 없음).
         /// 성공 시 abyss_shards 차감 + 레벨++ 후 즉시 저장(autoSave).
+        ///
+        /// <b>해금 항목(3-2)도 같은 경로로 산다</b> — <c>costLadder</c> 길이가 1이라 한 번 사면
+        /// 최대 레벨이고, 그때 <see cref="UnlockForm"/>/<see cref="UnlockSkill"/>이 함께 불린다.
+        /// 구매 경로를 나누지 않은 이유: 잔액 검사·저장·최대 도달 판정이 전부 같은데
+        /// 두 벌로 두면 <b>한쪽만 고친 규칙이 남는다.</b>
+        ///
+        /// 🔴 이 호출이 <c>unlockedFormIds</c>의 <b>유일한 기록자</b>다. 2026-08-14에 그 목록이
+        /// "호출부 0곳이라 항상 비어 있는" 죽은 목록이었던 것이 여기서 해소된다.
         /// </summary>
         public bool TryPurchaseUpgrade(MetaUpgradeData data, bool autoSave = true)
         {
@@ -274,6 +251,7 @@ namespace Abyss.Runtime.Meta
 
             current.abyssShardsTotal -= cost;
             SetUpgradeLevel(data.upgradeId, level + 1);
+            ApplyUnlockIfAny(data);
             if (autoSave) Save();
             return true;
         }
