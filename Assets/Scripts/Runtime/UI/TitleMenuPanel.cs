@@ -28,7 +28,10 @@ namespace Abyss.Runtime.UI
         private const string START_CONTINUE = "이어하기";
         private const string QUIT_DEFAULT = "게임 종료";
         private const string QUIT_ARMED = "게임 종료 — 확정? (다시 클릭)";
-        private const string RECORD_FORMAT = "누적 {0}런 · 보스 격파 {1} · 심연 파편 {2}";
+        // 화폐 표기 규약: 파편 = 형태(폼) 전용 / 조각 = 메타 화폐 / 골드 = 런 화폐.
+        // 이 줄은 "심연 파편"이었는데 제단은 "심연 조각", 결과 화면은 "어비스 조각"이라
+        // 한 런에 같은 자원이 세 이름으로 보였다(13-novel-game-glossary B-1).
+        private const string RECORD_FORMAT = "누적 {0}런 · 보스 격파 {1} · 심연 조각 {2}";
         // 엔딩을 본 플레이어에게만 붙는 꼬리표. 완주 여부는 누적 숫자만으로는 드러나지 않는다.
         private const string RECORD_CLEARED_SUFFIX = "  ✦ 심연 탈출";
 

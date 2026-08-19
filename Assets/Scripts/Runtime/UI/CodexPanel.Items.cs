@@ -322,7 +322,9 @@ namespace Abyss.Runtime.UI
                 $"보스 격파: {r.totalBossKillCount}회",
                 $"최고 도달: {r.bestReach.Describe(EMPTY_VALUE)}",
                 $"최장 런: {FormatDuration(r.bestRunDurationSeconds)}",
-                $"최고 골드 파편: {r.bestGoldShards}",
+                // 런 화폐는 HUD·상점에서 "골드"다. 여기만 "골드 파편"이라 불렀는데,
+                // 「파편」은 형태(폼) 전용 어휘로 정리했다(13-novel-game-glossary B-2).
+                $"최고 골드: {r.bestGoldShards}",
                 $"엔딩: {(r.hasSeenEnding ? "도달 ✦ 심연 탈출" : "미도달")}",
                 string.Empty,
                 "■ 메타",
