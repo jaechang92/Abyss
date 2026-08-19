@@ -130,7 +130,9 @@ namespace Abyss.Runtime.Player
             if (playerSrLookupAttempted) return null;
 
             playerSrLookupAttempted = true;
-            cachedPlayerSr = GetComponent<SpriteRenderer>();
+            // 4-1에서 SpriteRenderer가 루트 -> Visual 자식으로 내려갔다(시각/물리 분리).
+            // GetComponentInChildren은 자기 자신도 포함하므로 옛 프리팹(루트에 SR)도 그대로 찾는다.
+            cachedPlayerSr = GetComponentInChildren<SpriteRenderer>();
             if (cachedPlayerSr != null) baseSpriteColor = cachedPlayerSr.color;
             return cachedPlayerSr;
         }

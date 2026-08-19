@@ -38,6 +38,12 @@ namespace Abyss.Runtime.Enemy
         [Tooltip("원거리 여부. 등급과 직교한다 — 일반 적도 보스도 원거리일 수 있다.")]
         public bool isRanged;
 
+        [Header("효과음 (4-2 — PrefabBuilder가 Assets/Audio/SFX에서 자동 연결)")]
+        [Tooltip("피격 시 1회. 비우면 무음.")]
+        public AudioClip hitSfx;
+        [Tooltip("사망 시 1회. 비우면 무음.")]
+        public AudioClip deathSfx;
+
         /// <summary>
         /// 보스 처치 판정·프리팹 크기·발사체 연결에 쓰는 동작 스위치.
         /// <b>중간보스는 false다</b> — 보스 처치 수는 기록자 챕터 해금 조건이라

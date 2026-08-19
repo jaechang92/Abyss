@@ -26,6 +26,8 @@ MonoBehaviour:
   goldReward: 5
   tier: 0
   isRanged: 0
+  hitSfx: {fileID: 8300000, guid: f3f2bf36bb12e88418c16d6108965fb2, type: 3}
+  deathSfx: {fileID: 8300000, guid: ab31ba3fd0ce7134ba8a61d552b645f4, type: 3}
   projectilePrefab: {fileID: 0}
   projectileSpeed: 8
   projectileLifetime: 3

@@ -30,6 +30,9 @@ namespace Abyss.EditorTools
         public const string BuildFormAltar = Build + "Form Altar in Active Scene";
 
         // Generate — 에셋(콘텐츠/프리팹) 생성
+        // Generate — 아트 임포트 설정
+        public const string ApplyFormSpriteImport = Generate + "Form Sprite Import Settings";
+
         public const string GenerateContent = Generate + "Prototype Content";
         public const string GenerateWireSkills = Generate + "Wire Active Skill Abilities";
         public const string GeneratePrefabs = Generate + "Prototype Prefabs";

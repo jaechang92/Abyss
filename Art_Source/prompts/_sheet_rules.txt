@@ -1,0 +1,11 @@
+[SHEET RULES — 행 이미지(여러 포즈 한 장)를 뽑을 때만 덧붙인다]
+
+🔴 아래 두 줄은 2026-08-20 측정에서 나온 결함을 막는 것이다. 빼지 말 것.
+   · 칼끝이 옆 프레임에 걸쳐 프레임 자동 분리가 3개 대신 1개로 나왔다
+   · 자세에 따라 키가 12.7% 흔들려 애니메이션에서 캐릭터가 위아래로 떨린다
+
+three poses of the same character in a single horizontal row, evenly spaced,
+wide clear empty magenta gap between each pose, weapons and cloth must not
+cross into a neighbouring pose, nothing overlapping between figures,
+all three figures standing on the same invisible ground line with their feet
+at the same height, identical character scale in all three, same distance from camera
