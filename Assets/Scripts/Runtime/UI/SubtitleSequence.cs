@@ -1,4 +1,5 @@
 using System;
+using Abyss.Runtime.Localization;
 using UnityEngine;
 using UnityEngine.UI;
 using static Abyss.Runtime.UI.UiFactory;
@@ -54,6 +55,26 @@ namespace Abyss.Runtime.UI
             text.lineSpacing = 1.4f;
 
             return new SubtitleSequence(text);
+        }
+
+        /// <summary>
+        /// StringKey 배열을 현재 언어의 문단 배열로 바꾼다. <see cref="Restart"/>에 그대로 넘긴다.
+        ///
+        /// 자막 텍스트의 출처가 CSV라는 규약을 여기 한 곳에 둔다 — 두 패널이 각자 조회하면
+        /// 한쪽만 하드코딩으로 남는 형태가 다시 생긴다(4-3 착수 시점의 상태가 그랬다).
+        /// <b>재생 시점에 조회한다.</b> 정적 초기화 시점에는 <see cref="LocalizationManager"/>가
+        /// 아직 없을 수 있고, 언어를 바꾼 뒤 다시 재생하면 바뀐 언어로 나와야 한다.
+        /// </summary>
+        public static string[] Localize(params string[] stringKeys)
+        {
+            if (stringKeys == null || stringKeys.Length == 0) return EmptyParagraphs;
+
+            var lines = new string[stringKeys.Length];
+            for (int i = 0; i < stringKeys.Length; i++)
+            {
+                lines[i] = Loc.Get(stringKeys[i]);
+            }
+            return lines;
         }
 
         /// <summary>첫 문단부터 다시 재생한다. 알파 0에서 시작하므로 호출 즉시 화면에 뜨지는 않는다.</summary>

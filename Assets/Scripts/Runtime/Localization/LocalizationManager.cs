@@ -182,9 +182,14 @@ namespace Abyss.Runtime.Localization
                     LocationNote = CsvParser.GetValue(values, colIndex, "Location"),
                     ConditionNote = CsvParser.GetValue(values, colIndex, "Condition"),
                     FormatArgsNote = CsvParser.GetValue(values, colIndex, "FormatArgs"),
-                    KoreanText = CsvParser.GetValue(values, colIndex, "Korean"),
-                    EnglishText = CsvParser.GetValue(values, colIndex, "English"),
-                    JapaneseText = CsvParser.GetValue(values, colIndex, "Japanese"),
+                    // 줄바꿈 이스케이프는 표시되는 텍스트 3열에만 푼다 — 노트 열은 CSV를 읽는
+                    // 사람 몫이라 원문 그대로 두는 편이 낫다. 로드 시 한 번만 풀고 Get은 순수하게 둔다.
+                    KoreanText = CsvParser.UnescapeNewlines(
+                        CsvParser.GetValue(values, colIndex, "Korean")),
+                    EnglishText = CsvParser.UnescapeNewlines(
+                        CsvParser.GetValue(values, colIndex, "English")),
+                    JapaneseText = CsvParser.UnescapeNewlines(
+                        CsvParser.GetValue(values, colIndex, "Japanese")),
                 };
             }
         }
