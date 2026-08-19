@@ -9,7 +9,7 @@ namespace Abyss.Runtime.Enemy
     /// <summary>
     /// EnemyBase를 상속한 보스 기반 클래스. HP 임계값 기반 3페이즈 전환.
     /// 페이즈별 데미지 배율 + 부채꼴 탄막 볼리(발사체 재사용). 페이즈 상승 시 발사 수↑·주기↓.
-    /// 처치 시 EnemyBase.Die가 RunManager.NotifyBossKilled() 호출 (EnemyData.isBoss=true).
+    /// 처치 시 EnemyBase.Die가 RunManager.NotifyBossKilled() 호출 (EnemyData.tier == Boss).
     ///
     /// 보스별 고유 패턴은 <see cref="TickPattern"/>을 override해 구현한다(파생 클래스).
     /// 기본 동작은 부채꼴 탄막 볼리로, 별도 파생 없이도 동작한다(BossAbyssKeeper 하위호환).

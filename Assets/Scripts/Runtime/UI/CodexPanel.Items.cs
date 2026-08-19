@@ -83,8 +83,8 @@ namespace Abyss.Runtime.UI
         {
             CodexTab.Form => CollectForms(),
             CodexTab.Skill => CollectSkills(),
-            CodexTab.Enemy => CollectEnemies(isBoss: false),
-            CodexTab.Boss => CollectEnemies(isBoss: true),
+            CodexTab.Enemy => CollectEnemies(bossTab: false),
+            CodexTab.Boss => CollectEnemies(bossTab: true),
             _ => new List<CodexItem>()
         };
 
@@ -148,10 +148,14 @@ namespace Abyss.Runtime.UI
             return result;
         }
 
-        private static List<CodexItem> CollectEnemies(bool isBoss)
+        /// <summary>
+        /// '보스' 탭은 <see cref="EnemyTier.Boss"/>와 <see cref="EnemyTier.MidBoss"/>를 함께 담는다.
+        /// 중간보스는 보상만 엘리트와 같을 뿐 플레이어에게는 보스로 읽힌다.
+        /// </summary>
+        private static List<CodexItem> CollectEnemies(bool bossTab)
         {
             var meta = MetaSaveService.Instance;
-            var catalog = EnemyCatalog.GetByBossFlag(isBoss);
+            var catalog = EnemyCatalog.GetByBossTab(bossTab);
             var result = new List<CodexItem>(catalog.Count);
 
             for (int i = 0; i < catalog.Count; i++)
@@ -225,8 +229,9 @@ namespace Abyss.Runtime.UI
 
         private static string EnemyBadge(EnemyData enemy)
         {
-            if (enemy.isBoss) return "보스";
-            string tier = enemy.isElite ? "엘리트" : "일반";
+            if (enemy.tier == EnemyTier.Boss) return "보스";
+            if (enemy.tier == EnemyTier.MidBoss) return "중간보스";
+            string tier = enemy.tier == EnemyTier.Elite ? "엘리트" : "일반";
             string range = enemy.isRanged ? "원거리" : "근접";
             return $"{tier} · {range}";
         }
@@ -252,8 +257,8 @@ namespace Abyss.Runtime.UI
         /// </summary>
         private static RoomType EnemyRoomType(EnemyData enemy)
         {
-            if (enemy.isBoss) return RoomType.Boss;
-            return enemy.isElite ? RoomType.Elite : RoomType.Combat;
+            if (enemy.IsBoss) return RoomType.Boss;
+            return enemy.IsElite ? RoomType.Elite : RoomType.Combat;
         }
 
         /// <summary>

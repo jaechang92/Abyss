@@ -33,9 +33,24 @@ namespace Abyss.Runtime.Enemy
         [Min(0)] public int goldReward = 5;
 
         [Header("분류")]
-        public bool isElite;
+        [Tooltip("적 등급(분류의 SoT). 전투·보상 동작은 이 값에서 파생한다 — IsBoss/IsElite 참조.")]
+        public EnemyTier tier = EnemyTier.Normal;
+        [Tooltip("원거리 여부. 등급과 직교한다 — 일반 적도 보스도 원거리일 수 있다.")]
         public bool isRanged;
-        public bool isBoss;
+
+        /// <summary>
+        /// 보스 처치 판정·프리팹 크기·발사체 연결에 쓰는 동작 스위치.
+        /// <b>중간보스는 false다</b> — 보스 처치 수는 기록자 챕터 해금 조건이라
+        /// 미드보스로 오르면 연재 순서가 무너진다.
+        /// </summary>
+        public bool IsBoss => tier == EnemyTier.Boss;
+
+        /// <summary>
+        /// 엘리트 보상(EliteBonus 드래프트) 트리거에 쓰는 동작 스위치.
+        /// <b>중간보스도 true다</b> — 중간보스가 엘리트라서가 아니라 <b>같은 보상 트리거를
+        /// 재활용</b>하기 때문이다. 이 둘을 구분해야 하는 곳(도감)은 <see cref="tier"/>를 본다.
+        /// </summary>
+        public bool IsElite => tier == EnemyTier.Elite || tier == EnemyTier.MidBoss;
 
         [Header("원거리 (isRanged 전용 — PrefabBuilder가 projectilePrefab 자동 연결)")]
         [Tooltip("isRanged=true이고 이 값이 있으면 근접 즉발 대신 발사체를 발사")]

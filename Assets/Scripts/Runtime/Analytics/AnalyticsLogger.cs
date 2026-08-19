@@ -282,8 +282,8 @@ namespace Abyss.Runtime.Analytics
             Log("enemy_defeated", new
             {
                 enemy_id = data.enemyId,
-                is_boss = data.isBoss,
-                is_elite = data.isElite,
+                is_boss = data.IsBoss,
+                is_elite = data.IsElite,
                 room_id = roomEnteredId,
                 current_form = GetCurrentFormId(),
                 elapsed_sec = ElapsedRunSeconds()

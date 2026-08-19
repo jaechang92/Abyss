@@ -24,9 +24,8 @@ MonoBehaviour:
   patrolSpeedMultiplier: 0.5
   expReward: 60
   goldReward: 15
-  isElite: 1
+  tier: 1
   isRanged: 0
-  isBoss: 0
   projectilePrefab: {fileID: 0}
   projectileSpeed: 8
   projectileLifetime: 3
