@@ -166,7 +166,7 @@ namespace Abyss.Runtime.Cheats
             if (RunManager.HasInstance)
             {
                 var rm = RunManager.Instance;
-                GUILayout.Label($"골드 파편(런) = {rm.GoldShards}");
+                GUILayout.Label($"골드(런) = {rm.GoldShards}");
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("+100")) rm.GainGoldShards(100);
                 if (GUILayout.Button("+1000")) rm.GainGoldShards(1000);
