@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Abyss.Runtime.Meta;
 using UnityEngine;
 
 namespace Abyss.Runtime.Form
@@ -35,17 +36,23 @@ namespace Abyss.Runtime.Form
         /// <summary>
         /// 제외 목록에 없는 폼들을 반환한다(미보유 폼 우선 제시용).
         /// 결과가 비면 빈 리스트를 돌려주므로 호출부가 전체 폴백을 결정한다.
+        ///
+        /// <b>메타 해금이 필요한 폼은 해금 전까지 안 나온다</b>(3-2). 잠금은 <b>옵트인</b>이라
+        /// <c>requiresMetaUnlock</c>이 false인 폼 — 지금 4종 전부 — 은 그대로 나온다.
         /// </summary>
         public static List<FormData> GetExcluding(IReadOnlyList<FormData> excluded)
         {
             var result = new List<FormData>();
             var catalog = All;
+            var meta = MetaSaveService.Instance;
 
             for (int i = 0; i < catalog.Length; i++)
             {
                 var form = catalog[i];
                 if (form == null) continue;
                 if (Contains(excluded, form)) continue;
+                // meta가 없으면(에디터 단독 플레이 등) 잠긴 폼만 빼고 나머지는 그대로 쓴다.
+                if (form.requiresMetaUnlock && (meta == null || !meta.IsFormUnlocked(form))) continue;
                 result.Add(form);
             }
             return result;

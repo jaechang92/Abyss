@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Abyss.Runtime.Meta;
 using Abyss.Runtime.Run;
 using UnityEngine;
 
@@ -34,15 +35,26 @@ namespace Abyss.Runtime.Draft
             isLoaded = true;
         }
 
-        /// <summary>풀이 비어 있으면 SkillCatalog에서 1회 채운다(지연 로드, 실행순서 무관).</summary>
+        /// <summary>
+        /// 풀이 비어 있으면 SkillCatalog에서 1회 채운다(지연 로드, 실행순서 무관).
+        ///
+        /// <b>메타 해금이 필요한 스킬은 해금 전까지 안 들어온다</b>(3-2).
+        /// 잠금은 <b>옵트인</b>이라 <c>requiresMetaUnlock</c>이 false인 스킬 — 지금 18종 전부 —
+        /// 은 세이브를 보지도 않고 그대로 들어온다. 즉 현행 플레이는 하나도 안 바뀐다.
+        /// </summary>
         private void EnsureLoaded()
         {
             if (isLoaded) return;
             isLoaded = true;
             if (pool.Count > 0) return;
+
+            var meta = MetaSaveService.Instance;
             foreach (var s in SkillCatalog.All)
             {
-                if (s != null) pool.Add(s);
+                if (s == null) continue;
+                // meta가 없으면(에디터 단독 플레이 등) 잠긴 스킬만 빼고 나머지는 그대로 쓴다.
+                if (s.requiresMetaUnlock && (meta == null || !meta.IsSkillUnlocked(s))) continue;
+                pool.Add(s);
             }
         }
 
