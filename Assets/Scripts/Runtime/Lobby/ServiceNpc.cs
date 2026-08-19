@@ -14,6 +14,11 @@ namespace Abyss.Runtime.Lobby
     /// 새로 해금된 폼의 내력(N-2 각인사 대사)이 남아 있으면 <b>패널보다 먼저</b> 그 대사를 재생하고
     /// 완료 콜백에서 패널을 연다. 들려줄 것이 없으면 지금까지처럼 곧바로 패널이다 —
     /// 매번 대사를 끼우면 폼을 바꾸려 들를 때마다 같은 말을 듣게 된다.
+    ///
+    /// <b>이 패널은 <see cref="StoryData.idleLines"/>를 쓰지 않는다.</b> 각인사의 닫는 말
+    /// (아크 씨앗 "자기 것은 못 새겼다")은 idle이 아니라 <b>챕터</b>다 —
+    /// <see cref="StoryChapter.minViewedChapters"/>로 "넷을 다 본 뒤"에 한 번만 열린다.
+    /// 그래서 이 클래스에는 그 처리를 위한 코드가 없다(챕터 재생 경로가 그대로 쓰인다).
     /// </summary>
     public sealed class ServiceNpc : MonoBehaviour, IInteractable
     {

@@ -101,8 +101,8 @@ namespace Abyss.Runtime.Localization
         public const string Story_Engraver_VoidThrower_Line1 = "Story_Engraver_VoidThrower_Line1";
         public const string Story_Engraver_VoidThrower_Line2 = "Story_Engraver_VoidThrower_Line2";
         public const string Story_Engraver_VoidThrower_Line3 = "Story_Engraver_VoidThrower_Line3";
-        public const string Story_Engraver_Idle_Line1 = "Story_Engraver_Idle_Line1";
-        public const string Story_Engraver_Idle_Line2 = "Story_Engraver_Idle_Line2";
+        public const string Story_Engraver_Closing_Line1 = "Story_Engraver_Closing_Line1";
+        public const string Story_Engraver_Closing_Line2 = "Story_Engraver_Closing_Line2";
 
         // ---- 서사 (자막 — 프롤로그·엔딩, 4-3) ----
         // NPC 대사와 달리 화자가 주인공 자신이다. 인칭은 1인칭 「나」로 고정된다

@@ -117,16 +117,45 @@ namespace Abyss.EditorTools
                     StringKey.Story_Engraver_VoidThrower_Line1,
                     StringKey.Story_Engraver_VoidThrower_Line2,
                     StringKey.Story_Engraver_VoidThrower_Line3),
+
+                // 닫는 말 — 폼 조건이 없는 대신 "넷을 다 본 뒤"가 조건이다.
+                // 아크 씨앗("자기 것은 못 새겼다")이 여기 실려 있고, 챕터라서 딱 한 번만 나온다.
+                // 🔴 단계 99: 폼이 늘면 5·6·7…이 필요하다. 이 줄은 언제나 마지막이어야 한다.
+                // ⚠️ 폼을 추가하면 minViewedChapters도 함께 올릴 것 — 안 올리면 새 폼의 내력보다
+                //    닫는 말이 먼저 나온다(닫는 말인데 안 닫힌다).
+                ClosingChapter(99, minViewedChapters: 4,
+                    StringKey.Story_Engraver_Closing_Line1,
+                    StringKey.Story_Engraver_Closing_Line2),
             };
-            data.idleLines = new[]
-            {
-                EngraverLine(StringKey.Story_Engraver_Idle_Line1),
-                EngraverLine(StringKey.Story_Engraver_Idle_Line2),
-            };
+
+            // 각인사에게 idle 대사를 두지 않는다 — ServiceNpc는 들려줄 챕터가 없으면 곧바로 패널을 연다.
+            // 폼을 바꾸러 들를 때마다 같은 말을 듣게 되기 때문이다(11-engraver-lines §3-3).
+            // 넣어 두면 §6-4의 unlockedFormIds처럼 "있는데 안 불리는 데이터"가 또 하나 생긴다.
+            data.idleLines = System.Array.Empty<DialogueLine>();
 
             EditorUtility.SetDirty(data);
             AssetDatabase.SaveAssets();
             return data;
+        }
+
+        /// <summary>
+        /// 폼 조건 없이 <b>"이 화자의 것을 이만큼 본 뒤"</b>로만 열리는 챕터.
+        /// 사전 모델(항목마다 독립)에는 순서가 없어서 "다 본 뒤"를 표현할 방법이 이것뿐이다.
+        /// </summary>
+        private static StoryChapter ClosingChapter(int chapterStage, int minViewedChapters, params string[] textKeys)
+        {
+            var lines = new DialogueLine[textKeys.Length];
+            for (int i = 0; i < textKeys.Length; i++) lines[i] = EngraverLine(textKeys[i]);
+
+            return new StoryChapter
+            {
+                chapterStage = chapterStage,
+                minRunCount = 0,
+                minBossKills = 0,
+                requiredFormId = string.Empty,
+                minViewedChapters = minViewedChapters,
+                lines = lines,
+            };
         }
 
         private static StoryChapter EngraverChapter(int chapterStage, string formId, params string[] textKeys)
