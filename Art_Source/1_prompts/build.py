@@ -7,17 +7,17 @@ build.py — 프롬프트 블록을 이어 붙여 **모델에 그대로 넣을 �
 한글이 섞여 스타일 해석이 흔들린다. 여기서 걷어내고 영문 지시만 남긴다.
 
 실행:
-  python Art_Source/prompts/build.py              # 전부 재생성
-  python Art_Source/prompts/build.py void_archer  # 하나만
+  python Art_Source/1_prompts/build.py              # 전부 재생성
+  python Art_Source/1_prompts/build.py void_archer  # 하나만
 
 
 폴더
 ----
-    blocks/     공용 블록. ❌ 전부 수정 금지 — 하나하나가 실측 결함에 대응한다
-    forms/      폼별 블록. ✅ 수정 가능
-    poses/      행 이미지용 포즈 문구 예시. 조립에 안 들어간다(dark_blade 기준)
-    legacy/     블록 구조 이전의 1회성 초안. 이력으로만 남긴다
-    assembled/  ← 여기로 나온다. 손으로 고치지 말 것(다음 실행에 덮어쓴다)
+    1_blocks/     공용 블록. ❌ 전부 수정 금지 — 하나하나가 실측 결함에 대응한다
+    2_forms/      폼별 블록. ✅ 수정 가능
+    poses/        행 이미지용 포즈 문구 예시. 조립에 안 들어간다(dark_blade 기준)
+    legacy/       블록 구조 이전의 1회성 초안. 이력으로만 남긴다
+    3_assembled/  ← 여기로 나온다. 손으로 고치지 말 것(다음 실행에 덮어쓴다)
 
 
 공용 블록 (2026-08-20 3차 재편)
@@ -43,7 +43,7 @@ build.py — 프롬프트 블록을 이어 붙여 **모델에 그대로 넣을 �
 🔑 셋 다 같은 모양의 결함이다 — **한 블록이 서로 다른 범위의 것을 같이 들고 있으면,
    그 블록을 쓰는 조립본 중 하나는 반드시 자기 말을 뒤집는다.**
 
-폼 블록(`forms/form_<id>.txt`)은 대괄호 절 표시로 나뉜다.
+폼 블록(`2_forms/form_<id>.txt`)은 대괄호 절 표시로 나뉜다.
 
     [BODY]                    몸 — 방어구·색·체격
     [RIG-EXCLUDE]             그 폼의 무기가 **이 그림에 없다**는 서술 (리깅 전용)
@@ -59,7 +59,7 @@ build.py — 프롬프트 블록을 이어 붙여 **모델에 그대로 넣을 �
    덧붙이게 된다 — 실제로 재작성 전 조립본이 그랬다.
 
 
-조립본 (assembled/)
+조립본 (3_assembled/)
 -------------------
     <form>.txt                reference_showcase + style + identity + framing_showcase
                               + BODY + (WEAPON + CARRY)들 + SILHOUETTE
@@ -82,7 +82,7 @@ build.py — 프롬프트 블록을 이어 붙여 **모델에 그대로 넣을 �
    들어가면 "그 마른 성인 남자, 얼굴을 덮은 후드…"를 서술한 뒤
    프레이밍이 "no character, no person"으로 뒤집는다.
 
-📌 assembled/ 는 git 추적 대상이 아니다. blocks/ · forms/ · build.py 만 있으면
+📌 3_assembled/ 는 git 추적 대상이 아니다. 1_blocks/ · 2_forms/ · build.py 만 있으면
    언제든 다시 만들어지므로, README 의 추적 기준("재생성 가능한가")에 그대로 걸린다.
 """
 import io
@@ -91,9 +91,9 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-BLOCKS = os.path.join(HERE, "blocks")
-FORMS_DIR = os.path.join(HERE, "forms")
-OUT = os.path.join(HERE, "assembled")
+BLOCKS = os.path.join(HERE, "1_blocks")
+FORMS_DIR = os.path.join(HERE, "2_forms")
+OUT = os.path.join(HERE, "3_assembled")
 
 FORMS = ["dark_blade", "void_archer", "ancient_shield", "void_thrower"]
 
@@ -158,10 +158,10 @@ def read_lines(path):
 
 def block(name):
     """blocks/ 의 공용 블록 하나를 읽어 영문 지시만 남긴다."""
-    rel = "blocks/%s.txt" % name
+    rel = "1_blocks/%s.txt" % name
     text = strip_comments(read_lines(os.path.join(BLOCKS, name + ".txt")), rel)
     if not text:
-        raise SystemExit("blocks/%s.txt 가 없거나 영문 본문이 비었다" % name)
+        raise SystemExit("1_blocks/%s.txt 가 없거나 영문 본문이 비었다" % name)
     return text
 
 
@@ -175,7 +175,7 @@ def parse_form(form):
     무기는 **파일에 적힌 순서**를 지킨다 — 고대 방패병은 탑실드가 먼저이고 단검이 나중인데,
     그게 실루엣의 주인공 순서다.
     """
-    rel = "forms/form_%s.txt" % form
+    rel = "2_forms/form_%s.txt" % form
     lines = read_lines(os.path.join(FORMS_DIR, rel.split("/")[-1]))
     if not lines:
         return None
@@ -276,11 +276,11 @@ def main():
     for form in targets:
         rows = build(form)
         if not rows:
-            print("  %-40s 건너뜀 (forms/form_%s.txt 없음)" % ("", form))
+            print("  %-40s 건너뜀 (2_forms/form_%s.txt 없음)" % ("", form))
             continue
         for name, lines, chars in rows:
-            print("  assembled/%-30s %3d줄 %5d자" % (name, lines, chars))
-    print("\n모델에 넣을 때는 assembled/ 의 파일 내용을 그대로 붙여넣고, base 이미지를 함께 첨부할 것.")
+            print("  3_assembled/%-30s %3d줄 %5d자" % (name, lines, chars))
+    print("\n모델에 넣을 때는 3_assembled/ 의 파일 내용을 그대로 붙여넣고, base 이미지를 함께 첨부할 것.")
 
 
 if __name__ == "__main__":

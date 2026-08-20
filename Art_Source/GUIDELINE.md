@@ -9,10 +9,10 @@
 
 | | 확인 | 왜 |
 |---|---|---|
-| ☐ | **base 이미지를 첨부**했는가 (`Art_Source/base/dark_blade.png`) | 정체성 블록 첫 줄이 "Match that reference image"다. 첨부가 없으면 **가리킬 대상이 없어 정체성이 죽는다** |
-| ☐ | `prompts/assembled/*.txt`를 **그대로** 붙여넣었는가 | 블록을 손으로 재조립하면 정체성이 미세하게 갈라진다. **`blocks/`·`forms/`의 파일은 모델에 넣는 것이 아니다** |
-| ☐ | 블록을 고쳤으면 `build.py`를 **다시 돌렸는가** | `assembled/`는 산출물이라 손으로 고쳐도 다음 실행에 덮어써진다 |
-| ☐ | `blocks/identity_figure.txt`·`blocks/style.txt`를 **안 건드렸는가** | 폼마다 정체성이 다르면 같은 사람으로 안 읽힌다 |
+| ☐ | **base 이미지를 첨부**했는가 (`Art_Source/0_base/dark_blade.png`) | 정체성 블록 첫 줄이 "Match that reference image"다. 첨부가 없으면 **가리킬 대상이 없어 정체성이 죽는다** |
+| ☐ | `1_prompts/3_assembled/*.txt`를 **그대로** 붙여넣었는가 | 블록을 손으로 재조립하면 정체성이 미세하게 갈라진다. **`1_blocks/`·`2_forms/`의 파일은 모델에 넣는 것이 아니다** |
+| ☐ | 블록을 고쳤으면 `build.py`를 **다시 돌렸는가** | `3_assembled/`는 산출물이라 손으로 고쳐도 다음 실행에 덮어써진다 |
+| ☐ | `1_blocks/identity_figure.txt`·`1_blocks/style.txt`를 **안 건드렸는가** | 폼마다 정체성이 다르면 같은 사람으로 안 읽힌다 |
 | ☐ | 용도에 맞는 조립본을 골랐는가 (전신 / `_rig` / `_weapon_*`) | **프레이밍뿐 아니라 기준 이미지를 베끼는 범위가 셋 다 다르다** (§7) |
 
 > 🔑 **팔레트 일치 89.7%가 나온 근거는 하나뿐이다** — 모든 생성이 *같은 정체성 블록 + 같은 base 이미지*를
@@ -23,19 +23,19 @@
 ## 1. 바꿔도 되는 것 / 안 되는 것
 
 ```
-blocks/reference_showcase.txt  ❌ 수정 금지 — 기준 이미지를 통째로 베낀다 (게임에 들어간 폼 4종)
-blocks/reference_rig.txt       ❌ 수정 금지 — 기준 이미지에서 **대검을 빼고** 베낀다 (§7)
-blocks/reference_weapon.txt    ❌ 수정 금지 — 기준 이미지에서 **그림체만** 베낀다 (§8)
-blocks/style.txt               ❌ 절대 수정 금지 — 그림체의 SoT. 넷 다 들어간다
-blocks/identity_figure.txt     ❌ 절대 수정 금지 — 인물의 SoT. 사람이 나올 때만 들어간다
-blocks/framing_showcase.txt    ❌ 수정 금지 — 전신 3/4 (게임에 들어간 폼 4종이 이걸로 나왔다)
-blocks/framing_rig.txt         ❌ 수정 금지 — 정측면 (리깅 base, §7)
-blocks/framing_weapon.txt      ❌ 수정 금지 — 물체 단독 (무기·방패, §8)
-blocks/sheet_rules.txt         ❌ 수정 금지 — 실측 결함 2건을 막는 줄이 들어 있다
-blocks/rig_rules.txt           ❌ 수정 금지 — SpriteSkin 단일 메시의 제약 (§7)
-blocks/weapon_rules.txt        ❌ 수정 금지 — 강체 파트로 쓰이기 위한 조건 (§8)
-forms/form_<id>.txt            ✅ 수정 가능 — 그 폼의 장비·색·실루엣·리깅 배제 (절 구분은 §9)
-assembled/*.txt                🚫 손대지 말 것 — 산출물. 다음 build 에 덮어써진다
+1_blocks/reference_showcase.txt  ❌ 수정 금지 — 기준 이미지를 통째로 베낀다 (게임에 들어간 폼 4종)
+1_blocks/reference_rig.txt       ❌ 수정 금지 — 기준 이미지에서 **대검을 빼고** 베낀다 (§7)
+1_blocks/reference_weapon.txt    ❌ 수정 금지 — 기준 이미지에서 **그림체만** 베낀다 (§8)
+1_blocks/style.txt               ❌ 절대 수정 금지 — 그림체의 SoT. 넷 다 들어간다
+1_blocks/identity_figure.txt     ❌ 절대 수정 금지 — 인물의 SoT. 사람이 나올 때만 들어간다
+1_blocks/framing_showcase.txt    ❌ 수정 금지 — 전신 3/4 (게임에 들어간 폼 4종이 이걸로 나왔다)
+1_blocks/framing_rig.txt         ❌ 수정 금지 — 정측면 (리깅 base, §7)
+1_blocks/framing_weapon.txt      ❌ 수정 금지 — 물체 단독 (무기·방패, §8)
+1_blocks/sheet_rules.txt         ❌ 수정 금지 — 실측 결함 2건을 막는 줄이 들어 있다
+1_blocks/rig_rules.txt           ❌ 수정 금지 — SpriteSkin 단일 메시의 제약 (§7)
+1_blocks/weapon_rules.txt        ❌ 수정 금지 — 강체 파트로 쓰이기 위한 조건 (§8)
+2_forms/form_<id>.txt            ✅ 수정 가능 — 그 폼의 장비·색·실루엣·리깅 배제 (절 구분은 §9)
+3_assembled/*.txt                🚫 손대지 말 것 — 산출물. 다음 build 에 덮어써진다
 poses/ · legacy/               —  조립에 안 들어간다. 각 폴더 README 참조
 ```
 
@@ -44,7 +44,7 @@ poses/ · legacy/               —  조립에 안 들어간다. 각 폴더 READ
 > 리깅 프롬프트가 *"three-quarter"* 라고 한 뒤 *"NOT three-quarter"* 로 **자기 말을 뒤집었다.**
 > 용도마다 프레이밍이 달라야 하므로 갈랐다. `_shared.txt`도 같은 내용을 중복해 들고 있어 제거됐다.
 
-`blocks/sheet_rules.txt`의 두 지시는 취향이 아니라 **버그 대응**이다:
+`1_blocks/sheet_rules.txt`의 두 지시는 취향이 아니라 **버그 대응**이다:
 
 | 실측된 결함 | 막는 지시 |
 |---|---|
@@ -54,8 +54,8 @@ poses/ · legacy/               —  조립에 안 들어간다. 각 폴더 READ
 공용 블록이나 폼 파일을 고쳤으면 **반드시 조립본을 다시 만든다**:
 
 ```bash
-python Art_Source/prompts/build.py            # 전부
-python Art_Source/prompts/build.py void_archer  # 하나만
+python Art_Source/1_prompts/build.py            # 전부
+python Art_Source/1_prompts/build.py void_archer  # 하나만
 ```
 
 > ⚠️ `cat`으로 직접 붙이지 말 것. 블록 파일에는 사람용 한글 주석(`[...]`)이 있고,
@@ -66,8 +66,8 @@ python Art_Source/prompts/build.py void_archer  # 하나만
 ## 2. 뽑은 뒤 — 저장
 
 ```
-Art_Source/raw/<formId>/<formId>_<n>.png        단일
-Art_Source/raw/<formId>/sheet_<상태들>.png      행 이미지
+Art_Source/2_raw/<formId>/<formId>_<n>.png        단일
+Art_Source/2_raw/<formId>/sheet_<상태들>.png      행 이미지
 ```
 
 - **후보를 여러 장 넣는다.** 큐레이션이 이 파이프라인의 본체다 — 한 장만 있으면 고를 게 없다
@@ -80,9 +80,9 @@ Art_Source/raw/<formId>/sheet_<상태들>.png      행 이미지
 ## 3. 판정 — 눈이 아니라 숫자로
 
 ```bash
-python Tools/ArtPipeline/chroma_cutout.py Art_Source/raw/<form>/<file>.png --out-dir Art_Source/cut
-python Tools/ArtPipeline/measure_consistency.py Art_Source/cut/<file>-cut.png --expect 3 \
-       --save-frames Art_Source/frames/<form>
+python Tools/ArtPipeline/chroma_cutout.py Art_Source/2_raw/<form>/<file>.png --out-dir Art_Source/3_cut
+python Tools/ArtPipeline/measure_consistency.py Art_Source/3_cut/<file>-cut.png --expect 3 \
+       --save-frames Art_Source/4_frames/<form>
 ```
 
 **기준선 (dark_blade 실측값)**
@@ -106,30 +106,30 @@ python Tools/ArtPipeline/measure_consistency.py Art_Source/cut/<file>-cut.png --
 | 무기가 손에서 **떨어져 있다** | 프롬프트에 파지 지시가 없었다 | 폼 블록의 `[WEAPON-CARRY]`에 `gripped firmly in ...`이 있는지 확인. 리깅 아트에서는 **피벗 문제로 형태가 바뀐다**(§8) |
 | 발밑에 **돌바닥·그림자**가 붙었다 | 지형이 스프라이트에 구워진다 | 프레이밍 블록의 `no ground, no platform, no cast shadow` 확인 |
 | 배경 마젠타가 **균일하지 않다** | 그라데이션·비네트 | 프레이밍 블록의 `perfectly uniform, no gradient no vignette` 확인 |
-| 프레임이 **1개로 붙어 나온다** | 무기가 옆 프레임에 걸쳤다 | `blocks/sheet_rules.txt` 포함했는지 확인. 그래도 붙으면 `--expect`로 강제 분할됨 |
+| 프레임이 **1개로 붙어 나온다** | 무기가 옆 프레임에 걸쳤다 | `1_blocks/sheet_rules.txt` 포함했는지 확인. 그래도 붙으면 `--expect`로 강제 분할됨 |
 | 추출 후 **색이 뒤집힌다**(붉은색→초록) | 알파 램프가 넓어 내부가 반투명 계산됨 | `chroma_cutout.py`에서 해결됨. `--tol`을 낮추면 더 좁아진다 |
 | 얼굴이 **보인다** | 정체성 조항이 안 먹혔다 | 다시 뽑는다. 얼굴이 나오면 "같은 사람이 형태를 바꾼 것"이라는 전제가 깨진다 |
-| 리깅 base(`_rig`)에 **무기가 나온다 — 그런데 매번은 아니다** | 첨부한 **기준 이미지가 대검을 쥐고 있는데**, 프롬프트는 그걸 "exactly 맞춰라"라고만 했다. 이미지 조건이 텍스트 부정문보다 세서 뽑기마다 이기는 쪽이 갈렸다 | `blocks/reference_rig.txt`가 들어갔는지 확인(§7). 부정문을 더 쌓는 게 아니라 **베낄 범위에서 검을 빼는** 블록이다 |
-| 무기 단독(`_weapon_*`)에 **사람·손이 나온다** | 거울상 결함. 예전 조립본은 무기 프롬프트에도 인물 정체성 문단을 넣고 프레이밍에서 "no person"으로 뒤집었다 | `blocks/reference_weapon.txt`가 들어가고 `identity_figure`가 **안** 들어갔는지 확인(§8) |
+| 리깅 base(`_rig`)에 **무기가 나온다 — 그런데 매번은 아니다** | 첨부한 **기준 이미지가 대검을 쥐고 있는데**, 프롬프트는 그걸 "exactly 맞춰라"라고만 했다. 이미지 조건이 텍스트 부정문보다 세서 뽑기마다 이기는 쪽이 갈렸다 | `1_blocks/reference_rig.txt`가 들어갔는지 확인(§7). 부정문을 더 쌓는 게 아니라 **베낄 범위에서 검을 빼는** 블록이다 |
+| 무기 단독(`_weapon_*`)에 **사람·손이 나온다** | 거울상 결함. 예전 조립본은 무기 프롬프트에도 인물 정체성 문단을 넣고 프레이밍에서 "no person"으로 뒤집었다 | `1_blocks/reference_weapon.txt`가 들어가고 `identity_figure`가 **안** 들어갔는지 확인(§8) |
 
 ---
 
 ## 5. 순서 — 한 번에 다 뽑지 않는다
 
 ```
-① 폼 1종 단일 이미지    정체성이 붙는지 확인    assembled/<form>.txt
-② 같은 폼 행 이미지     3포즈 일관성 확인       assembled/<form>_sheet.txt
+① 폼 1종 단일 이미지    정체성이 붙는지 확인    3_assembled/<form>.txt
+② 같은 폼 행 이미지     3포즈 일관성 확인       3_assembled/<form>_sheet.txt
 ③ 나머지 폼 반복
-④ 큐레이션 → curated/  게임에 넣을 것 고르기
+④ 큐레이션 → 5_curated/  게임에 넣을 것 고르기
 ```
 
 리깅 아트는 이 흐름과 **별개 축**이다(§7·§8). 폼당 **몸 1장 + 무기 n장**을 따로 뽑는다.
 
 ```
-①' 폼 1종 rig base(몸)   제약 3개 육안 확인     assembled/<form>_rig.txt
-②' 그 폼의 무기 단독      확인 3개 육안 확인     assembled/<form>_weapon_<id>.txt
+①' 폼 1종 rig base(몸)   제약 3개 육안 확인     3_assembled/<form>_rig.txt
+②' 그 폼의 무기 단독      확인 3개 육안 확인     3_assembled/<form>_weapon_<id>.txt
 ③' 나머지 폼 반복
-④' curated/<form>/rig_base.png · curated/<form>/weapon_<id>.png
+④' 5_curated/<form>/rig_base.png · 5_curated/<form>/weapon_<id>.png
 ```
 
 | 폼 | 몸 | 무기 |
@@ -148,7 +148,7 @@ python Tools/ArtPipeline/measure_consistency.py Art_Source/cut/<file>-cut.png --
 ## 6. 다른 폼을 만들 때 지켜야 할 것
 
 넷은 **다른 캐릭터가 아니라 같은 사람이 형태를 바꾼 것**이다(`00-concept.md` USP-2).
-그래서 `blocks/identity_figure.txt`의 `CHARACTER IDENTITY` 블록이 공유된다 — 같은 체격·같은 키·**얼굴은 언제나 안 보임**.
+그래서 `1_blocks/identity_figure.txt`의 `CHARACTER IDENTITY` 블록이 공유된다 — 같은 체격·같은 키·**얼굴은 언제나 안 보임**.
 
 구분은 **색이 아니라 실루엣**으로 낸다. 전투 중에는 피격 플래시와 폼 틴트로 색이 순간 뭉개지고,
 색약 대응이기도 하다(`00-concept.md` 디자인 절).
@@ -170,7 +170,7 @@ python Tools/ArtPipeline/measure_consistency.py Art_Source/cut/<file>-cut.png --
 그래서 리깅에 쓸 그림은 **idle 그림을 다시 쓰는 게 아니라 따로 뽑아야 한다.**
 
 ```bash
-python Art_Source/prompts/build.py          # assembled/<form>_rig.txt 가 생긴다
+python Art_Source/1_prompts/build.py          # 3_assembled/<form>_rig.txt 가 생긴다
 ```
 
 **🔴 이 그림에는 무기가 없다.** 무기·방패는 강체라 메시 변형의 대상이 아니고, 따로 뽑아 §8에서
@@ -183,7 +183,7 @@ python Art_Source/prompts/build.py          # assembled/<form>_rig.txt 가 생�
 
 | | 원인 | 왜 뽑기마다 갈렸나 | 대응 |
 |---|---|---|---|
-| **①** | **첨부한 기준 이미지가 대검을 쥐고 있다.** 그런데 프롬프트는 *"Match that reference image exactly"* 라고만 했다 | **이미지 조건이 텍스트 부정문보다 훨씬 세다.** 그림과 *"hands empty"* 한 줄이 매번 싸웠고, 이기는 쪽이 매번 달랐다 | `blocks/reference_rig.txt` 신설. 부정문을 쌓는 대신 **"그 검은 네가 베낄 대상이 아니다"** 로 범위를 좁힌다 |
+| **①** | **첨부한 기준 이미지가 대검을 쥐고 있다.** 그런데 프롬프트는 *"Match that reference image exactly"* 라고만 했다 | **이미지 조건이 텍스트 부정문보다 훨씬 세다.** 그림과 *"hands empty"* 한 줄이 매번 싸웠고, 이기는 쪽이 매번 달랐다 | `1_blocks/reference_rig.txt` 신설. 부정문을 쌓는 대신 **"그 검은 네가 베낄 대상이 아니다"** 로 범위를 좁힌다 |
 | ② | 정체성 블록 마지막 줄이 *"accent가 **weapon** 과 armor trim 에 흐른다"* 였다 | 무기 없는 몸을 요구하는 프롬프트가 **그 인물에게 무기가 있다고 먼저 말하고** 있었다 | `identity_figure.txt`에서 무기 언급 삭제(정보 손실 없음 — §1 참조) |
 | ③ | 손 조항이 *"no weapon, no shield, no bow, no javelin, no staff, no tool"* 이었다 | **부정문은 약하고 명사는 세다.** 게다가 저 목록은 **다른 폼의 무기**를 부른다 — 검사 프롬프트가 활을 이름으로 불렀다 | 긍정형(`EMPTY HANDS`)으로 재작성, 명사 열거 제거, 블록 **맨 앞**으로 이동 |
 | ④ | `[BODY]`가 폼을 *"shieldbearer"·"archer"·"thrower"* 라고 부른다 | **역할 명사 자체가 무기를 소환한다.** 방패병은 더 심하다 — 탑실드는 손이 아니라 **왼팔에 매달려서** "빈손" 조항에 안 걸린다 | 폼마다 `[RIG-EXCLUDE]` 절 신설(§9). `[BODY]` **바로 뒤**에서 그 폼 무기만 지목해 취소한다 |
@@ -259,7 +259,7 @@ python Art_Source/prompts/build.py          # assembled/<form>_rig.txt 가 생�
 ### 저장
 
 ```
-raw/<form>/<form>_rig_<n>.png   →  cut/  →  curated/<form>/rig_base.png
+2_raw/<form>/<form>_rig_<n>.png   →  3_cut/  →  5_curated/<form>/rig_base.png
 ```
 
 `rig_base`라는 이름을 쓴다(`idle` 아님 — README 명명 규약 참조).
@@ -271,7 +271,7 @@ raw/<form>/<form>_rig_<n>.png   →  cut/  →  curated/<form>/rig_base.png
 무기는 **강체**다. 칼날은 휘면 안 되므로 메시 변형이 아니라 **손 뼈에 붙는 별도 스프라이트**가 된다.
 
 ```bash
-python Art_Source/prompts/build.py   # assembled/<form>_weapon_<id>.txt 가 생긴다
+python Art_Source/1_prompts/build.py   # 3_assembled/<form>_weapon_<id>.txt 가 생긴다
 ```
 
 ### 🔴 이 프롬프트에는 인물 정체성이 안 들어간다 (2026-08-20 대응)
@@ -324,7 +324,7 @@ python Art_Source/prompts/build.py   # assembled/<form>_weapon_<id>.txt 가 생�
 ### 저장
 
 ```
-raw/<form>/<form>_weapon_<id>_<n>.png  →  cut/  →  curated/<form>/weapon_<id>.png
+2_raw/<form>/<form>_weapon_<id>_<n>.png  →  3_cut/  →  5_curated/<form>/weapon_<id>.png
 ```
 
 ### 후속 — 활의 시위
@@ -336,7 +336,7 @@ raw/<form>/<form>_weapon_<id>_<n>.png  →  cut/  →  curated/<form>/weapon_<id
 
 ## 9. 폼 블록의 절 구분
 
-`forms/form_<id>.txt`는 절로 나뉘어 있고, 조립본마다 **쓰는 절이 다르다.**
+`2_forms/form_<id>.txt`는 절로 나뉘어 있고, 조립본마다 **쓰는 절이 다르다.**
 
 | 절 | 내용 | 전신 | `_rig` | `_weapon` |
 |---|---|:---:|:---:|:---:|
@@ -375,6 +375,7 @@ raw/<form>/<form>_weapon_<id>_<n>.png  →  cut/  →  curated/<form>/weapon_<id
 
 ## 참조
 
+- `Art_Source/HOWTO.md` — **실제 작업 절차** (이미지 생성툴에 지시하는 순서·재시도 문구표)
 - `Art_Source/README.md` — 폴더 구조·명명 규약
 - `Docs/adr/008-art-direction-pixel.md` — 🔴 **전제 재검토 필요**(Skul은 픽셀 아트가 아니다)
 - `Tools/PixelArt/form_sprite_spec.py` — 절차적 도트 파이프라인(기준선으로 보존)

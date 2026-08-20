@@ -144,17 +144,18 @@ __pycache__/
 
 # ── 아트 원본 작업 공간 (Art_Source) ──
 # 추적 기준은 "재생성 가능한가"다. 원본과 스크립트만 있으면 다시 만들어지는 것은 넣지 않는다.
-# 추적: prompts/blocks·forms·poses·legacy·build.py(손으로 쓴 것) · base/·curated/(사람이 고른 결과)
-Art_Source/raw/**
-Art_Source/cut/**
-Art_Source/frames/**
+# 추적: 1_prompts/(3_assembled 제외 — 손으로 쓴 것) · 0_base/·5_curated/(사람이 고른 결과)
+# 폴더 앞 숫자는 파이프라인 사용 순번이다: 0_base → 1_prompts → 2_raw → 3_cut → 4_frames → 5_curated
+Art_Source/2_raw/**
+Art_Source/3_cut/**
+Art_Source/4_frames/**
 Art_Source/qa/**
 !Art_Source/*/.gitkeep
 
 # 조립본은 blocks/ + forms/ + build.py 로 언제든 다시 만들어진다 — 위 추적 기준에 그대로 걸린다.
 # 예전에는 prompts/ 바닥에 _assembled_*.txt 로 섞여 있어서 어느 것이 원본이고 어느 것이
 # 산출물인지 눈으로 구분이 안 됐다. 폴더로 갈라 두고 추적에서 뺀다.
-Art_Source/prompts/assembled/
+Art_Source/1_prompts/3_assembled/
 
 # 이미지 생성 도구가 작업 디렉터리에 남기는 잔재
 tmp/

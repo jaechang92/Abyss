@@ -4,7 +4,7 @@
 
 | 파일 | 무엇 | 왜 안 쓰나 |
 |---|---|---|
-| `void_archer_prompt.txt` | 공허 궁수 1회성 초안 | 블록 구조가 생기기 전에 손으로 통째로 쓴 것. 지금 `blocks/` + `forms/`가 대체한다 |
+| `void_archer_prompt.txt` | 공허 궁수 1회성 초안 | 블록 구조가 생기기 전에 손으로 통째로 쓴 것. 지금 `1_blocks/` + `2_forms/`가 대체한다 |
 | `void_archer_v2_prompt.txt` | 위의 개정본 | 같음 |
 
 ## 왜 지우지 않았나

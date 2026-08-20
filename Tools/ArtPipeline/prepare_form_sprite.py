@@ -36,13 +36,13 @@ ALPHA_MIN = 40
 # 후보 중 무엇을 골랐는지는 파일만 봐서는 알 수 없으므로 표로 남긴다.
 SOURCES = {
     # formId          경로(ROOT 기준)                                     선정 이유
-    "dark_blade":     ("Art_Source/base/dark_blade.png",
+    "dark_blade":     ("Art_Source/0_base/dark_blade.png",
                        "디테일 최상 + 이미 투명 배경"),
-    "void_archer":    ("Art_Source/cut/void_archer/void_archer_1-cut.png",
+    "void_archer":    ("Art_Source/3_cut/void_archer/void_archer_1-cut.png",
                        "단일 후보 중 활 곡선이 가장 크게 읽힘"),
-    "ancient_shield": ("Art_Source/cut/ancient_shield/ancient_shield_1-cut.png",
+    "ancient_shield": ("Art_Source/3_cut/ancient_shield/ancient_shield_1-cut.png",
                        "측면 단일 재생성(2026-08-20). 금색 지배로 검사와 팔레트 56.7%->30.0%"),
-    "void_thrower":   ("Art_Source/cut/void_thrower/void_thrower_1-cut.png",
+    "void_thrower":   ("Art_Source/3_cut/void_thrower/void_thrower_1-cut.png",
                        "단일 후보 1장"),
 }
 

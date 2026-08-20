@@ -12,8 +12,8 @@
  "그리지 마라"가 아니라 "그건 네가 베낄 대상이 아니다"로 말한다.]
 
 BASE IMAGE (style and identity reference):
-  D:\JaeChang\Abyss\Art_Source\base\dark_blade.png
-  (POSIX: /d/JaeChang/Abyss/Art_Source/base/dark_blade.png)
+  D:\JaeChang\Abyss\Art_Source\0_base\dark_blade.png
+  (POSIX: /d/JaeChang/Abyss/Art_Source/0_base/dark_blade.png)
 
 Read that file and use it as the reference for art style and character identity.
 If you cannot read local files, the same image is attached to this message — use the attachment.

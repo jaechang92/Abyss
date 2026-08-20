@@ -10,8 +10,8 @@
  이 스타일에서 무기를 어떻게 그리는지 보여주는 유일한 실물 예시라, 적극적으로 가리킨다.]
 
 BASE IMAGE (style reference only):
-  D:\JaeChang\Abyss\Art_Source\base\dark_blade.png
-  (POSIX: /d/JaeChang/Abyss/Art_Source/base/dark_blade.png)
+  D:\JaeChang\Abyss\Art_Source\0_base\dark_blade.png
+  (POSIX: /d/JaeChang/Abyss/Art_Source/0_base/dark_blade.png)
 
 Read that file and use it as the reference for art style only.
 If you cannot read local files, the same image is attached to this message — use the attachment.
