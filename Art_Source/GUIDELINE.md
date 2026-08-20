@@ -24,6 +24,7 @@
 _anchor.txt        ❌ 절대 수정 금지 — 스타일·정체성·프레이밍의 SoT
 form_<id>.txt      ✅ 수정 가능    — 그 폼의 장비·색·실루엣
 _sheet_rules.txt   ❌ 수정 금지    — 실측 결함 2건을 막는 줄이 들어 있다
+_rig_rules.txt     ❌ 수정 금지    — SpriteSkin 단일 메시의 제약이다 (§7)
 ```
 
 `_sheet_rules.txt`의 두 지시는 취향이 아니라 **버그 대응**이다:
@@ -103,6 +104,15 @@ python Tools/PixelArt/measure_consistency.py Art_Source/cut/<file>-cut.png --exp
 ④ 큐레이션 → curated/  게임에 넣을 것 고르기
 ```
 
+리깅용 base 포즈는 이 흐름과 **별개 축**이다(§7). 포즈를 여러 장 뽑는 게 아니라
+**폼당 딱 한 장**을, 그것도 다른 규칙으로 뽑는다.
+
+```
+①' 폼 1종 rig base     제약 4개 육안 확인      _assembled_<form>_rig.txt
+②' 나머지 폼 반복
+③' curated/<form>/rig_base.png
+```
+
 **①을 건너뛰지 말 것.** 앵커가 안 먹히는 상태로 12장을 뽑으면 12장을 버린다.
 한 장으로 확인하는 비용이 가장 싸다.
 
@@ -124,6 +134,55 @@ python Tools/PixelArt/measure_consistency.py Art_Source/cut/<file>-cut.png --exp
 | 심연 투척사 | **삼각** (퍼지는 망토) | 청록 `#7AC8BE` |
 
 > 투척사는 설정상 심연 축이지만 궁수와 같은 보라를 쓰면 구분이 안 되어 청록으로 갈랐다.
+
+---
+
+## 7. 리깅용 base 포즈 (`_rig`) — 그리는 규칙이 다르다
+
+폼 리깅(Unity 2D Animation `SpriteSkin`)은 **그림 한 장에 뼈와 가중치를 얹어 메시를 휘는** 방식이다.
+그래서 리깅에 쓸 그림은 **idle 그림을 다시 쓰는 게 아니라 따로 뽑아야 한다.**
+
+```bash
+python Art_Source/prompts/build.py          # _assembled_<form>_rig.txt 가 생긴다
+```
+
+### 왜 따로 뽑는가 — 제약 넷
+
+| 제약 | 어기면 | 프롬프트가 막는 방법 |
+|---|---|---|
+| **정측면**이어야 한다 | 3/4 뷰는 팔다리가 단축돼 있어 **회전시키면 길이가 어긋난다** | `pure flat side profile, NOT a three-quarter view` |
+| 팔·다리가 **떨어져** 있어야 한다 | 그림 한 장이 메시 하나다. 팔이 몸통에 겹치면 **팔 뼈를 돌릴 때 몸통이 딸려온다** | `visible gap of empty magenta between ... along its whole length` |
+| 무기가 **몸을 안 가로질러야** 한다 | 무기와 다리가 한 덩어리로 **용접**된다 | `must not cross the legs, must not cross the far arm` |
+| 천이 **정지**해 있어야 한다 | base에 이미 움직임이 박혀 있으면 뼈로 흔들 때 **두 번 흔들린다** | `hang straight down at rest, not flaring, not blowing` |
+
+> 🔑 **네 제약은 전부 "단일 메시"라는 한 가지 사실에서 나온다.** 파츠를 떼어내는 방식이 아니라
+> 한 장을 통째로 휘는 방식이라, **그림에 겹쳐 있는 것은 영원히 겹쳐 있다.**
+
+### 팔꿈치·무릎을 편 채로 그리면 안 되는 이유
+
+`never locked straight`가 두 번 나온다. 완전히 편 관절은 **굽히는 방향만** 있어서,
+뼈를 돌리면 반대쪽으로는 꺾여 부러져 보인다. 살짝 굽혀 두면 굽힘·폄 양쪽이 다 나온다.
+
+### 판정 — §3과 같되 하나 더
+
+기존 판정(팔레트 일치 80%+, 알파 잔류 0px)에 **육안 확인 3가지**를 더한다.
+자동 측정으로는 안 잡힌다 — 실루엣 안쪽 문제라 팔레트도 알파도 정상으로 나온다.
+
+| ☐ | 확인 |
+|---|---|
+| ☐ | 근접 팔과 몸통 사이로 **배경이 비쳐 보이는가** (팔 전체 길이에 걸쳐) |
+| ☐ | 두 다리 사이로 **배경이 비쳐 보이는가** |
+| ☐ | 무기가 다리·먼쪽 팔·몸통 **어디도 안 지나가는가** |
+
+하나라도 아니면 **다시 뽑는다.** 리깅을 시작한 뒤에 발견하면 뼈·가중치 작업을 통째로 버린다.
+
+### 저장
+
+```
+raw/<form>/<form>_rig_<n>.png   →  cut/  →  curated/<form>/rig_base.png
+```
+
+`rig_base`라는 이름을 쓴다(`idle` 아님 — README 명명 규약 참조).
 
 ---
 

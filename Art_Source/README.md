@@ -44,6 +44,11 @@ prompts/   ─①─>  raw/  ─②─>  cut/  ─③─>  frames/  ─④─>  
 | 생성 원본(행) | `raw/<formId>/sheet_<상태들>.png` | `raw/dark_blade/sheet_idle-walk-attack.png` |
 | 분리 프레임 | `frames/<formId>/<state>.png` | `frames/dark_blade/attack.png` |
 | 큐레이션 통과 | `curated/<formId>/<state>.png` | `curated/dark_blade/idle.png` |
+| **리깅 base 포즈** | `<단계>/<formId>/rig_base.png` | `curated/void_archer/rig_base.png` |
+
+리깅 base 포즈의 `<state>`는 **`rig_base`로 고정**한다. `idle`과 헷갈리기 쉬운데 다른 것이다 —
+`idle`은 **그려진 정지 포즈**이고 `rig_base`는 **뼈가 변형할 원본**이라 요구 조건이 다르다
+(정측면·팔다리 분리·천 정지). 규약은 `prompts/_rig_rules.txt`, 근거는 GUIDELINE §7.
 
 `<formId>`는 **`FormData.formId`와 같은 값**을 쓴다(`dark_blade`·`void_archer`·
 `ancient_shield`·`void_thrower`). 파일 이름이 곧 데이터 키라 오타가 나면
@@ -67,13 +72,25 @@ python Tools/PixelArt/measure_consistency.py Art_Source/cut/sheet_idle-walk-atta
 
 ## 프롬프트 조립
 
-프롬프트는 **블록 3개를 이어 붙여** 쓴다. 앵커를 고치면 조립본을 다시 만들어야 한다.
+프롬프트는 **블록을 이어 붙여** 쓴다. 앵커나 폼 블록을 고치면 조립본을 다시 만들어야 한다.
 
 ```bash
-cd Art_Source/prompts
-cat _anchor.txt form_void_archer.txt                  > _assembled_void_archer.txt
-cat _anchor.txt form_void_archer.txt _sheet_rules.txt > _assembled_void_archer_sheet.txt
+python Art_Source/prompts/build.py              # 전부
+python Art_Source/prompts/build.py void_archer  # 하나만
 ```
+
+조립본은 셋이 나온다.
+
+| 조립본 | 블록 구성 | 쓰임 |
+|---|---|---|
+| `_assembled_<form>.txt` | 앵커 + 폼 | 단일 이미지 — 앵커가 붙는지 먼저 확인 |
+| `_assembled_<form>_sheet.txt` | 앵커 + 폼 + `_sheet_rules` | 행 이미지(3포즈 한 장) |
+| `_assembled_<form>_rig.txt` | 앵커 + 폼 + `_rig_rules` | **리깅용 base 포즈**(정측면) — GUIDELINE §7 |
+
+> 🔴 **`cat`으로 직접 붙이지 말 것.** 블록 파일에는 사람용 한글 주석이 섞여 있고,
+> 그게 모델에 넘어가면 **지시로 읽힌다.** `build.py`가 걷어낸다.
+> 2026-08-20까지 이 문서가 `cat`을 안내했고, 실제로 `_sheet_rules.txt`의 한글 3줄이
+> **모든 행 프롬프트에 들어가고 있었다** — 안내가 도구보다 오래 살아남은 경우다.
 
 ⚠️ **`_anchor.txt`는 한 글자도 바꾸지 않는다.** 폼마다 앵커가 미세하게 다르면
 같은 사람으로 안 읽힌다 — 2026-08-20 측정에서 팔레트 일치 89.7%가 나온 근거가
