@@ -1,0 +1,23 @@
+[IDENTITY — 인물 정체성. 사람이 나오는 조립본(전신·행·리깅)에만 들어간다.]
+
+[📌 2026-08-20 재분리 — 예전 _identity.txt 는 BASE IMAGE · STYLE · CHARACTER IDENTITY 셋을
+ 한 파일로 들고 있었다. 그 셋은 쓰이는 범위가 서로 다르다:
+   · BASE IMAGE  → 용도마다 **베낄 범위가 다르다** (reference_*.txt 셋으로 갈랐다)
+   · STYLE       → 넷 다 공통          (style.txt)
+   · IDENTITY    → 사람이 나올 때만    (이 파일)
+ 묶여 있는 동안 무기 단독 프롬프트가 "물체 하나뿐"이라고 해 놓고 그 위에서
+ 후드 쓴 사람을 서술하고 있었다. 프레이밍을 갈랐던 것과 같은 이유로 여기도 가른다.]
+
+[🔴 마지막 줄이 바뀌었다. 예전 문장:
+     "a single glowing accent color that runs through the weapon and armor trim"
+ 리깅 조립본에도 그대로 들어가서, **무기 없는 몸을 그리라는 프롬프트가
+ 그 인물에게 무기가 있다고 먼저 말하고** 있었다.
+ 잃는 정보는 없다 — accent 색의 실제 값은 폼 블록 [BODY]가 폼마다 말하고,
+ 무기에 흐르는 accent 는 weapon_rules.txt와 각 [WEAPON] 절이 말한다.
+ 여기 남길 것은 "폼당 하나뿐"이라는 제약뿐이고, 그건 무기와 무관하다.]
+
+CHARACTER IDENTITY (shared by every form — this is the same person):
+the same lean adult figure, identical body proportions and height as the reference,
+hood or headgear fully covering the face leaving only shadow, no visible face ever,
+layered torn cloth over segmented armor, ragged hems, worn battle-scarred surfaces,
+exactly one glowing accent color per form and never a second one

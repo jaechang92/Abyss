@@ -1,0 +1,18 @@
+[REFERENCE — 전신 쇼케이스용. 기준 이미지를 통째로 베낀다: 스타일도 인물도 무기도.]
+
+[📌 2026-08-20 분리 — 예전 _identity.txt 앞머리에 있던 BASE IMAGE 문단이다.
+ 문장은 한 글자도 안 바꿨다. 게임에 들어간 폼 4종이 이 문장으로 나왔고,
+ 팔레트 일치 89.7%의 근거가 "모든 생성이 같은 문장을 참조했다"는 것뿐이라
+ 쇼케이스 쪽은 건드리면 안 된다.
+
+ 바뀐 것은 리깅·무기 쪽이다. 그쪽은 기준 이미지를 통째로 베끼면 안 되는데
+ 이 문단이 셋 다 공용이라 "exactly 맞춰라"가 그대로 들어가고 있었다.]
+
+BASE IMAGE (style and identity reference):
+  D:\JaeChang\Abyss\Art_Source\base\dark_blade.png
+  (POSIX: /d/JaeChang/Abyss/Art_Source/base/dark_blade.png)
+
+Read that file and use it as the single source of truth for art style and character identity.
+If you cannot read local files, the same image is attached to this message — use the attachment.
+
+Match that reference image exactly for art style and character identity.

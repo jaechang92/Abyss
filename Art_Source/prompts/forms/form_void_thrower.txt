@@ -17,6 +17,18 @@ a long ragged cloak that reaches toward the ground,
 a bandolier of throwing javelins worn across the chest,
 the glowing accent colour is cold teal #7AC8BE, running along the harness trim
 
+[RIG-EXCLUDE]
+
+In this image no javelin is in either hand — the javelin is drawn as its own separate
+image and attached to the hand afterwards. Both hands are open and empty.
+
+[🔴 투척사는 탄띠에 투창이 꽂혀 있는 게 정체성이라 착용분은 남긴다.
+ 남기되 "가슴에 붙어 있고 손 쪽으로 오지 않는다"를 붙여, 모델이 그중 하나를
+ 손으로 옮기지 않게 한다 — 손 근처에 있는 물건이 손에 들어가는 것이 기본 경향이다.]
+
+The bandolier of javelins stays worn across his chest exactly as described, lying flat
+against the body, and neither hand reaches for it or draws one from it.
+
 [SILHOUETTE]
 
 SILHOUETTE — this must read at a glance, even as a pure black shape:

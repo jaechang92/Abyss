@@ -15,6 +15,20 @@ black chainmail sleeves, a skull-shaped belt buckle,
 hood fully covering the face leaving only shadow, no visible face,
 the glowing accent colour is molten orange, running along the armour trim
 
+[RIG-EXCLUDE: 리깅 조립본에서 [BODY] 바로 뒤에 붙는다. 그 폼의 무기만 이름으로 부른다.]
+
+[🔴 왜 여기서 무기 이름을 한 번 부르는가 —
+ "no weapon" 같은 떠 있는 부정문과 다르다. 저건 그리지 말라는 금지고,
+ 이건 **이 그림이 무엇인지에 대한 서술**이다. 이유까지 함께 준다(따로 그려서 나중에 붙인다).
+ 지시 추종형 이미지 모델은 앞뒤가 맞는 장면 서술을 금지어보다 잘 지킨다.
+ 그리고 폼마다 자기 무기만 부르므로, 예전 rig_rules 처럼 **다른 폼 무기를 부르는 일이 없다**.]
+
+[RIG-EXCLUDE]
+
+In this image the greatsword is absent — it is drawn as its own separate image and
+attached to the hand afterwards. His right hand is open and empty.
+Here his silhouette is armour and cloth alone, with no long blade extending it.
+
 [SILHOUETTE]
 
 SILHOUETTE — this must read at a glance, even as a pure black shape:

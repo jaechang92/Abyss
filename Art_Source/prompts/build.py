@@ -11,25 +11,42 @@ build.py — 프롬프트 블록을 이어 붙여 **모델에 그대로 넣을 �
   python Art_Source/prompts/build.py void_archer  # 하나만
 
 
-구조 (2026-08-20 재작성 — 무기 분리)
-------------------------------------
-공용 블록은 **정체성 / 프레이밍 / 규칙** 셋으로 갈라져 있다.
+폴더
+----
+    blocks/     공용 블록. ❌ 전부 수정 금지 — 하나하나가 실측 결함에 대응한다
+    forms/      폼별 블록. ✅ 수정 가능
+    poses/      행 이미지용 포즈 문구 예시. 조립에 안 들어간다(dark_blade 기준)
+    legacy/     블록 구조 이전의 1회성 초안. 이력으로만 남긴다
+    assembled/  ← 여기로 나온다. 손으로 고치지 말 것(다음 실행에 덮어쓴다)
 
-    _identity.txt          ❌ 수정 금지 — 스타일·인물의 SoT. 모든 조립본에 들어간다
-    _framing_showcase.txt  ❌ 수정 금지 — 전신 3/4 (게임에 들어간 폼 4종이 이걸로 나왔다)
-    _framing_rig.txt       ❌ 수정 금지 — 정측면 (리깅 base)
-    _framing_weapon.txt    ❌ 수정 금지 — 물체 단독 (무기·방패)
-    _sheet_rules.txt       ❌ 수정 금지 — 행 이미지 실측 결함 2건을 막는다
-    _rig_rules.txt         ❌ 수정 금지 — SpriteSkin 단일 메시의 제약
-    _weapon_rules.txt      ❌ 수정 금지 — 강체 파트로 쓰이기 위한 조건
 
-📌 예전에는 `_anchor.txt` 하나가 정체성과 프레이밍을 같이 들고 있었다. 바꾸면 안 되는 것은
-   정체성 쪽인데 프레이밍이 묶여 있어서, 리깅 프롬프트가 "three-quarter"라고 한 뒤
-   "NOT three-quarter"로 자기 말을 뒤집었다. 용도마다 프레이밍이 달라야 하므로 갈랐다.
+공용 블록 (2026-08-20 3차 재편)
+-------------------------------
+쓰이는 **범위**가 다른 것들을 계속 갈라 왔다. 지금 축은 셋이다.
 
-폼 블록(`form_<id>.txt`)은 ✅ 수정 가능하고, 대괄호 절 표시로 나뉜다.
+    reference_showcase / _rig / _weapon   기준 이미지에서 **무엇을 베끼는가**
+    style                                  그림체 — 넷 다 공통
+    identity_figure                        인물 — **사람이 나올 때만**
+    framing_showcase / _rig / _weapon      화면에 무엇이 어떻게 들어가는가
+    sheet_rules / rig_rules / weapon_rules 그 용도의 제약
+
+📌 갈라 온 이력이 그대로 결함 목록이다.
+   ① `_anchor.txt` 가 정체성 + 프레이밍을 같이 들고 있었다
+      → 리깅 프롬프트가 "three-quarter" 뒤에 "NOT three-quarter"로 자기 말을 뒤집었다
+   ② `_identity.txt` 가 BASE IMAGE + STYLE + IDENTITY 를 같이 들고 있었다
+      → 무기 단독 프롬프트가 "물체 하나뿐"이라 해 놓고 후드 쓴 사람을 서술했다
+   ③ BASE IMAGE 문단이 셋 공용이라 "exactly 맞춰라"가 리깅에도 들어갔다
+      → **첨부 이미지의 대검이 "hands empty" 한 줄과 매번 싸웠다.**
+        이미지 조건은 텍스트 부정문보다 세다 — 부정문을 더 쌓는 대신
+        `reference_rig.txt` 가 **베낄 범위에서 검을 빼낸다.**
+
+🔑 셋 다 같은 모양의 결함이다 — **한 블록이 서로 다른 범위의 것을 같이 들고 있으면,
+   그 블록을 쓰는 조립본 중 하나는 반드시 자기 말을 뒤집는다.**
+
+폼 블록(`forms/form_<id>.txt`)은 대괄호 절 표시로 나뉜다.
 
     [BODY]                    몸 — 방어구·색·체격
+    [RIG-EXCLUDE]             그 폼의 무기가 **이 그림에 없다**는 서술 (리깅 전용)
     [SILHOUETTE]              실루엣 — 전신 기준
     [WEAPON: <id>]            그 무기의 **생김새**
     [WEAPON-CARRY: <id>]      캐릭터가 **드는 방식** (전신 그림 전용)
@@ -42,33 +59,63 @@ build.py — 프롬프트 블록을 이어 붙여 **모델에 그대로 넣을 �
    덧붙이게 된다 — 실제로 재작성 전 조립본이 그랬다.
 
 
-조립본
-------
-    _assembled_<form>.txt                정체성 + 쇼케이스 프레이밍 + BODY + WEAPON들 + SILHOUETTE
-    _assembled_<form>_sheet.txt          위 + 행 규칙
-    _assembled_<form>_rig.txt            정체성 + 리깅 프레이밍 + BODY + 리깅 규칙   ← 무기 없음
-    _assembled_<form>_weapon_<id>.txt    정체성 + 무기 프레이밍 + 무기 규칙 + WEAPON + WEAPON-IMAGE
+조립본 (assembled/)
+-------------------
+    <form>.txt                reference_showcase + style + identity + framing_showcase
+                              + BODY + (WEAPON + CARRY)들 + SILHOUETTE
+    <form>_sheet.txt          위 + sheet_rules
+    <form>_rig.txt            reference_rig + style + identity + framing_rig
+                              + BODY + RIG-EXCLUDE + rig_rules       ← 무기 없음
 
-리깅 조립본에서 SILHOUETTE 을 뺀 것은 실수가 아니다 — 실루엣 문장이 전부 무기를 가리킨다
-("the great arc of the bow beside the body"). 무기 없는 몸을 뽑는 프롬프트에 넣으면
-모델이 활을 그린다.
+🔑 [RIG-EXCLUDE] 가 BODY **바로 뒤**에 오는 것은 순서가 중요해서다.
+   [BODY]는 폼을 "shieldbearer" · "archer" · "thrower"라고 부른다 — 역할 명사 자체가
+   무기를 소환한다. 그 문장 바로 다음에서 취소해야 한다.
+   맨 뒤로 밀면 긴 규칙 블록에 묻힌다.
+    <form>_weapon_<id>.txt    reference_weapon + style + framing_weapon
+                              + weapon_rules + WEAPON + WEAPON-IMAGE  ← 인물 없음
+
+🔴 리깅 조립본에서 SILHOUETTE 을 뺀 것은 실수가 아니다 — 실루엣 문장이 전부 무기를 가리킨다
+   ("the great arc of the bow beside the body"). 무기 없는 몸을 뽑는 프롬프트에 넣으면
+   모델이 활을 그린다.
+
+🔴 무기 조립본에 identity_figure 가 없는 것도 실수가 아니다 — 거울상 결함이다.
+   들어가면 "그 마른 성인 남자, 얼굴을 덮은 후드…"를 서술한 뒤
+   프레이밍이 "no character, no person"으로 뒤집는다.
+
+📌 assembled/ 는 git 추적 대상이 아니다. blocks/ · forms/ · build.py 만 있으면
+   언제든 다시 만들어지므로, README 의 추적 기준("재생성 가능한가")에 그대로 걸린다.
 """
+import io
 import os
 import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+BLOCKS = os.path.join(HERE, "blocks")
+FORMS_DIR = os.path.join(HERE, "forms")
+OUT = os.path.join(HERE, "assembled")
+
 FORMS = ["dark_blade", "void_archer", "ancient_shield", "void_thrower"]
 
-# 사람용 메타 줄 — 대괄호로 시작하는 줄은 전부 주석으로 본다(절 표시도 여기 걸려 사라진다).
+# 사람용 주석 블록의 여는 줄. 대괄호로 시작하면 주석이 열린다(절 표시도 여기 걸려 사라진다).
+#
+# 🔴 2026-08-20 3차 — 주석은 **줄 단위가 아니라 블록 단위**로 걷어내야 한다.
+# 예전에는 "대괄호로 시작하거나 한글이 있는 줄"만 버렸다. 그런데 주석이 여러 줄에 걸치고
+# 그 안에서 **옛 영문 원문을 인용하면**, 인용 줄은 대괄호로 시작하지도 않고 한글도 없어서
+# 그대로 통과한다. 실제로 리깅 프롬프트에
+#     "nothing held in either hand — no weapon, no shield, no bow, no javelin, no staff"
+# 라는 **삭제한 문장이 주석 인용을 타고 다시 실려 나갔다.**
+# 고치려던 결함을 설명하는 글이 그 결함을 재현시킨 경우다.
+#
+# 이제 여는 대괄호부터 닫는 `]`까지를 통째로 버린다. 한 줄에서 닫히면 그 줄만 버린다.
 META = re.compile(r"^\s*\[")
 
 # 🔴 한글이 한 글자라도 있으면 사람용 주석이다.
 #
-# 프롬프트 본문은 **설계상 전부 영문**이다(정체성·프레이밍·폼 블록 어디에도 한글 문장이 없다).
-# 그래서 "한글 유무"가 주석 판정의 정확한 기준이 된다.
+# 프롬프트 본문은 **설계상 전부 영문**이다(참조·스타일·정체성·프레이밍·폼 블록 어디에도
+# 한글 문장이 없다). 그래서 "한글 유무"가 주석 판정의 정확한 기준이 된다.
 #
-# 2026-08-20 발견: 원래는 대괄호 줄만 걷어냈는데, `_sheet_rules.txt`의 한글 주석은
+# 2026-08-20 발견: 원래는 대괄호 줄만 걷어냈는데, `sheet_rules.txt`의 한글 주석은
 # `🔴`·`·`로 시작해서 걸리지 않았다. 그 결과 **행 프롬프트마다 한글 3줄이 모델에 넘어갔다** —
 # 이 파일 docstring이 막겠다고 적어 둔 바로 그 일이 조용히 일어나고 있었다.
 # 접두어를 하나씩 추가하는 방식은 새 기호를 쓸 때마다 같은 구멍이 다시 난다.
@@ -76,41 +123,66 @@ HANGUL = re.compile(r"[가-힣]")
 
 # 폼 블록의 절 표시. 대괄호로 시작하므로 출력에서는 META 가 걷어낸다.
 SECTION = re.compile(
-    r"^\s*\[(BODY|SILHOUETTE|WEAPON|WEAPON-CARRY|WEAPON-IMAGE)"
+    r"^\s*\[(BODY|SILHOUETTE|RIG-EXCLUDE|WEAPON|WEAPON-CARRY|WEAPON-IMAGE)"
     r"(?:\s*:\s*([A-Za-z0-9_]+))?\]\s*$")
 
 
-def strip_comments(lines):
-    """한글 주석과 대괄호 메타 줄을 걷어내고 연속 빈 줄을 정리한다."""
-    out = [ln.rstrip() for ln in lines if not (META.match(ln) or HANGUL.search(ln))]
+def strip_comments(lines, where=""):
+    """대괄호 주석 블록과 한글 줄을 걷어내고 연속 빈 줄을 정리한다."""
+    out = []
+    open_at = None          # 열려 있는 주석 블록의 시작 줄 번호(사람이 찾을 수 있게)
+    for no, raw in enumerate(lines, 1):
+        line = raw.rstrip()
+        if open_at is None:
+            if META.match(line):
+                # 같은 줄에서 닫히면 그 줄만 버린다(절 표시·한 줄 주석).
+                if not line.endswith("]"):
+                    open_at = no
+                continue
+            if HANGUL.search(line):
+                continue
+            out.append(line)
+        elif line.endswith("]"):
+            open_at = None
+    if open_at is not None:
+        # 🔴 안 닫힌 주석은 그 뒤 지시를 통째로 삼킨다. 조용히 넘기면 프롬프트가 반쪽이 된다.
+        raise SystemExit("%s %d번째 줄에서 연 대괄호 주석이 안 닫혔다" % (where, open_at))
     return re.sub(r"\n{3,}", "\n\n", "\n".join(out)).strip()
 
 
-def read_lines(name):
-    path = os.path.join(HERE, name)
+def read_lines(path):
     if not os.path.exists(path):
         return []
-    return open(path, encoding="utf-8").read().splitlines()
+    return io.open(path, encoding="utf-8").read().splitlines()
 
 
-def clean(name):
-    """공용 블록 하나를 읽어 영문 지시만 남긴다."""
-    return strip_comments(read_lines(name))
+def block(name):
+    """blocks/ 의 공용 블록 하나를 읽어 영문 지시만 남긴다."""
+    rel = "blocks/%s.txt" % name
+    text = strip_comments(read_lines(os.path.join(BLOCKS, name + ".txt")), rel)
+    if not text:
+        raise SystemExit("blocks/%s.txt 가 없거나 영문 본문이 비었다" % name)
+    return text
 
 
 def parse_form(form):
     """
-    form_<id>.txt 를 절 단위로 가른다.
+    forms/form_<id>.txt 를 절 단위로 가른다.
 
-    반환: {"BODY": str, "SILHOUETTE": str,
+    반환: {"BODY": str, "RIG-EXCLUDE": str, "SILHOUETTE": str,
            "WEAPONS": [(weapon_id, desc, carry, image_orientation), ...]}
 
     무기는 **파일에 적힌 순서**를 지킨다 — 고대 방패병은 탑실드가 먼저이고 단검이 나중인데,
     그게 실루엣의 주인공 순서다.
     """
-    lines = read_lines("form_%s.txt" % form)
+    rel = "forms/form_%s.txt" % form
+    lines = read_lines(os.path.join(FORMS_DIR, rel.split("/")[-1]))
     if not lines:
         return None
+
+    # 🔴 먼저 파일 전체로 한 번 훑는다. 안 닫힌 주석은 여기서만 **실제 줄 번호**로 잡힌다 —
+    #    절별로 자른 뒤에는 번호가 절 기준이라 사람이 못 찾는다.
+    strip_comments(lines, rel)
 
     buckets = {}          # key -> [원본 줄]
     order = []            # 무기 id 등장 순서
@@ -128,7 +200,7 @@ def parse_form(form):
             buckets[key].append(line)
 
     def take(k):
-        return strip_comments(buckets.get(k, []))
+        return strip_comments(buckets.get(k, []), rel)
 
     weapons = []
     for wid in order:
@@ -137,13 +209,18 @@ def parse_form(form):
                         take(("WEAPON-CARRY", wid)),
                         take(("WEAPON-IMAGE", wid))))
 
-    return {"BODY": take("BODY"), "SILHOUETTE": take("SILHOUETTE"), "WEAPONS": weapons}
+    return {"BODY": take("BODY"),
+            "RIG-EXCLUDE": take("RIG-EXCLUDE"),
+            "SILHOUETTE": take("SILHOUETTE"),
+            "WEAPONS": weapons}
 
 
 def write(name, parts):
     text = "\n\n".join(p for p in parts if p) + "\n"
-    path = os.path.join(HERE, name)
-    open(path, "w", encoding="utf-8").write(text)
+    if HANGUL.search(text):
+        # 🔴 마지막 방어선. 여기 걸리면 블록 파일에 주석 아닌 한글이 섞인 것이다.
+        raise SystemExit("%s 에 한글이 섞였다 — 블록 파일을 확인할 것" % name)
+    io.open(os.path.join(OUT, name), "w", encoding="utf-8", newline="\n").write(text)
     return (name, len(text.splitlines()), len(text))
 
 
@@ -152,45 +229,58 @@ def build(form):
     if sec is None or not sec["BODY"]:
         return []
 
-    identity = clean("_identity.txt")
-    fr_show = clean("_framing_showcase.txt")
-    fr_rig = clean("_framing_rig.txt")
-    fr_weap = clean("_framing_weapon.txt")
-    sheet_rules = clean("_sheet_rules.txt")
-    rig_rules = clean("_rig_rules.txt")
-    weapon_rules = clean("_weapon_rules.txt")
+    if not sec["RIG-EXCLUDE"]:
+        # 🔴 없으면 그 폼의 리깅 프롬프트가 무기를 다시 부른다. 조용히 넘기지 않는다.
+        raise SystemExit("form_%s.txt 에 [RIG-EXCLUDE] 절이 없다" % form)
+
+    ref_show = block("reference_showcase")
+    ref_rig = block("reference_rig")
+    ref_weap = block("reference_weapon")
+    style = block("style")
+    figure = block("identity_figure")
+    fr_show = block("framing_showcase")
+    fr_rig = block("framing_rig")
+    fr_weap = block("framing_weapon")
+    sheet_rules = block("sheet_rules")
+    rig_rules = block("rig_rules")
+    weapon_rules = block("weapon_rules")
 
     # 전신 그림은 무기의 생김새와 **드는 방식**을 같이 쓴다.
     # 무기 단독 그림은 드는 방식을 쓰면 안 된다 — "물체 혼자"와 정면으로 충돌한다.
     carried = []
     for _, desc, carry, _ in sec["WEAPONS"]:
         carried += [p for p in (desc, carry) if p]
-    showcase = [identity, fr_show, sec["BODY"]] + carried + [sec["SILHOUETTE"]]
+    showcase = [ref_show, style, figure, fr_show, sec["BODY"]] + carried + [sec["SILHOUETTE"]]
 
     written = [
-        write("_assembled_%s.txt" % form, showcase),
-        write("_assembled_%s_sheet.txt" % form, showcase + [sheet_rules]),
+        write("%s.txt" % form, showcase),
+        write("%s_sheet.txt" % form, showcase + [sheet_rules]),
         # 🔴 무기 없음. SILHOUETTE 도 없음 — 실루엣 문장이 전부 무기를 가리킨다.
-        write("_assembled_%s_rig.txt" % form, [identity, fr_rig, sec["BODY"], rig_rules]),
+        #    RIG-EXCLUDE 는 BODY 바로 뒤 — 역할 명사를 그 자리에서 취소한다.
+        write("%s_rig.txt" % form,
+              [ref_rig, style, figure, fr_rig, sec["BODY"], sec["RIG-EXCLUDE"], rig_rules]),
     ]
     for wid, desc, _carry, orientation in sec["WEAPONS"]:
-        # 일반 규칙(weapon_rules) 위에 그 무기만의 방향(orientation)을 얹는 순서.
+        # 🔴 identity_figure 없음 — 넣으면 "물체 하나뿐"이라 해 놓고 사람을 서술하게 된다.
+        #    일반 규칙(weapon_rules) 위에 그 무기만의 방향(orientation)을 얹는 순서.
         written.append(write(
-            "_assembled_%s_weapon_%s.txt" % (form, wid),
-            [identity, fr_weap, weapon_rules, desc, orientation]))
+            "%s_weapon_%s.txt" % (form, wid),
+            [ref_weap, style, fr_weap, weapon_rules, desc, orientation]))
     return written
 
 
 def main():
+    if not os.path.isdir(OUT):
+        os.makedirs(OUT)
     targets = sys.argv[1:] or FORMS
     for form in targets:
         rows = build(form)
         if not rows:
-            print("  %-44s 건너뜀 (form_%s.txt 없음)" % ("", form))
+            print("  %-40s 건너뜀 (forms/form_%s.txt 없음)" % ("", form))
             continue
         for name, lines, chars in rows:
-            print("  %-44s %3d줄 %5d자" % (name, lines, chars))
-    print("\n모델에 넣을 때는 위 파일 내용을 그대로 붙여넣고, base 이미지를 함께 첨부할 것.")
+            print("  assembled/%-30s %3d줄 %5d자" % (name, lines, chars))
+    print("\n모델에 넣을 때는 assembled/ 의 파일 내용을 그대로 붙여넣고, base 이미지를 함께 첨부할 것.")
 
 
 if __name__ == "__main__":

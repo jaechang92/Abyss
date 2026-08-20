@@ -1,0 +1,90 @@
+[RIG RULES — 리깅용 base 포즈(몸)를 뽑을 때만 덧붙인다. 무기는 여기 없다.]
+
+[2026-08-20 2차 재작성 — 무기 유출 대응. 바뀐 것 셋:
+
+ ① EMPTY HANDS 가 블록 **맨 앞**으로 왔고 긍정형으로 다시 쓰였다.
+    예전에는 POSE·JOINTS 뒤 세 번째 하위 절에 있었고, 내용이 이랬다:
+      "nothing held in either hand — no weapon, no shield, no bow, no javelin,
+       no staff, no tool"
+    한 줄에 무기 명사가 여섯이다. 생성 모델에서 부정문은 약하고 **명사는 세다** —
+    "코끼리를 그리지 마라"가 코끼리를 부르는 것과 같은 실패다.
+    더 나쁜 건 저 목록이 **다른 폼의 무기**(bow·javelin)를 부른다는 것이다.
+    암흑 검사 리깅 프롬프트가 활을 이름으로 부르고 있었다.
+    그려야 할 것(펼친 빈손)을 말하고, 부정은 명사 없이 한 문장으로 끝낸다.
+
+ ② "as if closed around a shaft that is simply not drawn" 삭제.
+    그립 모양을 설명하려고 shaft 를 꺼내 놓고 안 그린다고 덧붙이는 문장이었다.
+    가장 약한 형태의 배제다 — 모델은 shaft 를 그렸다.
+
+ ③ 팔·다리 틈 조항이 정측면 기하와 화해했다. 아래 ARMS 주석 참조.
+
+ 🔴 무기 유출의 **주원인은 이 파일이 아니라 첨부 이미지**다. reference_rig.txt 를 볼 것.
+    여기 셋은 그 위에 얹는 보조 수단이지, 이것만으로는 반반에서 못 벗어났다.]
+
+🔴 아래 지시는 취향이 아니라 SpriteSkin(2D Animation) 메시 변형의 제약이다. 빼지 말 것.
+   · 그림 한 장이 메시 하나다. **겹쳐 그려진 팔·다리는 뼈로 못 떼어낸다** —
+     팔이 몸통 위에 겹치면 팔 뼈를 돌릴 때 몸통 픽셀이 같이 딸려온다
+   · 완전히 편 관절은 **굽히는 방향만** 있다. 뼈를 돌리면 반대쪽으로 꺾여 부러져 보인다
+   · 뼈는 관절 위에 놓는다. 어깨·골반이 천에 묻혀 안 보이면 **놓을 자리를 못 찾는다**
+   · 펄럭이는 천은 base에 이미 움직임이 박힌 것이라, 뼈로 흔들면 두 번 흔들린다
+
+EMPTY HANDS — get this right first, before the pose:
+draw both hands in full, open and unoccupied.
+the near hand hangs loose at the end of the near arm, fingers relaxed and softly curled,
+the empty magenta background readable through the curl of the fingers,
+the far hand drawn the same way, rendered slightly darker.
+each arm ends at its hand, and nothing continues past the hand.
+he carries nothing and holds nothing — his gear is drawn in separate images
+and is added back afterwards.
+
+RIG BASE POSE — a neutral rest stance built to be deformed by a skeleton afterwards:
+standing upright and relaxed, weight even on both feet,
+head level and upright, the neck visible as its own segment between head and shoulders,
+knees very slightly bent, never locked straight,
+elbows slightly bent, never locked straight,
+no limb crossing in front of another limb, no hand resting on the body, no arm folded
+
+[🔴 아래 ARMS 절은 2026-08-20에 추가됐다. 예전 문구는 기하학적으로 불가능한 요구였다 —
+ "정측면"과 "근접 팔과 몸통 사이에 배경이 비쳐야 한다"를 동시에 요구했는데,
+ 순수 측면에서 팔은 몸통 바로 위에 투영된다. 틈이 생기려면 **어깨에서 앞뒤로 벌려야** 한다.
+ 요구가 모순이면 모델은 둘 중 하나를 버리는데, 대개 버려지는 쪽이 정측면이었다(3/4로 샌다).
+ 다리도 같다 — 나란히 선 채로는 틈이 안 생기고, 살짝 앞뒤로 놓아야 열린다.]
+
+ARMS — a pure side view puts the arms on top of the torso, so open them up on purpose:
+the near arm swung slightly forward at the shoulder so it hangs clear in front of the torso,
+the far arm swung slightly back at the shoulder so it hangs clear behind the torso,
+a visible gap of empty magenta between each arm and the torso along its whole length,
+both arms hanging down, not raised, not reaching, not folded,
+the far arm fully visible along its whole length and rendered slightly darker
+as the limb further from the light
+
+LEGS — the same problem, the same answer:
+the near leg placed slightly forward and the far leg slightly back,
+a visible gap of empty magenta between the two legs along their whole length,
+both feet flat and level on the same horizontal line, neither foot lifted,
+the stride kept small so the stance still reads as standing at rest
+
+JOINTS — these have to be findable:
+the shoulder, elbow, wrist, hip, knee and ankle each readable as a distinct point,
+shoulders not buried under an oversized pauldron,
+hips not hidden by a skirt or tabard hem, the waist line visible
+
+[🔴 여기서도 품목을 열거하면 안 된다.
+ "quiver, bandolier, sheath" 라고 써 두면 **화살통이 없는 검사에게 화살통이 생긴다.**
+ 손 조항에서 무기 명사를 뺀 것과 같은 이유다 — 명사는 부정문 안에서든 밖에서든 소환한다.
+ 그 폼이 실제로 걸친 것은 바로 위 [BODY]가 이미 말했으니, 여기서는 그것을 가리키기만 한다.]
+
+WORN GEAR — this is about the body, not the hands, and it stays:
+whatever is worn on the body in the description above stays exactly as described,
+lying flat against the body,
+sitting clear of both arms and both legs and never hanging between them,
+and nothing is added that the description above did not name
+
+CLOTH:
+cloak, tabard, scarf and ragged hems hang straight down at rest, settled and still,
+not flaring, not blowing, not billowing, not caught in wind,
+cloth must not wrap around or hide the legs, the leg silhouettes stay readable,
+the gap between the two legs stays open all the way down
+
+a single static neutral pose, one figure only, no action, no motion blur,
+no effects, no particles, no glow trails, no impact

@@ -25,6 +25,20 @@ keep every metal surface in the brass-to-gold range, bright and clearly lit,
 so that at a glance he is unmistakably the GOLD form,
 never confused with the crimson knight
 
+[RIG-EXCLUDE]
+
+In this image both the tower shield and the short sword are absent — each is drawn as
+its own separate image and attached afterwards. Both hands are open and empty.
+
+[🔴 이 폼은 두 겹으로 새어 나온다.
+ ① [BODY]가 그를 "shieldbearer"라 부른다 — 명사 자체가 방패를 소환한다.
+ ② 탑실드는 손에 쥐는 게 아니라 **왼팔에 끈으로 매달린다**. "빈손" 조항으로는 안 걸린다.
+ 그래서 왼팔을 명시적으로 비워 준다.]
+
+Nothing is strapped to his left arm and nothing is mounted on it — that arm is bare
+plated armour, visible along its whole length from shoulder to open hand.
+Here his silhouette is his own armoured body alone, not a broad rectangular mass.
+
 [SILHOUETTE]
 
 SILHOUETTE — this must read at a glance, even as a pure black shape:

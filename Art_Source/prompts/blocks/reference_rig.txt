@@ -1,0 +1,32 @@
+[REFERENCE — 리깅 base용. 기준 이미지에서 무엇을 베끼고 무엇을 안 베끼는지 못 박는다.]
+
+[🔴 2026-08-20 신설 — 이 블록이 생긴 이유가 바로 "무기가 나올 때도 있고 안 나올 때도" 다.
+
+ 원인은 텍스트가 아니라 **첨부하는 기준 이미지**였다.
+ base/dark_blade.png 는 거대한 발광 대검을 몸 앞으로 가로질러 쥐고 있고,
+ 프롬프트는 그 이미지를 "exactly 맞춰라"라고만 했다.
+ 이미지 조건은 텍스트 부정문보다 훨씬 세다 — "hands empty" 한 줄과 그림이 매번 싸웠고,
+ 이기는 쪽이 뽑기마다 달라서 결과가 반반으로 갈렸다.
+
+ 그래서 부정문을 더 쌓지 않는다. **베낄 범위 자체를 좁혀** 검을 참조 대상에서 빼낸다.
+ "그리지 마라"가 아니라 "그건 네가 베낄 대상이 아니다"로 말한다.]
+
+BASE IMAGE (style and identity reference):
+  D:\JaeChang\Abyss\Art_Source\base\dark_blade.png
+  (POSIX: /d/JaeChang/Abyss/Art_Source/base/dark_blade.png)
+
+Read that file and use it as the reference for art style and character identity.
+If you cannot read local files, the same image is attached to this message — use the attachment.
+
+HOW TO USE THE REFERENCE — settle this before drawing anything:
+copy from the reference image the art style, the linework, the shading, the colours,
+the armour and cloth design, and the build and the height of the figure.
+
+The reference image shows the character gripping a large glowing sword across his body.
+That sword is a separate prop. It is drawn in its own separate image instead,
+and it is added back afterwards. It is not part of the character, it is not part of
+the style, and it is not part of what you are copying here.
+
+WHAT THIS IMAGE IS:
+the character standing alone — his own body, his own armour, his own worn gear —
+with both hands empty.

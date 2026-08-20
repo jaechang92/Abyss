@@ -1,0 +1,8 @@
+[STYLE — 모든 조립본 공통. 예전 _identity.txt에서 그대로 떼어 온 것이고 문장은 안 바꿨다.]
+
+STYLE (from the reference):
+hand-drawn illustrative 2D game art, clean confident linework with dark outlines,
+soft cel shading with two shadow steps and crisp highlight edges,
+single light source from the upper left, warm rim light along the lit edges,
+rich saturated colors on a dark value base, glowing accents rendered as inner light,
+no texture noise, no painterly brush strokes, no photorealism

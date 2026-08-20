@@ -14,6 +14,18 @@ soft boots for silent movement,
 a quiver of shadow-fletched arrows worn at the hip,
 the glowing accent colour is violet #A36BF5, running along the armour trim
 
+[RIG-EXCLUDE]
+
+In this image the longbow is absent — it is drawn as its own separate image and
+attached to the hand afterwards. Both hands are open and empty, and there is no bow
+anywhere in the picture.
+
+[🔴 궁수는 유출이 가장 심할 폼이다 — [BODY]가 그를 "archer"라 부르고 화살통까지 채워 준다.
+ 활을 부르는 단서가 프롬프트 안에 이미 둘이라, 배제를 화살통 조항과 붙여 써 준다.]
+
+The quiver of arrows stays worn at his hip exactly as described, but no arrow is
+held, drawn or nocked, and nothing is raised toward a bowstring.
+
 [SILHOUETTE]
 
 SILHOUETTE — this must read at a glance, even as a pure black shape:

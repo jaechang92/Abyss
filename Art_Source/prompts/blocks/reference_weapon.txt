@@ -1,0 +1,28 @@
+[REFERENCE — 무기·방패 단독용. 스타일만 베끼고 사람은 안 베낀다.]
+
+[🔴 2026-08-20 신설 — 리깅의 거울상 결함을 막는다.
+ 예전 조립본은 무기 단독 프롬프트에도 CHARACTER IDENTITY 문단이 통째로 들어가
+ "그 마른 성인 남자, 얼굴을 덮은 후드, 겹쳐진 찢어진 천…"을 서술한 다음
+ 프레이밍에서 "no character, no person, no figure"라고 뒤집고 있었다.
+ 리깅 프롬프트가 무기를 부르던 것과 정확히 같은 구조다 — 방향만 반대다.
+
+ 💡 그리고 기준 이미지의 대검은 여기서는 **방해가 아니라 최고의 참고자료**다.
+ 이 스타일에서 무기를 어떻게 그리는지 보여주는 유일한 실물 예시라, 적극적으로 가리킨다.]
+
+BASE IMAGE (style reference only):
+  D:\JaeChang\Abyss\Art_Source\base\dark_blade.png
+  (POSIX: /d/JaeChang/Abyss/Art_Source/base/dark_blade.png)
+
+Read that file and use it as the reference for art style only.
+If you cannot read local files, the same image is attached to this message — use the attachment.
+
+HOW TO USE THE REFERENCE — settle this before drawing anything:
+copy the art style only: the linework weight, the two-step cel shading, the light
+direction from the upper left, the colour treatment, and the way a glowing accent
+is drawn as inner light.
+
+The large sword in the reference image is the example to follow — it shows exactly how
+a weapon is rendered in this style. Match that treatment for the object below.
+
+Do not copy the person. The figure in the reference image, his armour, his hood and
+his cloth are not part of this image. This image holds one object and nothing else.
