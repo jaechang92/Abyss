@@ -1,0 +1,33 @@
+[WEAPON RULES — 무기·방패 단독 이미지에 붙인다. 폼별 방향 지시는 이 뒤에 온다.]
+
+[🔴 조립 순서상 이 블록이 먼저고 폼의 WEAPON-IMAGE 블록이 뒤다.
+ 일반 규칙 위에 그 무기만의 방향을 얹는 순서다 — 방패는 검과 방향 기준이 다르다.]
+
+[💡 그립을 "띠나 감개로 뚜렷하게"라고 요구하는 이유:
+ 무기 스프라이트의 피벗을 그립 지점에 찍어야 손 뼈에 붙였을 때 손에서 안 뜬다.
+ 눈으로 찾을 수 있게 그려져 있어야 그 좌표를 정할 수 있다.]
+
+OBJECT PURPOSE — this image becomes a rigid part attached to a character rig:
+
+RIGID:
+the object is drawn straight and undeformed, no bending, no warping,
+no perspective distortion, no lens effect, no dramatic camera angle,
+flat and square to the viewer
+
+GRIP — the place a hand or an arm would hold it:
+clearly visible and completely unobstructed,
+drawn as a distinct wrap, band, cord or strap so that its centre can be located later,
+nothing covering it, no hand, no glove, no fingers
+
+INTEGRITY:
+the whole object inside the frame, nothing cropped, nothing cut off by the frame edge,
+no part of it running off the side of the image
+
+SCALE AND STYLE:
+same linework weight, same cel shading steps and same light direction
+as the reference character,
+the object's glowing accent is the same colour it has on the character
+
+NO EFFECTS:
+no motion trail, no swing arc, no impact spark, no particles, no aura, no smoke,
+the only light it emits is the glow built into the object itself

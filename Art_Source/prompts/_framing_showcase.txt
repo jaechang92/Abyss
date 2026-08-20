@@ -1,0 +1,15 @@
+[FRAMING — 전신 쇼케이스용. 지금까지 쓰던 프레이밍이고, 게임에 들어간 폼 4종이 이걸로 나왔다.]
+
+[2026-08-20 추가 — 마지막 두 줄(ONE FIGURE ONLY)은 원래 form_ancient_shield.txt 안에 있었다.
+ 턴어라운드(정면·측면·후면을 한 장에)가 나오는 것은 프레이밍 결함인데 한 폼이 혼자 막고 있었다.
+ 프레이밍 블록 셋 전부에 둔다.]
+
+FRAMING:
+three-quarter side view facing right, full body entirely inside the frame
+with an even margin on all four sides,
+flat solid magenta #FF00FF background, perfectly uniform, no gradient no vignette,
+no ground, no floor, no platform, no cast shadow, nothing under the feet,
+single figure, PNG
+
+ONE FIGURE ONLY — do not draw a turnaround, do not draw multiple views,
+do not draw front or back views. A single character in a single pose.

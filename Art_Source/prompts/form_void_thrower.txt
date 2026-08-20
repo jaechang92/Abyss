@@ -1,13 +1,42 @@
 [FORM — 심연 투척사 void_thrower / 시너지 축: 심연(청록으로 분화) / 선행자: 던지는 자 무이]
 
+[2026-08-20 개정 — 무기 분리에 맞춰 절을 나눴다.
+ 던지는 투창은 손에 든 것만 그리면 된다 — 날아가는 쪽은 이미 발사체(Projectile)라
+ 스프라이트가 따로 있다.]
+
+[⚠️ 이 폼은 천이 실루엣이다("flaring wide toward the ground"). 그런데 리깅 base에서는
+ 천이 정지해 있어야 한다(_rig_rules CLOTH). 모순이 아니라 역할 분담이다 —
+ 퍼짐은 뼈가 만든다. base에 이미 퍼져 있으면 두 번 퍼진다.]
+
+[BODY]
+
 Convert the referenced character into a different form of the same person:
 an agile void thrower, light and fast,
 deep teal and blackened leather harness, bare wrapped arms, no heavy plate,
-a long ragged cloak that flares wide toward the ground,
-a bandolier of throwing javelins across the chest, one javelin raised in the right hand ready to throw,
-the javelin tip burns with cold teal light,
-the glowing accent color is cold teal #7AC8BE, running along the javelins and harness trim
+a long ragged cloak that reaches toward the ground,
+a bandolier of throwing javelins worn across the chest,
+the glowing accent colour is cold teal #7AC8BE, running along the harness trim
+
+[SILHOUETTE]
 
 SILHOUETTE — this must read at a glance, even as a pure black shape:
 built on a TRIANGLE — narrow at the shoulders and flaring wide at the hem,
 the cloak spreading toward the feet is the shape people remember
+
+[WEAPON: javelin]
+
+WEAPON — a throwing javelin,
+a slender dark shaft with a leather-wrapped middle,
+a narrow leaf-shaped head whose tip burns with cold teal #7AC8BE light
+
+[WEAPON-CARRY: javelin]
+
+one javelin raised in the right hand, ready to throw
+
+[WEAPON-IMAGE: javelin]
+
+ORIENTATION — a single javelin alone, standing upright and perfectly vertical,
+the butt end at the bottom of the frame and the burning tip at the top,
+not tilted, not lying down, the full length inside the frame with both ends uncropped,
+the leather-wrapped middle clearly visible as the place a hand would close,
+one javelin only — not a bundle, not a bandolier, not a set

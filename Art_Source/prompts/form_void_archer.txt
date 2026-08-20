@@ -1,13 +1,42 @@
 [FORM — 공허 궁수 void_archer / 시너지 축: 심연(보라) / 선행자: 공허를 쏘는 카야]
 
+[2026-08-20 개정 — 무기 분리에 맞춰 절을 나눴다.
+ 활 서술이 방어구 서술과 한 문단에 섞여 있어 몸만 가리킬 방법이 없었다.]
+
+[BODY]
+
 Convert the referenced character into a different form of the same person:
 a lean void archer, the slightest build of all forms,
-violet-purple leather and cloth instead of crimson plate, light and unarmored at the shoulders,
-long tattered hood-scarf trailing back, wrapped forearms, soft boots for silent movement,
-carrying a tall recurved longbow held in the left hand, the bowstring made of pale violet light,
-a quiver of shadow-fletched arrows at the hip,
-the glowing accent color is violet #A36BF5, running along the bowstring and armor trim
+violet-purple leather and cloth instead of crimson plate,
+light and unarmoured at the shoulders,
+long tattered hood-scarf trailing back, wrapped forearms,
+soft boots for silent movement,
+a quiver of shadow-fletched arrows worn at the hip,
+the glowing accent colour is violet #A36BF5, running along the armour trim
+
+[SILHOUETTE]
 
 SILHOUETTE — this must read at a glance, even as a pure black shape:
 the thinnest silhouette of the four, and the only one built on a CURVE —
 the great arc of the bow beside the body is the shape people remember
+
+[WEAPON: longbow]
+
+WEAPON — a tall recurved longbow,
+slender dark limbs curving away at both ends,
+violet #A36BF5 light running along the limbs,
+the bowstring made of pale violet light
+
+[WEAPON-CARRY: longbow]
+
+carried in the left hand, the great arc of the bow standing beside the body
+
+[WEAPON-IMAGE: longbow]
+
+ORIENTATION — the longbow alone, standing upright and vertical,
+both recurved limbs fully inside the frame, top and bottom tips not cropped,
+the string on the right-hand side of the bow, running straight and relaxed,
+not drawn back, not bent,
+the leather-wrapped grip at the middle of the bow clearly visible
+as the place a hand would close,
+no arrow, no arrow nocked, no quiver

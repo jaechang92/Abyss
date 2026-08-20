@@ -21,34 +21,26 @@ layered torn cloth over segmented armor, ragged hems, worn battle-scarred surfac
 a single glowing accent color that runs through the weapon and armor trim
 
 FRAMING:
-three-quarter side view facing right, full body entirely inside the frame
-with an even margin on all four sides,
+a pure flat side profile facing right, not a three-quarter view,
+the camera exactly level with the character and exactly perpendicular
+to the direction he faces,
+no part of the body turned toward the viewer, no foreshortening anywhere,
+every limb seen at its full natural length,
+full body entirely inside the frame with an even margin on all four sides,
 flat solid magenta #FF00FF background, perfectly uniform, no gradient no vignette,
 no ground, no floor, no platform, no cast shadow, nothing under the feet,
 single figure, PNG
 
-the same hooded dark knight character, dark fantasy roguelike hero,
-deep crimson-red plate armor with jagged spiked pauldrons and torn layered tabard,
-tattered dark cloth skirt with ragged hem, black chainmail sleeves,
-skull-shaped belt buckle, hood fully covering the face leaving only shadow, no visible face,
-gripping a large jagged greatsword firmly in his right hand,
-the blade has a glowing molten orange crack running down its center
+ONE FIGURE ONLY — do not draw a turnaround, do not draw multiple views,
+do not draw front or back views. A single character in a single pose.
 
-2D game character sprite, hand-drawn illustrative style like Skul: The Hero Slayer,
-clean confident linework, soft cel shading with two shadow steps,
-single light source from the upper left, subtle rim light along the right edge,
-saturated but grounded palette, no texture noise, no painterly brush strokes
-
-side view facing right, three-quarter profile, full body entirely inside the frame
-with a small even margin on all four sides,
-flat solid magenta #FF00FF background, perfectly uniform, no gradient no vignette,
-no ground, no floor, no platform, no cast shadow, nothing under the feet,
-character isolated on the magenta, single figure only, PNG
-
-OVERRIDE THE FRAMING ABOVE: this is a pure flat side profile, NOT a three-quarter view.
-The camera is exactly level with the character and exactly perpendicular to the direction
-he faces. Facing right. No part of the body turns toward the viewer.
-No foreshortening anywhere — every limb is seen at its full length.
+The referenced character in his base form:
+the crimson dark knight, a lean and balanced build, the middle build of the four,
+deep crimson-red plate armour with jagged spiked pauldrons,
+a torn layered tabard and a tattered dark cloth skirt with a ragged hem,
+black chainmail sleeves, a skull-shaped belt buckle,
+hood fully covering the face leaving only shadow, no visible face,
+the glowing accent colour is molten orange, running along the armour trim
 
 RIG BASE POSE — a neutral rest stance built to be deformed by a skeleton afterwards:
 standing upright and relaxed, weight even on both feet, both feet flat at the same height,
@@ -64,15 +56,28 @@ head level and upright, the neck visible as its own segment between head and sho
 no limb crossing in front of another limb, no limb crossing in front of the torso,
 no hand resting on the body, no arm folded
 
-WEAPON:
-the weapon held out clear of the body, its blade or shaft must not cross the legs,
-must not cross the far arm, and must not overlap the torso,
-if the weapon is long, angle it away from the body into empty magenta space
+JOINTS — these have to be findable:
+the shoulder, elbow, wrist, hip, knee and ankle each readable as a distinct point,
+shoulders not buried under an oversized pauldron,
+hips not hidden by a skirt or tabard hem, the waist line visible
+
+HANDS — the restriction here is about the hands only:
+both hands empty and open to the air,
+fingers curled into a relaxed grip as if closed around a shaft that is simply not drawn,
+nothing held in either hand — no weapon, no shield, no bow, no javelin, no staff, no tool
+is being carried, gripped, raised or strapped to the arms
+
+WORN GEAR — this is not "in the hands", and it stays:
+quivers, bandoliers, sheaths, belts and pouches described for this form
+remain worn on the body exactly as described,
+including the javelins, arrows or blades they hold,
+but they must not cross the arms or the legs and must not hang between them
 
 CLOTH:
 cloak, tabard, scarf and ragged hems hang straight down at rest, settled and still,
 not flaring, not blowing, not billowing, not caught in wind,
-cloth must not wrap around or hide the legs, the leg silhouettes stay readable
+cloth must not wrap around or hide the legs, the leg silhouettes stay readable,
+the gap between the two legs stays open all the way down
 
 a single static neutral pose, one figure only, no action, no motion blur,
 no effects, no particles, no glow trails, no impact

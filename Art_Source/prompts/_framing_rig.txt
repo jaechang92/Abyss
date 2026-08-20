@@ -1,0 +1,19 @@
+[FRAMING — 리깅 base 포즈용 정측면. 쇼케이스 프레이밍을 덮는 게 아니라 대신 들어간다.]
+
+[🔴 3/4 뷰를 쓰면 안 되는 이유는 취향이 아니다 —
+ 3/4에서는 팔다리가 단축(foreshortening)돼 있어 뼈로 회전시키면 길이가 어긋나 보인다.
+ 정측면이어야 뼈 회전이 실제 팔다리 움직임으로 읽힌다.]
+
+FRAMING:
+a pure flat side profile facing right, not a three-quarter view,
+the camera exactly level with the character and exactly perpendicular
+to the direction he faces,
+no part of the body turned toward the viewer, no foreshortening anywhere,
+every limb seen at its full natural length,
+full body entirely inside the frame with an even margin on all four sides,
+flat solid magenta #FF00FF background, perfectly uniform, no gradient no vignette,
+no ground, no floor, no platform, no cast shadow, nothing under the feet,
+single figure, PNG
+
+ONE FIGURE ONLY — do not draw a turnaround, do not draw multiple views,
+do not draw front or back views. A single character in a single pose.

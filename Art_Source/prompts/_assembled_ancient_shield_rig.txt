@@ -21,45 +21,32 @@ layered torn cloth over segmented armor, ragged hems, worn battle-scarred surfac
 a single glowing accent color that runs through the weapon and armor trim
 
 FRAMING:
-three-quarter side view facing right, full body entirely inside the frame
-with an even margin on all four sides,
+a pure flat side profile facing right, not a three-quarter view,
+the camera exactly level with the character and exactly perpendicular
+to the direction he faces,
+no part of the body turned toward the viewer, no foreshortening anywhere,
+every limb seen at its full natural length,
+full body entirely inside the frame with an even margin on all four sides,
 flat solid magenta #FF00FF background, perfectly uniform, no gradient no vignette,
 no ground, no floor, no platform, no cast shadow, nothing under the feet,
 single figure, PNG
 
+ONE FIGURE ONLY — do not draw a turnaround, do not draw multiple views,
+do not draw front or back views. A single character in a single pose.
+
 Convert the referenced character into a different form of the same person:
 a heavy ancient shieldbearer, the broadest and heaviest build of all forms,
-armor of POLISHED BRASS AND BRIGHT GOLD covering most of the body — gold is the dominant
+armour of POLISHED BRASS AND BRIGHT GOLD covering most of the body — gold is the dominant
 colour of this form, not an accent — over a dark underlayer that barely shows,
 thick angular pauldrons, a heavy visored helm with no face visible inside,
 a layered tabard worn to rags hanging from the waist,
-carrying an enormous rectangular tower shield on the left arm that covers half his body,
-the shield face plated in bright gold with a worn engraved sigil glowing faintly,
-a short broad sword held low in the right hand,
-the glowing accent is warm gold #FFCC52 running along the shield sigil and armor trim
+the glowing accent is warm gold #FFCC52 running along the armour trim
 
 COLOUR SEPARATION — critical:
 this form must NOT read as dark red or crimson anywhere.
 keep every metal surface in the brass-to-gold range, bright and clearly lit,
-so that at a glance he is unmistakably the GOLD form, never confused with the crimson knight
-
-POSE — a single standing figure, one view only:
-strict side view facing right, standing at rest, weight settled on both feet,
-the tower shield held forward on the left arm and seen edge-on-to-three-quarter
-so its full rectangular mass is visible beside the body,
-sword hanging down at his right side, head level looking right
-
-SILHOUETTE — this must read at a glance, even as a pure black shape:
-the widest and heaviest silhouette of the four, built on a SQUARE —
-the tower shield makes a solid rectangular mass beside the body
-
-ONE FIGURE ONLY — do not draw a turnaround, do not draw multiple views,
-do not draw front or back views. A single character in a single side-facing pose.
-
-OVERRIDE THE FRAMING ABOVE: this is a pure flat side profile, NOT a three-quarter view.
-The camera is exactly level with the character and exactly perpendicular to the direction
-he faces. Facing right. No part of the body turns toward the viewer.
-No foreshortening anywhere — every limb is seen at its full length.
+so that at a glance he is unmistakably the GOLD form,
+never confused with the crimson knight
 
 RIG BASE POSE — a neutral rest stance built to be deformed by a skeleton afterwards:
 standing upright and relaxed, weight even on both feet, both feet flat at the same height,
@@ -75,15 +62,28 @@ head level and upright, the neck visible as its own segment between head and sho
 no limb crossing in front of another limb, no limb crossing in front of the torso,
 no hand resting on the body, no arm folded
 
-WEAPON:
-the weapon held out clear of the body, its blade or shaft must not cross the legs,
-must not cross the far arm, and must not overlap the torso,
-if the weapon is long, angle it away from the body into empty magenta space
+JOINTS — these have to be findable:
+the shoulder, elbow, wrist, hip, knee and ankle each readable as a distinct point,
+shoulders not buried under an oversized pauldron,
+hips not hidden by a skirt or tabard hem, the waist line visible
+
+HANDS — the restriction here is about the hands only:
+both hands empty and open to the air,
+fingers curled into a relaxed grip as if closed around a shaft that is simply not drawn,
+nothing held in either hand — no weapon, no shield, no bow, no javelin, no staff, no tool
+is being carried, gripped, raised or strapped to the arms
+
+WORN GEAR — this is not "in the hands", and it stays:
+quivers, bandoliers, sheaths, belts and pouches described for this form
+remain worn on the body exactly as described,
+including the javelins, arrows or blades they hold,
+but they must not cross the arms or the legs and must not hang between them
 
 CLOTH:
 cloak, tabard, scarf and ragged hems hang straight down at rest, settled and still,
 not flaring, not blowing, not billowing, not caught in wind,
-cloth must not wrap around or hide the legs, the leg silhouettes stay readable
+cloth must not wrap around or hide the legs, the leg silhouettes stay readable,
+the gap between the two legs stays open all the way down
 
 a single static neutral pose, one figure only, no action, no motion blur,
 no effects, no particles, no glow trails, no impact

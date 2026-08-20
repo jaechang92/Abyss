@@ -1,0 +1,42 @@
+[FORM — 암흑 검사 dark_blade / 시너지 축: 불꽃(주황) / 기준 폼]
+
+[2026-08-20 신설 — 기준 폼이라 예전에는 블록이 없었고 정체성이 _shared.txt에 있었다.
+ 그런데 _shared.txt는 _identity.txt의 STYLE·FRAMING을 중복해서 들고 있어 SoT가 둘이었다.
+ 리깅 base와 무기 단독을 새로 뽑아야 하는데 그때 몸과 무기를 나눠 가리킬 대상이 필요해
+ 다른 폼과 같은 형식으로 세운다. _shared.txt는 제거됐다.]
+
+[BODY]
+
+The referenced character in his base form:
+the crimson dark knight, a lean and balanced build, the middle build of the four,
+deep crimson-red plate armour with jagged spiked pauldrons,
+a torn layered tabard and a tattered dark cloth skirt with a ragged hem,
+black chainmail sleeves, a skull-shaped belt buckle,
+hood fully covering the face leaving only shadow, no visible face,
+the glowing accent colour is molten orange, running along the armour trim
+
+[SILHOUETTE]
+
+SILHOUETTE — this must read at a glance, even as a pure black shape:
+built on a VERTICAL LINE — the long greatsword carried down beside him
+extends his outline into one tall stroke
+
+[WEAPON: greatsword]
+
+WEAPON — a large jagged greatsword,
+the blade broad and notched along both edges,
+a glowing molten orange crack running down the centre of the blade,
+a heavy angular cross guard and a long cloth-wrapped hilt
+
+[WEAPON-CARRY: greatsword]
+
+gripped firmly in his right hand and carried down beside him
+
+[WEAPON-IMAGE: greatsword]
+
+ORIENTATION — the greatsword alone, standing upright and perfectly vertical,
+the pommel at the bottom of the frame and the point at the top,
+not tilted, not lying down,
+the cloth-wrapped hilt between pommel and cross guard clearly visible
+as the place a hand would close,
+the molten crack glowing along the blade as it does on the character

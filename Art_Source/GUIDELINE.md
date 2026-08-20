@@ -9,11 +9,12 @@
 
 | | 확인 | 왜 |
 |---|---|---|
-| ☐ | **base 이미지를 첨부**했는가 (`Art_Source/base/dark_blade.png`) | 앵커 첫 줄이 "Match that reference image"다. 첨부가 없으면 **가리킬 대상이 없어 앵커가 죽는다** |
-| ☐ | `_assembled_*.txt`를 **그대로** 붙여넣었는가 | 블록을 손으로 재조립하면 앵커가 미세하게 갈라진다 |
-| ☐ | 앵커 블록을 **안 건드렸는가** | 폼마다 앵커가 다르면 같은 사람으로 안 읽힌다 |
+| ☐ | **base 이미지를 첨부**했는가 (`Art_Source/base/dark_blade.png`) | 정체성 블록 첫 줄이 "Match that reference image"다. 첨부가 없으면 **가리킬 대상이 없어 정체성이 죽는다** |
+| ☐ | `_assembled_*.txt`를 **그대로** 붙여넣었는가 | 블록을 손으로 재조립하면 정체성이 미세하게 갈라진다 |
+| ☐ | `_identity.txt`를 **안 건드렸는가** | 폼마다 정체성이 다르면 같은 사람으로 안 읽힌다 |
+| ☐ | 용도에 맞는 조립본을 골랐는가 (전신 / `_rig` / `_weapon_*`) | 프레이밍이 셋 다 다르다 |
 
-> 🔑 **팔레트 일치 89.7%가 나온 근거는 하나뿐이다** — 모든 생성이 *같은 앵커 + 같은 base 이미지*를
+> 🔑 **팔레트 일치 89.7%가 나온 근거는 하나뿐이다** — 모든 생성이 *같은 정체성 블록 + 같은 base 이미지*를
 > 참조했다는 것. 둘 중 하나라도 흔들리면 그 수치는 재현되지 않는다.
 
 ---
@@ -21,11 +22,20 @@
 ## 1. 바꿔도 되는 것 / 안 되는 것
 
 ```
-_anchor.txt        ❌ 절대 수정 금지 — 스타일·정체성·프레이밍의 SoT
-form_<id>.txt      ✅ 수정 가능    — 그 폼의 장비·색·실루엣
-_sheet_rules.txt   ❌ 수정 금지    — 실측 결함 2건을 막는 줄이 들어 있다
-_rig_rules.txt     ❌ 수정 금지    — SpriteSkin 단일 메시의 제약이다 (§7)
+_identity.txt          ❌ 절대 수정 금지 — 스타일·인물의 SoT. 모든 조립본에 들어간다
+_framing_showcase.txt  ❌ 수정 금지    — 전신 3/4 (게임에 들어간 폼 4종이 이걸로 나왔다)
+_framing_rig.txt       ❌ 수정 금지    — 정측면 (리깅 base, §7)
+_framing_weapon.txt    ❌ 수정 금지    — 물체 단독 (무기·방패, §8)
+_sheet_rules.txt       ❌ 수정 금지    — 실측 결함 2건을 막는 줄이 들어 있다
+_rig_rules.txt         ❌ 수정 금지    — SpriteSkin 단일 메시의 제약 (§7)
+_weapon_rules.txt      ❌ 수정 금지    — 강체 파트로 쓰이기 위한 조건 (§8)
+form_<id>.txt          ✅ 수정 가능    — 그 폼의 장비·색·실루엣 (절 구분은 §9)
 ```
+
+> 📌 **2026-08-20 이전에는 `_anchor.txt` 하나가 정체성과 프레이밍을 같이 들고 있었다.**
+> "한 글자도 바꾸지 말라"는 규약의 대상은 정체성인데 프레이밍이 묶여 있어서,
+> 리깅 프롬프트가 *"three-quarter"* 라고 한 뒤 *"NOT three-quarter"* 로 **자기 말을 뒤집었다.**
+> 용도마다 프레이밍이 달라야 하므로 갈랐다. `_shared.txt`도 같은 내용을 중복해 들고 있어 제거됐다.
 
 `_sheet_rules.txt`의 두 지시는 취향이 아니라 **버그 대응**이다:
 
@@ -34,7 +44,7 @@ _rig_rules.txt     ❌ 수정 금지    — SpriteSkin 단일 메시의 제약�
 | 칼끝이 옆 프레임에 걸쳐 **프레임 분리가 3개 대신 1개**로 나왔다 | `wide clear empty magenta gap ... must not cross into a neighbouring pose` |
 | 자세마다 **키가 12.7% 흔들려** 애니메이션에서 캐릭터가 위아래로 떤다 | `feet at the same height, identical character scale in all three` |
 
-앵커나 폼 파일을 고쳤으면 **반드시 조립본을 다시 만든다**:
+공용 블록이나 폼 파일을 고쳤으면 **반드시 조립본을 다시 만든다**:
 
 ```bash
 python Art_Source/prompts/build.py            # 전부
@@ -63,8 +73,8 @@ Art_Source/raw/<formId>/sheet_<상태들>.png      행 이미지
 ## 3. 판정 — 눈이 아니라 숫자로
 
 ```bash
-python Tools/PixelArt/chroma_cutout.py Art_Source/raw/<form>/<file>.png --out-dir Art_Source/cut
-python Tools/PixelArt/measure_consistency.py Art_Source/cut/<file>-cut.png --expect 3 \
+python Tools/ArtPipeline/chroma_cutout.py Art_Source/raw/<form>/<file>.png --out-dir Art_Source/cut
+python Tools/ArtPipeline/measure_consistency.py Art_Source/cut/<file>-cut.png --expect 3 \
        --save-frames Art_Source/frames/<form>
 ```
 
@@ -86,9 +96,9 @@ python Tools/PixelArt/measure_consistency.py Art_Source/cut/<file>-cut.png --exp
 
 | 증상 | 원인 | 대처 |
 |---|---|---|
-| 무기가 손에서 **떨어져 있다** | 프롬프트에 파지 지시가 없었다 | 앵커에 이미 `gripping ... firmly` 추가됨. 재생성 |
-| 발밑에 **돌바닥·그림자**가 붙었다 | 지형이 스프라이트에 구워진다 | 앵커의 `no ground, no platform, no cast shadow` 확인 |
-| 배경 마젠타가 **균일하지 않다** | 그라데이션·비네트 | 앵커의 `perfectly uniform, no gradient no vignette` 확인 |
+| 무기가 손에서 **떨어져 있다** | 프롬프트에 파지 지시가 없었다 | 폼 블록의 `[WEAPON-CARRY]`에 `gripped firmly in ...`이 있는지 확인. 리깅 아트에서는 **피벗 문제로 형태가 바뀐다**(§8) |
+| 발밑에 **돌바닥·그림자**가 붙었다 | 지형이 스프라이트에 구워진다 | 프레이밍 블록의 `no ground, no platform, no cast shadow` 확인 |
+| 배경 마젠타가 **균일하지 않다** | 그라데이션·비네트 | 프레이밍 블록의 `perfectly uniform, no gradient no vignette` 확인 |
 | 프레임이 **1개로 붙어 나온다** | 무기가 옆 프레임에 걸쳤다 | `_sheet_rules.txt` 포함했는지 확인. 그래도 붙으면 `--expect`로 강제 분할됨 |
 | 추출 후 **색이 뒤집힌다**(붉은색→초록) | 알파 램프가 넓어 내부가 반투명 계산됨 | `chroma_cutout.py`에서 해결됨. `--tol`을 낮추면 더 좁아진다 |
 | 얼굴이 **보인다** | 정체성 조항이 안 먹혔다 | 다시 뽑는다. 얼굴이 나오면 "같은 사람이 형태를 바꾼 것"이라는 전제가 깨진다 |
@@ -98,22 +108,30 @@ python Tools/PixelArt/measure_consistency.py Art_Source/cut/<file>-cut.png --exp
 ## 5. 순서 — 한 번에 다 뽑지 않는다
 
 ```
-① 폼 1종 단일 이미지    앵커가 붙는지 확인      _assembled_<form>.txt
+① 폼 1종 단일 이미지    정체성이 붙는지 확인    _assembled_<form>.txt
 ② 같은 폼 행 이미지     3포즈 일관성 확인       _assembled_<form>_sheet.txt
 ③ 나머지 폼 반복
 ④ 큐레이션 → curated/  게임에 넣을 것 고르기
 ```
 
-리깅용 base 포즈는 이 흐름과 **별개 축**이다(§7). 포즈를 여러 장 뽑는 게 아니라
-**폼당 딱 한 장**을, 그것도 다른 규칙으로 뽑는다.
+리깅 아트는 이 흐름과 **별개 축**이다(§7·§8). 폼당 **몸 1장 + 무기 n장**을 따로 뽑는다.
 
 ```
-①' 폼 1종 rig base     제약 4개 육안 확인      _assembled_<form>_rig.txt
-②' 나머지 폼 반복
-③' curated/<form>/rig_base.png
+①' 폼 1종 rig base(몸)   제약 3개 육안 확인     _assembled_<form>_rig.txt
+②' 그 폼의 무기 단독      확인 3개 육안 확인     _assembled_<form>_weapon_<id>.txt
+③' 나머지 폼 반복
+④' curated/<form>/rig_base.png · curated/<form>/weapon_<id>.png
 ```
 
-**①을 건너뛰지 말 것.** 앵커가 안 먹히는 상태로 12장을 뽑으면 12장을 버린다.
+| 폼 | 몸 | 무기 |
+|---|---|---|
+| `dark_blade` | 1 | `greatsword` |
+| `void_archer` | 1 | `longbow` |
+| `ancient_shield` | 1 | `towershield` · `shortsword` |
+| `void_thrower` | 1 | `javelin` |
+| | **4장** | **5장** |
+
+**①을 건너뛰지 말 것.** 정체성이 안 먹히는 상태로 12장을 뽑으면 12장을 버린다.
 한 장으로 확인하는 비용이 가장 싸다.
 
 ---
@@ -121,7 +139,7 @@ python Tools/PixelArt/measure_consistency.py Art_Source/cut/<file>-cut.png --exp
 ## 6. 다른 폼을 만들 때 지켜야 할 것
 
 넷은 **다른 캐릭터가 아니라 같은 사람이 형태를 바꾼 것**이다(`00-concept.md` USP-2).
-그래서 앵커의 `CHARACTER IDENTITY` 블록이 공유된다 — 같은 체격·같은 키·**얼굴은 언제나 안 보임**.
+그래서 `_identity.txt`의 `CHARACTER IDENTITY` 블록이 공유된다 — 같은 체격·같은 키·**얼굴은 언제나 안 보임**.
 
 구분은 **색이 아니라 실루엣**으로 낸다. 전투 중에는 피격 플래시와 폼 틴트로 색이 순간 뭉개지고,
 색약 대응이기도 하다(`00-concept.md` 디자인 절).
@@ -146,22 +164,35 @@ python Tools/PixelArt/measure_consistency.py Art_Source/cut/<file>-cut.png --exp
 python Art_Source/prompts/build.py          # _assembled_<form>_rig.txt 가 생긴다
 ```
 
+**🔴 이 그림에는 무기가 없다.** 무기·방패는 강체라 메시 변형의 대상이 아니고, 따로 뽑아 §8에서
+손 뼈에 붙인다. 그래서 여기서는 **양손이 빈 채**로 그린다.
+
 ### 왜 따로 뽑는가 — 제약 넷
 
 | 제약 | 어기면 | 프롬프트가 막는 방법 |
 |---|---|---|
-| **정측면**이어야 한다 | 3/4 뷰는 팔다리가 단축돼 있어 **회전시키면 길이가 어긋난다** | `pure flat side profile, NOT a three-quarter view` |
+| **정측면**이어야 한다 | 3/4 뷰는 팔다리가 단축돼 있어 **회전시키면 길이가 어긋난다** | `pure flat side profile, not a three-quarter view` |
 | 팔·다리가 **떨어져** 있어야 한다 | 그림 한 장이 메시 하나다. 팔이 몸통에 겹치면 **팔 뼈를 돌릴 때 몸통이 딸려온다** | `visible gap of empty magenta between ... along its whole length` |
-| 무기가 **몸을 안 가로질러야** 한다 | 무기와 다리가 한 덩어리로 **용접**된다 | `must not cross the legs, must not cross the far arm` |
+| **관절이 보여야** 한다 | 뼈는 관절 위에 놓는다. 어깨가 견갑에 묻히면 **놓을 자리를 못 찾는다** | `shoulders not buried under an oversized pauldron, the waist line visible` |
 | 천이 **정지**해 있어야 한다 | base에 이미 움직임이 박혀 있으면 뼈로 흔들 때 **두 번 흔들린다** | `hang straight down at rest, not flaring, not blowing` |
 
 > 🔑 **네 제약은 전부 "단일 메시"라는 한 가지 사실에서 나온다.** 파츠를 떼어내는 방식이 아니라
 > 한 장을 통째로 휘는 방식이라, **그림에 겹쳐 있는 것은 영원히 겹쳐 있다.**
 
+> 📌 초판에는 다섯째 제약 *"무기가 몸을 가로지르면 안 된다"* 가 있었다. **그건 제약이 아니라
+> 분리로 사라지는 문제였다.** 무기를 몸 밖으로 빼려고 자세를 비틀 필요가 없어졌다 —
+> 제약을 지키는 대신 **제약이 생기는 자리를 없앤 경우다.**
+
 ### 팔꿈치·무릎을 편 채로 그리면 안 되는 이유
 
 `never locked straight`가 두 번 나온다. 완전히 편 관절은 **굽히는 방향만** 있어서,
 뼈를 돌리면 반대쪽으로는 꺾여 부러져 보인다. 살짝 굽혀 두면 굽힘·폄 양쪽이 다 나온다.
+
+### 착용 장비는 남는다
+
+*"no javelin"* 은 **손에 한정**이다. 투척사의 탄띠, 궁수의 화살통처럼 **몸에 걸친 것은 그대로 그린다** —
+그게 폼 정체성이다. 초판은 이 범위가 모호해서 투척사 프롬프트가 *"탄띠를 두른다"* 와 *"투창은 없다"* 를
+동시에 말했다.
 
 ### 판정 — §3과 같되 하나 더
 
@@ -172,7 +203,7 @@ python Art_Source/prompts/build.py          # _assembled_<form>_rig.txt 가 생�
 |---|---|
 | ☐ | 근접 팔과 몸통 사이로 **배경이 비쳐 보이는가** (팔 전체 길이에 걸쳐) |
 | ☐ | 두 다리 사이로 **배경이 비쳐 보이는가** |
-| ☐ | 무기가 다리·먼쪽 팔·몸통 **어디도 안 지나가는가** |
+| ☐ | 어깨·팔꿈치·골반·무릎이 **점으로 짚이는가** |
 
 하나라도 아니면 **다시 뽑는다.** 리깅을 시작한 뒤에 발견하면 뼈·가중치 작업을 통째로 버린다.
 
@@ -183,6 +214,78 @@ raw/<form>/<form>_rig_<n>.png   →  cut/  →  curated/<form>/rig_base.png
 ```
 
 `rig_base`라는 이름을 쓴다(`idle` 아님 — README 명명 규약 참조).
+
+---
+
+## 8. 무기·방패 단독 (`_weapon_<id>`)
+
+무기는 **강체**다. 칼날은 휘면 안 되므로 메시 변형이 아니라 **손 뼈에 붙는 별도 스프라이트**가 된다.
+
+```bash
+python Art_Source/prompts/build.py   # _assembled_<form>_weapon_<id>.txt 가 생긴다
+```
+
+### 왜 분리가 공짜인가
+
+이미 그려진 그림에서 무기를 **잘라내면** 그 뒤 몸통이 비어 인페인팅이 필요하다.
+하지만 **생성 단계에서 따로 그리면** 가려질 뒷면이 처음부터 그려져 있어 구멍이 없다.
+
+> 🔑 **분리해도 되는 것과 안 되는 것의 경계는 "따로 그려도 접합부가 맞는가"다.**
+> 팔·다리는 몸통과 해부학적으로 이어져 있어 따로 그리면 두께·스타일이 어긋난다 → 단일 메시.
+> 무기는 독립된 물체라 따로 그려도 된다 → 분리.
+
+### 방향 규약 — 피벗이 여기서 정해진다
+
+무기 그림의 **그립 지점이 곧 스프라이트 피벗**이고, 그 피벗이 손 뼈에 붙는다.
+그래서 방향을 고정해 둔다.
+
+| 무기 | 방향 | 피벗 자리 |
+|---|---|---|
+| 검·투창 | 똑바로 세워 **손잡이 아래·끝 위** | 감긴 그립 중앙 |
+| 활 | 똑바로 세워 **시위가 오른쪽** | 가운데 가죽 그립 |
+| 탑실드 | 똑바로 세워 **면이 보이게** | 가운데 돌출 보스 |
+
+> ⚠️ 그립을 *"띠나 감개로 뚜렷하게"* 요구하는 이유가 이것이다. **눈으로 못 찾으면 피벗 좌표를 못 정한다.**
+> 손에서 뜨는 실패는 §4에 이미 있는 유형인데, 이번에는 프롬프트가 아니라 **피벗 수치**라 재현 가능하게 고칠 수 있다.
+
+### 판정 — 인물 판정이 없어 훨씬 빠르다
+
+| ☐ | 확인 |
+|---|---|
+| ☐ | **손·손가락·팔이 안 나왔는가** (모델이 가장 자주 어기는 것) |
+| ☐ | 그립(감개·띠·보스)이 **가려지지 않고 보이는가** |
+| ☐ | 프레임에 **잘린 데가 없는가** (활 양끝·투창 양끝) |
+
+### 저장
+
+```
+raw/<form>/<form>_weapon_<id>_<n>.png  →  cut/  →  curated/<form>/weapon_<id>.png
+```
+
+### 후속 — 활의 시위
+
+활은 강체지만 **시위는 당겨진다.** 지금은 이완 상태 1장만 뽑고, 당김 표현은 후속으로 미룬다
+(당김 스프라이트 1장 추가 또는 시위를 `LineRenderer`로).
+
+---
+
+## 9. 폼 블록의 절 구분
+
+`form_<id>.txt`는 절로 나뉘어 있고, 조립본마다 **쓰는 절이 다르다.**
+
+| 절 | 내용 | 전신 | `_rig` | `_weapon` |
+|---|---|:---:|:---:|:---:|
+| `[BODY]` | 방어구·색·체격 | ✅ | ✅ | |
+| `[SILHOUETTE]` | 전신 실루엣 도형 | ✅ | | |
+| `[WEAPON: <id>]` | 무기 **생김새** | ✅ | | ✅ |
+| `[WEAPON-CARRY: <id>]` | 캐릭터가 **드는 방식** | ✅ | | |
+| `[WEAPON-IMAGE: <id>]` | 단독으로 그릴 때 **방향** | | | ✅ |
+
+> 🔴 **`_rig`에서 `[SILHOUETTE]`을 뺀 것은 실수가 아니다.** 실루엣 문장이 전부 무기를 가리킨다
+> (*"the great arc of the bow beside the body"*). 무기 없는 몸을 뽑는 프롬프트에 넣으면 **모델이 활을 그린다.**
+
+> 🔴 **`WEAPON`이 셋으로 갈린 것도 같은 이유다.** 합쳐 두면 무기 단독 프롬프트가
+> *"물체 혼자, 손 없이"* 라고 해 놓고 *"왼팔에 끼고 몸 옆에"* 라고 덧붙인다 — **재작성 전 조립본이 실제로 그랬다.**
 
 ---
 

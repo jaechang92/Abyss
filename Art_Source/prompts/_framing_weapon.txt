@@ -1,0 +1,19 @@
+[FRAMING — 무기·방패 단독 이미지용. 사람이 아예 안 나온다.]
+
+[🔴 "no hands"를 세 번 다르게 말하는 이유가 있다 —
+ 무기를 그리라고 하면 생성 모델은 손을 같이 그리려는 경향이 아주 강하다.
+ 손이 딸려 오면 그 손이 캐릭터의 손 위에 겹쳐 손이 두 개로 보인다.]
+
+FRAMING:
+a single object drawn alone, no character, no person, no figure,
+no hands, no fingers, no arms, no gloves,
+nothing holding it, nothing touching it, nothing behind it,
+the object entirely inside the frame with an even margin on all four sides,
+lit by the same single light source from the upper left as the reference image,
+flat solid magenta #FF00FF background, perfectly uniform, no gradient no vignette,
+no ground, no surface, no cast shadow, nothing under the object,
+one object only, PNG
+
+ONE OBJECT ONLY — do not draw a turnaround, do not draw multiple views,
+do not draw a set or a rack or variants side by side,
+do not draw smaller copies or inset detail views.

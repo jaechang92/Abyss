@@ -1,17 +1,15 @@
-[RIG RULES — 리깅용 base 포즈를 뽑을 때만 덧붙인다]
+[RIG RULES — 리깅용 base 포즈(몸)를 뽑을 때만 덧붙인다. 무기는 여기 없다.]
+
+[2026-08-20 재작성 — 초판에는 "무기가 다리를 가로지르면 안 된다"는 WEAPON 조항이 있었다.
+ 그건 제약이 아니라 **분리로 사라지는 문제**였다. 무기를 따로 그리기로 하면서 삭제하고,
+ 대신 빈손 조항과 관절 가시성 조항이 들어왔다.]
 
 🔴 아래 지시는 취향이 아니라 SpriteSkin(2D Animation) 메시 변형의 제약이다. 빼지 말 것.
    · 그림 한 장이 메시 하나다. **겹쳐 그려진 팔·다리는 뼈로 못 떼어낸다** —
      팔이 몸통 위에 겹치면 팔 뼈를 돌릴 때 몸통 픽셀이 같이 딸려온다
-   · 3/4 뷰는 팔다리가 단축(foreshortening)돼 있어 **회전시키면 길이가 어긋나 보인다**.
-     정측면이어야 뼈 회전이 실제 팔다리 움직임으로 읽힌다
-   · 무기가 다리를 가로지르면 무기와 다리가 **한 덩어리로 용접**된다
+   · 완전히 편 관절은 **굽히는 방향만** 있다. 뼈를 돌리면 반대쪽으로 꺾여 부러져 보인다
+   · 뼈는 관절 위에 놓는다. 어깨·골반이 천에 묻혀 안 보이면 **놓을 자리를 못 찾는다**
    · 펄럭이는 천은 base에 이미 움직임이 박힌 것이라, 뼈로 흔들면 두 번 흔들린다
-
-OVERRIDE THE FRAMING ABOVE: this is a pure flat side profile, NOT a three-quarter view.
-The camera is exactly level with the character and exactly perpendicular to the direction
-he faces. Facing right. No part of the body turns toward the viewer.
-No foreshortening anywhere — every limb is seen at its full length.
 
 RIG BASE POSE — a neutral rest stance built to be deformed by a skeleton afterwards:
 standing upright and relaxed, weight even on both feet, both feet flat at the same height,
@@ -27,15 +25,28 @@ head level and upright, the neck visible as its own segment between head and sho
 no limb crossing in front of another limb, no limb crossing in front of the torso,
 no hand resting on the body, no arm folded
 
-WEAPON:
-the weapon held out clear of the body, its blade or shaft must not cross the legs,
-must not cross the far arm, and must not overlap the torso,
-if the weapon is long, angle it away from the body into empty magenta space
+JOINTS — these have to be findable:
+the shoulder, elbow, wrist, hip, knee and ankle each readable as a distinct point,
+shoulders not buried under an oversized pauldron,
+hips not hidden by a skirt or tabard hem, the waist line visible
+
+HANDS — the restriction here is about the hands only:
+both hands empty and open to the air,
+fingers curled into a relaxed grip as if closed around a shaft that is simply not drawn,
+nothing held in either hand — no weapon, no shield, no bow, no javelin, no staff, no tool
+is being carried, gripped, raised or strapped to the arms
+
+WORN GEAR — this is not "in the hands", and it stays:
+quivers, bandoliers, sheaths, belts and pouches described for this form
+remain worn on the body exactly as described,
+including the javelins, arrows or blades they hold,
+but they must not cross the arms or the legs and must not hang between them
 
 CLOTH:
 cloak, tabard, scarf and ragged hems hang straight down at rest, settled and still,
 not flaring, not blowing, not billowing, not caught in wind,
-cloth must not wrap around or hide the legs, the leg silhouettes stay readable
+cloth must not wrap around or hide the legs, the leg silhouettes stay readable,
+the gap between the two legs stays open all the way down
 
 a single static neutral pose, one figure only, no action, no motion blur,
 no effects, no particles, no glow trails, no impact

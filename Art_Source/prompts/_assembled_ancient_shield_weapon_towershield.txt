@@ -1,0 +1,71 @@
+BASE IMAGE (style and identity reference):
+  D:\JaeChang\Abyss\Art_Source\base\dark_blade.png
+  (POSIX: /d/JaeChang/Abyss/Art_Source/base/dark_blade.png)
+
+Read that file and use it as the single source of truth for art style and character identity.
+If you cannot read local files, the same image is attached to this message — use the attachment.
+
+Match that reference image exactly for art style and character identity.
+
+STYLE (from the reference):
+hand-drawn illustrative 2D game art, clean confident linework with dark outlines,
+soft cel shading with two shadow steps and crisp highlight edges,
+single light source from the upper left, warm rim light along the lit edges,
+rich saturated colors on a dark value base, glowing accents rendered as inner light,
+no texture noise, no painterly brush strokes, no photorealism
+
+CHARACTER IDENTITY (shared by every form — this is the same person):
+the same lean adult figure, identical body proportions and height as the reference,
+hood or headgear fully covering the face leaving only shadow, no visible face ever,
+layered torn cloth over segmented armor, ragged hems, worn battle-scarred surfaces,
+a single glowing accent color that runs through the weapon and armor trim
+
+FRAMING:
+a single object drawn alone, no character, no person, no figure,
+no hands, no fingers, no arms, no gloves,
+nothing holding it, nothing touching it, nothing behind it,
+the object entirely inside the frame with an even margin on all four sides,
+lit by the same single light source from the upper left as the reference image,
+flat solid magenta #FF00FF background, perfectly uniform, no gradient no vignette,
+no ground, no surface, no cast shadow, nothing under the object,
+one object only, PNG
+
+ONE OBJECT ONLY — do not draw a turnaround, do not draw multiple views,
+do not draw a set or a rack or variants side by side,
+do not draw smaller copies or inset detail views.
+
+OBJECT PURPOSE — this image becomes a rigid part attached to a character rig:
+
+RIGID:
+the object is drawn straight and undeformed, no bending, no warping,
+no perspective distortion, no lens effect, no dramatic camera angle,
+flat and square to the viewer
+
+GRIP — the place a hand or an arm would hold it:
+clearly visible and completely unobstructed,
+drawn as a distinct wrap, band, cord or strap so that its centre can be located later,
+nothing covering it, no hand, no glove, no fingers
+
+INTEGRITY:
+the whole object inside the frame, nothing cropped, nothing cut off by the frame edge,
+no part of it running off the side of the image
+
+SCALE AND STYLE:
+same linework weight, same cel shading steps and same light direction
+as the reference character,
+the object's glowing accent is the same colour it has on the character
+
+NO EFFECTS:
+no motion trail, no swing arc, no impact spark, no particles, no aura, no smoke,
+the only light it emits is the glow built into the object itself
+
+SHIELD — an enormous rectangular tower shield, tall enough to cover half a man,
+the shield face plated in bright gold with a worn engraved sigil glowing faintly,
+a heavy riveted rim and a raised boss at the centre of the face
+
+ORIENTATION — the tower shield alone, standing upright,
+its long axis vertical, its top and bottom edges level and parallel,
+seen face-on so the whole rectangle and the engraved sigil read clearly,
+turned only very slightly so that the thickness of the rim is visible down one side,
+the raised centre boss clearly visible — that boss marks where the arm holds it behind,
+no arm straps drawn on the front, no arm, no hand

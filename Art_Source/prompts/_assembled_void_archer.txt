@@ -27,13 +27,24 @@ flat solid magenta #FF00FF background, perfectly uniform, no gradient no vignett
 no ground, no floor, no platform, no cast shadow, nothing under the feet,
 single figure, PNG
 
+ONE FIGURE ONLY — do not draw a turnaround, do not draw multiple views,
+do not draw front or back views. A single character in a single pose.
+
 Convert the referenced character into a different form of the same person:
 a lean void archer, the slightest build of all forms,
-violet-purple leather and cloth instead of crimson plate, light and unarmored at the shoulders,
-long tattered hood-scarf trailing back, wrapped forearms, soft boots for silent movement,
-carrying a tall recurved longbow held in the left hand, the bowstring made of pale violet light,
-a quiver of shadow-fletched arrows at the hip,
-the glowing accent color is violet #A36BF5, running along the bowstring and armor trim
+violet-purple leather and cloth instead of crimson plate,
+light and unarmoured at the shoulders,
+long tattered hood-scarf trailing back, wrapped forearms,
+soft boots for silent movement,
+a quiver of shadow-fletched arrows worn at the hip,
+the glowing accent colour is violet #A36BF5, running along the armour trim
+
+WEAPON — a tall recurved longbow,
+slender dark limbs curving away at both ends,
+violet #A36BF5 light running along the limbs,
+the bowstring made of pale violet light
+
+carried in the left hand, the great arc of the bow standing beside the body
 
 SILHOUETTE — this must read at a glance, even as a pure black shape:
 the thinnest silhouette of the four, and the only one built on a CURVE —

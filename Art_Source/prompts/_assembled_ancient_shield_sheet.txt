@@ -27,34 +27,39 @@ flat solid magenta #FF00FF background, perfectly uniform, no gradient no vignett
 no ground, no floor, no platform, no cast shadow, nothing under the feet,
 single figure, PNG
 
+ONE FIGURE ONLY — do not draw a turnaround, do not draw multiple views,
+do not draw front or back views. A single character in a single pose.
+
 Convert the referenced character into a different form of the same person:
 a heavy ancient shieldbearer, the broadest and heaviest build of all forms,
-armor of POLISHED BRASS AND BRIGHT GOLD covering most of the body — gold is the dominant
+armour of POLISHED BRASS AND BRIGHT GOLD covering most of the body — gold is the dominant
 colour of this form, not an accent — over a dark underlayer that barely shows,
 thick angular pauldrons, a heavy visored helm with no face visible inside,
 a layered tabard worn to rags hanging from the waist,
-carrying an enormous rectangular tower shield on the left arm that covers half his body,
-the shield face plated in bright gold with a worn engraved sigil glowing faintly,
-a short broad sword held low in the right hand,
-the glowing accent is warm gold #FFCC52 running along the shield sigil and armor trim
+the glowing accent is warm gold #FFCC52 running along the armour trim
 
 COLOUR SEPARATION — critical:
 this form must NOT read as dark red or crimson anywhere.
 keep every metal surface in the brass-to-gold range, bright and clearly lit,
-so that at a glance he is unmistakably the GOLD form, never confused with the crimson knight
+so that at a glance he is unmistakably the GOLD form,
+never confused with the crimson knight
 
-POSE — a single standing figure, one view only:
-strict side view facing right, standing at rest, weight settled on both feet,
-the tower shield held forward on the left arm and seen edge-on-to-three-quarter
-so its full rectangular mass is visible beside the body,
-sword hanging down at his right side, head level looking right
+SHIELD — an enormous rectangular tower shield, tall enough to cover half a man,
+the shield face plated in bright gold with a worn engraved sigil glowing faintly,
+a heavy riveted rim and a raised boss at the centre of the face
+
+carried on the left arm and held forward, seen edge-on-to-three-quarter
+so its full rectangular mass is visible beside the body
+
+WEAPON — a short broad sword,
+a wide straight blade, a thick square cross guard,
+brass and gold fittings matching the armour
+
+carried low in the right hand, hanging down at his side
 
 SILHOUETTE — this must read at a glance, even as a pure black shape:
 the widest and heaviest silhouette of the four, built on a SQUARE —
 the tower shield makes a solid rectangular mass beside the body
-
-ONE FIGURE ONLY — do not draw a turnaround, do not draw multiple views,
-do not draw front or back views. A single character in a single side-facing pose.
 
 three poses of the same character in a single horizontal row, evenly spaced,
 wide clear empty magenta gap between each pose, weapons and cloth must not
