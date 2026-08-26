@@ -19,6 +19,10 @@ namespace Abyss.Runtime.Analytics
     ///
     /// <b>P0 5종</b>: run_start / run_end / death / skill_drafted / form_swap.
     /// <b>P1 3종</b>(2026-08-13): enemy_defeated / ability_used / room_cleared.
+    /// <b>P2 1종</b>(2026-08-26): draft_offered — <b>제시된 카드 전부</b>.
+    /// 획득 로그(<c>skill_drafted</c>)만으로는 <b>인기 있는 카드와 자주 나오는 카드가
+    /// 구분되지 않아</b> 풀 분포를 볼 수 없었다. 이것도 기존 채널
+    /// (<c>OnDraftOptionsReady</c>)만 쓴다 — 아래 규칙 그대로다.
     ///
     /// <b>새 GameEvents 채널을 만들지 않는다.</b> 계측은 관찰자이고, 관찰하려고 채널을 늘리면
     /// EventBus 리팩터 임계(30채널)를 <b>기능이 아니라 계측이</b> 앞당긴다. P1 3종은 전부
@@ -39,6 +43,29 @@ namespace Abyss.Runtime.Analytics
         private string logPath;
         private StreamWriter writer;
         private int draftIndex;
+
+        /// <summary>
+        /// 제시 순번. <see cref="draftIndex"/>와 <b>따로 센다.</b>
+        ///
+        /// 🔑 둘을 공유하면 스킵된 제시를 구분할 수 없다 — <c>draftIndex</c>는 획득할 때만 오르므로
+        /// 스킵한 제시와 그다음 제시가 같은 번호를 달게 된다.
+        /// 제시와 획득을 짝지을 때는 두 번호를 함께 본다.
+        /// </summary>
+        private int draftOfferIndex;
+
+        /// <summary>
+        /// 직전에 기록한 제시의 지문. 같은 제시가 다시 오면 세지 않는다.
+        ///
+        /// 🔴 <see cref="Draft.DraftSessionController.CancelReplacement"/>가
+        /// <c>OnDraftOptionsReady</c>를 <b>재발행</b>한다(교체 모달을 닫고 패널을 되돌리기 위해서).
+        /// 그건 새로 뽑은 제시가 아니라 같은 화면을 다시 그리는 것이라, 세면 제시 횟수가 부풀고
+        /// 이 계측의 목적인 <b>풀 분포</b>가 "교체를 많이 취소한 런" 쪽으로 기운다.
+        ///
+        /// 📌 드래프트 쪽에 새 이벤트를 만들지 않고 여기서 거른 이유 —
+        /// 재발행은 UI 복구를 위한 정상 동작이고, 그걸 아는 것은 계측 쪽 사정이다.
+        /// 발행자를 고치면 <c>DraftPanelPresenter</c>가 의존하는 복구 경로까지 건드리게 된다.
+        /// </summary>
+        private string lastOfferKey;
 
         /// <summary>진입 시각을 못 잡은 상태. 0으로 두면 "0초 클리어"와 구분되지 않는다.</summary>
         private const float NOT_MEASURED = -1f;
@@ -95,6 +122,7 @@ namespace Abyss.Runtime.Analytics
             GameEvents.OnRunStarted += HandleRunStarted;
             GameEvents.OnRunEnded += HandleRunEnded;
             GameEvents.OnPlayerDead += HandlePlayerDead;
+            GameEvents.OnDraftOptionsReady += HandleDraftOptionsReady;
             GameEvents.OnSkillDrafted += HandleSkillDrafted;
             GameEvents.OnFormSwapped += HandleFormSwap;
             GameEvents.OnEnemyKilled += HandleEnemyKilled;
@@ -107,6 +135,7 @@ namespace Abyss.Runtime.Analytics
             GameEvents.OnRunStarted -= HandleRunStarted;
             GameEvents.OnRunEnded -= HandleRunEnded;
             GameEvents.OnPlayerDead -= HandlePlayerDead;
+            GameEvents.OnDraftOptionsReady -= HandleDraftOptionsReady;
             GameEvents.OnSkillDrafted -= HandleSkillDrafted;
             GameEvents.OnFormSwapped -= HandleFormSwap;
             GameEvents.OnEnemyKilled -= HandleEnemyKilled;
@@ -170,6 +199,10 @@ namespace Abyss.Runtime.Analytics
         {
             runId = Guid.NewGuid().ToString("N");
             draftIndex = 0;
+            draftOfferIndex = 0;
+            // 런이 바뀌면 지문도 비운다. 안 비우면 새 런의 첫 제시가
+            // 직전 런의 마지막 제시와 같을 때 조용히 빠진다.
+            lastOfferKey = null;
             ResetRoomTracking();
             HookAbilitySystem();
             Log("run_start", new
@@ -237,6 +270,51 @@ namespace Abyss.Runtime.Analytics
                 current_form = GetCurrentFormId(),
                 stage_id = RunManager.HasInstance ? RunManager.Instance.Stats.stageReached : string.Empty,
                 elapsed_sec = RunManager.HasInstance ? RunManager.Instance.Stats.totalElapsedSeconds : 0f
+            });
+        }
+
+        /// <summary>
+        /// 제시된 카드를 <b>전부</b> 남긴다.
+        ///
+        /// 🔑 <c>skill_drafted</c>는 <b>고른 것</b>만 남긴다. 그것만으로는
+        /// "같은 카드가 반복해서 나오는가"를 볼 수 없다 — 고르지 않은 카드가 로그에 없으면
+        /// 무엇이 자주 제시됐는지 알 방법이 자체가 없다. 획득 로그만 보면
+        /// <b>인기 있는 카드와 자주 나오는 카드가 구분되지 않는다.</b>
+        ///
+        /// 📌 이 계측이 있어야 스킬 15→18 확장의 근거를 사후에 검증할 수 있고,
+        /// 드래프트 발동 횟수(G2 게이트)가 모자란 것이 풀 문제인지 트리거 문제인지 갈린다.
+        /// </summary>
+        private void HandleDraftOptionsReady(DraftOptions options)
+        {
+            if (options?.Cards == null || options.Cards.Count == 0) return;
+
+            int count = options.Cards.Count;
+            var ids = new string[count];
+            var rarities = new string[count];
+            var tags = new string[count];
+            for (int i = 0; i < count; i++)
+            {
+                var card = options.Cards[i];
+                ids[i] = card != null ? card.skillId : string.Empty;
+                rarities[i] = card != null ? card.rarity.ToString() : string.Empty;
+                tags[i] = card != null ? card.synergyTag : string.Empty;
+            }
+
+            // 같은 제시가 다시 오면 세지 않는다 — 사유는 lastOfferKey 주석 참조.
+            string key = $"{options.Reason}|{options.RerollIndex}|{string.Join(",", ids)}";
+            if (key == lastOfferKey) return;
+            lastOfferKey = key;
+
+            Log("draft_offered", new
+            {
+                offer_index = draftOfferIndex++,
+                card_ids = ids,
+                rarities,
+                synergy_tags = tags,
+                card_count = count,
+                draft_trigger_reason = options.Reason.ToString(),
+                reroll_index = options.RerollIndex,
+                current_form = GetCurrentFormId()
             });
         }
 
