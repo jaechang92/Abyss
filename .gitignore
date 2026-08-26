@@ -144,12 +144,12 @@ __pycache__/
 
 # ── 아트 원본 작업 공간 (Art_Source) ──
 # 추적 기준은 "재생성 가능한가"다. 원본과 스크립트만 있으면 다시 만들어지는 것은 넣지 않는다.
-# 추적: prompts/(손으로 쓴 것) · base/·curated/(사람이 고른 결과)
-Art_Source/raw/**
-Art_Source/cut/**
-Art_Source/frames/**
-Art_Source/qa/**
-!Art_Source/*/.gitkeep
+#
+# 🔴 2026-08-26 — NovelAI Diffusion V5 전환으로 **파이프라인 폴더를 전부 비웠다.**
+# 예전 경로 규칙(raw/ cut/ frames/ qa/)은 가리킬 폴더가 없어 지웠다. 낡은 규칙을 남겨 두면
+# 새 폴더가 그 이름을 물려받아 **의도하지 않은 것이 조용히 추적에서 빠진다.**
+# NovelAI 기준 폴더 구조를 정한 뒤 여기에 규칙을 다시 쓴다. 그때까지 Art_Source 아래는
+# base/ 와 문서만 있고 전부 추적된다.
 
 # 이미지 생성 도구가 작업 디렉터리에 남기는 잔재
 tmp/

@@ -1,5 +1,14 @@
 # Art_Source — 아트 원본·중간 산출물
 
+> 🔴 **폐기됨 — 2026-08-26.** 이 문서는 **웹 image_gen(ChatGPT) 수동 생성** 기준의 절차서다.
+> 에셋 제작 도구가 **NovelAI Diffusion V5**로 바뀌면서 프롬프트 체계(`prompts/`)와
+> 파이프라인 폴더(`raw/ cut/ frames/ qa/`)를 전부 비웠다. **아래 절차는 더 이상 유효하지 않다.**
+> NovelAI 기준 폴더 구조·프롬프트 체계는 다음 세션에 새로 설계한다.
+> 남긴 것: `base/dark_blade.png`(vibe 참조로 재활용 가능) · `Tools/ArtPipeline/`(생성기와 무관한 후처리).
+> 예전 체계 전문은 `feature/form-rigging` 브랜치(`cd7d454`)에 남아 있다.
+
+---
+
 AI 생성 아트 파이프라인의 작업 공간이다. **`Assets/` 바깥에 있는 것이 의도다.**
 
 > 🔴 **왜 `Assets/` 밖인가**

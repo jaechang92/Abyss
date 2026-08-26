@@ -34,6 +34,13 @@ ALPHA_MIN = 40
 
 # 폼별 채택 원본. **여기가 "어떤 그림을 쓰기로 했는가"의 SoT다.**
 # 후보 중 무엇을 골랐는지는 파일만 봐서는 알 수 없으므로 표로 남긴다.
+#
+# 🔴 2026-08-26 — NovelAI Diffusion V5 전환으로 `Art_Source/cut/`을 비웠다.
+#    아래 네 줄 중 **dark_blade만 살아 있고 나머지 셋은 가리키는 파일이 없다** →
+#    `--all`은 3종에서 실패한다. 표를 지우지 않고 두는 이유는 이것이 *기록*이기 때문이다:
+#    지금 게임에 들어가 있는 `Assets/Art/Sprites/Forms/*.png` 4장이 어디서 왔는지는
+#    여기 말고는 적힌 곳이 없다. NovelAI 원본이 나오면 경로를 갈아끼운다.
+#    함수 본체(트림·리사이즈·발밑 피벗 실측)는 생성기와 무관하므로 그대로 쓴다.
 SOURCES = {
     # formId          경로(ROOT 기준)                                     선정 이유
     "dark_blade":     ("Art_Source/base/dark_blade.png",
