@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Abyss.Runtime.Camera;
 using Abyss.Runtime.Dialogue;
 using Abyss.Runtime.Form;
+using Abyss.Runtime.Interaction;
 using Abyss.Runtime.Lobby;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;

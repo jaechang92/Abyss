@@ -1,6 +1,6 @@
 ﻿#if UNITY_EDITOR
 using Abyss.Runtime.Form;
-using Abyss.Runtime.Lobby;
+using Abyss.Runtime.Interaction;
 using Abyss.Runtime.Player;
 using Abyss.Runtime.Stage;
 using Abyss.Runtime.UI;
@@ -17,10 +17,17 @@ namespace Abyss.EditorTools
     /// (StageDirector/RoomLayouts/Platforms 배치와 동형).
     ///
     /// 함께 수행:
-    /// - Run 플레이어(PlayerCharacter)에 상호작용 파이프라인이 없으므로 PlayerInteractor + 트리거 콜라이더를
-    ///   씬 인스턴스 오버라이드로 보강한다(프리팹 GUID 무손상). 폼 프리팹을 force 재생성하면 GUID가 바뀌어
-    ///   씬 참조가 끊기므로, 프리팹 대신 씬 인스턴스에 부착한다.
+    /// - Run 플레이어에 PlayerInteractor가 있는지 <b>확인</b>한다(없으면 에러 로그 — 붙이지는 않는다).
     /// - PlayerInteractor.promptLabel을 HUD의 InteractPrompt Text에 배선한다(근접 안내 문구 표시).
+    ///
+    /// 🔴 <b>2026-08-26 판단 번복 — 씬 오버라이드를 그만뒀다.</b>
+    /// 예전에는 여기서 씬 인스턴스에 직접 붙였고, 이유는 <i>"프리팹을 force 재생성하면 GUID가 바뀌어
+    /// 씬 참조가 끊긴다"</i>였다. 그 우려 자체는 맞다(<c>DeleteAsset</c> 후 재생성 경로).
+    /// 그런데 <b>피하려던 것보다 큰 문제를 만들었다</b> — 오버라이드는 프리팹이나 씬을 다시 빌드하면
+    /// <b>조용히 사라진다.</b> GUID가 끊기면 콘솔에 미싱으로 뜨지만,
+    /// 오버라이드가 날아가면 <b>아무 표시도 없다.</b> 제단 앞에 서도 그냥 아무 일이 없다.
+    /// 실제로 그렇게 없어져서 제단이 반응하지 않았고, 원인을 찾는 데 시간이 걸렸다.
+    /// → 컴포넌트는 <b>Player.prefab</b>(PrefabBuilder)에 두고, 여기서는 확인만 한다.
     ///
     /// 멱등: 이미 있으면 건너뛰고 재실행 시 누락분만 복구한다. 단 <b>스프라이트에 종속된 값</b>
     /// (트리거 콜라이더 크기)은 데이터 구동이므로 재실행으로 갱신한다.
@@ -71,28 +78,35 @@ namespace Abyss.EditorTools
             Debug.Log($"[FormAltarBuilder] 폼 제단 배치 완료 — 보상 폼='{rewardForm.displayName}' ({rewardForm.formId}), 기본 비활성(룸 게이트)");
         }
 
-        /// <summary>Run 플레이어에 상호작용 컴포넌트가 없으면 씬 인스턴스에 보강한다(멱등). 인터랙터 반환.</summary>
+        /// <summary>
+        /// Run 플레이어의 인터랙터를 찾는다. <b>없으면 만들지 않고 알린다.</b>
+        ///
+        /// 🔴 <b>2026-08-26 — 씬 오버라이드로 붙이던 것을 그만뒀다.</b>
+        /// 예전에는 여기서 <c>Undo.AddComponent</c>로 씬 인스턴스에 직접 붙였는데,
+        /// 그 오버라이드는 <b>프리팹을 다시 만들거나 씬을 다시 빌드하면 조용히 사라진다.</b>
+        /// 실제로 그렇게 없어져서 런 중 폼 제단이 반응하지 않았고,
+        /// 오류도 경고도 안 나서 <b>제단 앞에 서도 아무 일이 없는 것</b>으로만 드러났다.
+        ///
+        /// 📌 이제 <c>PlayerInteractor</c>는 <b>Player.prefab</b>에 들어간다(<c>PrefabBuilder</c>).
+        /// 여기서 다시 오버라이드를 만들면 같은 함정이 그대로 돌아오므로, 안내만 하고 멈춘다.
+        /// </summary>
         private static PlayerInteractor EnsureRunPlayerInteractor()
         {
             var player = Object.FindAnyObjectByType<PlayerCharacter>();
             if (player == null)
             {
-                Debug.LogWarning("[FormAltarBuilder] 씬에서 PlayerCharacter 미발견 — PlayerInteractor 보강 생략. Run 씬에서 실행하세요.");
+                Debug.LogWarning("[FormAltarBuilder] 씬에서 PlayerCharacter 미발견 — 인터랙터 확인 생략. Run 씬에서 실행하세요.");
                 return null;
             }
 
-            var go = player.gameObject;
-            var interactor = go.GetComponent<PlayerInteractor>();
-            if (interactor != null) return interactor; // 이미 있음
-
-            // 근접 감지용 트리거(넓은 반경) — 로비 플레이어와 동일 구성.
-            var trigger = Undo.AddComponent<CircleCollider2D>(go);
-            trigger.isTrigger = true;
-            trigger.radius = 1.8f;
-
-            interactor = Undo.AddComponent<PlayerInteractor>(go);
-            EditorUtility.SetDirty(go);
-            Debug.Log($"[FormAltarBuilder] Run 플레이어 '{go.name}'에 PlayerInteractor + 트리거 콜라이더 보강(씬 오버라이드).");
+            var interactor = player.GetComponent<PlayerInteractor>();
+            if (interactor == null)
+            {
+                Debug.LogError(
+                    $"[FormAltarBuilder] Run 플레이어 '{player.gameObject.name}'에 PlayerInteractor가 없다 — 제단이 반응하지 않는다.\n" +
+                    $"  → 메뉴 '{AbyssMenu.GeneratePrefabs}'(또는 '{AbyssMenu.GenerateRebuildPlayer}')를 먼저 실행해 프리팹에 심을 것.\n" +
+                    "  씬 오버라이드로 붙이지 않는 이유: 프리팹·씬을 다시 빌드하면 날아가 같은 문제가 재발한다.");
+            }
             return interactor;
         }
 

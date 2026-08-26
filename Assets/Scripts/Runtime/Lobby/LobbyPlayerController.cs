@@ -1,4 +1,5 @@
-﻿using Abyss.Runtime.UI;
+﻿using Abyss.Runtime.Interaction;
+using Abyss.Runtime.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,8 +13,12 @@ namespace Abyss.Runtime.Lobby
     /// 입력은 PlayerInput SendMessages(OnMove/OnJump). 상호작용은 PlayerInteractor가 담당.
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
-    public sealed class LobbyPlayerController : MonoBehaviour
+    public sealed class LobbyPlayerController : MonoBehaviour, IInteractionBlocker
     {
+        // 명시적 구현 — 공개 API는 InputLocked 하나로 둔다.
+        // 같은 뜻의 프로퍼티가 둘로 보이면 어느 쪽을 세팅해야 하는지가 헷갈린다.
+        bool IInteractionBlocker.BlocksInteraction => InputLocked;
+
         [Header("이동")]
         [SerializeField] private float moveSpeed = 6f;
         [SerializeField] private float jumpForce = 12f;
