@@ -1,0 +1,75 @@
+# ══════════════════════════════════════════════════════════════
+# Run — 달리기 (8프레임 사이클)
+#
+# 🔴 여기는 핑퐁이 안 된다. 달리기는 한 방향으로 도는 순환이라
+#    되감으면 뒤로 걷는 것으로 보인다. 8장을 다 그려야 한다.
+#
+# 🔴 좌우 미러도 안 된다. 캐릭터는 항상 오른쪽을 보고,
+#    왼쪽을 볼 때는 스프라이트를 통째로 뒤집는다.
+#    사이클 후반을 미러로 만들면 갑옷의 비대칭(견갑·태버드)이 뒤집혀
+#    다른 사람이 된다.
+#
+# 표준 달리기 사이클 — 접촉 · 하강 · 통과 · 상승 을 좌우 발로 두 번.
+#   1 접촉(오른발)  2 하강  3 통과  4 상승
+#   5 접촉(왼발)    6 하강  7 통과  8 상승
+#
+# 💡 몸의 높이가 2·6에서 가장 낮고 4·8에서 가장 높다.
+#    이 오르내림이 없으면 미끄러지듯 걷는 것처럼 보인다.
+#
+# 인페인팅 마스크: 다리 전체 + 팔 + 망토. 머리와 몸통 중심은 유지.
+# ══════════════════════════════════════════════════════════════
+
+[FRAMES] 8장
+[LOOP] yes
+
+[BASE-POSE]
+running, running to the right, leaning forward slightly,
+arms bent and swinging, cloak trailing behind in the wind
+
+[FRAME 1]
+# 접촉 — 오른발이 땅에 닿는 순간
+right leg forward and straight, heel just touching the ground,
+left leg extended behind, left arm forward, right arm back,
+body at mid height
+
+[FRAME 2]
+# 하강 — 가장 낮은 지점, 무릎이 충격을 받는다
+right knee bent deeply absorbing weight, body at its lowest,
+left leg lifting off behind, cloak dropping
+
+[FRAME 3]
+# 통과 — 몸이 지지발 위를 지나간다
+left leg swinging forward past the right knee, legs close together,
+body rising, arms passing near the torso
+
+[FRAME 4]
+# 상승 — 밀어내며 가장 높은 지점
+right leg pushing off and extending back, body at its highest,
+left knee driving up and forward, cloak lifted high
+
+[FRAME 5]
+# 접촉 — 왼발 (1의 반대)
+left leg forward and straight, heel just touching the ground,
+right leg extended behind, right arm forward, left arm back,
+body at mid height
+
+[FRAME 6]
+# 하강 (2의 반대)
+left knee bent deeply absorbing weight, body at its lowest,
+right leg lifting off behind, cloak dropping
+
+[FRAME 7]
+# 통과 (3의 반대)
+right leg swinging forward past the left knee, legs close together,
+body rising, arms passing near the torso
+
+[FRAME 8]
+# 상승 (4의 반대)
+left leg pushing off and extending back, body at its highest,
+right knee driving up and forward, cloak lifted high
+
+[SHEET]
+8 panel comic, 8 frames in two rows of four, equal size panels,
+the same character in every panel, identical scale and camera,
+a full running cycle read left to right then top to bottom,
+legs alternating, body lowest in panels 2 and 6, highest in panels 4 and 8

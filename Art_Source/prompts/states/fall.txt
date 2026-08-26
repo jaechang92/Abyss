@@ -1,0 +1,36 @@
+# ══════════════════════════════════════════════════════════════
+# Fall — 낙하 (3프레임)
+#
+# ⚠️ 낙하는 얼마나 오래 이어질지 모른다. 긴 낙하에서 3프레임이 계속 돌므로
+#    루프가 티 나지 않아야 한다 — 프레임 3에서 1로 돌아갈 때 자세 차이를 작게 둔다.
+#
+# 💡 망토가 이 상태를 만든다. 몸은 거의 굳어 있고 천만 위로 빨려 올라간다.
+#    천이 안 움직이면 정지 그림을 세워 둔 것처럼 보인다.
+#
+# 인페인팅 마스크: 망토 전체 + 다리 끝. 상체는 유지.
+# ══════════════════════════════════════════════════════════════
+
+[FRAMES] 3장
+[LOOP] yes — 루프 이음매가 티 나지 않게
+
+[BASE-POSE]
+falling, descending, airborne,
+knees slightly bent and tucked, arms out for balance,
+cloak pulled sharply upward by the fall
+
+[FRAME 1]
+falling, knees tucked up, body compact,
+cloak whipped straight up above him
+
+[FRAME 2]
+falling, legs beginning to extend downward,
+cloak flaring wide to one side
+
+[FRAME 3]
+falling, legs extended and ready to land,
+cloak twisting back toward center
+
+[SHEET]
+3 panel comic, 3 frames in a horizontal row, equal size panels,
+the same character in every panel, identical scale and camera,
+a falling loop, the cloak moving while the body stays nearly still

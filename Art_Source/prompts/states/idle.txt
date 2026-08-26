@@ -1,0 +1,50 @@
+# ══════════════════════════════════════════════════════════════
+# Idle — 대기 (호흡)
+#
+# 💡 4장만 그려서 6프레임을 만든다. 재생 순서를 1-2-3-4-3-2 로 핑퐁하면
+#    호흡은 원래 오르내림이라 자연스럽게 이어지고, 그릴 장수가 3분의 1 줄어든다.
+#    이게 통하는 이유는 호흡이 왕복 운동이기 때문이다 —
+#    ⚠️ 달리기처럼 한 방향으로 도는 사이클에는 쓸 수 없다.
+#
+# 💡 상하 이동은 그림이 아니라 오프셋으로도 만들 수 있다.
+#    다만 망토와 천은 몸보다 늦게 따라오므로, 그 지연이 보이려면 그려야 한다.
+#    오프셋만 쓰면 캐릭터 전체가 통째로 떠오르는 종이인형처럼 보인다.
+#
+# 인페인팅 마스크: 어깨선 위쪽 + 망토 아랫자락. 얼굴(후드)과 다리는 건드리지 않는다.
+# ══════════════════════════════════════════════════════════════
+
+[FRAMES] 4장 → 핑퐁 재생으로 6프레임
+[LOOP] yes
+
+[BASE-POSE]
+# 기준 프레임. 이 한 장을 먼저 확정하고, 나머지는 인페인팅으로 파생시킨다.
+standing still, standing at attention, relaxed stance,
+both feet planted on the ground, weight evenly balanced,
+arms hanging down at his sides, shoulders relaxed,
+cloak hanging straight down
+
+[FRAME 1]
+# 중립 — 호흡 사이클의 바닥
+shoulders lowered, chest neutral, cloak hanging straight and still
+
+[FRAME 2]
+# 들숨 시작
+shoulders rising slightly, chest expanding a little,
+cloak hem lifting very slightly
+
+[FRAME 3]
+# 들숨 정점 — 가장 위
+shoulders raised, chest expanded, head tilted up a fraction,
+cloak hem lifted and drifting outward
+
+[FRAME 4]
+# 날숨 시작 — 내려오는 중, 망토는 아직 떠 있다
+shoulders settling down, chest releasing,
+cloak hem still floating, trailing behind the body
+
+[SHEET]
+# 멀티패널로 4장을 한 번에 받을 때. 같은 생성 안이라 색이 갈리지 않는 게 장점이다.
+4 panel comic, 4 frames in a horizontal row, equal size panels,
+the same character in every panel, identical scale and camera in every panel,
+a subtle breathing cycle from left to right,
+panel 1 shoulders lowest, panel 3 shoulders highest

@@ -1,0 +1,48 @@
+# ══════════════════════════════════════════════════════════════
+# Dash — 대시 (4프레임)
+#
+# 💡 폴백 사슬에서 대시는 Idle 보다 Run 을 먼저 고른다
+#    (PlayerAnimationIds: dash → run → idle).
+#    대시 클립을 못 그린 동안에는 달리기가 대신 나온다 — 서 있는 것보다 훨씬 낫다.
+#
+# 🔴 대시의 속도감은 자세가 아니라 잔상이 만든다.
+#    자세만 그리면 "빠르게 걷는 사람"이 된다.
+#    다만 잔상을 그림에 넣을지, 엔진에서 트레일로 만들지 먼저 정할 것 —
+#    둘 다 넣으면 두 겹으로 보인다.
+#
+# 인페인팅 마스크: 몸 전체(자세가 크게 바뀐다). 머리 위치만 유지.
+# ══════════════════════════════════════════════════════════════
+
+[FRAMES] 4장
+[LOOP] no — 짧게 한 번 재생
+
+[BASE-POSE]
+dashing forward, lunging to the right at high speed,
+body low and leaning far forward, cloak stretched out straight behind
+
+[FRAME 1]
+# 준비 — 뒤로 눌렀다 튀어나가기 직전
+crouched low, weight loaded onto the back leg,
+body coiled and leaning back slightly, cloak still hanging
+
+[FRAME 2]
+# 폭발 — 가장 빠른 순간, 몸이 거의 수평
+launching forward, body almost horizontal, leaning far to the right,
+front leg extended, back leg trailing straight,
+cloak snapped out straight behind him, motion blur
+
+[FRAME 3]
+# 활공 — 자세 유지, 속도 유지
+gliding forward low and fast, body still leaning hard,
+legs together and trailing, cloak straight behind, motion blur
+
+[FRAME 4]
+# 감속 — 몸이 세워지기 시작한다
+slowing, body rising back toward upright,
+front foot planting, cloak beginning to fall
+
+[SHEET]
+4 panel comic, 4 frames in a horizontal row, equal size panels,
+the same character in every panel, identical scale and camera,
+a dash from crouch to recovery read left to right,
+panels 2 and 3 the fastest with the body nearly horizontal

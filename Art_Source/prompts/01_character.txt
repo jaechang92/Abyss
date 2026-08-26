@@ -1,0 +1,63 @@
+# ══════════════════════════════════════════════════════════════
+# 캐릭터 정체성 SoT — dark_blade (진홍의 암흑 기사)
+#
+# 🔴 이 파일은 손으로 재조립하지 않는다. build.py 가 통째로 갖다 붙인다.
+#    한 글자만 달라져도 다른 사람이 나온다. 고치려면 여기서만 고친다.
+#
+# 🔑 왜 이렇게까지 하는가 —
+#    V5 에는 Vibe Transfer 도 Precise Reference 도 없다(2026-08 출시 시점).
+#    참조 이미지로 "이 사람"을 가리킬 방법이 없으므로, 정체성을 붙드는 것은
+#    이 텍스트뿐이다. 예전 파이프라인에서 base 이미지가 하던 일을 문자열이 한다.
+#
+# 실측 색 (Art_Source/base/dark_blade.png 에서 추출, 2026-08-26):
+#    액센트 발광   #EE773D   (가장 밝은 심 #FDEBA5)
+#    갑옷 진홍     #54181A
+#
+# ⚠️ 다른 폼 액센트와 겹치면 안 된다:
+#    void_archer #A36BF5 보라 / void_thrower #7AC8BE 청록 / ancient_shield #FFCC52 금
+#    특히 금색과 주황은 가깝다 — 예전에 두 폼 팔레트 겹침이 56.7%까지 올라간 적 있다.
+#
+# 📌 hex 코드는 프롬프트에 넣지 않는다. 모델은 색 이름을 훨씬 잘 읽는다.
+#    hex 는 여기 주석에만 두고, 검증할 때(measure_consistency.py) 기준으로 쓴다.
+#
+# ⚠️ 태그는 반드시 NovelAI 입력창의 자동완성으로 확인할 것.
+#    점이 흐린 태그는 모델이 모르는 태그이고, 모르는 태그는 그냥 무시된다.
+#    아래 목록은 확인 전 초안이다 — 안 먹는 태그를 찾으면 여기서 고친다.
+# ══════════════════════════════════════════════════════════════
+
+[CORE]
+1boy, solo, adult male, lean build, tall,
+hood up, hooded cloak, faceless, face in shadow,
+dark red armor, crimson armor, plate armor, spiked pauldrons,
+black chainmail sleeves, tattered tabard, torn clothes, ragged hem,
+dark cloth skirt, skull belt buckle,
+glowing orange trim, orange glow, molten glow,
+weathered armor, battle damage, dark fantasy
+
+[IDENTITY-LOCK]
+# 🔴 이 세 줄은 매 생성에 반드시 들어간다. 빠지면 다른 사람이 나온다.
+# 얼굴은 절대 보이면 안 된다 — 후드 안은 그림자뿐이다.
+# 발광색은 정확히 하나. 두 번째 색이 끼면 폼 구분이 무너진다.
+1.3::hood up, faceless, face in shadow::,
+1.2::glowing orange trim::,
+no second glow color, single accent color only
+
+[SILHOUETTE]
+# 실루엣은 순수한 검은 형상으로도 읽혀야 한다.
+# 이 폼의 축은 수직선이다 — 옆에 내려 든 대검이 윤곽을 하나의 긴 획으로 만든다.
+strong silhouette, tall vertical silhouette, readable shape
+
+[WEAPON]
+# 무기는 몸과 따로 뽑아 나중에 붙인다. 몸 프롬프트에는 [NO-WEAPON] 이 대신 들어간다.
+# 무기가 붙은 프레임이 필요하면 이 블록을 쓴다.
+huge jagged greatsword, notched blade, broad blade,
+glowing orange crack along the blade center,
+angular crossguard, cloth-wrapped hilt
+
+[NO-WEAPON]
+# 🔑 "no weapon" 같은 떠 있는 금지어와 다르다.
+#    저건 그리지 말라는 명령이고, 이건 이 그림이 무엇인지에 대한 서술이다.
+#    지시를 따르는 모델은 앞뒤가 맞는 장면 설명을 금지어보다 잘 지킨다.
+empty hands, open right hand,
+the greatsword is drawn separately and attached later,
+silhouette made of armor and cloth alone

@@ -1,0 +1,76 @@
+# ══════════════════════════════════════════════════════════════
+# AttackHeavy — 강공격, 대검 내려찍기 (8프레임)
+#
+# 🔑 강공격이 약공격과 달라 보이는 건 속도가 아니라 정지다.
+#    프레임 4에서 칼을 머리 위에 든 채 잠깐 멈춘다 —
+#    이 멈춤이 무게를 만든다. 멈춤이 없으면 그냥 느린 약공격이다.
+#    권장 노출: 1(2) 2(2) 3(2) 4(4 — 정지) 5(1) 6(1) 7(3) 8(3)
+#
+# 🔴 지면 충돌 프레임(7)에 발광을 몰아 준다.
+#    칼이 땅에 박히는 순간 주황 균열이 지면으로 번진다 —
+#    다만 지면 자체는 그리지 않는다(투명 배경이라 바닥이 없다).
+#    빛이 칼끝 아래로 퍼지는 것까지만.
+#
+# ⚠️ AttackLight 와 폴백으로 서로를 가리킨다
+#    (attackLight → attackHeavy → idle, attackHeavy → attackLight → idle).
+#    한쪽만 그려도 다른 쪽이 그걸 쓴다. 둘 중 하나를 먼저 끝내도 된다.
+#
+# 인페인팅 마스크: 팔 + 무기 + 상체 + 다리(자세가 크게 낮아진다).
+# ══════════════════════════════════════════════════════════════
+
+[FRAMES] 8장
+[LOOP] no — 한 번 재생 (IsOneShot)
+[USE-WEAPON] yes
+
+[BASE-POSE]
+raising a huge greatsword overhead and slamming it down,
+a heavy two-handed overhead strike, feet braced wide
+
+[FRAME 1]
+# 자세 잡기
+settling into a wide braced stance, both hands gripping the hilt,
+greatsword held low in front of him
+
+[FRAME 2]
+# 들어올리기 시작
+lifting the greatsword upward with both hands,
+shoulders rising, body straightening
+
+[FRAME 3]
+# 계속 올림
+the greatsword swung up past his shoulder,
+arms extending overhead, back arching slightly
+
+[FRAME 4]
+# 정점에서 정지 — 여기가 강공격의 핵심
+the greatsword held high overhead with both hands, fully raised,
+body arched back, held motionless for a beat,
+the orange crack in the blade glowing at its brightest
+
+[FRAME 5]
+# 내려침 시작 — 갑자기 빨라진다
+the greatsword driving down hard, arms swinging forward,
+body pitching forward, motion blur on the blade
+
+[FRAME 6]
+# 임팩트 — 칼끝이 가장 아래
+the greatsword slammed down at full extension,
+body bent forward over the strike, knees bent deep,
+a bright orange flash along the blade, motion blur
+
+[FRAME 7]
+# 지면 충격 — 빛이 퍼진다
+the greatsword driven down and stopped, blade tip low,
+orange light bursting outward from the blade tip, cracks of orange light spreading,
+body crouched low over the weapon
+
+[FRAME 8]
+# 복귀 — 무겁게 일어난다
+straightening up slowly, dragging the greatsword back up,
+shoulders heavy, weight shifting back to center
+
+[SHEET]
+8 panel comic, 8 frames in two rows of four, equal size panels,
+the same character in every panel, identical scale and camera,
+a heavy overhead greatsword slam read left to right then top to bottom,
+panel 4 the raised hold at the top, panel 7 the ground impact with orange burst

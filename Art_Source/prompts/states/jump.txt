@@ -1,0 +1,47 @@
+# ══════════════════════════════════════════════════════════════
+# Jump — 상승 (3프레임)
+#
+# 💡 점프와 낙하는 폴백 사슬에서 서로를 먼저 본다
+#    (PlayerAnimationIds: jump → fall → idle).
+#    한 장만 그릴 여유밖에 없다면 상승·하강에 같이 쓸 수 있는 자세를 그린다.
+#
+# ⚠️ 점프는 루프가 아니다. 마지막 프레임에서 멈춰 낙하로 넘어간다.
+#    Jump 는 IsOneShot 이 아니지만(공중에 머무는 동안 마지막 프레임 유지),
+#    되감아 반복하면 공중에서 발을 구르는 것처럼 보인다.
+#
+# 🔴 이 게임은 2단 점프다(FormData.jumpCount = 2).
+#    2단 점프에 별도 클립을 안 쓰면 같은 상승 동작이 두 번 재생된다 —
+#    지금은 그대로 두고, 필요해지면 프레임 3 뒤에 회전 한 바퀴를 덧붙인다.
+#
+# 인페인팅 마스크: 다리 + 망토. 상체는 유지.
+# ══════════════════════════════════════════════════════════════
+
+[FRAMES] 3장
+[LOOP] no — 마지막 프레임 유지
+
+[BASE-POSE]
+jumping upward, airborne, off the ground,
+cloak billowing upward from the rush of air
+
+[FRAME 1]
+# 도약 — 웅크렸다 펴는 순간, 아직 힘이 실려 있다
+crouching then extending, legs pushing off hard,
+both legs still bent but straightening, body compressed,
+cloak snapping downward from the sudden lift
+
+[FRAME 2]
+# 상승 중 — 몸이 길게 펴진다
+airborne and rising, legs extended downward,
+arms slightly out for balance, body stretched tall,
+cloak streaming straight up
+
+[FRAME 3]
+# 정점 근처 — 무릎이 올라오기 시작한다
+near the top of the arc, knees beginning to tuck up,
+body starting to curl, momentum slowing,
+cloak settling and spreading
+
+[SHEET]
+3 panel comic, 3 frames in a horizontal row, equal size panels,
+the same character in every panel, identical scale and camera,
+a jump from crouch to apex read left to right
