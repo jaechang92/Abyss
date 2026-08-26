@@ -2,6 +2,7 @@
 using System.IO;
 using Abyss.Runtime.Combat;
 using Abyss.Runtime.Form;
+using Abyss.Runtime.Interaction;
 using Abyss.Runtime.Player;
 using FSM.Core;
 using UnityEditor;
@@ -92,6 +93,8 @@ namespace Abyss.EditorTools
                 var player = root.AddComponent<PlayerCharacter>();
                 var stateMachine = root.AddComponent<PlayerStateMachine>();
 
+                AddInteractor(root);
+
                 var groundCheck = new GameObject("GroundCheck");
                 groundCheck.transform.SetParent(root.transform, false);
                 groundCheck.transform.localPosition = new Vector3(0f, FootY, 0f);
@@ -126,6 +129,48 @@ namespace Abyss.EditorTools
             {
                 Object.DestroyImmediate(root);
             }
+        }
+
+        /// <summary>근접 상호작용용 트리거 반경. 로비 플레이어와 같은 값을 쓴다.</summary>
+        private const float INTERACT_RADIUS = 1.8f;
+
+        /// <summary>
+        /// 상호작용 파이프라인을 <b>프리팹에</b> 심는다.
+        ///
+        /// 🔴 <b>예전에는 <c>FormAltarBuilder</c>가 씬 오버라이드로 붙였다.</b>
+        /// 오버라이드는 프리팹을 다시 만들거나 씬을 다시 빌드하면 <b>조용히 사라진다</b> —
+        /// 실제로 그렇게 없어져서 런 중 폼 제단이 반응하지 않았다.
+        /// 오류도 경고도 안 난다. 제단 앞에 서도 아무 일이 없을 뿐이다.
+        ///
+        /// 📌 물리 콜라이더(BoxCollider2D)는 그대로 두고 <b>트리거를 따로</b> 붙인다.
+        /// 하나로 겸하면 상호작용 반경만큼 몸이 커져 지형에 낀다.
+        /// </summary>
+        private static void AddInteractor(GameObject root)
+        {
+            var trigger = root.AddComponent<CircleCollider2D>();
+            trigger.isTrigger = true;
+            trigger.radius = INTERACT_RADIUS;
+            root.AddComponent<PlayerInteractor>();
+        }
+
+        /// <summary>기존 프리팹 보정용. 이미 있으면 아무것도 하지 않는다(멱등).</summary>
+        private static bool EnsureInteractor(GameObject root)
+        {
+            if (root.GetComponent<PlayerInteractor>() != null) return false;
+
+            // 트리거가 이미 있을 수 있다(예전 씬 오버라이드가 프리팹에 적용된 경우).
+            var trigger = root.GetComponent<CircleCollider2D>();
+            if (trigger == null)
+            {
+                trigger = root.AddComponent<CircleCollider2D>();
+            }
+            trigger.isTrigger = true;
+            trigger.radius = INTERACT_RADIUS;
+
+            root.AddComponent<PlayerInteractor>();
+            Debug.Log($"[PrefabBuilder] Player 프리팹에 PlayerInteractor + 트리거(r={INTERACT_RADIUS}) 보강 — " +
+                      "상호작용이 씬 오버라이드에 의존하지 않게 된다.");
+            return true;
         }
 
         private static void ConfigurePlayerInput(PlayerInput input)
@@ -267,6 +312,7 @@ namespace Abyss.EditorTools
             dirty |= NormalizePlayerGeometry(root);
             dirty |= FixGroundLayer(root);
             dirty |= EnsurePlayerVisual(root, sprite);
+            dirty |= EnsureInteractor(root);
 
             if (!dirty) return;
             EditorUtility.SetDirty(root);
