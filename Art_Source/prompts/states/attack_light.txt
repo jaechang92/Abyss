@@ -1,0 +1,70 @@
+# ══════════════════════════════════════════════════════════════
+# AttackLight — 약공격, 대검 가로베기 (6프레임)
+#
+# 🔴 공격 모션은 무기를 함께 그린다. [NO-WEAPON] 을 쓰지 않고 [WEAPON] 을 쓴다.
+#    이유: 프레임마다 손과 칼의 각도 관계가 전부 다르다.
+#    따로 그려 붙이면 매 프레임 손잡이 위치를 맞춰야 하고, 한 프레임만 어긋나도
+#    재생할 때 칼이 손에서 빠진 것처럼 보인다.
+#    (대기·이동처럼 무기를 든 자세가 고정된 상태는 분리해도 된다.)
+#
+# 🔑 타격감은 프레임 배분에서 나온다. 6장을 균등하게 쓰지 않는다 —
+#    예비를 길게 잡고 임팩트를 짧게 지나간다.
+#    권장 노출: 1(2틱) 2(3틱) 3(1틱) 4(1틱) 5(2틱) 6(3틱)
+#    ⚠️ 이건 Unity AnimationClip 의 키 간격으로 준다. 그림 장수와 별개다.
+#
+# 🔑 임팩트 프레임(4)이 이 방식의 존재 이유다.
+#    본 변형으로는 한 프레임만 크게 찌그러뜨리는 걸 못 한다.
+#    여기서 팔을 과장하고 칼을 늘여도 된다 — 한 틱만 보이므로 어색함이 안 남는다.
+#
+# ⚠️ RestartsOnReenter 대상이다. 연속 공격에서 같은 상태로 다시 들어오면
+#    처음부터 재생된다. 6번 프레임이 1번과 이어지지 않아도 괜찮다.
+#
+# 인페인팅 마스크: 팔 전체 + 무기 + 상체. 다리와 머리는 유지.
+# ══════════════════════════════════════════════════════════════
+
+[FRAMES] 6장
+[LOOP] no — 한 번 재생 (IsOneShot)
+[USE-WEAPON] yes
+
+[BASE-POSE]
+swinging a huge greatsword in a horizontal slash,
+feet planted wide and braced, body twisting with the swing
+
+[FRAME 1]
+# 예비 시작 — 무게를 뒤로
+shifting weight onto the back foot, greatsword drawn back to the right,
+shoulders turning away from the target, blade held low behind him
+
+[FRAME 2]
+# 최대 예비 — 가장 많이 감긴 순간. 여기서 힘이 보인다
+fully wound up, greatsword pulled far back behind his shoulder,
+torso twisted hard away, front foot lifting slightly,
+the orange crack in the blade glowing brighter
+
+[FRAME 3]
+# 스윙 시작 — 회전이 풀린다
+torso snapping forward, greatsword beginning its arc,
+blade sweeping in from the right, arms extending
+
+[FRAME 4]
+# 임팩트 — 한 틱. 과장해도 된다
+the greatsword at full extension in a horizontal slash,
+arms stretched out, body fully committed forward,
+a bright orange arc trailing the blade, motion blur on the blade,
+the impact frame, exaggerated reach
+
+[FRAME 5]
+# 팔로우스루 — 관성으로 더 돌아간다
+the swing carrying through past the target, blade now on the left,
+torso over-rotated, cloak snapping around behind him
+
+[FRAME 6]
+# 잔심 — 자세를 되잡는다
+recovering, pulling the greatsword back toward a guard position,
+shoulders squaring up, weight settling between both feet
+
+[SHEET]
+6 panel comic, 6 frames in two rows of three, equal size panels,
+the same character in every panel, identical scale and camera,
+a horizontal greatsword slash read left to right then top to bottom,
+panel 2 the deepest wind-up, panel 4 the impact at full extension

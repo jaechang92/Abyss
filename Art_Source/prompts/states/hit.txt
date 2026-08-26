@@ -1,0 +1,47 @@
+# ══════════════════════════════════════════════════════════════
+# Hit — 피격 (3프레임)
+#
+# 🔑 피격은 짧아야 한다. 길면 조작을 뺏긴 느낌이 되고, 액션 게임에서 이게 가장 답답하다.
+#    3장이면 충분하다 — 오히려 넘어가면 경직이 길어 보인다.
+#
+# 🔴 사망이 이 클립을 폴백으로 쓴다 (dead → hit → idle).
+#    죽는 그림을 못 그린 동안에는 피격 자세로 굳는다.
+#    그래서 프레임 3이 "복귀 중"보다 "아직 무너진 상태"에 가까워야
+#    사망 대역으로 썼을 때 덜 어색하다.
+#
+# 💡 피격의 강도는 자세보다 발광으로 읽힌다.
+#    주황 트림이 한 프레임 확 밝아졌다 꺼지는 편이 몸을 크게 젖히는 것보다 명확하다.
+#    ⚠️ 다만 다른 색을 섞지 않는다 — 붉은 피격 플래시를 넣으면 두 번째 발광색이 된다.
+#    밝기만 올린다.
+#
+# 인페인팅 마스크: 상체 + 머리 각도 + 망토. 다리는 거의 유지.
+# ══════════════════════════════════════════════════════════════
+
+[FRAMES] 3장
+[LOOP] no — 한 번 재생 (IsOneShot)
+
+[BASE-POSE]
+recoiling from a hit, staggering backward,
+body bent back from the impact, off balance
+
+[FRAME 1]
+# 충격 — 가장 크게 젖혀지는 순간
+head and torso snapped backward, arms flung out,
+front foot lifting off, body arched back hard,
+the orange trim flaring bright for this frame only
+
+[FRAME 2]
+# 밀림 — 뒤로 밀려나며 무너진다
+staggering back a step, knees buckling slightly,
+shoulders dropped, head down, cloak thrown forward past him
+
+[FRAME 3]
+# 아직 무너진 상태 — 완전히 회복하지 않는다
+still hunched over, one knee bent, head still lowered,
+beginning to steady but not yet upright, cloak settling
+
+[SHEET]
+3 panel comic, 3 frames in a horizontal row, equal size panels,
+the same character in every panel, identical scale and camera,
+a stagger from impact to partial recovery read left to right,
+panel 1 the sharpest recoil with the brightest orange flare

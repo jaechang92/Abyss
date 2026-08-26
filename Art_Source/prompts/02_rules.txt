@@ -1,0 +1,67 @@
+# ══════════════════════════════════════════════════════════════
+# 공통 규칙 — 프레이밍 · 품질 · 투명 배경 · 부정 프롬프트
+#
+# 정체성(01_character.txt)이 "누구를 그리는가"라면
+# 이 파일은 "어떻게 담는가"다. 상태가 바뀌어도 이건 안 바뀐다.
+# ══════════════════════════════════════════════════════════════
+
+[FRAMING]
+# 🔴 프레임 애니메이션에서 프레이밍이 흔들리면 후처리로 못 살린다.
+#    캐릭터 크기가 프레임마다 변하면 재생할 때 몸이 커졌다 작아졌다 한다.
+#    정렬 도구는 위치는 맞춰도 배율은 못 맞춘다.
+full body, entire body visible, head to feet in frame,
+from side, profile view, side view, facing right,
+straight-on camera, eye level, no perspective distortion,
+character centered, consistent camera distance,
+simple flat lighting, even lighting
+
+[QUALITY]
+# masterpiece 는 V4.5 전용, top aesthetic 은 V4 전용이라 V5 에 넣지 않는다.
+very aesthetic, best quality, high complexity, depthness
+
+[ALPHA]
+# V5 는 알파를 직접 낸다. 크로마키로 파낼 필요가 없다.
+# 약하게 걸리면 가중치를 올린다 — 2.1 이 실제로 권장된 값이다.
+# ⚠️ 받은 뒤 외곽선을 확대해 볼 것. 반투명 가장자리가 남으면 프레임마다 깜빡인다.
+visual novel sprite, 2.1::transparent background::, has alpha
+
+[NEGATIVE]
+# ⚠️ Undesired Content 칸에 넣는다. 그 칸에서는 괄호 의미가 뒤집힌다 —
+#    { } 는 "더 강하게 피한다", [ ] 는 "덜 피한다"가 된다.
+#
+# 🔴 프레임 낱장용이다. 시트(멀티패널)에는 [NEGATIVE-SHEET] 를 쓴다 —
+#    아래에는 "여러 컷 · 테두리 · 여러 인물"을 피하라는 항목이 들어 있어서
+#    그대로 쓰면 시트 프롬프트와 정면으로 부딪힌다.
+{visible face}, {facial features}, eyes, mouth, nose, skin on face, portrait,
+{background}, scenery, floor, ground, wall, sky, cast shadow on ground,
+{multiple glow colors}, blue glow, green glow, purple glow, gold glow, teal glow,
+multiple views, turnaround, reference sheet, multiple characters, 2boys,
+text, watermark, signature, logo, border, frame, speech bubble,
+cropped, out of frame, cut off, close-up, upper body,
+extra limbs, extra arms, missing limbs, blurry, lowres, jpeg artifacts
+
+[NEGATIVE-SHEET]
+# 시트 전용. 위에서 아래 여섯을 뺐다 — 시트는 이것들을 오히려 원한다:
+#   multiple views / turnaround / reference sheet  → 여러 컷이 목적이다
+#   multiple characters / 2boys                    → 같은 인물이 여러 패널에 나온다
+#   border / frame                                 → 패널 경계가 있어야 자를 수 있다
+# ⚠️ 대신 "패널마다 다른 사람이 되는 것"을 막아야 하므로 정체성 항목을 더 세게 건다.
+{visible face}, {facial features}, eyes, mouth, nose, skin on face, portrait,
+{background}, scenery, floor, ground, wall, sky, cast shadow on ground,
+{multiple glow colors}, blue glow, green glow, purple glow, gold glow, teal glow,
+{inconsistent character}, {different character in each panel},
+{different scale between panels}, {different camera between panels},
+text, watermark, signature, logo, speech bubble,
+cropped, out of frame, cut off, close-up, upper body,
+extra limbs, extra arms, missing limbs, blurry, lowres, jpeg artifacts
+
+[SETTINGS]
+# 프레임 전체에서 아래를 고정한다. 하나라도 바뀌면 색이 갈린다.
+#   모델          NovelAI Diffusion V5 Full   (Curated 는 인페인팅이 아직 V4.5)
+#   Seed          한 애니메이션 안에서는 고정
+#   Steps         28 (Opus 구독 기준 일반 해상도 무료 한도)
+#   해상도        세로가 긴 인물 비율. 프레임 전체에서 동일하게
+#   Prompt Guidance  중간. 너무 높이면 프레임마다 과하게 또렷해져 튄다
+#
+# 🔴 한 상태(예: Run 8프레임)는 반드시 한 세션 안에서 끝낸다.
+#    날짜를 넘겨 이어 뽑으면 같은 설정이어도 색온도가 갈린다.
