@@ -14,13 +14,6 @@ namespace Abyss.EditorTools
     /// </summary>
     public static partial class HudBuilder
     {
-        // 모달용 하위 Canvas 정렬 순위. 루트 Canvas 소속인 DraftPanel·ResultPanel(정렬 0)보다 위.
-        private const int MODAL_SORTING_ORDER = 100;
-
-        // 일시정지는 다른 모달보다 위에 온다. 정지 중에는 다른 모달이 열려 있지 않은 것이 정상이지만,
-        // 겹치는 경우 정지 패널이 가려지면 빠져나갈 수단이 사라진다.
-        private const int PAUSE_SORTING_ORDER = 200;
-
         // ==================== Pause Panel ====================
         /// <summary>
         /// 일시정지 패널. Presenter는 GameEvents를 직접 구독하므로 **항상 활성**으로 두고
@@ -57,7 +50,7 @@ namespace Abyss.EditorTools
 
             var canvas = root.AddComponent<Canvas>();
             canvas.overrideSorting = true;
-            canvas.sortingOrder = PAUSE_SORTING_ORDER;
+            canvas.sortingOrder = UiSortingOrder.Menu;
             root.AddComponent<GraphicRaycaster>();
 
             var presenter = root.AddComponent<PausePanel>();
@@ -186,7 +179,7 @@ namespace Abyss.EditorTools
         {
             var canvas = root.AddComponent<Canvas>();
             canvas.overrideSorting = true;
-            canvas.sortingOrder = MODAL_SORTING_ORDER;
+            canvas.sortingOrder = UiSortingOrder.Modal;
             root.AddComponent<GraphicRaycaster>();
         }
 

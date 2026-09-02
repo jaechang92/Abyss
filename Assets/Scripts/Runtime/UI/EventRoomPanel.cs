@@ -21,7 +21,6 @@ namespace Abyss.Runtime.UI
     /// </summary>
     public sealed class EventRoomPanel : MonoBehaviour
     {
-        private const int SORTING_ORDER = 100;   // 다른 모달과 같은 층. 일시정지(200)보다는 아래
         private const int MAX_CHOICES = 3;
 
         private const float PANEL_WIDTH = 760f;
@@ -70,7 +69,7 @@ namespace Abyss.Runtime.UI
             // 씬 전환으로 파괴된 인스턴스는 Unity의 == 오버로드 덕에 여기서 null로 판정되어 다시 만들어진다.
             if (instance != null) return;
 
-            var go = CreateOverlayCanvas("EventRoomPanel", SORTING_ORDER);
+            var go = CreateOverlayCanvas("EventRoomPanel", UiSortingOrder.Modal);
             // Run 씬 전용이므로 DontDestroyOnLoad 하지 않는다(LobbyMenuPanel과 같은 판단).
             instance = go.AddComponent<EventRoomPanel>();
             instance.BuildUI(go.transform);

@@ -20,7 +20,6 @@ namespace Abyss.Runtime.UI
     /// </summary>
     public sealed class NodeMapPanel : MonoBehaviour
     {
-        private const int SORTING_ORDER = 100;   // 다른 모달과 같은 층. 일시정지(200)보다 아래
         private const int MAX_OPTIONS = 3;       // 현재 콘텐츠는 2갈래지만 데이터가 앞서갈 수 있다
 
         private const float PANEL_WIDTH = 820f;
@@ -96,7 +95,7 @@ namespace Abyss.Runtime.UI
         {
             if (instance != null) return;
 
-            var go = CreateOverlayCanvas("NodeMapPanel", SORTING_ORDER);
+            var go = CreateOverlayCanvas("NodeMapPanel", UiSortingOrder.Modal);
             // Run 씬 전용이라 DontDestroyOnLoad 하지 않는다(EventRoomPanel과 같은 판단).
             instance = go.AddComponent<NodeMapPanel>();
             instance.BuildUI(go.transform);

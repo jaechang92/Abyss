@@ -23,7 +23,6 @@ namespace Abyss.Runtime.UI
     /// </summary>
     public sealed class SettingsPanel : MonoBehaviour
     {
-        private const int SORTING_ORDER = 500; // 일시정지 패널(200)보다 위
         private const string KEY_GUIDE =
             "← → 이동   C 점프   D 대시   Z 공격   X 강공격\nA 스킬1   S 스킬2   LCtrl 폼 교체   G 상호작용   ESC 일시정지";
 
@@ -115,7 +114,7 @@ namespace Abyss.Runtime.UI
         {
             if (instance != null) return;
 
-            var go = CreateOverlayCanvas("SettingsPanel", SORTING_ORDER);
+            var go = CreateOverlayCanvas("SettingsPanel", UiSortingOrder.Settings);
             DontDestroyOnLoad(go);
 
             instance = go.AddComponent<SettingsPanel>();

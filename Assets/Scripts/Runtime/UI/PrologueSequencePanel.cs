@@ -22,9 +22,6 @@ namespace Abyss.Runtime.UI
     /// </summary>
     public sealed class PrologueSequencePanel : MonoBehaviour
     {
-        // 엔딩과 같은 층. 둘이 동시에 뜨는 경로는 없다(한쪽은 게임의 시작, 다른 쪽은 끝).
-        private const int SORTING_ORDER = 400;
-
         private const string HINT_SKIP = "ESC / Enter — 건너뛰기";
 
         // 씬 전환이 끝내 오지 않을 때 검은 화면이 영원히 남지 않도록 하는 상한(엔딩 선례).
@@ -88,7 +85,7 @@ namespace Abyss.Runtime.UI
         {
             if (instance != null) return;
 
-            var go = CreateOverlayCanvas("PrologueSequencePanel", SORTING_ORDER);
+            var go = CreateOverlayCanvas("PrologueSequencePanel", UiSortingOrder.Sequence);
             // 자막이 끝나면 씬이 바뀌는데, 그 뒤에 검은 화면을 걷어야 하므로 영속으로 둔다.
             DontDestroyOnLoad(go);
 

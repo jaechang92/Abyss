@@ -19,7 +19,6 @@ namespace Abyss.Runtime.UI
     /// </summary>
     public sealed class LobbyMenuPanel : MonoBehaviour
     {
-        private const int SORTING_ORDER = 200;   // 설정 패널(500)보다 아래
         private const string QUIT_DEFAULT = "게임 종료";
         private const string QUIT_ARMED = "게임 종료 — 확정? (다시 클릭)";
 
@@ -69,7 +68,7 @@ namespace Abyss.Runtime.UI
             // 씬 전환으로 파괴된 인스턴스는 Unity의 == 오버로드 덕에 여기서 null로 판정되어 다시 만들어진다.
             if (instance != null) return;
 
-            var go = CreateOverlayCanvas("LobbyMenuPanel", SORTING_ORDER);
+            var go = CreateOverlayCanvas("LobbyMenuPanel", UiSortingOrder.Menu);
             instance = go.AddComponent<LobbyMenuPanel>();
             instance.BuildUI(go.transform);
             instance.body.SetActive(false);

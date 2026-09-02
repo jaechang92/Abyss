@@ -126,6 +126,31 @@ namespace Abyss.Runtime.UI
             return button;
         }
 
+        /// <summary>
+        /// 씬에 배치된 패널을 <b>제자리에서</b> 오버레이 층으로 올린다. 부모 Canvas 안의 하위 Canvas로
+        /// 만들어 정렬만 오버라이드하는 방식이라, 계층 구조도 배선도 건드리지 않는다.
+        ///
+        /// <see cref="CreateOverlayCanvas"/>와 나눈 이유는 <b>출발점이 다르기</b> 때문이다 — 저쪽은
+        /// 아무것도 없는 상태에서 캔버스를 만들고(그래서 CanvasScaler로 기준 해상도까지 정한다),
+        /// 이쪽은 이미 씬 캔버스 밑에서 그 스케일을 물려받고 있는 오브젝트를 층만 올린다.
+        /// 여기서 Scaler를 또 붙이면 부모의 스케일 위에 스케일이 겹쳐 크기가 튄다.
+        ///
+        /// 중첩 Canvas의 그래픽은 부모 GraphicRaycaster가 잡지 못하므로 전용 Raycaster를 함께 붙인다
+        /// (붙이지 않으면 화면은 멀쩡한데 버튼만 눌리지 않는다).
+        /// 이미 붙어 있으면 값만 갱신한다 — 두 번 호출해도 안전해야 한다.
+        /// </summary>
+        public static void ApplyOverlaySorting(GameObject target, int sortingOrder)
+        {
+            if (target == null) return;
+
+            var canvas = target.GetComponent<Canvas>();
+            if (canvas == null) canvas = target.AddComponent<Canvas>();
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = sortingOrder;
+
+            if (target.GetComponent<GraphicRaycaster>() == null) target.AddComponent<GraphicRaycaster>();
+        }
+
         public static void ApplyFont(Text text)
         {
             var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
