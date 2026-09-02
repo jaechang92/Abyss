@@ -46,6 +46,10 @@ Upgrade_MaxHp_Name,메타,업그레이드 이름,,,생명력 강화,Vitality,生
 Upgrade_MaxHp_Desc,메타,업그레이드 설명,,,레벨당 최대 체력 +20,+20 Max HP per level,レベルごとに最大HP +20
 Upgrade_Attack_Name,메타,업그레이드 이름,,,공격력 강화,Power,攻撃力強化
 Upgrade_Attack_Desc,메타,업그레이드 설명,,,레벨당 공격력 +8%,+8% Attack per level,レベルごとに攻撃力 +8%
+Upgrade_StartingGold_Name,메타,업그레이드 이름,,,시작 자금,Seed Fund,初期資金
+Upgrade_StartingGold_Desc,메타,업그레이드 설명,,,레벨당 런 시작 골드 +25,+25 starting gold per level,レベルごとに開始ゴールド +25
+Upgrade_FreeReroll_Name,메타,업그레이드 이름,,,무료 리롤,Free Reroll,無料リロール
+Upgrade_FreeReroll_Desc,메타,업그레이드 설명,,,레벨당 드래프트 리롤 1회 무료,1 free draft reroll per level,レベルごとにドラフトのリロール1回無料
 Npc_Chronicler_Name,대화,로비-기록자 이름,,,기록자,Chronicler,記録者
 Npc_Chronicler_Prompt,대화,로비-기록자 프롬프트,,,이야기 듣기 (G),Listen (G),話を聞く (G)
 Story_Ch1_Line1,서사,챕터1-1,,,또 하나의 낙오자인가. 물에 닿는 소리를 들었다. 종이 소리와 달랐지.,,
