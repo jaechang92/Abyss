@@ -83,6 +83,18 @@ namespace Abyss.EditorTools
             UpsertMetaUpgrade("Attack", "meta_attack", MetaUpgradeType.AttackMultiplier, 0.08f,
                 new[] { 40, 80, 130, 190, 260 }, StringKey.Upgrade_Attack_Name, StringKey.Upgrade_Attack_Desc);
 
+            // ── 시작 특전 (3-2) ──
+            // 스탯 강화와 달리 런을 시작할 때 한 번 적용된다. 소비처는 이미 서 있다 —
+            // StartingGold → RunManager.StartRun, FreeReroll → DraftSessionController.RerollCost.
+            UpsertMetaUpgrade("StartingGold", "meta_starting_gold", MetaUpgradeType.StartingGold, 25f,
+                new[] { 50, 90, 140 }, StringKey.Upgrade_StartingGold_Name, StringKey.Upgrade_StartingGold_Desc);
+
+            // ⚠️ 사다리 길이 2가 상한이다. RunConfig.rerollCostLadder 가 { 15, 30 } 이라
+            //    리롤 자체가 런당 2회뿐 — 3레벨을 팔면 값을 받고 아무것도 주지 않는 항목이 된다.
+            //    무료 횟수는 리롤 가능 횟수를 늘리지 않고 앞에서부터 비용만 0으로 만든다.
+            UpsertMetaUpgrade("FreeReroll", "meta_free_reroll", MetaUpgradeType.FreeReroll, 1f,
+                new[] { 80, 160 }, StringKey.Upgrade_FreeReroll_Name, StringKey.Upgrade_FreeReroll_Desc);
+
             AssetDatabase.SaveAssets();
             MetaUpgrades.Reload();
         }

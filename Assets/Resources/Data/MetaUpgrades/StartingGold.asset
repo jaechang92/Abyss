@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a33da6d8ca2e9ef4389e46ddf0bf5458, type: 3}
-  m_Name: MaxHp
+  m_Name: StartingGold
   m_EditorClassIdentifier: 
-  upgradeId: meta_max_hp
-  nameKey: Upgrade_MaxHp_Name
-  descKey: Upgrade_MaxHp_Desc
-  type: 0
-  valuePerLevel: 20
+  upgradeId: meta_starting_gold
+  nameKey: Upgrade_StartingGold_Name
+  descKey: Upgrade_StartingGold_Desc
+  type: 2
+  valuePerLevel: 25
   unlockTargetId: 
-  costLadder: 1e0000003c0000006400000096000000dc000000
+  costLadder: 320000005a0000008c000000

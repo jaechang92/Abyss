@@ -17,4 +17,5 @@ MonoBehaviour:
   descKey: Upgrade_Attack_Desc
   type: 1
   valuePerLevel: 0.08
+  unlockTargetId: 
   costLadder: 280000005000000082000000be00000004010000

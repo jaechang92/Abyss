@@ -1,4 +1,4 @@
-namespace Abyss.Runtime.Localization
+﻿namespace Abyss.Runtime.Localization
 {
     /// <summary>
     /// GameText.csv의 StringKey 컬럼을 컴파일 타임 상수로 노출.
@@ -75,6 +75,12 @@ namespace Abyss.Runtime.Localization
         public const string Upgrade_MaxHp_Desc = "Upgrade_MaxHp_Desc";
         public const string Upgrade_Attack_Name = "Upgrade_Attack_Name";
         public const string Upgrade_Attack_Desc = "Upgrade_Attack_Desc";
+
+        // 시작 특전(3-2). 스탯 강화와 달리 런을 시작할 때 한 번 적용된다.
+        public const string Upgrade_StartingGold_Name = "Upgrade_StartingGold_Name";
+        public const string Upgrade_StartingGold_Desc = "Upgrade_StartingGold_Desc";
+        public const string Upgrade_FreeReroll_Name = "Upgrade_FreeReroll_Name";
+        public const string Upgrade_FreeReroll_Desc = "Upgrade_FreeReroll_Desc";
 
         // ---- 서사 (기록자 NPC) ----
         public const string Npc_Chronicler_Name = "Npc_Chronicler_Name";
