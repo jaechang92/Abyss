@@ -1,6 +1,7 @@
 using System.Collections;
 using System.IO;
 using Abyss.Runtime.Analytics;
+using Abyss.Runtime.Draft;
 using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Stage;
@@ -268,6 +269,75 @@ namespace Abyss.Tests.PlayMode
         /// 마지막으로 기록된 이벤트 한 줄. 로거가 파일을 연 채로 쓰고 있으므로 공유 모드를 열어 읽는다
         /// (<c>Log</c>가 줄마다 flush하므로 별도 동기화는 필요 없다).
         /// </summary>
+        /// <summary>
+        /// 제시된 카드를 <b>전부</b> 남기는지 본다. 획득 로그(<c>skill_drafted</c>)는
+        /// 고른 하나만 남기므로, 이것이 없으면 <b>인기 있는 카드와 자주 나오는 카드가
+        /// 구분되지 않는다.</b>
+        /// </summary>
+        [UnityTest]
+        public IEnumerator DraftOffered_제시된_카드를_전부_남긴다()
+        {
+            var cards = new[] { MakeSkill("a_burn"), MakeSkill("b_guard"), MakeSkill("c_void") };
+            GameEvents.RaiseDraftOptionsReady(new DraftOptions(cards, DraftTriggerReason.LevelUp, 0));
+            yield return null;
+
+            string line = ReadLastEvent();
+            StringAssert.Contains("draft_offered", line);
+            StringAssert.Contains("a_burn", line);
+            StringAssert.Contains("b_guard", line);
+            StringAssert.Contains("c_void", line);
+            StringAssert.Contains("LevelUp", line);
+
+            foreach (var c in cards) Object.DestroyImmediate(c);
+        }
+
+        /// <summary>
+        /// 🔴 <c>DraftSessionController.CancelReplacement</c>가 <c>OnDraftOptionsReady</c>를
+        /// <b>재발행</b>한다 — 교체 모달을 닫고 패널을 되돌리기 위해서다.
+        /// 그건 새로 뽑은 제시가 아니라 같은 화면을 다시 그리는 것이므로 세면 안 된다.
+        /// 세면 제시 횟수가 부풀고, 풀 분포가 <b>교체를 많이 취소한 런</b> 쪽으로 기운다.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator DraftOffered_같은_제시가_다시_와도_한_번만_센다()
+        {
+            var cards = new[] { MakeSkill("dup_1"), MakeSkill("dup_2"), MakeSkill("dup_3") };
+            var options = new DraftOptions(cards, DraftTriggerReason.BossBonus, 0);
+
+            int before = CountEvents("draft_offered");
+            GameEvents.RaiseDraftOptionsReady(options);
+            yield return null;
+            GameEvents.RaiseDraftOptionsReady(options);   // CancelReplacement 가 하는 일
+            yield return null;
+
+            Assert.AreEqual(before + 1, CountEvents("draft_offered"),
+                "같은 제시가 두 번 기록됐다 — 재발행 걸러내기가 동작하지 않는다.");
+
+            foreach (var c in cards) Object.DestroyImmediate(c);
+        }
+
+        private static SkillData MakeSkill(string id)
+        {
+            var s = ScriptableObject.CreateInstance<SkillData>();
+            s.skillId = id;
+            s.rarity = SkillRarity.Common;
+            s.synergyTag = "test";
+            return s;
+        }
+
+        private int CountEvents(string eventName)
+        {
+            using var stream = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var reader = new StreamReader(stream);
+
+            int n = 0;
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (line.Contains($"\"{eventName}\"")) n++;
+            }
+            return n;
+        }
+
         private string ReadLastEvent()
         {
             using var stream = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
