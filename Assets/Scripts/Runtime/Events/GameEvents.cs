@@ -52,6 +52,15 @@ namespace Abyss.Runtime.Events
         // 이벤트를 새로 만들지 않은 이유: "적이 죽었다"는 사실은 하나뿐이라, 두 채널로 쪼개면
         // 새 구독자가 어느 쪽을 들어야 하는지 판단할 근거가 사라진다.
         public static event Action<EnemyData, Vector3> OnEnemyKilled;
+
+        // 연소 스택 변화. 발행자는 EnemyBase 하나이고 구독자는 HUD 하나다.
+        // 폴링 대신 채널을 낸 이유: 스택을 아는 것은 적 개체이고 그리는 것은 HUD인데,
+        // 그 사이를 이으려면 HUD가 매 프레임 적을 전부 훑거나(FindObjectsByType)
+        // 적이 UI를 직접 알아야 한다. 둘 다 방향이 틀렸다.
+        //
+        // 살아 있는 EnemyBase 참조를 싣는다(EnemyData가 아니라) — 구독자가 "같은 적의 갱신인가"를
+        // 판별해야 하기 때문이다. 같은 종류의 적 둘이 동시에 타면 데이터만으로는 구분되지 않는다.
+        public static event Action<EnemyBase, int> OnBurnStacksChanged;
         public static event Action<RoomData> OnRoomEntered;
         public static event Action<RoomData> OnRoomCleared;
         public static event Action<StageData> OnStageCleared;
@@ -83,6 +92,7 @@ namespace Abyss.Runtime.Events
         public static void RaiseFormRewardResolved() => OnFormRewardResolved?.Invoke();
         public static void RaiseEventResolved() => OnEventResolved?.Invoke();
         public static void RaiseEnemyKilled(EnemyData data, Vector3 position) => OnEnemyKilled?.Invoke(data, position);
+        public static void RaiseBurnStacksChanged(EnemyBase enemy, int stacks) => OnBurnStacksChanged?.Invoke(enemy, stacks);
         public static void RaiseRoomEntered(RoomData room) => OnRoomEntered?.Invoke(room);
         public static void RaiseRoomCleared(RoomData room) => OnRoomCleared?.Invoke(room);
         public static void RaiseStageCleared(StageData stage) => OnStageCleared?.Invoke(stage);
