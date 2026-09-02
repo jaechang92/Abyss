@@ -175,6 +175,39 @@ namespace Abyss.Tests.EditMode
         }
 
         [Test]
+        public void 언어_기본값은_미설정이다()
+        {
+            // 빈 문자열이 곧 "시스템 언어를 따른다"는 뜻이다. 이 값이 아니면 필드가 생기기 전의
+            // 세이브를 읽었을 때 없던 언어가 강제되어, 순수 필드 추가라는 전제(마이그레이션 불필요)가 깨진다.
+            Assert.AreEqual(string.Empty, service.Current.settings.language);
+        }
+
+        [Test]
+        public void UpdateLanguage_이름문자열을_그대로_보관한다()
+        {
+            service.UpdateLanguage("Japanese", autoSave: false);
+            Assert.AreEqual("Japanese", service.Current.settings.language);
+        }
+
+        [Test]
+        public void UpdateLanguage_null은_미설정으로_접힌다()
+        {
+            service.UpdateLanguage("Korean", autoSave: false);
+            service.UpdateLanguage(null, autoSave: false);
+            Assert.AreEqual(string.Empty, service.Current.settings.language);
+        }
+
+        [Test]
+        public void 언어는_설정이라_ResetAll에서_이월된다()
+        {
+            // 세이브 초기화는 진행도를 지우는 것이지 설정을 지우는 것이 아니다(볼륨·화면과 같은 규칙).
+            // 언어까지 되돌아가면 사용자는 읽을 수 없는 화면에서 다시 언어를 찾아야 한다.
+            service.UpdateLanguage("English", autoSave: false);
+            service.ResetAll(autoSave: false);
+            Assert.AreEqual("English", service.Current.settings.language);
+        }
+
+        [Test]
         public void ResetAll_ClearsAllState()
         {
             service.AddAbyssShards(100, autoSave: false);

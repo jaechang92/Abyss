@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Abyss.Runtime.UI;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Abyss.Runtime.Flow
@@ -11,7 +12,6 @@ namespace Abyss.Runtime.Flow
     /// </summary>
     public sealed class ScreenFader : MonoBehaviour
     {
-        private const int SORTING_ORDER = 32000;      // 최상단 — 다른 모든 UI 위에 덮는다
         private const float DEFAULT_DURATION = 0.35f;  // 기본 페이드 시간(초)
 
         private CanvasGroup group;
@@ -24,7 +24,7 @@ namespace Abyss.Runtime.Flow
 
             var canvas = go.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = SORTING_ORDER;
+            canvas.sortingOrder = UiSortingOrder.ScreenFade;
 
             var group = go.AddComponent<CanvasGroup>();
             group.alpha = 0f;

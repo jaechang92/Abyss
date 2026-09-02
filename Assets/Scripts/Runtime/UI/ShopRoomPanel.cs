@@ -24,15 +24,20 @@ namespace Abyss.Runtime.UI
     /// </summary>
     public sealed class ShopRoomPanel : MonoBehaviour
     {
-        private const int SORTING_ORDER = 100;   // 다른 모달과 같은 층. 일시정지(200)보다는 아래
-        private const int MAX_ITEMS = 4;
+        // 진열 상한. 넘치는 품목은 조용히 안 보인다 — 에러도 로그도 없으므로
+        // ShopData 에 물건을 늘릴 때는 반드시 여기와 아래 패널 높이를 함께 본다.
+        // 4 → 5 (리롤권 추가). 한 행이 늘 때마다 PANEL_HEIGHT 와 LEAVE_BUTTON_Y 가 ROW_STRIDE 만큼 따라간다.
+        private const int MAX_ITEMS = 5;
 
-        private const float PANEL_WIDTH = 820f;
-        private const float PANEL_HEIGHT = 640f;
-        private const float ROW_WIDTH = 720f;
         private const float ROW_HEIGHT = 76f;
         private const float ROW_GAP = 8f;
-        private const float ROW_TOP_Y = 112f;
+        private const float ROW_STRIDE = ROW_HEIGHT + ROW_GAP;
+
+        private const float PANEL_WIDTH = 820f;
+        private const float PANEL_HEIGHT = 724f;   // 640 + 행 하나
+        private const float ROW_WIDTH = 720f;
+        private const float ROW_TOP_Y = 154f;      // 112 + 행 절반(높이 증가분의 절반만큼 위로)
+        private const float LEAVE_BUTTON_Y = -294f;
 
         private static readonly Color GoldColor = new Color(0.95f, 0.82f, 0.45f);
         private static readonly Color ShortColor = new Color(0.92f, 0.45f, 0.42f);
@@ -90,7 +95,7 @@ namespace Abyss.Runtime.UI
             // 씬 전환으로 파괴된 인스턴스는 Unity의 == 오버로드 덕에 여기서 null로 판정되어 다시 만들어진다.
             if (instance != null) return;
 
-            var go = CreateOverlayCanvas("ShopRoomPanel", SORTING_ORDER);
+            var go = CreateOverlayCanvas("ShopRoomPanel", UiSortingOrder.Modal);
             // Run 씬 전용이므로 DontDestroyOnLoad 하지 않는다(EventRoomPanel과 같은 판단).
             instance = go.AddComponent<ShopRoomPanel>();
             instance.BuildUI(go.transform);
@@ -205,19 +210,19 @@ namespace Abyss.Runtime.UI
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = new Color(0.10f, 0.10f, 0.15f, 0.98f);
 
-            titleText = CreateLabel(panel.transform, "TitleText", new Vector2(0, 268), new Vector2(760, 44),
+            titleText = CreateLabel(panel.transform, "TitleText", new Vector2(0, 310), new Vector2(760, 44),
                 string.Empty, 26, new Color(1f, 0.9f, 0.7f), TextAnchor.MiddleCenter);
 
-            descriptionText = CreateLabel(panel.transform, "DescriptionText", new Vector2(0, 218), new Vector2(720, 34),
+            descriptionText = CreateLabel(panel.transform, "DescriptionText", new Vector2(0, 260), new Vector2(720, 34),
                 string.Empty, 18, new Color(0.86f, 0.86f, 0.94f), TextAnchor.MiddleCenter);
             descriptionText.horizontalOverflow = HorizontalWrapMode.Wrap;
 
-            goldText = CreateLabel(panel.transform, "GoldText", new Vector2(0, 174), new Vector2(720, 28),
+            goldText = CreateLabel(panel.transform, "GoldText", new Vector2(0, 216), new Vector2(720, 28),
                 string.Empty, 19, GoldColor, TextAnchor.MiddleCenter);
 
             BuildItemRows(panel.transform);
 
-            var leave = CreateButton(panel.transform, "LeaveButton", new Vector2(0, -252), new Vector2(300, 52),
+            var leave = CreateButton(panel.transform, "LeaveButton", new Vector2(0, LEAVE_BUTTON_Y), new Vector2(300, 52),
                 "떠난다", 20);
             leave.onClick.AddListener(OnLeaveClicked);
         }
@@ -227,7 +232,7 @@ namespace Abyss.Runtime.UI
             // 최대 개수만큼 미리 만들어 두고 표시 여부만 토글한다 — 상점마다 계층을 다시 짓지 않는다.
             for (int i = 0; i < MAX_ITEMS; i++)
             {
-                float y = ROW_TOP_Y - i * (ROW_HEIGHT + ROW_GAP);
+                float y = ROW_TOP_Y - i * ROW_STRIDE;
                 var row = CreateRect(parent, $"Item{i}", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f), new Vector2(0, y), new Vector2(ROW_WIDTH, ROW_HEIGHT));
 

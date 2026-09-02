@@ -59,6 +59,7 @@ namespace Abyss.EditorTools
             CreateFormBiasWarning(go.transform); // 편향 경고 배너(자체 이벤트 구독 — HUDPresenter 배선 불필요)
             CreateSynergyCounter(go.transform); // 시너지 축 카운터(자체 이벤트 구독 — HUDPresenter 배선 불필요)
             CreateGoldCounter(go.transform); // 상시 골드 카운터(자체 이벤트 구독 — HUDPresenter 배선 불필요)
+            CreateBurnStackIndicator(go.transform); // 연소 스택(자체 이벤트 구독 — HUDPresenter 배선 불필요)
             var modal = CreateReplacementModal(go.transform);
             var formModal = CreateFormRewardModal(go.transform);
             CreateInteractPrompt(go.transform); // 근접 상호작용 프롬프트(비활성). PlayerInteractor.promptLabel 배선은 FormAltarBuilder가 담당
@@ -72,7 +73,7 @@ namespace Abyss.EditorTools
             EditorUtility.SetDirty(go);
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
 
-            Debug.Log($"[HudBuilder] HUD 자식 UI 생성 완료: HealthBar / FormSlot / FormBiasWarning(비활성) / SynergyCounter(비활성) / GoldCounter / SkillSlot ×2 / ReplacementModal(비활성) / PausePanel(비활성)");
+            Debug.Log($"[HudBuilder] HUD 자식 UI 생성 완료: HealthBar / FormSlot / FormBiasWarning(비활성) / SynergyCounter(비활성) / GoldCounter / BurnStack(비활성) / SkillSlot ×2 / ReplacementModal(비활성) / PausePanel(비활성)");
             Selection.activeGameObject = go;
         }
 
@@ -263,6 +264,46 @@ namespace Abyss.EditorTools
 
             chip.SetActive(false);
             return chip;
+        }
+
+        // ==================== Burn Stack ====================
+        /// <summary>
+        /// 연소 스택 표시(스킬 슬롯 오른쪽). 좌하단에 두는 이유는 <b>전투 중에 보는 숫자</b>라서다 —
+        /// 스킬 쿨다운과 한 줄에 있어야 "쏠까 / 몇 겹인가"를 한 번에 읽는다.
+        /// 우상단 골드는 지갑이라 반대편에 있고, 좌상단 세로줄(HP·폼·경고·시너지)은 이미 네 겹이다.
+        ///
+        /// 스킬 슬롯 두 칸(24~88, 104~168)의 오른쪽 184부터, 슬롯 높이(64)의 세로 중앙에 맞춘다.
+        /// Presenter는 항상 활성이고 Body만 토글한다 — 자기를 끄면 구독이 끊겨 다시 안 켜진다.
+        /// </summary>
+        private static BurnStackPresenter CreateBurnStackIndicator(Transform parent)
+        {
+            var root = CreateRectChild(parent, "BurnStack", new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(184, 40), new Vector2(220, 32));
+
+            var body = CreateRectChild(root.transform, "Body", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            StretchFill((RectTransform)body.transform);
+
+            var bg = CreateRectChild(body.transform, "Background", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            StretchFill((RectTransform)bg.transform);
+            var bgImg = bg.AddComponent<Image>();
+            bgImg.color = new Color(0.05f, 0.05f, 0.08f, 0.85f);
+            bgImg.raycastTarget = false;
+
+            var labelGo = CreateRectChild(body.transform, "Label", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            StretchFill((RectTransform)labelGo.transform);
+            var label = labelGo.AddComponent<Text>();
+            ApplyDefaultFont(label);
+            label.text = "연소 0스택";
+            label.fontSize = 18;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = new Color(1f, 0.55f, 0.2f);
+            label.raycastTarget = false;
+
+            var presenter = root.AddComponent<BurnStackPresenter>();
+            SetPrivateField(presenter, "root", body);
+            SetPrivateField(presenter, "label", label);
+
+            body.SetActive(false); // 연소가 붙으면 Presenter가 켠다
+            return presenter;
         }
 
         // ==================== Gold Counter ====================

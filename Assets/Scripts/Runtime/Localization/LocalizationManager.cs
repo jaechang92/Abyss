@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Abyss.Runtime.Meta;
 using UnityEngine;
 using Singleton_Core;
 
@@ -15,15 +16,29 @@ namespace Abyss.Runtime.Localization
     ///   text.text = loc.Get(StringKey.Common_Confirm);
     ///   text.text = loc.GetFormat(StringKey.Result_KillCountFormat, killCount);
     ///
+    /// 언어 영속화의 SoT는 MetaSaveService(MetaSave.settings.language)다.
+    /// 2026-09-03 이전에는 PlayerPrefs에 저장했는데, 볼륨·화면 설정이 이미 세이브로 옮겨진 뒤라
+    /// 설정 하나만 다른 곳에 남아 있었다 — 세이브를 지워도 언어만 남고, 세이브를 옮겨도 언어는
+    /// 안 따라온다. AudioManager가 2026-07-29에 밟은 길과 같다.
+    ///
     /// 초기 언어 결정:
-    ///   1) PlayerPrefs("Localization.Language") 우선
-    ///   2) 없으면 Application.systemLanguage 매핑
+    ///   1) MetaSave.settings.language 우선
+    ///   2) 비어 있으면 레거시 PlayerPrefs 값을 1회 이관 (아래 MigrateLegacyLanguage)
+    ///   3) 그것도 없으면 Application.systemLanguage 매핑
     ///      Korean → Korean, Japanese → Japanese, 그 외 → English
     /// </summary>
     public sealed class LocalizationManager : SingletonManager<LocalizationManager>
     {
         private const string CSV_RESOURCE_PATH = "Data/GameText";
-        private const string PREF_LANGUAGE = "Localization.Language";
+        /// <summary>
+        /// 언어의 옛 저장 위치. 게임 코드에서는 <b>읽고 지우기만</b> 한다 — 이 키에 새로 쓰는
+        /// 경로는 없고, MetaSave에 언어가 아직 없을 때 한 번 읽어 옮긴 뒤 삭제한다.
+        ///
+        /// 공개한 이유는 치트 메뉴가 <b>이관 경로를 재현</b>해야 하기 때문이다. 옛 키는 새로 깐
+        /// 환경에는 없어서, 심는 수단이 없으면 이 코드는 실제 사용자의 기기에서 처음 실행된다.
+        /// 이름을 저쪽에 복사해 두면 한쪽만 바뀌었을 때 이관이 조용히 멈춘다.
+        /// </summary>
+        public const string LegacyLanguagePrefKey = "Localization.Language";
 
         private static readonly string[] requiredHeaders =
         {
@@ -104,17 +119,44 @@ namespace Abyss.Runtime.Localization
 
         /// <summary>
         /// 언어 전환. 이전 언어와 같으면 무시.
-        /// 변경 시 OnLanguageChanged 이벤트 발행 + PlayerPrefs 영속화.
+        /// 변경 시 MetaSave 영속화 + OnLanguageChanged 이벤트 발행.
+        ///
+        /// 저장이 실패해도 전환 자체는 진행한다 — 세이브에 못 적는 것과 지금 화면의 글자가
+        /// 안 바뀌는 것은 별개이고, 후자는 사용자가 방금 누른 것을 무시당한 것처럼 보인다.
         /// </summary>
         public void SetLanguage(LocalizationLanguage language)
         {
             if (currentLanguage == language) return;
 
             currentLanguage = language;
-            PlayerPrefs.SetString(PREF_LANGUAGE, language.ToString());
+
+            var service = MetaSaveService.GetInstanceSafe();
+            if (service != null) service.UpdateLanguage(language.ToString());
+
             OnLanguageChanged?.Invoke(currentLanguage);
 
             Debug.Log($"[LocalizationManager] 언어 변경 → {currentLanguage}");
+        }
+
+        /// <summary>
+        /// 초기 언어 결정을 다시 돌려 그 결과를 현재 언어로 삼는다. 결정 규칙 자체가 아니라
+        /// <b>입력(세이브·레거시 키)이 바뀌었을 때</b> 쓴다 — 치트로 저장값을 비우거나 옛 키를
+        /// 심은 뒤 재시작 없이 같은 순서를 밟아 볼 수 있다.
+        ///
+        /// <see cref="SetLanguage"/>와 달리 저장하지 않는다. 이쪽은 읽는 방향이고, 여기서 되쓰면
+        /// 방금 비운 값이 도로 채워져 "미설정으로 되돌리기"가 성립하지 않는다.
+        /// 결정 도중 레거시 이관이 일어나면 그 이관만 저장된다.
+        /// </summary>
+        public LocalizationLanguage ReloadLanguageFromSave()
+        {
+            var resolved = ResolveInitialLanguage();
+            if (resolved != currentLanguage)
+            {
+                currentLanguage = resolved;
+                OnLanguageChanged?.Invoke(currentLanguage);
+                Debug.Log($"[LocalizationManager] 초기 언어 재결정 → {currentLanguage}");
+            }
+            return resolved;
         }
 
         /// <summary>
@@ -195,16 +237,19 @@ namespace Abyss.Runtime.Localization
         }
 
         /// <summary>
-        /// 초기 언어 결정. PlayerPrefs 우선 → 시스템 언어 폴백.
+        /// 초기 언어 결정. MetaSave → 레거시 PlayerPrefs 1회 이관 → 시스템 언어 폴백.
+        ///
+        /// MetaSaveService 조회에 실패하는 경로(단독 씬 재생 등)에서도 동작해야 하므로
+        /// GetInstanceSafe를 쓴다 — 여기서 세이브를 자동 생성하면 언어를 읽으려던 것이
+        /// 세이브 파일을 만드는 부작용이 된다.
         /// </summary>
         private static LocalizationLanguage ResolveInitialLanguage()
         {
-            string saved = PlayerPrefs.GetString(PREF_LANGUAGE, string.Empty);
-            if (!string.IsNullOrEmpty(saved)
-                && Enum.TryParse<LocalizationLanguage>(saved, out var parsed))
-            {
-                return parsed;
-            }
+            var service = MetaSaveService.GetInstanceSafe();
+            var settings = service != null && service.Current != null ? service.Current.settings : null;
+
+            if (settings != null && TryParseLanguage(settings.language, out var saved)) return saved;
+            if (MigrateLegacyLanguage(service, out var legacy)) return legacy;
 
             return Application.systemLanguage switch
             {
@@ -212,6 +257,45 @@ namespace Abyss.Runtime.Localization
                 SystemLanguage.Japanese => LocalizationLanguage.Japanese,
                 _ => LocalizationLanguage.English,
             };
+        }
+
+        /// <summary>
+        /// 옛 PlayerPrefs 언어 값을 MetaSave로 1회 옮긴다. 옮길 값이 있었으면 true.
+        ///
+        /// 키 삭제는 <b>저장 성공을 확인한 뒤에만</b> 한다. 순서를 뒤집으면 저장이 실패한 실행에서
+        /// 언어 선택이 양쪽 어디에도 남지 않는다 — 그 손실은 다음 실행에 조용히 시스템 언어로
+        /// 드러나서, 사용자가 원인을 짚을 단서가 없다.
+        ///
+        /// 세이브 서비스가 없으면 값만 돌려주고 키는 남긴다. 지금 못 옮겼을 뿐 다음 기회가 있는데
+        /// 여기서 지우면 그 기회까지 없앤다.
+        /// </summary>
+        private static bool MigrateLegacyLanguage(MetaSaveService service, out LocalizationLanguage language)
+        {
+            if (!TryParseLanguage(PlayerPrefs.GetString(LegacyLanguagePrefKey, string.Empty), out language))
+            {
+                return false;
+            }
+
+            if (service != null)
+            {
+                // 적고 나서 저장이 실제로 통과했을 때만 옛 키를 지운다.
+                service.UpdateLanguage(language.ToString(), autoSave: false);
+                if (service.Save())
+                {
+                    PlayerPrefs.DeleteKey(LegacyLanguagePrefKey);
+                    PlayerPrefs.Save();
+                    Debug.Log($"[LocalizationManager] 레거시 언어 설정을 MetaSave로 이관 — {language}");
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>이름 문자열 → 열거형. 비었거나 모르는 이름이면 false.</summary>
+        private static bool TryParseLanguage(string name, out LocalizationLanguage language)
+        {
+            language = default;
+            return !string.IsNullOrEmpty(name) && Enum.TryParse(name, out language);
         }
     }
 }

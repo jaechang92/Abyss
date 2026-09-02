@@ -25,7 +25,19 @@ namespace Abyss.Runtime.Stage
         HpCostPercent,
 
         /// <summary>스킬 드래프트 1회. amount 무시.</summary>
-        SkillDraft
+        SkillDraft,
+
+        /// <summary>
+        /// 리롤권. amount = 장수. 이번 런의 리롤 <b>가능 횟수</b>를 그만큼 늘린다.
+        ///
+        /// 메타 특전 FreeReroll과 겹치지 않는다 — 저쪽은 <i>앞쪽 비용을 0으로</i> 만들 뿐
+        /// 횟수는 그대로고, 이쪽은 사다리가 끝난 <i>뒤에</i> 횟수를 붙인다. 둘 다 앞에 붙이면
+        /// 상점에서 산 것과 제단에서 산 것이 화면에서 같아 보여, 무엇이 무엇을 준 건지 알 수 없다.
+        ///
+        /// 추가된 리롤은 골드를 받지 않는다. 값은 상점에서 이미 치렀고, 거기서 또 받으면
+        /// 산 물건을 쓰는 데 다시 돈이 드는 셈이 된다.
+        /// </summary>
+        RerollTicket
     }
 
     /// <summary>효과 하나. 선택지는 이걸 여러 개 조합한다(예: 골드 지불 + 드래프트).</summary>

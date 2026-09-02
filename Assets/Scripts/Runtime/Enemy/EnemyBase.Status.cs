@@ -1,4 +1,5 @@
 using Abyss.Runtime.Combat;
+using Abyss.Runtime.Events;
 using Abyss.Runtime.Feedback;
 using UnityEngine;
 
@@ -51,15 +52,26 @@ namespace Abyss.Runtime.Enemy
             burnRemaining = Mathf.Max(burnRemaining, payload.Duration);
             burnDamagePerStackPerSecond =
                 Mathf.Max(burnDamagePerStackPerSecond, payload.DamagePerStackPerSecond);
+
+            // 상한에 걸려 스택이 안 올랐어도 발행한다 — 지속시간은 갱신됐고, HUD 입장에서는
+            // "아직 이 적이 타고 있다"가 여전히 최신 사실이다. 조건을 달면 상한 도달 후
+            // 계속 불을 붙이는 동안 표시가 옛 대상에 머문다.
+            GameEvents.RaiseBurnStacksChanged(this, burnStacks);
         }
 
         /// <summary>연소 해제(사망·방 전환 등).</summary>
         public void ClearBurn()
         {
+            // 타고 있지 않았으면 알릴 것이 없다. ClearBurn은 사망·방 전환에서 무조건 불리므로
+            // 가드가 없으면 불 붙은 적이 하나도 없는 방을 지나가는 것만으로 이벤트가 쏟아진다.
+            bool wasBurning = burnStacks > 0;
+
             burnStacks = 0;
             burnRemaining = 0f;
             burnDamagePerStackPerSecond = 0f;
             burnTickTimer = 0f;
+
+            if (wasBurning) GameEvents.RaiseBurnStacksChanged(this, 0);
         }
 
         /// <summary>

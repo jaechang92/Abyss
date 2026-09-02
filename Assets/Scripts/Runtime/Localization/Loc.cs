@@ -24,7 +24,7 @@ namespace Abyss.Runtime.Localization
         public static LocalizationLanguage CurrentLanguage
             => LocalizationManager.Instance.CurrentLanguage;
 
-        /// <summary>언어 전환. OnLanguageChanged 이벤트 발행 + PlayerPrefs 저장.</summary>
+        /// <summary>언어 전환. MetaSave 영속화 + OnLanguageChanged 이벤트 발행.</summary>
         public static void SetLanguage(LocalizationLanguage language)
             => LocalizationManager.Instance.SetLanguage(language);
     }

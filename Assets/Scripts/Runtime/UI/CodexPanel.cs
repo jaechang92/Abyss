@@ -24,10 +24,6 @@ namespace Abyss.Runtime.UI
     /// </summary>
     public sealed partial class CodexPanel : MonoBehaviour
     {
-        // 설정(500)보다 아래, 로비 메뉴(200)보다 위 — 로비 메뉴에서 열면 그 위에 덮여야 하고,
-        // 도감 위에서 설정을 열 일은 없지만 설정이 항상 최상위라는 규약은 깨지 않는다.
-        private const int SORTING_ORDER = 300;
-
         private const int GRID_COLS = 5;
         private const int GRID_ROWS = 3;
         private const int PAGE_SIZE = GRID_COLS * GRID_ROWS;
@@ -114,7 +110,7 @@ namespace Abyss.Runtime.UI
         {
             if (instance != null) return;
 
-            var go = CreateOverlayCanvas("CodexPanel", SORTING_ORDER);
+            var go = CreateOverlayCanvas("CodexPanel", UiSortingOrder.Codex);
             DontDestroyOnLoad(go);
 
             instance = go.AddComponent<CodexPanel>();

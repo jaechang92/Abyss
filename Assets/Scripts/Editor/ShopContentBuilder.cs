@@ -25,6 +25,20 @@ namespace Abyss.EditorTools
         public const string AshTraderFile = "Shop_AshTrader";
         public const string GraveRobberFile = "Shop_GraveRobber";
 
+        /// <summary>
+        /// 상점 SO 3종만 따로 손본다. <see cref="EnsureAllShops"/>는 스테이지 빌더 안에 묻혀 있어
+        /// 품목 하나를 넣으려고 스테이지 셋을 통째로 다시 돌려야 했다 — 필요한 것보다 넓게 건드리면
+        /// 무엇이 바뀐 diff 인지 판별하는 비용이 변경 자체보다 커진다.
+        /// </summary>
+        [MenuItem(AbyssMenu.GenerateShopContent)]
+        public static void GenerateShopContentMenu()
+        {
+            EnsureAllShops(out _, out _, out _);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("[ShopContentBuilder] 상점 3종 점검 완료 — 위 로그에서 추가된 품목 수를 확인할 것.");
+        }
+
         /// <summary>상점 SO 3종을 생성하고(없으면) 반환한다. 순서는 스테이지 순.</summary>
         public static void EnsureAllShops(out ShopData peddler, out ShopData ashTrader, out ShopData graveRobber)
         {
@@ -51,6 +65,10 @@ namespace Abyss.EditorTools
                     Item("피의 거래", "체력 20%를 팔아 골드를 받는다", 1,
                         Effect(EventEffectType.HpCostPercent, 20),
                         Effect(EventEffectType.GoldGain, 60)),
+
+                    Item("닳은 산가지", "드래프트 리롤 횟수 +1 (이번 런)", 1,
+                        Effect(EventEffectType.GoldSpend, 30),
+                        Effect(EventEffectType.RerollTicket, 1)),
                 });
 
             ashTrader = CreateOrLoad(AshTraderFile, "shop_ash_trader", "잿더미 행상",
@@ -72,6 +90,10 @@ namespace Abyss.EditorTools
                     Item("피의 거래", "체력 20%를 팔아 골드를 받는다", 1,
                         Effect(EventEffectType.HpCostPercent, 20),
                         Effect(EventEffectType.GoldGain, 90)),
+
+                    Item("그을린 산가지", "드래프트 리롤 횟수 +1 (이번 런)", 2,
+                        Effect(EventEffectType.GoldSpend, 50),
+                        Effect(EventEffectType.RerollTicket, 1)),
                 });
 
             graveRobber = CreateOrLoad(GraveRobberFile, "shop_grave_robber", "무덤 도굴꾼",
@@ -95,6 +117,11 @@ namespace Abyss.EditorTools
                     Item("피의 거래", "체력 20%를 팔아 골드를 받는다", 1,
                         Effect(EventEffectType.HpCostPercent, 20),
                         Effect(EventEffectType.GoldGain, 120)),
+
+                    // 마지막 상점이라 남는 골드를 흘려보낼 곳이 필요하다 — 재고 2로 둔다.
+                    Item("부장 산가지", "드래프트 리롤 횟수 +1 (이번 런)", 2,
+                        Effect(EventEffectType.GoldSpend, 70),
+                        Effect(EventEffectType.RerollTicket, 1)),
                 });
         }
 
@@ -105,7 +132,10 @@ namespace Abyss.EditorTools
             var existing = AssetDatabase.LoadAssetAtPath<ShopData>(path);
             if (existing != null)
             {
-                Debug.Log($"[ShopContentBuilder] 건너뜀 (존재): {path}");
+                int added = AddMissingItems(existing, items);
+                Debug.Log(added > 0
+                    ? $"[ShopContentBuilder] 품목 {added}개 추가 (기존 유지): {path}"
+                    : $"[ShopContentBuilder] 건너뜀 (존재): {path}");
                 return existing;
             }
 
@@ -117,6 +147,34 @@ namespace Abyss.EditorTools
             AssetDatabase.CreateAsset(so, path);
             Debug.Log($"[ShopContentBuilder] 생성: {path}");
             return so;
+        }
+
+        /// <summary>
+        /// 코드에는 있는데 에셋에는 없는 품목만 <b>덧붙인다</b>. 추가한 개수를 돌려준다.
+        ///
+        /// <see cref="CreateOrLoad"/>가 기존 에셋을 통째로 건너뛰는 규약은 <i>가격을 지키기 위한 것</i>이지
+        /// 진열을 영원히 얼려 두려던 것이 아니다. 실제로 리롤권을 추가했을 때, 건너뛰기만 하는 코드로는
+        /// 빌더를 몇 번을 돌려도 이미 만들어진 상점 3곳에 물건이 나타나지 않았다 — 코드에는 있는데
+        /// 게임에는 없는 상태가 조용히 성립한다(EnemyTier·적 SFX 때 같은 함정).
+        ///
+        /// 라벨로 대조하므로 <b>인스펙터에서 이름을 바꾼 품목은 다른 것으로 보여 다시 들어온다</b>.
+        /// 가격·재고·설명은 절대 건드리지 않는다 — 손으로 맞춘 수치를 되돌리지 않는 것이 원래 규약이다.
+        /// </summary>
+        private static int AddMissingItems(ShopData shop, ShopItem[] items)
+        {
+            if (shop == null || items == null) return 0;
+            shop.items ??= new List<ShopItem>();
+
+            int added = 0;
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (shop.items.Exists(existing => existing != null && existing.label == items[i].label)) continue;
+                shop.items.Add(items[i]);
+                added += 1;
+            }
+
+            if (added > 0) EditorUtility.SetDirty(shop);
+            return added;
         }
 
         private static ShopItem Item(string label, string description, int stock, params EventEffect[] effects)

@@ -27,8 +27,6 @@ namespace Abyss.Runtime.UI
     /// </summary>
     public sealed class EndingSequencePanel : MonoBehaviour
     {
-        private const int SORTING_ORDER = 400;   // 결과 패널(씬 캔버스)보다 위, 설정(500)보다 아래
-
         // 자막 한 문단의 호흡은 SubtitleSequence가 소유한다 — 프롤로그와 같은 값을 써야 하므로.
 
         private const float CREDITS_SCROLL_SPEED = 110f;   // px/s (기준 해상도 1080 높이 기준)
@@ -115,7 +113,7 @@ namespace Abyss.Runtime.UI
         {
             if (instance != null) return;
 
-            var go = CreateOverlayCanvas("EndingSequencePanel", SORTING_ORDER);
+            var go = CreateOverlayCanvas("EndingSequencePanel", UiSortingOrder.Sequence);
             // 엔딩 도중 타이틀로 나가는 경로는 없지만, 크레딧 끝에서 씬이 바뀌어도 콜백이 살아 있도록 영속으로 둔다.
             DontDestroyOnLoad(go);
 

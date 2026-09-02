@@ -50,7 +50,17 @@ namespace Abyss.Runtime.UI
 
         private void Awake()
         {
-            if (root != null) root.SetActive(false);
+            if (root != null)
+            {
+                root.SetActive(false);
+
+                // 결과 패널을 모달 층 위로 올린다. 씬 배선이 아니라 여기서 하는 이유는 두 가지다 —
+                // ① 빌더에서 하면 정렬 하나를 위해 ResultPanel 자식 전체를 재생성해야 하고(빌더가
+                //    파괴 후 재구성한다), 그 과정에서 씬의 fileID가 전면 재발급돼 손배선이 끊긴다.
+                // ② 동적 오버레이 패널 대부분이 이미 런타임에 층을 정한다(UiFactory.CreateOverlayCanvas).
+                //    씬에 배치됐다는 이유만으로 규약을 이원화할 근거가 없다.
+                UiFactory.ApplyOverlaySorting(root, UiSortingOrder.RunResult);
+            }
             if (restartButton != null) restartButton.onClick.AddListener(HandleRestart);
             if (lobbyButton != null) lobbyButton.onClick.AddListener(HandleReturnToLobby);
         }
