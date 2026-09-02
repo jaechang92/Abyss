@@ -299,6 +299,20 @@ namespace Abyss.Runtime.Meta
         }
 
         /// <summary>
+        /// UI 언어 저장. 값은 LocalizationLanguage의 이름 문자열이고, 빈 문자열은 "미설정"이다.
+        /// 적용(텍스트 갱신·이벤트 발행)은 호출자(LocalizationManager)가 맡는다 — 여기는 저장만 한다.
+        ///
+        /// null은 빈 문자열로 접는다 — 저장된 "미설정"과 값이 없는 상태를 두 가지로 두면
+        /// 읽는 쪽이 둘 다 검사해야 하는데, 둘의 뜻은 어차피 같다.
+        /// </summary>
+        public void UpdateLanguage(string language, bool autoSave = true)
+        {
+            EnsureLoaded();
+            current.settings.language = language ?? string.Empty;
+            if (autoSave) Save();
+        }
+
+        /// <summary>
         /// 디버그 리셋. 확인 다이얼로그는 호출자 책임.
         /// 설정(볼륨·화면)은 진행도가 아니므로 이월한다 — 세이브 초기화가 볼륨까지 되돌리면
         /// 사용자는 잃을 이유가 없는 것을 잃는다.

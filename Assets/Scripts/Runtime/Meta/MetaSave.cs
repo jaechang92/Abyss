@@ -247,5 +247,19 @@ namespace Abyss.Runtime.Meta
         public int screenWidth;
         public int screenHeight;
         public bool isFullscreen = true;
+
+        /// <summary>
+        /// 선택한 UI 언어. LocalizationLanguage의 <b>이름 문자열</b>이고, 빈 문자열은 "미설정" —
+        /// 시스템 언어를 따른다(해상도 0과 같은 규약).
+        ///
+        /// 열거형 그대로 두지 않은 이유: JsonUtility는 열거형을 정수로 직렬화하는데 그 정수는
+        /// <b>선언 순서에 묶인 값</b>이라, 언어를 사이에 하나 끼워 넣는 순간 기존 세이브가 말없이
+        /// 다른 언어로 읽힌다. 해상도를 인덱스가 아니라 실제 값으로 저장하는 것과 같은 이유다.
+        ///
+        /// 순수 필드 추가라 마이그레이션이 필요 없다 — 기본값 ""(미설정)이 곧 기존 동작이다.
+        /// 다만 <b>이 필드가 생기기 전의 선택은 PlayerPrefs에 있다</b>. 그 값의 이전은
+        /// LocalizationManager가 첫 조회 때 1회 수행한다(스키마가 아니라 읽는 쪽의 문제라서).
+        /// </summary>
+        public string language = string.Empty;
     }
 }
