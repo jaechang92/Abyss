@@ -158,8 +158,11 @@ namespace Abyss.Runtime.UI
                 if (rerollLabel != null)
                 {
                     int cost = session.GetRerollCost();
-                    rerollLabel.text = cost == int.MaxValue
-                        ? "리롤 (소진)"
+                    // 티켓은 값이 0이지만 "0 gold"로 찍으면 안 된다 — 특전의 공짜와 달리
+                    // 쓰면 없어지는 재고라, 남은 장수를 같이 보여줘야 아껴 쓸지 정할 수 있다.
+                    rerollLabel.text =
+                        cost == int.MaxValue ? "리롤 (소진)"
+                        : session.NextRerollUsesTicket ? $"리롤 (리롤권 {session.ExtraRerollStock}장)"
                         : $"리롤 ({cost} gold)";
                 }
             }

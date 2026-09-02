@@ -50,3 +50,12 @@ MonoBehaviour:
       amount: 20
     - type: 0
       amount: 60
+  - label: "\uB2F3\uC740 \uC0B0\uAC00\uC9C0"
+    description: "\uB4DC\uB798\uD504\uD2B8 \uB9AC\uB864 \uD69F\uC218 +1 (\uC774\uBC88
+      \uB7F0)"
+    stock: 1
+    effects:
+    - type: 1
+      amount: 30
+    - type: 5
+      amount: 1

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Abyss.Runtime.Draft;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Player;
 using Abyss.Runtime.Run;
@@ -65,6 +66,13 @@ namespace Abyss.Runtime.Stage
 
                     case EventEffectType.SkillDraft:
                         deferredDrafts += 1;
+                        break;
+
+                    case EventEffectType.RerollTicket:
+                        // 드래프트와 달리 미룰 필요가 없다 — 모달을 열지 않고 숫자만 올린다.
+                        // 세션이 없을 때 사는 것이 정상 경로라(상점 방), 다음 드래프트에서 쓰인다.
+                        var draft = Object.FindAnyObjectByType<DraftSessionController>();
+                        if (draft != null) draft.GrantExtraRerolls(effect.amount);
                         break;
                 }
             }

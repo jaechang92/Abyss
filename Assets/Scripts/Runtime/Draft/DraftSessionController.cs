@@ -40,6 +40,17 @@ namespace Abyss.Runtime.Draft
         private int rerollsUsed;
         private bool isSessionActive;
 
+        /// <summary>
+        /// 상점·이벤트에서 산 리롤권 잔량. <b>런 단위</b>다 —
+        /// <see cref="rerollsUsed"/>가 드래프트마다 0으로 돌아가는 것과 다르다.
+        /// 사다리는 매 드래프트에 새로 주어지는 기본 권리이고, 티켓은 사서 쟁여 두는 물건이라
+        /// 한 드래프트에서 다 써도 되고 아껴 뒀다 다음 드래프트에서 써도 된다.
+        ///
+        /// 런 시작 시 별도 초기화가 없는 이유는 Run 씬이 런마다 새로 로드되어
+        /// 이 컴포넌트 자체가 새로 만들어지기 때문이다.
+        /// </summary>
+        private int extraRerollStock;
+
         // 세션 진행 중 도착한 레벨업(다중 레벨업·보스/엘리트 보너스)을 대기시켜 순차 처리한다.
         // 큐잉이 없으면 세션 중 발생한 레벨업 이벤트가 전부 폐기된다.
         private readonly Queue<DraftTriggerReason> pendingReasons = new();
@@ -83,6 +94,27 @@ namespace Abyss.Runtime.Draft
         }
         public DraftOptions CurrentOptions => currentOptions;
         public int RerollsUsed => rerollsUsed;
+
+        /// <summary>남은 리롤권 수. HUD·드래프트 패널 표시용.</summary>
+        public int ExtraRerollStock => extraRerollStock;
+
+        /// <summary>
+        /// 지금 리롤을 누르면 리롤권이 소모되는가. 화면이 "0 gold"와 "리롤권"을 구분해야 하기 때문에 있다 —
+        /// 둘 다 공짜지만 <b>특전은 매 드래프트 되살아나고 티켓은 쓰면 없어진다</b>.
+        /// 같은 문구로 보이면 아껴 뒀어야 할 것을 모르고 태운다.
+        /// </summary>
+        public bool NextRerollUsesTicket =>
+            isSessionActive && rerollsUsed >= RerollCostLadder.Length && extraRerollStock > 0;
+
+        /// <summary>
+        /// 리롤권 지급(상점·이벤트 보상). 음수·0은 무시한다.
+        /// </summary>
+        public void GrantExtraRerolls(int count)
+        {
+            if (count <= 0) return;
+            extraRerollStock += count;
+            Debug.Log($"[Draft] 리롤권 +{count} (잔량 {extraRerollStock})");
+        }
         public int SkipReward => config != null ? config.skipReward : DEFAULT_SKIP_REWARD;
 
         private void Awake()
@@ -130,14 +162,18 @@ namespace Abyss.Runtime.Draft
         public int GetRerollCost()
         {
             var ladder = RerollCostLadder;
-            if (rerollsUsed >= ladder.Length) return int.MaxValue;
+
+            // 판정 순서가 곧 규칙이다. 리롤권이 0장이면 아래 세 줄은 예전 코드와 한 글자도 다르지 않게
+            // 동작한다 — 사다리 밖은 불가, 특전 구간은 0, 나머지는 사다리 값.
+            if (rerollsUsed >= ladder.Length + extraRerollStock) return int.MaxValue;
+            if (rerollsUsed >= ladder.Length) return 0;   // 티켓 구간 — 값은 상점에서 이미 치렀다
             if (rerollsUsed < Meta.MetaUpgrades.FreeRerollCount()) return 0;
             return ladder[rerollsUsed];
         }
 
         public bool CanReroll()
         {
-            if (!isSessionActive || rerollsUsed >= RerollCostLadder.Length) return false;
+            if (!isSessionActive || rerollsUsed >= RerollCostLadder.Length + extraRerollStock) return false;
             return RunManager.Instance != null && RunManager.Instance.GoldShards >= GetRerollCost();
         }
 
@@ -145,9 +181,14 @@ namespace Abyss.Runtime.Draft
         {
             if (!CanReroll()) return false;
 
+            // 티켓 소모 여부는 지불 <b>전에</b> 확정한다. rerollsUsed 를 올린 뒤에 물으면
+            // 사다리 마지막 리롤이 티켓 구간에 들어가 있어, 골드로 산 리롤이 티켓까지 함께 먹는다.
+            bool usesTicket = NextRerollUsesTicket;
+
             int cost = GetRerollCost();
             if (!RunManager.Instance.SpendGoldShards(cost)) return false;
 
+            if (usesTicket) extraRerollStock -= 1;
             rerollsUsed += 1;
             DrawAndAnnounce();
             return true;

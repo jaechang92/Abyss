@@ -33,6 +33,7 @@ namespace Abyss.EditorTools
         // Generate — 아트 임포트 설정
         public const string ApplyFormSpriteImport = Generate + "Form Sprite Import Settings";
 
+        public const string GenerateShopContent = Generate + "Shop Content (add missing items)";
         public const string GenerateContent = Generate + "Prototype Content";
         public const string GenerateWireSkills = Generate + "Wire Active Skill Abilities";
         public const string GeneratePrefabs = Generate + "Prototype Prefabs";
