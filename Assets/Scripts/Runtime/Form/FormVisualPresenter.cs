@@ -19,6 +19,9 @@ namespace Abyss.Runtime.Form
     ///
     /// <b>색은 건드리지 않는다</b> — 피격 플래시·시전 플래시가 <c>sr.color</c>를 자기 것으로 쓴다.
     /// 스프라이트가 있으면 흰색으로 한 번만 되돌리고(틴트가 그림을 물들이지 않게) 그 뒤로는 놔둔다.
+    ///
+    /// 실제 적용 규칙은 <see cref="FormVisualApplier"/>가 갖는다 — 로비도 같은 규칙으로 그리는데
+    /// 거기에는 <see cref="FormController"/>가 없다. 이 클래스가 정하는 것은 <b>출처</b>뿐이다.
     /// </summary>
     [RequireComponent(typeof(SpriteRenderer))]
     public sealed class FormVisualPresenter : MonoBehaviour
@@ -50,27 +53,7 @@ namespace Abyss.Runtime.Form
 
             applied = current;
             hasApplied = true;
-            ApplyCurrent(current);
-        }
-
-        private void ApplyCurrent(FormData form)
-        {
-            var sprite = form != null ? form.bodySprite : null;
-
-            if (sprite != null)
-            {
-                target.sprite = sprite;
-                // 폴백 시절의 폼 색 틴트를 걷는다 — 그림 위에 곱해지면 전부 물든다.
-                target.color = Color.white;
-                // 🔴 스케일은 건드리지 않는다. 이 컴포넌트는 Visual 자식에 붙고,
-                //    그 자식이 루트의 (1,2,1) 늘림을 상쇄하는 (1,0.5,1)을 이미 갖고 있다.
-                //    여기서 localScale을 만지면 그 상쇄가 풀려 그림이 세로로 늘어난다.
-                return;
-            }
-
-            // 폴백 — 예전 그대로(흰 사각형 + 폼 색). 새 폼의 그림이 아직 없을 때 쓰인다.
-            if (fallbackSprite != null) target.sprite = fallbackSprite;
-            if (form != null) target.color = form.castColor;
+            FormVisualApplier.Apply(target, current, fallbackSprite);
         }
     }
 }

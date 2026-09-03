@@ -28,6 +28,9 @@ namespace Abyss.Runtime.Lobby
         [Tooltip("폼별 선택 버튼. selectableForms와 같은 순서.")]
         [SerializeField] private Button[] formButtons;
 
+        [Tooltip("아직 아무것도 안 고른 상태에서 강조할 폼. Run 이 실제로 시작하는 폼과 같아야 한다.")]
+        [SerializeField] private FormData defaultForm;
+
         // 폼 버튼 강조 색(선택/비선택)
         private static readonly Color formNormal = new Color(0.18f, 0.18f, 0.22f);
         private static readonly Color formSelected = new Color(0.3f, 0.5f, 0.7f);
@@ -84,16 +87,28 @@ namespace Abyss.Runtime.Lobby
             }
         }
 
-        /// <summary>마지막 선택 폼(RunStartContext) 복원. 없으면 첫 폼.</summary>
+        /// <summary>
+        /// 마지막 선택 폼(RunStartContext) 복원. 아직 아무것도 안 골랐으면 <see cref="defaultForm"/>.
+        ///
+        /// 🔴 예전에는 무조건 <b>첫 폼</b>(목록 정렬 순서)이었다. 그런데 폼을 안 고르고 포털로 들어가면
+        /// 런은 Player 프리팹의 slot 0 으로 시작한다 — 둘이 같다는 보장이 없었고 실제로 달랐다.
+        /// 그래도 아무도 못 본 이유는 <b>로비 캐릭터가 흰 사각형이라 정체가 없었기</b> 때문이다.
+        /// 실제 폼 그림을 세우는 순간 "패널은 A 를 강조하는데 서 있는 건 B"가 눈에 보인다.
+        /// </summary>
         private void RestoreSelection()
         {
             selectedFormIndex = 0;
             if (selectableForms == null || selectableForms.Length == 0) return;
-            if (!RunStartContext.HasStartingForm) return;
+
+            // RunStartContext 가 우선. 없으면 기본 폼, 그것도 없으면 예전대로 첫 폼.
+            string targetId = RunStartContext.HasStartingForm
+                ? RunStartContext.StartingFormId
+                : (defaultForm != null ? defaultForm.formId : null);
+            if (string.IsNullOrEmpty(targetId)) return;
 
             for (int i = 0; i < selectableForms.Length; i++)
             {
-                if (selectableForms[i] != null && selectableForms[i].formId == RunStartContext.StartingFormId)
+                if (selectableForms[i] != null && selectableForms[i].formId == targetId)
                 {
                     selectedFormIndex = i;
                     return;
