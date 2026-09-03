@@ -71,6 +71,23 @@
         public const string Altar_CostFormat = "Altar_CostFormat";
         public const string Altar_Maxed = "Altar_Maxed";
         public const string Altar_Purchase = "Altar_Purchase";
+
+        // ── 유물 상점(가차) ──
+        public const string Npc_RelicShop_Prompt = "Npc_RelicShop_Prompt";
+        public const string Relic_Title = "Relic_Title";
+        public const string Relic_DrawFormat = "Relic_DrawFormat";
+        public const string Relic_Drawing = "Relic_Drawing";
+        public const string Relic_NotEnough = "Relic_NotEnough";
+        public const string Relic_GainedFormat = "Relic_GainedFormat";
+        public const string Relic_LevelUpFormat = "Relic_LevelUpFormat";
+        public const string Relic_MaxedFormat = "Relic_MaxedFormat";
+        public const string Relic_Equipped = "Relic_Equipped";
+        public const string Relic_SlotsFull = "Relic_SlotsFull";
+        public const string Relic_EmptySlot = "Relic_EmptySlot";
+        public const string Relic_OwnedHeader = "Relic_OwnedHeader";
+        public const string Relic_NoneOwned = "Relic_NoneOwned";
+        public const string Relic_LevelFormat = "Relic_LevelFormat";
+        public const string Relic_Close = "Relic_Close";
         public const string Upgrade_MaxHp_Name = "Upgrade_MaxHp_Name";
         public const string Upgrade_MaxHp_Desc = "Upgrade_MaxHp_Desc";
         public const string Upgrade_Attack_Name = "Upgrade_Attack_Name";

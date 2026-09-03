@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Form;
+using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using Abyss.Runtime.Stage;
 using UnityEngine;
@@ -25,6 +26,7 @@ namespace Abyss.Runtime.UI
             Skill,
             Enemy,
             Boss,
+            Relic,
             Records
         }
 
@@ -85,6 +87,7 @@ namespace Abyss.Runtime.UI
             CodexTab.Skill => CollectSkills(),
             CodexTab.Enemy => CollectEnemies(bossTab: false),
             CodexTab.Boss => CollectEnemies(bossTab: true),
+            CodexTab.Relic => CollectRelics(),
             _ => new List<CodexItem>()
         };
 
@@ -143,6 +146,44 @@ namespace Abyss.Runtime.UI
                     badgeColor: found ? SynergyAxis.GetColor(skill.synergyTag) : NeutralBadgeColor,
                     description: found ? skill.description : string.Empty,
                     stats: found ? SkillStats(skill) : string.Empty,
+                    isDiscovered: found));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 유물 탭. <b>발견 = 보유</b>다 — 유물은 뽑는 것 말고 만날 경로가 없어
+        /// 다른 탭처럼 '만난 적 있다'와 '쓸 수 있다'를 나눌 이유가 없다(MetaSave.relics 주석 참조).
+        ///
+        /// 배지는 <b>장착 여부</b>를 말한다. 보유해도 슬롯에 안 끼우면 런에 아무 영향이 없는데,
+        /// 그 사실이 도감에서 안 보이면 "모았는데 왜 세지 않냐"가 된다.
+        /// </summary>
+        private static List<CodexItem> CollectRelics()
+        {
+            var meta = MetaSaveService.Instance;
+            var catalog = RelicCatalog.All;
+            var result = new List<CodexItem>(catalog.Length);
+
+            for (int i = 0; i < catalog.Length; i++)
+            {
+                var relic = catalog[i];
+                if (relic == null) continue;
+
+                int level = meta != null ? meta.GetRelicLevel(relic.relicId) : 0;
+                bool found = level > 0;
+                string name = Resolve(Loc.Get(relic.nameKey), relic.relicId);
+                bool equipped = found && meta != null && meta.IsRelicEquipped(relic.relicId);
+
+                result.Add(new CodexItem(
+                    name: found ? name : UNKNOWN_NAME,
+                    icon: relic.icon,
+                    iconTint: found ? Color.white : SilhouetteColor,
+                    glyph: found ? FirstGlyph(name) : UNKNOWN_GLYPH,
+                    tileColor: found ? Dim(RelicDisplay.RarityColor(relic.rarity)) : LockedTileColor,
+                    badge: found ? (equipped ? Loc.Get(StringKey.Relic_Equipped) : string.Empty) : string.Empty,
+                    badgeColor: found ? RelicDisplay.RarityColor(relic.rarity) : NeutralBadgeColor,
+                    description: found ? Loc.Get(relic.descKey) : string.Empty,
+                    stats: found ? Loc.GetFormat(StringKey.Relic_LevelFormat, level, relic.maxLevel) : string.Empty,
                     isDiscovered: found));
             }
             return result;
@@ -339,7 +380,8 @@ namespace Abyss.Runtime.UI
                 $"폼: {DiscoveredCount(CodexTab.Form)}",
                 $"스킬: {DiscoveredCount(CodexTab.Skill)}",
                 $"적: {DiscoveredCount(CodexTab.Enemy)}",
-                $"보스: {DiscoveredCount(CodexTab.Boss)}"
+                $"보스: {DiscoveredCount(CodexTab.Boss)}",
+                $"유물: {DiscoveredCount(CodexTab.Relic)}"
             };
             return string.Join("\n", lines);
         }
