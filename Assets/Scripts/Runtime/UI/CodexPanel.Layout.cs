@@ -76,22 +76,37 @@ namespace Abyss.Runtime.UI
             dividerImg.raycastTarget = false;
         }
 
+        // 탭 줄의 폭 배분. 탭이 늘어날 때 <b>개수 라벨과 겹치지 않도록</b> 여기서 함께 계산한다.
+        // 🔴 6번째 탭(유물)을 넣을 때 실제로 8px 겹쳤다 — 폭이 남는 것처럼 보여도
+        //    같은 줄에 다른 요소가 있으면 상한은 화면 폭이 아니라 그 요소까지다.
+        //    (상점 5번째 품목이 [떠난다] 버튼과 겹쳤던 것과 같은 종류의 결손.)
+        private const float TAB_ROW_Y = 306f;
+        private const float TAB_LEFT = CONTENT_LEFT + 84f;
+        private const float TAB_W = 152f;
+        private const float TAB_GAP = 8f;
+        private const float COUNT_W = 300f;
+
         private void BuildTabs(Transform panel)
         {
-            string[] labels = { "폼", "스킬", "적", "보스", "기록" };
+            string[] labels = { "폼", "스킬", "적", "보스", "유물", "기록" };
 
+            float step = TAB_W + TAB_GAP;
             for (int i = 0; i < labels.Length; i++)
             {
                 var tab = (CodexTab)i;
-                float x = CONTENT_LEFT + 84f + i * 176f;
+                float x = TAB_LEFT + i * step;
 
-                var button = CreateTabButton(panel, $"Tab_{tab}", new Vector2(x, 306f), new Vector2(168, 46), labels[i]);
+                var button = CreateTabButton(panel, $"Tab_{tab}", new Vector2(x, TAB_ROW_Y), new Vector2(TAB_W, 46), labels[i]);
                 button.onClick.AddListener(() => SelectTab(tab));
                 tabButtons[i] = button;
             }
 
-            countLabel = CreateLabel(panel, "CountText", new Vector2(520f, 306f), new Vector2(360, 32),
-                string.Empty, 17, MutedColor, TextAnchor.MiddleRight);
+            // 마지막 탭의 오른쪽 끝 뒤에 라벨을 붙인다. 좌표를 손으로 적으면 탭이 늘 때마다 다시 겹친다.
+            float lastTabRight = TAB_LEFT + (labels.Length - 1) * step + TAB_W * 0.5f;
+            float countCenterX = Mathf.Max(lastTabRight + 24f + COUNT_W * 0.5f, CONTENT_RIGHT - COUNT_W * 0.5f);
+
+            countLabel = CreateLabel(panel, "CountText", new Vector2(countCenterX, TAB_ROW_Y), new Vector2(COUNT_W, 32),
+                string.Empty, 16, MutedColor, TextAnchor.MiddleRight);
         }
 
         /// <summary>

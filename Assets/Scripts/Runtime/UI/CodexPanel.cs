@@ -43,7 +43,9 @@ namespace Abyss.Runtime.UI
 
         private GameObject body;
 
-        private readonly Button[] tabButtons = new Button[5];
+        // 길이를 enum 에서 파생시킨다. 숫자를 적어 두면 탭을 늘릴 때 여기만 남아
+        // 마지막 탭 버튼이 배열 밖으로 나가 조용히 안 그려진다.
+        private readonly Button[] tabButtons = new Button[System.Enum.GetValues(typeof(CodexTab)).Length];
         private Text countLabel;
 
         private readonly TileView[] tiles = new TileView[PAGE_SIZE];

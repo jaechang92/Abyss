@@ -63,11 +63,13 @@ namespace Abyss.EditorTools
             var panel = CreateFormSelectPanel(canvas, forms, defaultForm);
             var dialogueUI = CreateDialogueUI(canvas);
             var altarPanel = CreateMetaUpgradePanel(canvas);
+            var relicShopPanel = CreateRelicShopPanel(canvas);
 
             var guideNpc = CreateGuideNpc();
             var serviceNpc = CreateServiceNpc();
             var altarNpc = CreateAltarNpc();
             var storyNpc = CreateStoryNpc();
+            var relicShopNpc = CreateRelicShopNpc();
 
             // 와이어링
             WireCamera(cameraFollow, player.transform);
@@ -82,6 +84,7 @@ namespace Abyss.EditorTools
             WireAltarNpc(altarNpc, altarPanel, controller);
             var storyData = LoadOrCreateStoryData();
             WireStoryNpc(storyNpc, storyData, dialogueUI, controller);
+            WireRelicShopNpc(relicShopNpc, relicShopPanel, controller);
 
             EnsureSceneFolder();
             EditorSceneManager.SaveScene(scene, AbyssPaths.LobbyScene);

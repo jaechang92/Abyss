@@ -21,6 +21,7 @@ namespace Abyss.EditorTools
         public const string Story = Data + "/Story"; // 서사(기록자) StoryData SO
         public const string RunConfigDir = "Assets/Resources/Data"; // P-14: 런타임 Resources.Load 대상(정규 위치)
         public const string MetaUpgrades = RunConfigDir + "/MetaUpgrades"; // 메타 영구 업그레이드 SO(런타임 Resources.LoadAll)
+        public const string Relics = RunConfigDir + "/Relics"; // 유물 SO(런타임 RelicCatalog.LoadAll) — 폴더에 추가 시 자동 편입
         public const string Skills = RunConfigDir + "/Skills"; // 드래프트 스킬 SO(런타임 SkillCatalog.LoadAll) — 폴더에 추가 시 자동 편입
         public const string Forms = RunConfigDir + "/Forms"; // 폼 SO(런타임 FormCatalog.LoadAll) — 폴더에 추가 시 자동 편입
         // 적 SO는 방·스테이지가 직접 참조하므로 원래 Assets/Data 아래에 있었지만, 도감(3-1)이 타이틀 씬에서

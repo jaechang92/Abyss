@@ -82,3 +82,30 @@ Story_Ending_Line1,서사,엔딩-1,,,내 앞에서 마지막 불꽃이 꺼졌다
 Story_Ending_Line2,서사,엔딩-2,,,내가 걸어 내려온 길은 닫혔다.\n올라가는 길만 남았다.,,
 Story_Ending_Line3,서사,엔딩-3,,,무너진 왕좌 너머로\n오래 잊혔던 빛이 들어왔다.,,
 Story_Ending_Line4,서사,엔딩-4,,,나는 심연을 벗어났다.\n나를 내려다보던 것은 아래에 남았다.,,
+Npc_RelicShop_Prompt,대화,로비-유물 상점 프롬프트,,,유물 감정 (G),Appraise Relics (G),遺物鑑定 (G)
+Relic_Title,메타,유물 상점 제목,,,잊힌 것들의 좌판,Stall of Forgotten Things,忘れられた物の露店
+Relic_DrawFormat,메타,유물 뽑기 버튼,,{0}: 비용,감정 ({0}),Appraise ({0}),鑑定 ({0})
+Relic_Drawing,메타,유물 뽑는 중,,,...,...,...
+Relic_NotEnough,메타,조각 부족,,,심연 조각이 모자란다,Not enough Abyss Shards,深淵の欠片が足りない
+Relic_GainedFormat,메타,유물 신규 획득,,{0}: 유물 이름,처음 보는 것이다 — {0},A new find — {0},初めて見るものだ — {0}
+Relic_LevelUpFormat,메타,유물 중복 강화,,{0}: 이름 / {1}: 레벨,같은 것이 겹쳤다 — {0} Lv {1},Another of the same — {0} Lv {1},同じものが重なった — {0} Lv {1}
+Relic_MaxedFormat,메타,유물 최대치,,{0}: 유물 이름,더 겹칠 데가 없다 — {0},Nothing more to add — {0},これ以上重ねられない — {0}
+Relic_Equipped,메타,장착 슬롯 제목,,,장착 (3),Equipped (3),装備 (3)
+Relic_EmptySlot,메타,빈 장착 슬롯,,,비어 있음,Empty,空き
+Relic_OwnedHeader,메타,보유 유물 제목,,,보유,Owned,所持
+Relic_NoneOwned,메타,보유 유물 없음,,,아직 아무것도 없다,Nothing yet,まだ何もない
+Relic_LevelFormat,메타,유물 레벨,,{0}: 현재 / {1}: 최대,Lv {0}/{1},Lv {0}/{1},Lv {0}/{1}
+Relic_Close,메타,유물 상점 닫기,,,떠난다,Leave,立ち去る
+Relic_StoneHeart_Name,메타,유물 이름,,,돌이 된 심장,Petrified Heart,石になった心臓
+Relic_StoneHeart_Desc,메타,유물 설명,,,레벨당 최대 HP +8,Max HP +8 per level,レベルごとに最大HP +8
+Relic_Whetstone_Name,메타,유물 이름,,,닳은 숫돌,Worn Whetstone,すり減った砥石
+Relic_Whetstone_Desc,메타,유물 설명,,,레벨당 공격력 +3%,Attack +3% per level,レベルごとに攻撃力 +3%
+Relic_CoinPouch_Name,메타,유물 이름,,,터진 전대,Split Coin Pouch,破れた銭袋
+Relic_CoinPouch_Desc,메타,유물 설명,,,레벨당 시작 골드 +15,Starting gold +15 per level,レベルごとに開始ゴールド +15
+Relic_EmberCore_Name,메타,유물 이름,,,꺼지지 않은 심지,Unspent Ember,消えない芯
+Relic_EmberCore_Desc,메타,유물 설명,,,레벨당 공격력 +7%,Attack +7% per level,レベルごとに攻撃力 +7%
+Relic_DeepVein_Name,메타,유물 이름,,,깊은 광맥의 조각,Shard of the Deep Vein,深い鉱脈の欠片
+Relic_DeepVein_Desc,메타,유물 설명,,,레벨당 최대 HP +20,Max HP +20 per level,レベルごとに最大HP +20
+Relic_SeersEye_Name,메타,유물 이름,,,먼저 본 자의 눈,Eye of the One Who Saw First,先に見た者の目
+Relic_SeersEye_Desc,메타,유물 설명,,,레벨당 무료 리롤 +1회,Free reroll +1 per level,レベルごとに無料リロール +1
+Relic_SlotsFull,메타,장착 슬롯 가득참,,,장착 칸이 없다 — 하나를 빼야 한다,No free slot — remove one first,装備枠がない — 一つ外すこと

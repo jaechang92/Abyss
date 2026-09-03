@@ -83,6 +83,32 @@ namespace Abyss.Runtime.Meta
         /// <summary>심연의 제단 영구 업그레이드 레벨 목록. upgradeId 기준.</summary>
         public List<MetaUpgradeEntry> upgradeLevels = new();
 
+        // ── 유물 (로비 상점 가차) ──
+        // 순수 필드 추가라 마이그레이션이 필요 없다. 기본값(빈 리스트)이 곧 옳은 과거이기 때문이다 —
+        // "유물을 모르던 세이브 = 유물을 하나도 안 가진 세이브"가 참이다.
+        // (필드가 늘었는가가 아니라 기본값이 옳은 과거인가로 정한다 — ADR-011.)
+
+        /// <summary>
+        /// 보유 유물과 그 레벨. relicId 기준. 중복 획득이 레벨을 올린다.
+        ///
+        /// <b>도감용 '발견' 목록을 따로 두지 않는다.</b> 폼·스킬·적은 "만난 적 있다"와
+        /// "쓸 수 있다"가 달라서 목록을 나눴지만, 유물은 <b>뽑는 것 말고 만날 경로가 없어</b>
+        /// 둘이 같다. 나누면 항상 같은 값을 갖는 목록이 두 벌 생기고, 언젠가 한쪽만 갱신된다.
+        /// </summary>
+        public List<RelicEntry> relics = new();
+
+        /// <summary>
+        /// 장착 슬롯. 길이는 <see cref="EquippedRelicSlots"/>로 고정하며 빈 칸은 빈 문자열이다.
+        ///
+        /// <b>보유와 장착을 나눈 이유</b>: 보유는 뽑기의 결과(되돌릴 수 없음)이고 장착은 빌드 선택
+        /// (언제든 바꿈)이다. 한 목록에 섞으면 "빼면 잃는다"가 되어 뽑기의 값이 장착 실수로 사라진다.
+        /// 효과 합산은 <b>장착된 것만</b> 본다(<see cref="MetaUpgrades"/>).
+        /// </summary>
+        public List<string> equippedRelicIds = new();
+
+        /// <summary>유물 장착 슬롯 수. UI·세이브·합산이 함께 보는 단일 상수.</summary>
+        public const int EquippedRelicSlots = 3;
+
         /// <summary>
         /// 화자별 스토리 진행도. 화자 1명당 항목 1개(speakerId 기준, <see cref="StorySpeakerIds"/>).
         ///
@@ -136,6 +162,17 @@ namespace Abyss.Runtime.Meta
     public struct MetaUpgradeEntry
     {
         public string upgradeId;
+        public int level;
+    }
+
+    /// <summary>
+    /// 보유 유물 1건의 저장 항목. <see cref="MetaUpgradeEntry"/>와 같은 이유로 List다
+    /// (JsonUtility가 Dictionary를 직렬화하지 못한다).
+    /// </summary>
+    [Serializable]
+    public struct RelicEntry
+    {
+        public string relicId;
         public int level;
     }
 
