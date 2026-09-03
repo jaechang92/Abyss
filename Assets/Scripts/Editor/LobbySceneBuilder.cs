@@ -50,12 +50,17 @@ namespace Abyss.EditorTools
             CreateEventSystem();
             CreateGround();
 
-            var player = CreatePlayer(out var controller, out var interactor, out var groundCheck);
+            // 폼 목록과 기본 폼은 한 번만 정하고 여러 곳에 나눠 준다.
+            // 각자 로드하면 "패널이 강조하는 폼"과 "서 있는 캐릭터"가 조용히 갈라질 수 있다.
+            var forms = LoadForms();
+            var defaultForm = ResolveDefaultForm(forms);
+
+            var player = CreatePlayer(defaultForm, out var controller, out var interactor, out var groundCheck);
             var portal = CreatePortal();
 
             var canvas = CreateCanvas();
             var prompt = CreatePrompt(canvas.transform);
-            var panel = CreateFormSelectPanel(canvas);
+            var panel = CreateFormSelectPanel(canvas, forms, defaultForm);
             var dialogueUI = CreateDialogueUI(canvas);
             var altarPanel = CreateMetaUpgradePanel(canvas);
 
@@ -92,7 +97,8 @@ namespace Abyss.EditorTools
         {
             var go = new GameObject("Main Camera");
             go.tag = "MainCamera";
-            go.transform.position = new Vector3(0f, 2f, -10f);
+            // 첫 프레임 전 위치. 실제 추적 오프셋은 WireCamera가 정한다(발밑 기준점 보정 포함).
+            go.transform.position = new Vector3(0f, 0f, -10f);
             var cam = go.AddComponent<Camera>();
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.05f, 0.05f, 0.08f);
@@ -109,6 +115,12 @@ namespace Abyss.EditorTools
             go.AddComponent<InputSystemUIInputModule>();
         }
 
+        // 바닥 판의 중심과 두께 — 플레이어 스폰 높이를 여기서 파생시킨다.
+        // 값을 양쪽에 적어 두면 바닥을 옮길 때 캐릭터만 공중에 남는다.
+        private const float FloorCenterY = -3.5f;
+        private const float FloorThickness = 1f;
+        private static float FloorTopY => FloorCenterY + FloorThickness * 0.5f;
+
         private static void CreateGround()
         {
             var root = new GameObject("Environment");
@@ -117,28 +129,36 @@ namespace Abyss.EditorTools
             var mat = EditorPlatformFactory.GetOrCreateFrictionlessMaterial();
             var color = EditorPlatformFactory.DefaultPlatformColor;
 
-            EditorPlatformFactory.CreatePlatform(root.transform, "Floor", new Vector2(0f, -3.5f), new Vector2(30f, 1f), groundLayer, sprite, mat, color);
+            EditorPlatformFactory.CreatePlatform(root.transform, "Floor", new Vector2(0f, FloorCenterY), new Vector2(30f, FloorThickness), groundLayer, sprite, mat, color);
             EditorPlatformFactory.CreatePlatform(root.transform, "WallLeft", new Vector2(-14f, 0f), new Vector2(1f, 8f), groundLayer, sprite, mat, color);
             EditorPlatformFactory.CreatePlatform(root.transform, "WallRight", new Vector2(14f, 0f), new Vector2(1f, 8f), groundLayer, sprite, mat, color);
         }
 
-        private static GameObject CreatePlayer(out LobbyPlayerController controller, out PlayerInteractor interactor, out Transform groundCheck)
+        /// <summary>
+        /// 로비 플레이어 생성. <b>원점 = 발밑</b>이며 이는 Run 의 <c>Player.prefab</c> 규약과 같다 —
+        /// 폼 스프라이트의 피벗이 발밑에 실측돼 있어(<c>prepare_form_sprite.py</c>),
+        /// 원점을 발에 두어야 같은 그림이 두 씬에서 같은 높이로 선다.
+        /// 그래서 콜라이더는 크기 1×2 에 offset (0,1) 로 원점 위에 세운다(Run 과 동일).
+        /// </summary>
+        private static GameObject CreatePlayer(
+            FormData defaultForm,
+            out LobbyPlayerController controller, out PlayerInteractor interactor, out Transform groundCheck)
         {
             var go = new GameObject("LobbyPlayer");
-            go.transform.position = new Vector3(0f, -2f, 0f);
-
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = EditorPlatformFactory.LoadWhiteSquare();
-            sr.color = new Color(0.4f, 0.7f, 1f);
+            // 바닥 바로 위에서 시작해 한 프레임 만에 내려앉는다. 정확히 바닥면에 두면 시작부터 겹친다.
+            go.transform.position = new Vector3(0f, FloorTopY + 0.1f, 0f);
 
             var body = go.AddComponent<Rigidbody2D>();
             body.gravityScale = 3f;
             body.freezeRotation = true;
             body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
-            go.AddComponent<BoxCollider2D>(); // 물리(바닥/벽 충돌)
+            // 물리(바닥/벽 충돌). 발밑 원점이라 offset 으로 몸통을 위로 올린다.
+            var box = go.AddComponent<BoxCollider2D>();
+            box.size = new Vector2(1f, 2f);
+            box.offset = new Vector2(0f, 1f);
 
-            // 상호작용 감지용 트리거(넓은 반경)
+            // 상호작용 감지용 트리거(넓은 반경). Run 과 같이 발밑 중심.
             var trigger = go.AddComponent<CircleCollider2D>();
             trigger.isTrigger = true;
             trigger.radius = 1.8f;
@@ -149,13 +169,73 @@ namespace Abyss.EditorTools
             var input = go.AddComponent<PlayerInput>();
             ConfigurePlayerInput(input);
 
-            // 지면 체크 자식(발밑)
+            CreatePlayerVisual(go.transform, defaultForm);
+
+            // 지면 체크 자식. 원점이 이미 발이라 살짝만 내린다(Run 의 Player.prefab 과 같은 -0.06).
             var gc = new GameObject("GroundCheck");
             gc.transform.SetParent(go.transform, false);
-            gc.transform.localPosition = new Vector3(0f, -0.5f, 0f);
+            gc.transform.localPosition = new Vector3(0f, -0.06f, 0f);
             groundCheck = gc.transform;
 
             return go;
+        }
+
+        /// <summary>
+        /// 그림을 담는 Visual 자식. Run 의 Player.prefab 과 같은 구성이다.
+        ///
+        /// 루트가 아니라 자식에 두는 이유: <see cref="LobbyPlayerController"/>가 좌우를 뒤집을 때
+        /// 루트의 <c>localScale.x</c>를 쓰는데, 스프라이트가 루트에 있으면 그림과 콜라이더가
+        /// 한 덩어리로 묶여 앞으로 폼별 크기·오프셋을 따로 줄 자리가 없다.
+        /// </summary>
+        private static void CreatePlayerVisual(Transform parent, FormData defaultForm)
+        {
+            var go = new GameObject("Visual");
+            go.transform.SetParent(parent, false);
+
+            var sr = go.AddComponent<SpriteRenderer>();
+            // 초기값은 예전 그대로. LobbyFormVisual 이 이것을 폴백으로 집어 가므로
+            // 그림 없는 폼이 생겨도 화면에서 사라지지 않는다.
+            sr.sprite = EditorPlatformFactory.LoadWhiteSquare();
+            sr.color = new Color(0.4f, 0.7f, 1f);
+
+            var visual = go.AddComponent<LobbyFormVisual>();
+            var so = new SerializedObject(visual);
+            SetObject(so, "target", sr);
+            SetObject(so, "defaultForm", defaultForm);
+            so.ApplyModifiedProperties();
+
+            if (defaultForm == null)
+            {
+                Debug.LogWarning("[LobbySceneBuilder] 기본 폼 미해석 — 시작 폼을 고르기 전까지 로비 캐릭터가 흰 사각형으로 남는다.");
+            }
+        }
+
+        /// <summary>
+        /// 시작 폼을 안 고르고 포털로 들어갔을 때 <b>런이 실제로 시작하는 폼</b>을 찾는다.
+        /// 출처는 Player 프리팹의 <c>FormController.slots[activeSlot]</c> — 그것이 사실이기 때문이다.
+        /// 여기서 목록의 첫 폼을 쓰면 로비 표시와 런 실제가 갈라진다(정렬 순서와 프리팹 배선은 무관하다).
+        /// 프리팹을 못 읽으면 예전 동작(첫 폼)으로 물러난다 — 빌더가 멈출 일은 아니다.
+        /// </summary>
+        private static FormData ResolveDefaultForm(FormData[] forms)
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{AbyssPaths.PlayerPrefabs}/Player.prefab");
+            var controller = prefab != null ? prefab.GetComponentInChildren<FormController>(true) : null;
+            if (controller != null)
+            {
+                var so = new SerializedObject(controller);
+                var slots = so.FindProperty("slots");
+                var activeProp = so.FindProperty("activeSlot");
+                int active = activeProp != null ? activeProp.intValue : 0;
+                if (slots != null && active >= 0 && active < slots.arraySize
+                    && slots.GetArrayElementAtIndex(active).objectReferenceValue is FormData form)
+                {
+                    return form;
+                }
+            }
+
+            Debug.LogWarning("[LobbySceneBuilder] Player.prefab 의 시작 폼을 못 읽었다 — 목록 첫 폼으로 대체. "
+                           + "폼을 안 고르고 던전에 들어가면 로비 캐릭터와 다른 폼으로 시작할 수 있다.");
+            return forms.Length > 0 ? forms[0] : null;
         }
 
         private static DungeonPortal CreatePortal()
@@ -201,7 +281,7 @@ namespace Abyss.EditorTools
             public FormSelectPanel component;
         }
 
-        private static PanelRefs CreateFormSelectPanel(Canvas canvas)
+        private static PanelRefs CreateFormSelectPanel(Canvas canvas, FormData[] forms, FormData defaultForm)
         {
             var panel = canvas.gameObject.AddComponent<FormSelectPanel>();
 
@@ -211,8 +291,6 @@ namespace Abyss.EditorTools
             var bg = root.AddComponent<Image>();
             bg.color = new Color(0f, 0f, 0f, 0.85f);
 
-            // 폼 로드(폴더 SoT). 박스 폭을 폼 수에 맞춰 산정하려 먼저 로드한다.
-            var forms = LoadForms();
             // N개 폼을 중앙 정렬(폼 수가 늘어도 자동 대응). 간격 285 + 버튼폭 260 → 25px 여백.
             const float formSpacing = 285f;
             const float formButtonWidth = 260f;
@@ -246,6 +324,8 @@ namespace Abyss.EditorTools
             SetObject(so, "cancelButton", cancel);
             SetObjectArray(so, "selectableForms", new List<Object>(forms));
             SetObjectArray(so, "formButtons", formButtons);
+            // 로비 캐릭터와 같은 기본 폼 — 강조된 버튼과 서 있는 그림이 어긋나지 않게.
+            SetObject(so, "defaultForm", defaultForm);
             so.ApplyModifiedProperties();
 
             return new PanelRefs { component = panel };
@@ -311,6 +391,12 @@ namespace Abyss.EditorTools
             SetObject(so, "target", target);
             var find = so.FindProperty("findPlayerAtStart");
             if (find != null) find.boolValue = false; // 런타임 검색은 PlayerCharacter만 찾으므로 직접 와이어
+
+            // 추적 기준점이 몸통 중앙에서 발밑으로 1유닛 내려갔다(폼 스프라이트 피벗 규약).
+            // 오프셋을 그대로 두면 화면 전체가 1유닛 내려가 바닥 아래 빈 공간이 늘어난다.
+            // 카메라가 잡던 그림은 그대로 두고 싶으므로 기준점이 내려간 만큼 올려 상쇄한다.
+            var offset = so.FindProperty("offset");
+            if (offset != null) offset.vector3Value = new Vector3(0f, 3f, -10f);
             so.ApplyModifiedProperties();
         }
 
