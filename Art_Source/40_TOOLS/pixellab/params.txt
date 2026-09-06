@@ -1,0 +1,135 @@
+# ══════════════════════════════════════════════════════════════
+# PixelLab 생성 파라미터 + 앵커·팔레트 규약
+#
+# 🔥 이 파일은 **버리는 층**이다. 도구가 바뀌면 40_TOOLS/ 만 새로 쓰고
+#    00_SOURCE / 10_BIBLE / 20_SUBJECTS / 30_BLOCKS 는 그대로 간다.
+#    넉 달에 도구가 세 번 바뀌었고 그때마다 정체성까지 같이 죽었다. 그래서 나눴다.
+#
+# 🔑 PixelLab 이 앞 두 도구보다 나은 지점이 정확히 둘이고, 이 파일이 그 둘을 쓴다:
+#      style_image   같은 화풍을 이미지로 지정
+#      color_image   팔레트를 이미지로 **강제**
+#    NovelAI V5 에는 둘 다 없어서 정체성을 문자열로만 붙들어야 했고, gen2 는 거기서 멈췄다.
+# ══════════════════════════════════════════════════════════════
+
+[ANCHOR]
+# 🔴 이 파이프라인의 중심 규약. 순서를 지키지 않으면 전부 다시 뽑는다.
+#
+#   1. 씬마다 **앵커 한 장**을 pixflux 로 뽑는다 (bg_mid).
+#      여러 장 뽑아 사람이 고른다 — 이 한 장이 그 씬의 화풍 전부를 결정한다.
+#   2. 고른 앵커를 Art_Source/anchors/<scene>.png 로 저장한다.
+#   3. 그 씬의 **나머지 전부**는 bitforge 로 뽑되 style_image = 그 앵커.
+#
+# 💡 왜 pixflux 로 시작하는가 — bitforge 는 style_image 가 있어야 값을 한다.
+#    첫 장은 참조할 것이 없으므로 pixflux 다. 그 뒤로는 전부 bitforge 다.
+#
+# ⚠️ style_strength 는 0~100 이고 50 이 균형점이다. 100 에 가까울수록 앵커를 베끼므로
+#    타일이 앵커의 구조까지 따라와 심리스가 깨진다. 화풍이 갈리면 65 까지만 올린다.
+#
+# 🔴 다른 씬의 앵커를 style_image 로 쓰지 않는다.
+#    예외는 hidden 하나 — 거울상 영역이라 의도적으로 stage1 앵커를 쓴다([STYLE-FROM]).
+anchor_model = pixflux
+derived_model = bitforge
+style_strength = 50
+
+[PALETTE]
+# 🔴 이 블록이 게임 가독성을 지킨다. 빼면 캐릭터가 배경에 묻힌다.
+#
+# ⚠️ 2026-09-06 에 **피해야 할 대상이 바뀌었다.**
+#    예전에는 폼 액센트 4색이었다. 이제는 **시너지 축 6색**이다 —
+#    색을 폼에서 떼어 축에 줬기 때문이다(10_BIBLE/04 §1).
+#    폼은 M4 에 8~10 개까지 늘고 색은 안 늘어서, 폼당 색 배정은 4번째에서 이미 깨졌다.
+#
+#    축 6색 (SynergyAxis.cs 가 SoT — 아트가 이 값을 정하지 않는다):
+#       fire       #FF752E    blood_pact #E6384D
+#       abyss      #A36BF5    frost      #73CCFF
+#       guard      #FFCC52    soul       #8CF2B3
+#
+#    S1  신호 색을 월드에 칠하지 않는다.
+#    S3  씬 팔레트는 이 6색과 **명도 또는 채도에서** 갈려야 한다.
+#        색상만 피하는 것으로는 부족하다.
+#
+# 🔑 프롬프트는 부탁이고 color_image 는 명령이다.
+#    palettes/_palettes.txt 의 hex 목록을 make_palettes.py 가 PNG 로 굽고,
+#    그 PNG 를 color_image 로 넣으면 **그 색 밖으로 나갈 수 없다.**
+#
+# ⚠️ 그러므로 팔레트 파일에 무엇을 넣느냐가 이 파이프라인에서 가장 중요한 손작업이다.
+#    색을 고르는 순간 판정이 끝난다.
+# 🔴 그래서 **팔레트가 앵커보다 먼저다.** 앵커를 뽑는 시점에 이미 있어야 한다.
+color_image = palettes/<scene>.png
+
+[PARAMS-BG]
+# 패럴랙스 배경 레이어. 방은 가로로 스크롤되므로 가로가 길다.
+# ⚠️ 최대 면적 제한: 무료 200x200 / tier1 320x320 / tier2+ 400x400.
+#    아래는 무료 티어에서도 도는 크기다. 상위 티어면 320x180 으로 올린다.
+model = bitforge
+image_size = 160x96
+no_background = false
+view = side
+shading = basic shading
+detail = low detail
+outline = lineless
+# 🔑 배경만 lineless 다. 윤곽선이 있으면 배경 물체가 캐릭터만큼 또렷해져
+#    무엇이 조작 대상인지 화면에서 안 갈린다. 발판·프롭은 selective outline 을 쓴다.
+#    이 대비가 10_BIBLE/03 L3(좁은 명도 대비)의 해답 후보다 —
+#    명도로 못 가르면 윤곽선 유무로 가른다.
+
+[PARAMS-BG-SKY]
+# 최원경만 예외적으로 더 흐리다 — 패럴랙스 계수가 가장 낮아 크게 안 움직인다.
+# 🔴 구름을 그리지 않는다(10_BIBLE/03 L7). 하늘은 텍스처가 아니라 면이다.
+model = bitforge
+image_size = 160x96
+no_background = false
+shading = flat shading
+detail = low detail
+outline = lineless
+
+[PARAMS-TILESET]
+# 🔴 이건 API 가 아니라 **웹 도구(Create tileset)** 다.
+#    입력은 셋: inner / transition / outer.
+#    tile_size 는 16 또는 32 만 된다.
+#    transition_size 는 경계 높이 — 0 이면 평평하고 값이 크면 벽이 선다.
+tool = create-tileset
+tile_size = 32
+transition_size = 1
+border_jitter = medium
+
+[PARAMS-PLATFORM]
+# 떠 있는 발판은 타일셋이 아니라 낱개다(사방이 뚫려 있어 Wang 이 안 맞는다).
+model = bitforge
+image_size = 48x16
+no_background = true
+outline = selective outline
+shading = basic shading
+detail = medium detail
+
+[PARAMS-PROP]
+# 장식·트랩·인터랙티브. 알파 필수 — 배경 위에 얹는 것이다.
+# ⚠️ no_background 는 200x200 을 넘는 면적에서 빈 배경이 될 수 있다.
+#    프롭은 전부 그 아래라 문제되지 않는다.
+model = bitforge
+image_size = 48x48
+no_background = true
+outline = selective outline
+shading = medium shading
+detail = medium detail
+
+[SILENT]
+# 장식·트랩용. 배경에 녹아들어야 한다.
+muted and dusty, blends into the wall
+
+[NOTICEABLE]
+# 인터랙티브 전용. 어두운 방에서 플레이어가 찾아낼 수 있어야 한다.
+#
+# 🔴 2026-09-06 변경 — gen3 는 `faint pale glow` 였다.
+#    10_BIBLE/03 L1(광원 금지)에 걸린다. 빛나는 프롭은 광원이다.
+#    발광을 빼고 **주변보다 덜 어둡게**로 바꿨다. `glow` 는 이제 빌드 실패 어휘다.
+less dark than what is around it, easy to spot, not lit
+
+[SETTINGS]
+# 🔴 한 씬의 레이어들은 반드시 한 세션 안에서 끝낸다.
+#    패럴랙스는 여러 장이 겹쳐 보이는 구조라 색온도 차이가 그대로 층으로 드러난다.
+#    날짜를 넘겨 이어 뽑으면 같은 설정이어도 갈린다 — gen2·gen3 가 둘 다 적어 둔 것이다.
+#
+#   seed          한 씬 안에서는 고정 (프롭만 예외 — 서로 닮으면 안 된다)
+#   style_image   그 씬의 앵커. 절대 다른 씬 것을 쓰지 않는다
+#   color_image   그 씬의 팔레트 PNG

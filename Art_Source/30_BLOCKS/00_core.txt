@@ -1,0 +1,100 @@
+# ══════════════════════════════════════════════════════════════
+# 세계 공통 블록 (영문) — 전 대상에 실린다
+#
+# 🔴 손으로 재조립하지 않는다. 50_BUILD/build.py 가 갖다 붙인다.
+# 🔴 여기 문장은 전부 10_BIBLE 항목의 영어판이다. 여기서 새로 정하지 않는다.
+#
+# ⚠️ PixelLab 은 태그 나열형이 아니다. 문구가 길면 서로 희석되어 아무것도 안 걸린다.
+#    [CORE] 는 모든 프롬프트에 들어가므로 특히 짧게 유지한다 —
+#    여기가 길면 파트 문구가 밀린다.
+#
+# 출처: Docs/novel/ 전 3권 → 00_SOURCE/ → 10_BIBLE/
+#       (게임 기획 문서가 아니다. 세 세대가 그래서 폐기됐다 — _legacy/README.md)
+# ══════════════════════════════════════════════════════════════
+
+[CORE]
+# 🔴 gen3 는 여기가 `dark fantasy underground ruins` 였다.
+#    `ruins`(폐허)는 소설 전권 **0회**이고, 실제로 이 세계의 층은 대부분 폐허가 아니다 —
+#    8층은 "집이 많았다. 사람이 많았다"(3권 13장)이고 계단의 마을에는 밭이 있다.
+#    부서진 것을 그리는 것과 비워진 것을 그리는 것은 완전히 다른 그림이다. (10_BIBLE/01 W2)
+dark underground stone
+
+[TONE]
+# 00-concept §5 + 소설 문체 규약. 대단한 존재가 아니라 사람이 있던 자리다.
+#
+# 💡 처음에는 `not ruined` 였는데 build.py 의 [FORBIDDEN] 검사가 `ruined` 를 잡아
+#    빌드가 멈췄다 — **검사가 그것을 쓴 사람을 먼저 잡은 셈이다.**
+#    고쳐 놓고 보니 검사가 옳았다: 부정 서술("~가 아니다")은 이미지 모델에 약하다.
+#    모델은 "ruined 를 빼라"가 아니라 "ruined"를 읽는다.
+#    긍정으로 말한다 — 폐허가 아니라는 것은 **아직 서 있다**는 것이다. (10_BIBLE/01 W2)
+quiet, plain, worn, still standing, nothing heroic
+
+[MOTIF]
+# 🔴 층을 하나의 세계로 묶는 것. 파트마다 이 중 **하나만** 골라 쓴다(전부 넣으면 희석된다).
+#
+#   carved     벽에 손으로 새긴 이름. 그리고 그 글자가 줄어든다.
+#              3권 21장 — 같은 이름을 열넷 썼는데 세 글자 다섯 → 두 글자 셋 →
+#              한 글자 넷 → 마지막 둘은 글자가 아니라 획이었다.
+#   unclimbed  아무도 못 올라갔다. 위를 향하다 만 것만 남았다. (2권 삼천 단 계단)
+#   left       사람이 하나씩 나갔고 살림은 그대로다.
+#              3권 18장 — "살림이 그대로고 먼지가 고르다. 급했으면 자국이 어지럽다"
+#   fallen     위에서 내려온 것. 이 세계의 방향은 언제나 아래다.
+#
+# ⚠️ gen3 의 fallen 은 `rubble fallen from above`(잔해)였다. 폐허 어휘라 바꿨다.
+carved = names scratched into the stone by hand, the letters getting shorter
+unclimbed = a stairway that stops partway up
+left = belongings still in place, dust lying evenly
+fallen = things that came down from somewhere above
+
+[NEGATIVE]
+# ⚠️ pixflux 의 negative_description 은 API 에서 deprecated 다 — 앵커에는 안 실린다.
+#    bitforge 에서만 유효하므로 앵커 이후 생성에만 붙는다.
+#    🔴 그래서 앵커에서 이것들이 나오면 부정 프롬프트를 손보지 말고 **다시 뽑는다.**
+#
+# 인물 배제가 최우선이다 — 배경에 사람이 그려지면 플레이어와 겹쳐
+# 무엇이 조작 대상인지 화면에서 구분이 안 된다. (10_BIBLE/06 C8)
+people, character, creature, monster,
+ruins, rubble, temple, throne, crown, palace,
+crystal, lava, fire, magic, rune,
+moss, grass, plants, trees,
+shaft of light, sunbeam, god rays, visible light source, cast shadow,
+floating dust, particles, embers, sparkles, clouds,
+bright saturated colours, blue sky, daylight, text, watermark, ui
+
+[FORBIDDEN]
+# 🔴 build.py 가 조립된 문구에서 이 낱말을 찾으면 **빌드를 실패시킨다.**
+#    부정 프롬프트는 부탁이고 이건 검사다. gen1~3 이 샜던 자리를 자동으로 막는다.
+#
+# 두 종류가 섞여 있다:
+#   ① 소설 0회 어휘 — 넣으면 이 세계에 없는 물건이 그려진다
+#      (00_SOURCE/forbidden-vocabulary.md §1 실측: 신성·공허·고대·회랑·왕좌·폐허 전부 0회)
+#   ② 10_BIBLE/03 의 빛 규약을 어기는 말 — 광원·그림자·공중 입자·구름
+#
+# ⚠️ 낱말 경계로 찾는다. 새 낱말을 넣기 전에 정말 못 쓰는 말인지 확인할 것 —
+#    여기 넣으면 그 낱말이 들어간 모든 씬의 빌드가 멈춘다.
+ruin, ruins, ruined, rubble, temple, shrine, crypt, tomb, catacomb,
+throne, crown, palace, castle, banner, tapestry,
+void, divine, god, goddess, holy, sacred, blessed, ancient,
+rift, portal, archway,
+magic, magical, rune, sigil, arcane,
+lava, magma, fire, flame, flames, burning, ember, embers, bonfire, brazier, torch,
+crystal, gem, orb,
+moss, grass, foliage, vine, ivy,
+sunbeam, sunlight, moonlight, godray, godrays,
+glow, glowing, radiant, luminous,
+shadow, shadows, cloud, clouds
+
+[SUSPECT]
+# ⚠️ 실패시키지 않고 경고만 한다. 쓸 자리가 있을 수도 있는 말들이다.
+#    경고가 뜨면 "정말 이 낱말이어야 하나"를 한 번 묻는 것이 목적이다.
+cave, dungeon, abandoned, dead, skull, bones, ancientlike, eerie, cursed
+
+[GLOBAL]
+# 전 생성 공통 파라미터. 파트가 덮어쓸 수 있다.
+# 값은 PixelLab API 스펙의 enum 그대로다 (40_TOOLS/pixellab/profile.md 참조).
+view = side
+outline = selective outline
+shading = medium shading
+detail = medium detail
+isometric = false
+text_guidance_scale = 8

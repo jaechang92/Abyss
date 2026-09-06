@@ -105,3 +105,57 @@
 | 「잘못 놓인 살림」을 32px 타일과 48px 프롭으로 어떻게 보여 주나 | `05-material` + 프롭 카탈로그 |
 | 빛이 끊기는 선을 배경 레이어 어디에 두나 | 앵커 뽑아 보고 |
 | `bg_boss_arena`(AbyssKeeper)를 이 팔레트로 가나 | 보스 씬은 강조가 필요할 수 있다 |
+
+---
+
+<!-- BUILD-INPUT -->
+
+# ══════════════════════════════════════════════════════════════
+# 아래가 50_BUILD/build.py 가 읽는 구역이다. 위쪽 산문은 통째로 무시된다.
+# 🔴 여기에는 [BLOCK] 과 '#' 주석만 둔다. 표(|)가 섞이면 빌드가 멈춘다.
+# 🔴 한글은 반드시 '#' 뒤에만. 본문에 섞이면 빌드가 멈춘다.
+# ══════════════════════════════════════════════════════════════
+
+[ANCHOR-PART] bg_mid
+
+[SETTING]
+# 「폐허·고대 유적」을 버린 자리. 유적은 오래된 것이고 이 씬은 어제까지 쓰던 곳이다.
+the underside of an ordinary town, everyday things set down wrong
+
+[MATERIAL]
+# 재질만 남긴다. 정체는 SETTING 이 말하고 살림은 MOTIF(left) 가 말한다 —
+# 셋이 같은 말을 하면 문구 예산만 먹고 서로 흐려진다.
+plain grey stone
+
+[GROUND-MATERIAL]
+# 🔴 물건 없이 면만. 32px 타일에 물건이 들어가면 바닥마다 반복된다.
+flat worn stone slabs, one even surface
+
+[WALL-MATERIAL]
+# gen3 는 벽이 배경 재질을 그대로 썼다. 이제 따로 적는다.
+a plain stone wall face, quiet and even
+
+[SKY]
+# 🔴 구름을 그리지 않는다(L7). 하늘은 텍스처가 아니라 면이다.
+a low flat grey ceiling of nothing
+
+[LIGHT]
+# 🔴 광원을 그리지 않는다(L1). 이 씬의 빛은 선에서 끊길 뿐 어디서도 안 온다.
+light stops at one hard straight edge
+
+[MOTIF] left
+
+[STORY]
+# 인터랙티브 프롭. 줄마다 한 장씩 뽑는다([SPLIT-SCENE]).
+# 셋 다 소설에서 왔다 — 삼천 단 계단 / 벽의 글자(3권 21장) / 빛이 끊기는 선(1권 4장).
+a stairway that stops partway up
+a wall covered in tally marks left by someone counting days
+a doorway where the light ends in one straight edge
+
+[TILE-OUTER]
+dark empty air
+
+[PARTS]
+bg_sky, bg_far, bg_mid, bg_near, bg_boss_arena,
+tileset_ground, tileset_wall, tile_platform,
+prop_decor, prop_hazard, prop_interactive, prop_landmark
