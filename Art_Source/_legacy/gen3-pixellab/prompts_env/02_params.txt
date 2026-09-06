@@ -1,0 +1,133 @@
+# ══════════════════════════════════════════════════════════════
+# 종류별 생성 파라미터 + 스타일·팔레트 고정 규약
+#
+# 01_world.txt 가 "어떤 세계인가"라면 이 파일은 "어떻게 뽑는가"다.
+# 씬이 바뀌어도 이건 안 바뀐다.
+#
+# 🔑 PixelLab 이 NovelAI 보다 나은 지점이 정확히 두 개고, 이 파일이 그 둘을 쓴다:
+#      style_image   같은 화풍을 이미지로 지정 (V5 에는 없던 기능)
+#      color_image   팔레트를 이미지로 강제      (V5 에는 없던 기능)
+#    prompts/01_character.txt 는 "참조 이미지로 이 사람을 가리킬 방법이 없으므로
+#    정체성을 붙드는 것은 이 텍스트뿐"이라고 적혀 있다 — 그 제약이 사라졌다.
+# ══════════════════════════════════════════════════════════════
+
+[ANCHOR]
+# 🔴 이 파이프라인의 중심 규약. 순서를 지키지 않으면 전부 다시 뽑는다.
+#
+#   1. 스테이지마다 **앵커 한 장**을 pixflux 로 뽑는다 (보통 bg_mid).
+#      여러 장 뽑아 사람이 고른다 — 이 한 장이 그 스테이지의 화풍 전부를 결정한다.
+#   2. 고른 앵커를 Art_Source/env/anchor/<scene>.png 로 저장한다.
+#   3. 그 스테이지의 **나머지 전부**는 bitforge 로 뽑되
+#      style_image = 그 앵커, style_strength = 50 을 건다.
+#
+# 💡 왜 pixflux 로 시작하는가 — bitforge 는 style_image 가 있어야 값을 한다.
+#    첫 장은 참조할 것이 없으므로 pixflux 다. 그 뒤로는 전부 bitforge 다.
+#
+# ⚠️ style_strength 는 0~100 이고 50 이 균형점이다. 100 에 가까울수록 앵커를
+#    베끼므로 타일이 앵커의 구조까지 따라와 심리스가 깨진다. 50 을 기본으로 두고
+#    화풍이 갈리면 65 까지만 올린다.
+anchor_model = pixflux
+derived_model = bitforge
+style_strength = 50
+
+[PALETTE]
+# 🔴 이 블록이 게임 가독성을 지킨다. 빼면 캐릭터가 배경에 묻힌다.
+#
+#    폼 4종의 액센트는 전부 고채도 발광색이다:
+#       암흑검사 주황 #EE773D · 공허궁수 보라 #A36BF5
+#       고대방패병 금 #FFCC52 · 심연투척사 청록 #7AC8BE
+#
+#    그런데 스테이지 테마색이 이것들과 정면으로 부딪힌다 —
+#       스테이지 2 불꽃의 회랑 → 주황 (암흑검사와 충돌)
+#       스테이지 3 왕좌의 잔해 → 금   (고대방패병과 충돌)
+#       스테이지 5 심연의 핵   → 보라 (공허궁수와 충돌)
+#       스테이지 4 빙결의 영지 → 청록으로 새면 (심연투척사와 충돌)
+#
+#    GUIDELINE.md §6 은 폼끼리의 겹침만 경고했다. 배경이 들어오면
+#    배경 ↔ 폼 충돌이 새로 생기고, 폼 색은 이미 굳었으므로 배경이 양보한다.
+#
+# 🔑 NovelAI 때는 "어둡고 탁하게 그려 달라"고 부탁하는 수밖에 없었다.
+#    PixelLab 에는 color_image 가 있다 — 부탁이 아니라 강제다.
+#    palettes/<scene>.txt 의 hex 목록을 make_palettes.py 가 PNG 로 굽고,
+#    그 PNG 를 color_image 로 넣으면 **그 색 밖으로 나갈 수 없다.**
+#
+# ⚠️ 그러므로 팔레트 파일에 폼 액센트를 닮은 밝은 색을 넣지 않는 것이
+#    이 파이프라인에서 가장 중요한 손작업이다. 색을 고르는 순간 판정이 끝난다.
+color_image = palettes/<scene>.png
+
+[PARAMS-BG]
+# 패럴랙스 배경 레이어. 방은 가로로 스크롤되므로 가로가 길다.
+# ⚠️ 최대 면적 제한: 무료 200x200 / tier1 320x320 / tier2+ 400x400.
+#    아래는 무료 티어에서도 도는 크기다. 상위 티어면 320x180 으로 올린다.
+#    (공식 권장 scenery 비율 16:9)
+model = bitforge
+image_size = 160x96
+no_background = false
+view = side
+shading = basic shading
+detail = low detail
+outline = lineless
+# 🔑 배경만 lineless 다. 윤곽선이 있으면 배경 물체가 캐릭터만큼 또렷해져
+#    무엇이 조작 대상인지 화면에서 갈리지 않는다. 캐릭터는 selective outline 을 쓴다.
+
+[PARAMS-BG-SKY]
+# 최원경만 예외적으로 더 흐리고 더 작다 — 패럴랙스 계수가 가장 낮아 크게 안 움직인다.
+model = bitforge
+image_size = 160x96
+no_background = false
+shading = flat shading
+detail = low detail
+outline = lineless
+
+[PARAMS-TILESET]
+# 🔴 이건 API 가 아니라 **웹 도구(Create tileset)** 다.
+#    Wang 타일셋을 만들어 dual-grid 15-tileset / 3x3 형식으로 export 할 수 있고,
+#    그게 Unity Tilemap 에 그대로 들어간다. 손으로 심리스를 맞출 필요가 없다.
+#
+#    입력은 셋이다: inner(안쪽 재질) / transition(경계) / outer(바깥 재질)
+#    tile_size 는 16 또는 32 만 된다.
+#    transition_size 는 경계의 높이다 — 0 이면 평평하고 값이 크면 벽이 선다.
+tool = create-tileset
+tile_size = 32
+transition_size = 1
+border_jitter = medium
+
+[PARAMS-PLATFORM]
+# 떠 있는 발판은 타일셋이 아니라 낱개 오브젝트다(사방이 뚫려 있어 Wang 이 안 맞는다).
+model = bitforge
+image_size = 48x16
+no_background = true
+outline = selective outline
+shading = basic shading
+detail = medium detail
+
+[PARAMS-PROP]
+# 장식·트랩·인터랙티브. 알파 필수 — 배경 위에 얹는 것이다.
+# ⚠️ no_background 는 200x200 을 넘는 면적에서 빈 배경이 될 수 있다.
+#    프롭은 전부 그 아래라 문제되지 않는다.
+model = bitforge
+image_size = 48x48
+no_background = true
+outline = selective outline
+shading = medium shading
+detail = medium detail
+
+[SILENT]
+# 장식·트랩용 문구. 배경에 녹아들어야 한다.
+# ⚠️ 트랩이 여기 있는 게 이상해 보이지만 의도다 — 트랩은 발동 전에는 지형처럼
+#    보이고, 위험 신호는 색이 아니라 **형태**로 준다(00-concept 색약 대응).
+muted and dusty, blends into the wall
+
+[NOTICEABLE]
+# 인터랙티브 전용. 어두운 방에서 플레이어가 찾아낼 수 있어야 한다.
+# 🔴 밝게 만드는 대신 **주변보다 덜 어둡게** 만든다. 고채도 발광을 쓰면
+#    폼 액센트와 부딪힌다([PALETTE] 참조).
+faint pale glow, clearly stands out from the wall
+
+[SETTINGS]
+# 🔴 한 씬의 레이어 4장은 반드시 한 세션에서 끝낸다.
+#    패럴랙스는 네 장이 겹쳐 보이는 구조라 색온도 차이가 그대로 층으로 드러난다.
+#
+#   seed          한 씬 안에서는 고정 (프롭만 예외 — 서로 닮으면 안 된다)
+#   style_image   그 씬의 앵커. 절대 다른 씬 것을 쓰지 않는다
+#   color_image   그 씬의 팔레트 PNG

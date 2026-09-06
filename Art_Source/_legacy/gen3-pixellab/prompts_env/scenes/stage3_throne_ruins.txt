@@ -1,0 +1,45 @@
+# ══════════════════════════════════════════════════════════════
+# 스테이지 3 — 왕좌의 잔해 (테마: 무너진 왕궁)
+# 08-content-roadmap §6-1 · 중간보스 Warden / 보스 Thronebound · 7~9방
+#
+# ⚠️ 팔레트 충돌 2건이 겹친다:
+#      금색  — 고대방패병(ancient_shield) 액센트 #FFCC52
+#      보라  — 공허궁수(void_archer) 액센트 #A36BF5
+#    왕궁은 이 둘을 다 쓰고 싶어지는 테마다.
+#
+# 🔑 그래서 여기의 금은 **녹슬고 벗겨진 금**이고 보라는 **바래고 어두운 보라**다.
+#    "화려했던 것이 아니라 화려했던 흔적"이 이 스테이지의 축이라
+#    설정과 가독성이 같은 방향을 가리킨다 — 억지로 어둡게 하는 게 아니다.
+#
+# 💡 서사적으로 가장 값이 큰 스테이지다. Act2 가 여기서 시작하고
+#    (08-content-roadmap §Act 구성) "추락자의 정체 단서"가 벽에 있다.
+# ══════════════════════════════════════════════════════════════
+
+[ANCHOR-PART] bg_mid
+
+[SETTING]
+a collapsed throne hall, an empty throne
+
+[MATERIAL]
+cracked marble, tarnished gilding, rotted banners
+
+[GROUND-MATERIAL]
+# "rotted banners" 는 벽에 걸린 물건이라 뺐다. 금은 바닥에서 상감(inlay)으로만 남는다.
+cracked marble floor slabs, thin tarnished gold inlay
+
+[LIGHT]
+dim grey light through a broken ceiling
+
+[MOTIF] carved
+
+[STORY]
+# 이름이 축이다 — 왕의 이름은 지워졌고, 아래 새겨진 이름들만 남았다.
+a royal name chiselled off the wall
+a long list of names carved underneath it
+an empty throne with handprints worn into the armrests
+
+[PARTS]
+bg_sky, bg_far, bg_mid, bg_near, bg_boss_arena,
+tileset_ground, tileset_wall, tile_platform,
+prop_decor,
+prop_hazard, prop_interactive, prop_landmark

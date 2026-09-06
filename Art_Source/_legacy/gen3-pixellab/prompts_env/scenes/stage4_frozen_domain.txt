@@ -1,0 +1,42 @@
+# ══════════════════════════════════════════════════════════════
+# 스테이지 4 — 빙결의 영지 (테마: 동토·얼음 동굴)
+# 08-content-roadmap §6-1 · 중간보스 PlagueWarden / 보스 FrostKing · 8~10방
+# 📌 도입 시점 M3 — 지금 당장 필요한 것은 아니다. 팔레트만 미리 잡아 둔다.
+#
+# ⚠️ 얼음은 **파랑**이지 청록이 아니다.
+#    심연투척사(void_thrower) 액센트가 청록 #7AC8BE 이라, 얼음을 청록 쪽으로
+#    밀면 그 폼이 배경에 묻힌다. 강청(steel blue) 쪽으로 고정한다.
+#
+# 💡 이 스테이지는 [MOTIF] fallen 이 시각적으로 가장 잘 보인다 —
+#    떨어진 것들이 얼음 속에 그대로 보존돼 있다. 다른 스테이지에서는
+#    잔해가 부서져 있지만 여기서는 **형태가 남아 있다.**
+# ══════════════════════════════════════════════════════════════
+
+[ANCHOR-PART] bg_mid
+
+[SETTING]
+a frozen cavern, ice swallowing old stonework
+
+[MATERIAL]
+steel blue ice, dark stone under the ice
+
+[GROUND-MATERIAL]
+# 얼음이 돌을 덮은 면이다. 얼음만 쓰면 밟을 수 있는 면으로 안 읽힌다.
+dark stone sheathed in steel blue ice, frost
+
+[LIGHT]
+cold light diffused through thick ice
+
+[MOTIF] fallen
+
+[STORY]
+# 얼음이 보존한다 — 다른 곳에서는 썩어 없어진 것이 여기서는 보인다.
+shapes of people frozen inside the ice wall
+a rope frozen in mid-fall
+supplies stacked by someone who never came back
+
+[PARTS]
+bg_sky, bg_far, bg_mid, bg_near, bg_boss_arena,
+tileset_ground, tileset_wall, tile_platform,
+prop_decor,
+prop_hazard, prop_interactive, prop_landmark

@@ -1,96 +1,144 @@
-# Art_Source — 아트 원본·중간 산출물
+# Art_Source — 아트 프롬프트 체계
 
-> 🔴 **폐기됨 — 2026-08-26.** 이 문서는 **웹 image_gen(ChatGPT) 수동 생성** 기준의 절차서다.
-> 에셋 제작 도구가 **NovelAI Diffusion V5**로 바뀌면서 프롬프트 체계(`prompts/`)와
-> 파이프라인 폴더(`raw/ cut/ frames/ qa/`)를 전부 비웠다. **아래 절차는 더 이상 유효하지 않다.**
-> NovelAI 기준 폴더 구조·프롬프트 체계는 다음 세션에 새로 설계한다.
-> 남긴 것: `base/dark_blade.png`(vibe 참조로 재활용 가능) · `Tools/ArtPipeline/`(생성기와 무관한 후처리).
-> 예전 체계 전문은 `feature/form-rigging` 브랜치(`cd7d454`)에 남아 있다.
+> 재작성 착수 2026-09-06. 앞선 세 세대는 `_legacy/`에 있다.
+> **`Assets/` 바깥에 있는 것이 의도다** — Unity는 `Assets/` 아래 전부를 임포트하고 `.meta`를 만든다.
+> 원본은 후보를 여러 장 뽑으므로 안에 두면 임포트 시간과 용량만 먹는다. 최종본만 `Assets/Art/`로 간다.
 
 ---
 
-AI 생성 아트 파이프라인의 작업 공간이다. **`Assets/` 바깥에 있는 것이 의도다.**
+## 0. 확정 사항 (2026-09-06)
 
-> 🔴 **왜 `Assets/` 밖인가**
-> Unity는 `Assets/` 아래 모든 파일을 임포트하고 `.meta`를 만든다. 원본은 1.5MB짜리
-> 고해상도 PNG이고 후보를 여러 장 뽑으므로, 안에 두면 **임포트 시간과 프로젝트 용량만
-> 먹고 게임은 그중 하나도 안 쓴다**(최종본만 `Assets/Art/Sprites/`로 간다).
-> 밑줄 접두어(`_source`)로는 안 걸러진다 — Unity가 무시하는 것은 `~`로 끝나거나
-> `.`으로 시작하는 폴더뿐이다.
+| 항목 | 결정 | 딸려 오는 것 |
+|---|---|---|
+| SoT | **소설 `Docs/novel/` 전 3권** | 게임 기획 문서는 SoT가 아니다. `13-novel-game-glossary.md`(2026-08-19)가 이미 그렇게 정했다 |
+| 화풍 | **픽셀 아트** | ADR-008의 전제("Skul은 픽셀")는 오류였으나 결론은 유지 |
+| 도구 | **PixelLab** (pixflux 앵커 → bitforge 파생) | `style_image`·`color_image`라는 **강제 장치**가 있는 유일한 선택지 |
+| 기존 에셋 | **전부 임시. 전량 재작업** | 🔑 **기존 도트와 화풍·팔레트를 맞출 의무가 없다** — 소설 기준으로 새로 정할 수 있다 |
+| 착수 | **환경(씬) 먼저** | 소설의 층 감각이 환경에서 가장 직접 드러난다 |
 
 ---
 
-## 파이프라인과 폴더의 대응
+## 1. 왜 세 번 다시 썼고, 이번엔 무엇이 다른가
+
+넉 달에 도구가 세 번 바뀌었다(web image_gen → NovelAI V5 → PixelLab). 그때마다 **정체성 파일을 통째로 다시 썼다** — 도구 문법과 세계 정체성이 한 파일에 섞여 있었기 때문이다.
+
+그리고 더 큰 문제: **세 세대 전부 출처가 `Docs/game-design/`이었다.** `_legacy/gen3-pixellab/prompts_env/01_world.txt`가 자기 출처 넷을 적어 두었는데 넷 다 기획 문서다. 그러나 SoT는 이미 소설로 정해져 있었다.
+
+그래서 이번 구조의 두 가지 대응:
+
+1. **번호가 낮을수록 오래 산다.** 도구가 네 번째로 바뀌면 버리는 것은 `40_TOOLS/` 하나다.
+2. **모든 규약은 소설 원문을 인용해야 한다.** 못 하면 그렇다고 적는다(§3).
+
+---
+
+## 2. 구조 — 내구도 순
 
 ```
-prompts/   ─①─>  raw/  ─②─>  cut/  ─③─>  frames/  ─④─>  curated/  ─⑤─>  Assets/Art/Sprites/Forms/
-                                                                              (여기부터 Unity)
+Art_Source/
+├─ 00_SOURCE/    소설 인용 대장 (한글·원문)      ████████ 영구
+├─ 10_BIBLE/     아트 바이블   (한글·도구 무관)  ███████░ 영구
+├─ 20_SUBJECTS/  대상 카탈로그 (게임 데이터 키)  ██████░░ 게임 데이터가 바뀌면
+├─ 30_BLOCKS/    프롬프트 부품 (영문)            ████░░░░ 도구 계열이 바뀌면
+├─ 40_TOOLS/     도구 어댑터   (문법·파라미터)   █░░░░░░░ 도구가 바뀌면 버린다
+├─ 50_BUILD/     조립기 build.py
+│
+├─ anchors/      사람이 고른 기준 이미지     ✅ 추적 (다시 못 만든다)
+├─ curated/      게임에 들어갈 것            ✅ 추적 (사람이 고른 결과)
+├─ assembled/    조립본                     ❌ 비추적 (build.py가 다시 만든다)
+├─ raw/ cut/ frames/ qa/  생성 원본·중간 산출물  ❌ 비추적
+└─ _legacy/      폐기된 세 세대              📖 읽기 전용
 ```
 
-| 폴더 | 단계 | 내용 | git |
-|------|------|------|-----|
-| `prompts/` | ① | 프롬프트 **SoT**. 앵커·폼별·조립본 | ✅ 추적 |
-| `base/` | ① | 폼별 **기준 이미지**(앵커가 가리키는 것) | ✅ 추적 |
-| `raw/<form>/` | ② | AI 생성 원본. 마젠타 배경, 후보 여러 장 | ❌ 제외 |
-| `cut/` | ③ | 크로마키 추출본(알파) | ❌ 제외 |
-| `frames/<form>/` | ④ | 시트에서 분리한 상태별 프레임 | ❌ 제외 |
-| `curated/<form>/` | ⑤ | 큐레이션 통과본. **게임에 들어갈 것** | ✅ 추적 |
-| `qa/` | — | 측정 리포트·대조 이미지 | ❌ 제외 |
+### 층별 책임
 
-> 📌 **추적 기준은 "재생성 가능한가"다.** `raw`·`cut`·`frames`·`qa`는 원본과 스크립트만
-> 있으면 다시 만들어지므로 저장소에 넣지 않는다(용량만 먹는다).
-> `prompts`·`base`·`curated`는 **다시 만들 수 없다** — 프롬프트는 손으로 쓴 것이고,
-> base와 curated는 여러 후보 중 **사람이 고른 결과**다.
+| 층 | 답하는 질문 | 언어 | 바뀌는 계기 |
+|---|---|---|---|
+| `00_SOURCE` | *소설에 정말 그렇게 적혀 있나* | 한글 · 원문 그대로 | 소설이 개정되면 (완결됨) |
+| `10_BIBLE` | *그래서 이 세계를 어떻게 그리나* | 한글 · 사람이 읽는 글 | 아트 방향 결정이 바뀌면 |
+| `20_SUBJECTS` | *무엇을 그리나* | 한글 + 데이터 키 | 씬·폼·적이 추가되면 |
+| `30_BLOCKS` | *어떤 말로 시키나* | 영문 프롬프트 | 바이블 항목이 바뀌면 |
+| `40_TOOLS` | *어느 도구 문법으로 보내나* | 파라미터 | 도구가 바뀌면 |
+
+> 🔴 **`10_BIBLE`에 도구 어휘를 쓰지 않는다.** `style_strength`·`bitforge`·`no_background` 같은 말이
+> 바이블에 들어가는 순간 그 파일은 도구와 함께 죽는다. gen2·gen3가 그렇게 죽었다.
 
 ---
 
-## 명명 규약
+## 3. 기록 규약 — 소설의 것을 그대로 쓴다
 
-| 대상 | 형식 | 예 |
-|------|------|-----|
-| 기준 이미지 | `base/<formId>.png` | `base/dark_blade.png` |
-| 생성 원본(단일) | `raw/<formId>/<formId>_<n>.png` | `raw/void_archer/void_archer_1.png` |
-| 생성 원본(행) | `raw/<formId>/sheet_<상태들>.png` | `raw/dark_blade/sheet_idle-walk-attack.png` |
-| 분리 프레임 | `frames/<formId>/<state>.png` | `frames/dark_blade/attack.png` |
-| 큐레이션 통과 | `curated/<formId>/<state>.png` | `curated/dark_blade/idle.png` |
+3권의 하란은 자기가 적는 것을 **세 종류로 갈랐다**(『기록자』 21장). 이 체계도 같은 것을 쓴다.
 
-`<formId>`는 **`FormData.formId`와 같은 값**을 쓴다(`dark_blade`·`void_archer`·
-`ancient_shield`·`void_thrower`). 파일 이름이 곧 데이터 키라 오타가 나면
-조용히 안 붙는다 — 새 이름을 만들지 말고 에셋에서 복사할 것.
+| 표시 | 뜻 | 근거로 다는 것 | 예 |
+|---|---|---|---|
+| **잰 것** | 소설 본문에 그렇게 적혀 있다 | `00_SOURCE` 인용 (권/장/행) | *빛은 위에서 오지 않는다* |
+| **들은 것** | 기획 문서·게임 데이터에서 왔다 | 문서 경로와 절 번호 | *스테이지 5개 · 폼 4종* |
+| **지어낸 것** | 아트 편의로 만들었다 | 만든 이유 한 줄 | *타일 32px · 패럴랙스 4층* |
+
+> 🔑 **왜 이게 실제로 값을 하나** — gen1~3은 셋을 섞어 적었다. `dark fantasy underground ruins`가
+> 소설에서 온 것인지 장르 관습인지 파일만 보고는 알 수 없었다. 그래서 도구가 바뀔 때마다
+> **무엇을 물려받아도 되는지 판정할 수 없었고, 매번 전부 버렸다.**
+>
+> 갈라 적으면 다음 세대가 「잰 것」만 들고 가면 된다.
+
+⚠️ **섞어 적지 않는다.** 한 문단 안에 잰 것과 지어낸 것이 같이 있으면 문단을 나눈다.
 
 ---
 
-## 도구
+## 4. 파이프라인
+
+```
+소설            00_SOURCE      10_BIBLE      20_SUBJECTS
+Docs/novel/  ─▶ 인용 대장  ─▶  규약(한글) ─┬─▶ 대상 카탈로그 ─┐
+(비추적)                                    │                  │
+                                            └─▶ 30_BLOCKS ─────┤
+                                                (영문 부품)     │
+                                                                ▼
+                                      40_TOOLS/pixellab ─▶ 50_BUILD/build.py
+                                                                ▼
+                                                          assembled/
+                                                                ▼
+                              PixelLab  ─▶ raw/ ─▶ cut/ ─▶ frames/ ─▶ curated/
+                                                                        ▼
+                                                            Assets/Art/  (여기부터 Unity)
+```
+
+앵커는 이 흐름을 한 번 끊는다 — `assembled/<씬>__bg_mid` 로 **여러 장 뽑아 사람이 한 장 고르고**,
+그것을 `anchors/<씬>.png` 로 저장한 뒤 그 씬의 나머지 전부가 그것을 `style_image`로 문다.
+
+---
+
+## 5. git 추적 기준
+
+**「다시 만들 수 있는가」** 하나다.
+
+| 추적 | 이유 |
+|---|---|
+| `00_SOURCE`·`10_BIBLE`·`20_SUBJECTS`·`30_BLOCKS`·`40_TOOLS`·`50_BUILD` | 손으로 쓴 것 |
+| `anchors/` | **사람이 여러 장 중에 고른 결과.** 다시 뽑으면 다른 그림이 나온다 |
+| `curated/` | 같은 이유 |
+| `_legacy/` | 이력 |
+
+비추적은 `.gitignore`의 `Art_Source/**/{assembled,raw,cut,frames,qa}/` 로 잡는다 — 경로 무관 패턴이라
+폴더를 옮겨도 계속 먹는다.
+
+> ⚠️ **`Docs/`는 `.gitignore` 대상이라 원격에 없다.** 그래서 바이블이 "소설 3권 21장 참조"라고만
+> 적으면 원격에는 **가리킬 대상이 없다.** `00_SOURCE`가 소설 원문을 옮겨 두는 이유가 이것이다.
+
+---
+
+## 6. 도구 (생성기와 무관해서 살아남은 것)
 
 | 스크립트 | 하는 일 |
 |---|---|
-| `Tools/PixelArt/chroma_cutout.py` | 크로마키 제거 + 소프트 알파 언믹싱 (② → ③) |
-| `Tools/PixelArt/measure_consistency.py` | 행 이미지 프레임 분리 + 일관성 정량 측정 (③ → ④) |
+| `Tools/ArtPipeline/chroma_cutout.py` | 크로마키 제거 + 소프트 알파 언믹싱 |
+| `Tools/ArtPipeline/measure_consistency.py` | 시트 프레임 분리 + 일관성 정량 측정 |
+| `Tools/ArtPipeline/prepare_form_sprite.py` | 발밑 피벗 실측 |
 
-```bash
-python Tools/PixelArt/chroma_cutout.py Art_Source/raw/dark_blade/sheet_idle-walk-attack.png --out-dir Art_Source/cut
-python Tools/PixelArt/measure_consistency.py Art_Source/cut/sheet_idle-walk-attack-cut.png --expect 3 --save-frames Art_Source/frames/dark_blade
-```
+PixelLab은 알파를 직접 내므로 `chroma_cutout`은 당장 안 쓴다. `measure_consistency`는 판정에 계속 쓴다 —
+**프레임 간 팔레트는 겹침이 높아야 좋고, 씬 간 팔레트는 겹침이 낮아야 좋다.** 방향이 둘로 갈린다.
 
----
+## 7. 참조
 
-## 프롬프트 조립
-
-프롬프트는 **블록 3개를 이어 붙여** 쓴다. 앵커를 고치면 조립본을 다시 만들어야 한다.
-
-```bash
-cd Art_Source/prompts
-cat _anchor.txt form_void_archer.txt                  > _assembled_void_archer.txt
-cat _anchor.txt form_void_archer.txt _sheet_rules.txt > _assembled_void_archer_sheet.txt
-```
-
-⚠️ **`_anchor.txt`는 한 글자도 바꾸지 않는다.** 폼마다 앵커가 미세하게 다르면
-같은 사람으로 안 읽힌다 — 2026-08-20 측정에서 팔레트 일치 89.7%가 나온 근거가
-"모든 생성이 같은 앵커 + 같은 기준 이미지를 참조했다"는 것뿐이다.
-
----
-
-## 참조
-
-- `Docs/adr/008-art-direction-pixel.md` — 아트 방향(🔴 **전제 재검토 필요**: Skul은 픽셀 아트가 아니다)
-- `Tools/PixelArt/form_sprite_spec.py` — 절차적 도트 파이프라인의 규격(기준선으로 보존)
+- `_legacy/README.md` — 세 세대의 폐기 사유 · 가져온 것 · 버린 것
+- `Docs/game-design/13-novel-game-glossary.md` — SoT를 소설로 정한 대조 (로컬 전용)
+- `Docs/adr/008-art-direction-pixel.md` — 🔴 본문은 전제 오류 상태. 결론(픽셀)만 유효

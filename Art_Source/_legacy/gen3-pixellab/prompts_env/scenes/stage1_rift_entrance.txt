@@ -1,0 +1,43 @@
+# ══════════════════════════════════════════════════════════════
+# 스테이지 1 — 균열의 입구 (테마: 폐허·고대 유적)
+# 08-content-roadmap §6-1 · 보스 AbyssKeeper · 5~7방 + 보스
+#
+# 🔑 여기가 플레이어가 처음 보는 화면이다. 그래서 이 스테이지는
+#    **가장 조용한 팔레트**를 쓴다 — 폼 액센트 4색 중 어느 것과도 안 겹친다.
+#    첫 화면에서 "무엇이 내 캐릭터인가"를 가르치는 것이 분위기보다 먼저다.
+#
+# 📌 앵커를 여기서 먼저 뽑는다. 스테이지 1 앵커가 전체 화풍의 기준이 되고,
+#    나머지 스테이지 앵커도 이것을 style_image 로 참조해 뽑는다.
+#    (그래야 스테이지 5개가 한 게임으로 보인다)
+# ══════════════════════════════════════════════════════════════
+
+[ANCHOR-PART] bg_mid
+
+[SETTING]
+collapsed temple ruins at the mouth of a rift
+
+[MATERIAL]
+cracked grey limestone, dark moss, toppled pillars
+
+[GROUND-MATERIAL]
+# 🔴 타일 전용 재질. [MATERIAL] 의 "toppled pillars" 는 물건이라 뺐다 —
+#    32px 타일 안에 기둥이 들어가면 바닥을 깔 때마다 같은 기둥이 반복된다.
+cracked grey limestone slabs, thin dark moss in the cracks
+
+[LIGHT]
+one pale shaft of light from far overhead
+
+[MOTIF] unclimbed
+
+[STORY]
+# 환경 서사 소재 — 인터랙티브 프롭이 이 목록에서 나온다.
+# 08-content-roadmap: 스테이지당 5~10건. 여기는 "봉인이 깨진 자리"가 축이다.
+a shattered seal slab
+a stairway that ends in open air
+a wall of tally marks left by someone counting days
+
+[PARTS]
+bg_sky, bg_far, bg_mid, bg_near, bg_boss_arena,
+tileset_ground, tileset_wall, tile_platform,
+prop_decor,
+prop_hazard, prop_interactive, prop_landmark

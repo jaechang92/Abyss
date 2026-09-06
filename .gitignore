@@ -145,12 +145,18 @@ __pycache__/
 # ── 아트 원본 작업 공간 (Art_Source) ──
 # 추적 기준은 "재생성 가능한가"다. 원본과 스크립트만 있으면 다시 만들어지는 것은 넣지 않는다.
 #
-# 추적: prompts/(손으로 쓴 것) · base/(참조 원본) · 문서
-# 비추적: build.py 가 다시 만들어 내는 것
+# 추적: 손으로 쓴 프롬프트 원본 · 사람이 고른 앵커/큐레이션 · 문서
+# 비추적: build.py 가 다시 만들어 내는 조립본 · 생성 원본 · 중간 산출물
 
-# 조립본은 01_character + 02_rules + states/ + build.py 로 언제든 다시 만들어진다.
+# 조립본은 원본 블록 + build.py 로 언제든 다시 만들어진다.
 # 원본과 산출물이 한 폴더에 섞이면 어느 것이 손으로 쓴 것인지 눈으로 구분이 안 된다.
-Art_Source/prompts/assembled/
+Art_Source/**/assembled/
+
+# 생성 원본과 중간 산출물 (용량만 먹는다)
+Art_Source/**/raw/
+Art_Source/**/cut/
+Art_Source/**/frames/
+Art_Source/**/qa/
 
 # 이미지 생성 도구가 작업 디렉터리에 남기는 잔재
 tmp/
