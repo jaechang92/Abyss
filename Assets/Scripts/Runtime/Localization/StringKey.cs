@@ -46,7 +46,10 @@
         public const string Settings_MasterVolume = "Settings_MasterVolume";
         public const string Settings_BgmVolume = "Settings_BgmVolume";
         public const string Settings_SfxVolume = "Settings_SfxVolume";
+        public const string Settings_Fullscreen = "Settings_Fullscreen";
+        public const string Settings_Resolution = "Settings_Resolution";
         public const string Settings_Language = "Settings_Language";
+        public const string Settings_KeyGuide = "Settings_KeyGuide";
 
         // ---- 폼 ----
         public const string Form_DarkBlade = "Form_DarkBlade";

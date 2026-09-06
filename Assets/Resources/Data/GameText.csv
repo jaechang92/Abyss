@@ -25,7 +25,10 @@ Result_MainMenu,결과,메인 메뉴 버튼,,,메인 메뉴,Main Menu,メイン�
 Settings_MasterVolume,설정,마스터 볼륨 라벨,,,마스터 볼륨,Master Volume,マスター音量
 Settings_BgmVolume,설정,BGM 볼륨 라벨,,,배경음,BGM Volume,BGM音量
 Settings_SfxVolume,설정,SFX 볼륨 라벨,,,효과음,SFX Volume,SFX音量
+Settings_Fullscreen,설정,전체 화면 토글 라벨,,,전체 화면,Fullscreen,フルスクリーン
+Settings_Resolution,설정,해상도 셀렉터 라벨,,,해상도,Resolution,解像度
 Settings_Language,설정,언어 선택 라벨,,,언어,Language,言語
+Settings_KeyGuide,설정,설정 패널 하단 조작 안내,,,← → 이동   C 점프   D 대시   Z 공격   X 강공격\nA 스킬1   S 스킬2   LCtrl 폼 교체   G 상호작용   ESC 일시정지,← → Move   C Jump   D Dash   Z Attack   X Heavy\nA Skill 1   S Skill 2   LCtrl Swap Form   G Interact   ESC Pause,← → 移動   C ジャンプ   D ダッシュ   Z 攻撃   X 強攻撃\nA スキル1   S スキル2   LCtrl フォーム交代   G 調べる   ESC ポーズ
 Form_DarkBlade,폼,폼 이름,,,다크 블레이드,Dark Blade,ダークブレード
 Form_VoidArcher,폼,폼 이름,,,보이드 아처,Void Archer,ボイドアーチャー
 Npc_Guide_Name,대화,로비-안내자,,,안내자,Guide,案内人

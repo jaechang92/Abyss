@@ -1,3 +1,4 @@
+using Abyss.Runtime.Localization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -123,6 +124,31 @@ namespace Abyss.Runtime.UI
             text.horizontalOverflow = HorizontalWrapMode.Overflow;
             text.color = Color.white;
 
+            return button;
+        }
+
+        /// <summary>
+        /// StringKey로 글자를 채우고 언어가 바뀌면 스스로 갱신되는 라벨.
+        /// <see cref="CreateLabel"/>과 인자가 같고 content 자리가 stringKey로 바뀐 것뿐이다.
+        ///
+        /// 초기 문자열을 비워 두고 <see cref="LocalizedText"/>가 채우게 한다 — 여기서 한 번 채워 두면
+        /// 같은 조회가 두 곳(팩토리 · 컴포넌트)에 생기고, 한쪽만 고쳤을 때 <b>첫 프레임만 옛 글자</b>가
+        /// 되는 어긋남이 열린다.
+        /// </summary>
+        public static Text CreateLocalizedLabel(Transform parent, string name, Vector2 pos, Vector2 size, string stringKey, int fontSize, Color color, TextAnchor anchor)
+        {
+            var text = CreateLabel(parent, name, pos, size, string.Empty, fontSize, color, anchor);
+            LocalizedText.Attach(text, stringKey);
+            return text;
+        }
+
+        /// <summary>라벨이 언어를 따라가는 버튼. 부착 대상은 <see cref="CreateButton"/>이 만드는 자식 "Text"다.</summary>
+        public static Button CreateLocalizedButton(Transform parent, string name, Vector2 pos, Vector2 size, string stringKey, int fontSize = 17)
+        {
+            var button = CreateButton(parent, name, pos, size, string.Empty, fontSize);
+
+            var label = button.GetComponentInChildren<Text>(true);
+            if (label != null) LocalizedText.Attach(label, stringKey);
             return button;
         }
 
