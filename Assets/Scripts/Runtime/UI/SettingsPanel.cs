@@ -1,16 +1,21 @@
+using System;
 using System.Collections.Generic;
 using Abyss.Runtime.Audio;
+using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 // CreateRect·CreateLabel·CreateButton 등 uGUI 조립 헬퍼는 UiFactory가 소유한다(LobbyMenuPanel과 공유).
 using static Abyss.Runtime.UI.UiFactory;
+// 행 y·패널 높이는 SettingsPanelLayout이 계산한다 — 이 파일에 좌표 숫자를 직접 적지 않는다.
+using static Abyss.Runtime.UI.SettingsPanelLayout;
 
 namespace Abyss.Runtime.UI
 {
     /// <summary>
-    /// 볼륨·화면 설정 패널. 완주 루프 계획 Phase 0-3.
+    /// 볼륨·화면·언어 설정 패널. 완주 루프 계획 Phase 0-3.
     ///
     /// 타이틀과 일시정지 양쪽에서 열려야 하는데 두 화면은 서로 다른 씬에 있다.
     /// 씬마다 패널을 만들면 같은 UI가 두 벌이 되므로, <see cref="Flow.ScreenFader"/>와 같이
@@ -20,12 +25,15 @@ namespace Abyss.Runtime.UI
     ///
     /// ESC로 닫는 책임은 이 패널이 갖는다(<see cref="Update"/>) — 씬마다 ESC가 오는 경로가 달라
     /// 씬별 처리기에만 맡기면 입력 배선이 없는 타이틀 씬에서 닫을 방법이 사라진다.
+    ///
+    /// 🔑 <b>자기 글자를 스스로 다시 그린다.</b> 언어 선택이 이 패널 안에 있으므로, 라벨이 만들어질
+    /// 때의 언어로 고정되면 <b>언어를 바꾼 그 창만 안 바뀌는</b> 자리가 된다 — 사용자가 방금 누른 것이
+    /// 통했는지 확인할 수단이 사라진다. 그래서 고정 문구는 전부
+    /// <see cref="Localization.LocalizedText"/>로 붙여 <c>OnLanguageChanged</c>를 듣게 한다.
+    /// 값 칸(음량 %·해상도 크기·언어 이름)만은 번역 대상이 아니라 그대로 둔다.
     /// </summary>
     public sealed class SettingsPanel : MonoBehaviour
     {
-        private const string KEY_GUIDE =
-            "← → 이동   C 점프   D 대시   Z 공격   X 강공격\nA 스킬1   S 스킬2   LCtrl 폼 교체   G 상호작용   ESC 일시정지";
-
         private static SettingsPanel instance;
 
         // ESC를 이번 프레임에 소비했음을 알리는 표식. WasClosedThisFrame 참고.
@@ -47,6 +55,15 @@ namespace Abyss.Runtime.UI
         // 이 기기가 지원하는 해상도 목록(주사율 중복 제거, 내림차순). 인덱스가 아니라 값으로만 저장한다.
         private readonly List<Vector2Int> resolutionOptions = new();
         private int resolutionIndex = -1;
+
+        private Text languageValue;
+        private Button languagePrev;
+        private Button languageNext;
+
+        // 지원 언어 목록. enum 선언 순서 그대로다 — 순서를 따로 정하면 enum에 언어를 끼울 때
+        // 두 곳을 맞춰야 하고, 한쪽만 고치면 셀렉터에서 한 언어가 조용히 사라진다.
+        private readonly List<LocalizationLanguage> languageOptions = new();
+        private int languageIndex = -1;
 
         // 슬라이더를 코드로 세팅할 때 onValueChanged가 발화해 저장이 도는 것을 막는다.
         private bool isSyncing;
@@ -118,7 +135,9 @@ namespace Abyss.Runtime.UI
             DontDestroyOnLoad(go);
 
             instance = go.AddComponent<SettingsPanel>();
-            instance.BuildResolutionOptions();   // UI를 만들기 전에 목록이 있어야 버튼 활성 상태를 정할 수 있다
+            // UI를 만들기 전에 목록이 있어야 버튼 활성 상태를 정할 수 있다
+            instance.BuildResolutionOptions();
+            instance.BuildLanguageOptions();
             instance.BuildUI(go.transform);
             instance.body.SetActive(false);
         }
@@ -142,6 +161,7 @@ namespace Abyss.Runtime.UI
             isSyncing = false;
             RefreshValueLabels();
             SyncResolutionFromScreen();
+            SyncLanguageFromCurrent();
         }
 
         private void RefreshValueLabels()
@@ -264,6 +284,70 @@ namespace Abyss.Runtime.UI
             if (resolutionNext != null) resolutionNext.interactable = canNext;
         }
 
+        // ───────────────────────── 언어 ─────────────────────────
+
+        private void BuildLanguageOptions()
+        {
+            languageOptions.Clear();
+            foreach (LocalizationLanguage language in Enum.GetValues(typeof(LocalizationLanguage)))
+            {
+                languageOptions.Add(language);
+            }
+        }
+
+        /// <summary>현재 언어를 목록에서 찾아 선택 위치를 맞춘다.</summary>
+        private void SyncLanguageFromCurrent()
+        {
+            if (languageOptions.Count == 0)
+            {
+                languageIndex = -1;
+                SetLanguageInteractable(false, false);
+                return;
+            }
+
+            int found = languageOptions.IndexOf(Loc.CurrentLanguage);
+            languageIndex = found >= 0 ? found : 0;
+            RefreshLanguageLabel();
+        }
+
+        /// <summary>
+        /// 목록에서 delta칸 이동한 언어로 즉시 전환한다. 양 끝에서는 더 가지 않는다(해상도와 같은 규칙).
+        ///
+        /// 저장은 <see cref="Loc.SetLanguage"/>가 곧바로 한다 — 볼륨·해상도처럼 닫을 때 모아 쓰지
+        /// 않는다. 언어는 <b>바뀐 화면 자체가 확인 수단</b>이라, 저장을 닫는 시점으로 미루면
+        /// 글자만 바뀐 채 창을 강제 종료했을 때 다음 실행에서 되돌아간다.
+        /// </summary>
+        private void ShiftLanguage(int delta)
+        {
+            if (languageOptions.Count == 0) return;
+
+            int next = Mathf.Clamp(languageIndex + delta, 0, languageOptions.Count - 1);
+            if (next == languageIndex) return;
+
+            languageIndex = next;
+            // 이 호출이 OnLanguageChanged를 발행하고, 이 패널의 LocalizedText들이 그것을 듣고 다시 그린다.
+            Loc.SetLanguage(languageOptions[languageIndex]);
+            RefreshLanguageLabel();
+        }
+
+        private void RefreshLanguageLabel()
+        {
+            if (languageIndex < 0 || languageIndex >= languageOptions.Count) return;
+
+            // 값 칸만은 번역하지 않는다 — 각 언어를 그 언어 자신의 표기로 보여 준다.
+            if (languageValue != null)
+            {
+                languageValue.text = LocalizationLanguageNames.GetNativeName(languageOptions[languageIndex]);
+            }
+            SetLanguageInteractable(languageIndex > 0, languageIndex < languageOptions.Count - 1);
+        }
+
+        private void SetLanguageInteractable(bool canPrev, bool canNext)
+        {
+            if (languagePrev != null) languagePrev.interactable = canPrev;
+            if (languageNext != null) languageNext.interactable = canNext;
+        }
+
         /// <summary>볼륨과 화면 설정을 세이브에 반영한다(패널을 닫을 때 1회).</summary>
         private void SaveAll()
         {
@@ -285,56 +369,64 @@ namespace Abyss.Runtime.UI
         {
             body = CreateDimBody(root);
 
-            // 행 y는 패널 중심 기준이다. 해상도 행이 늘면서 높이를 480 → 560으로 키우고 전 행을 재배치했다
-            // (이전 배치는 제목 y=-36과 효과음 행 y=-40이 같은 대역이라 겹쳐 있었다).
-            var panel = CreateRect(body.transform, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(560, 560));
+            // 좌표는 전부 위쪽 배치 상수에서 파생된다. 여기에 숫자를 직접 적지 않는다.
+            var panel = CreateRect(body.transform, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(PanelWidth, PanelHeight));
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = new Color(0.10f, 0.10f, 0.15f, 0.98f);
 
-            CreateLabel(panel.transform, "TitleText", new Vector2(0, 228), new Vector2(500, 40), "설정", 24, new Color(0.92f, 0.92f, 1f), TextAnchor.MiddleCenter);
+            CreateLocalizedLabel(panel.transform, "TitleText", new Vector2(0, TitleY), new Vector2(500, TitleHeight), StringKey.Menu_Settings, 24, new Color(0.92f, 0.92f, 1f), TextAnchor.MiddleCenter);
 
-            masterSlider = CreateVolumeRow(panel.transform, "Master", 152, "전체 음량", out masterValue);
-            bgmSlider = CreateVolumeRow(panel.transform, "Bgm", 102, "배경 음악", out bgmValue);
-            sfxSlider = CreateVolumeRow(panel.transform, "Sfx", 52, "효과음", out sfxValue);
+            masterSlider = CreateVolumeRow(panel.transform, "Master", RowY(0), StringKey.Settings_MasterVolume, out masterValue);
+            bgmSlider = CreateVolumeRow(panel.transform, "Bgm", RowY(1), StringKey.Settings_BgmVolume, out bgmValue);
+            sfxSlider = CreateVolumeRow(panel.transform, "Sfx", RowY(2), StringKey.Settings_SfxVolume, out sfxValue);
 
             masterSlider.onValueChanged.AddListener(OnMasterChanged);
             bgmSlider.onValueChanged.AddListener(OnBgmChanged);
             sfxSlider.onValueChanged.AddListener(OnSfxChanged);
 
-            fullscreenToggle = CreateFullscreenRow(panel.transform, -8);
+            fullscreenToggle = CreateFullscreenRow(panel.transform, RowY(3));
             fullscreenToggle.onValueChanged.AddListener(OnFullscreenChanged);
 
-            CreateResolutionRow(panel.transform, -58);
+            resolutionValue = CreateSelectorRow(panel.transform, "Resolution", RowY(4), StringKey.Settings_Resolution,
+                () => ShiftResolution(-1), () => ShiftResolution(1), out resolutionPrev, out resolutionNext);
 
-            CreateLabel(panel.transform, "KeyGuide", new Vector2(0, -132), new Vector2(500, 60), KEY_GUIDE, 14, new Color(0.62f, 0.62f, 0.72f), TextAnchor.MiddleCenter);
+            languageValue = CreateSelectorRow(panel.transform, "Language", RowY(5), StringKey.Settings_Language,
+                () => ShiftLanguage(-1), () => ShiftLanguage(1), out languagePrev, out languageNext);
 
-            var close = CreateButton(panel.transform, "CloseButton", new Vector2(0, -226), new Vector2(240, 48), "닫기");
+            CreateLocalizedLabel(panel.transform, "KeyGuide", new Vector2(0, KeyGuideY), new Vector2(500, KeyGuideHeight), StringKey.Settings_KeyGuide, 14, new Color(0.62f, 0.62f, 0.72f), TextAnchor.MiddleCenter);
+
+            var close = CreateLocalizedButton(panel.transform, "CloseButton", new Vector2(0, CloseY), new Vector2(240, CloseHeight), StringKey.Common_Close);
             close.onClick.AddListener(Close);
         }
 
         /// <summary>
-        /// 해상도 선택 행(◀ 값 ▶).
+        /// 좌우 셀렉터 행(◀ 값 ▶). 해상도와 언어가 모양이 같아 한 곳에서 만든다 —
+        /// 둘로 복제하면 한쪽 x만 고쳐 두 행의 값 칸이 어긋나는 자리가 열린다.
         ///
         /// 드롭다운 대신 좌우 셀렉터인 이유: uGUI Dropdown을 코드로 만들려면 Template·Viewport·Content·Item
         /// 계층과 스크롤바까지 손으로 배선해야 해 이 패널의 다른 위젯(수제 슬라이더·토글)보다 훨씬 깨지기 쉽다.
         /// 선택지가 십수 개뿐이라 순차 이동으로 충분하고, 패드 조작과도 잘 맞는다.
         /// </summary>
-        private void CreateResolutionRow(Transform parent, float y)
+        /// <returns>값이 표시되는 라벨. 갱신은 호출부가 맡는다(해상도는 크기, 언어는 자기 표기).</returns>
+        private Text CreateSelectorRow(Transform parent, string name, float y, string labelKey,
+            UnityAction onPrev, UnityAction onNext, out Button prev, out Button next)
         {
-            CreateLabel(parent, "ResolutionLabel", new Vector2(-180, y), new Vector2(160, 30), "해상도", 17, Color.white, TextAnchor.MiddleLeft);
+            CreateLocalizedLabel(parent, name + "Label", new Vector2(-180, y), new Vector2(160, 30), labelKey, 17, Color.white, TextAnchor.MiddleLeft);
 
-            resolutionPrev = CreateButton(parent, "ResolutionPrev", new Vector2(-70, y), new Vector2(34, 34), "<");
-            resolutionPrev.onClick.AddListener(() => ShiftResolution(-1));
+            prev = CreateButton(parent, name + "Prev", new Vector2(-70, y), new Vector2(34, 34), "<");
+            prev.onClick.AddListener(onPrev);
 
-            resolutionValue = CreateLabel(parent, "ResolutionValue", new Vector2(60, y), new Vector2(200, 30), "-", 17, new Color(0.86f, 0.86f, 0.96f), TextAnchor.MiddleCenter);
+            var value = CreateLabel(parent, name + "Value", new Vector2(60, y), new Vector2(200, 30), "-", 17, new Color(0.86f, 0.86f, 0.96f), TextAnchor.MiddleCenter);
 
-            resolutionNext = CreateButton(parent, "ResolutionNext", new Vector2(190, y), new Vector2(34, 34), ">");
-            resolutionNext.onClick.AddListener(() => ShiftResolution(1));
+            next = CreateButton(parent, name + "Next", new Vector2(190, y), new Vector2(34, 34), ">");
+            next.onClick.AddListener(onNext);
+
+            return value;
         }
 
-        private Slider CreateVolumeRow(Transform parent, string name, float y, string label, out Text valueText)
+        private Slider CreateVolumeRow(Transform parent, string name, float y, string labelKey, out Text valueText)
         {
-            CreateLabel(parent, name + "Label", new Vector2(-180, y), new Vector2(160, 30), label, 17, Color.white, TextAnchor.MiddleLeft);
+            CreateLocalizedLabel(parent, name + "Label", new Vector2(-180, y), new Vector2(160, 30), labelKey, 17, Color.white, TextAnchor.MiddleLeft);
             valueText = CreateLabel(parent, name + "Value", new Vector2(210, y), new Vector2(70, 30), "0%", 15, new Color(0.7f, 0.7f, 0.8f), TextAnchor.MiddleRight);
 
             var go = CreateRect(parent, name + "Slider", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(30, y), new Vector2(280, 20));
@@ -367,7 +459,7 @@ namespace Abyss.Runtime.UI
 
         private Toggle CreateFullscreenRow(Transform parent, float y)
         {
-            CreateLabel(parent, "FullscreenLabel", new Vector2(-180, y), new Vector2(160, 30), "전체 화면", 17, Color.white, TextAnchor.MiddleLeft);
+            CreateLocalizedLabel(parent, "FullscreenLabel", new Vector2(-180, y), new Vector2(160, 30), StringKey.Settings_Fullscreen, 17, Color.white, TextAnchor.MiddleLeft);
 
             var go = CreateRect(parent, "FullscreenToggle", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-60, y), new Vector2(28, 28));
             var toggle = go.AddComponent<Toggle>();
