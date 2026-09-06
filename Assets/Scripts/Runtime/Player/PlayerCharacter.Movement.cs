@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Abyss.Runtime.Physics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -25,7 +27,9 @@ namespace Abyss.Runtime.Player
         private int facingSign = 1;
         private int jumpsRemaining;
 
-        private static readonly Collider2D[] groundProbeBuffer = new Collider2D[8];
+        // 재사용 버퍼 — GroundProbe 가 여기에 결과를 채운다. 한 번 커진 뒤로는 용량을
+        // 유지하므로 프레임마다 할당이 없다(옛 NonAlloc 배열이 하던 역할).
+        private static readonly List<Collider2D> groundProbeBuffer = new(8);
 
         public bool IsGrounded => isGrounded;
         public Vector2 Velocity => body != null ? body.linearVelocity : Vector2.zero;
@@ -78,9 +82,8 @@ namespace Abyss.Runtime.Player
             bool wasGrounded = isGrounded;
             isGrounded = false;
 
-            // GC 회피를 위해 NonAlloc 버전 사용.
-            int hitCount = Physics2D.OverlapCircleNonAlloc(
-                groundCheck.position, groundCheckRadius, groundProbeBuffer, groundLayer);
+            int hitCount = GroundProbe.Overlap(
+                groundCheck.position, groundCheckRadius, groundLayer, groundProbeBuffer);
 
             for (int i = 0; i < hitCount; i++)
             {

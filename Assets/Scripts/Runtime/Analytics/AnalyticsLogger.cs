@@ -146,7 +146,23 @@ namespace Abyss.Runtime.Analytics
             writer?.Flush();
         }
 
-        private void OnApplicationQuit() => CloseLog();
+        /// <summary>
+        /// 종료 시 로그 파일을 닫는다.
+        ///
+        /// 🔴 <b>`override` 가 빠져 있었다(CS0114) — 부모를 가리고 있었다.</b>
+        /// <c>SingletonManager&lt;T&gt;.OnApplicationQuit</c>은 정적 <c>applicationIsQuitting</c>을
+        /// 세우고, 그 값이 <c>Instance</c>·<c>HasInstance</c>의 <b>종료 중 재생성 차단</b>을 담당한다.
+        /// 가려 두면 그 플래그가 끝내 false로 남아, 종료 도중 <c>AnalyticsLogger.Instance</c>에
+        /// 닿는 코드가 <b>파괴 중인 씬에 새 인스턴스를 만들려 든다</b>.
+        ///
+        /// 그래서 <c>base</c> 호출이 이 메서드의 본론이고 <see cref="CloseLog"/>가 덤이다.
+        /// 순서도 base 가 먼저 — 파일을 닫는 동안에는 이미 종료 중으로 표시돼 있어야 한다.
+        /// </summary>
+        protected override void OnApplicationQuit()
+        {
+            base.OnApplicationQuit();
+            CloseLog();
+        }
 
         /// <summary>
         /// 로그 파일을 닫는다. 종료 경로와 테스트 정리가 공유한다 —

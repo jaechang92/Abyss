@@ -1,4 +1,6 @@
-﻿using Abyss.Runtime.Interaction;
+﻿using System.Collections.Generic;
+using Abyss.Runtime.Interaction;
+using Abyss.Runtime.Physics;
 using Abyss.Runtime.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -34,7 +36,8 @@ namespace Abyss.Runtime.Lobby
         private bool isGrounded;
         private bool inputLocked;
 
-        private static readonly Collider2D[] groundProbe = new Collider2D[8];
+        // 재사용 버퍼 — GroundProbe 가 채운다(런의 PlayerCharacter 와 같은 규약).
+        private static readonly List<Collider2D> groundProbe = new(8);
 
         /// <summary>패널 표시 등으로 이동을 잠글 때 사용.</summary>
         public bool InputLocked
@@ -123,7 +126,7 @@ namespace Abyss.Runtime.Lobby
             isGrounded = false;
             if (groundCheck == null) return;
 
-            int n = Physics2D.OverlapCircleNonAlloc(groundCheck.position, groundCheckRadius, groundProbe, groundLayer);
+            int n = GroundProbe.Overlap(groundCheck.position, groundCheckRadius, groundLayer, groundProbe);
             for (int i = 0; i < n; i++)
             {
                 var c = groundProbe[i];
