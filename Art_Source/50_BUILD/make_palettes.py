@@ -5,10 +5,20 @@ make_palettes.py — palettes/_palettes.txt 의 hex 목록을 PNG 로 굽고, �
     python Art_Source/50_BUILD/make_palettes.py
     python Art_Source/50_BUILD/make_palettes.py stage1_rift_entrance
 
-산출물을 PixelLab 의 color_image 에 넣으면 생성이 그 색 밖으로 나갈 수 없다.
-프롬프트로 "어둡게 그려 달라"고 부탁하는 것과 달리 이건 강제다.
+산출물이 이 파이프라인의 색 기준이다.
 
-🔴 그래서 **팔레트가 앵커보다 먼저다.** 앵커를 뽑는 시점에 이미 있어야 한다.
+🔴 2026-09-06 — **집행 지점이 바뀌었다.** 예전에는 이 PNG 를 PixelLab 의 color_image 에
+   넣는 것이 강제였다. Pro(v2) 에는 그 칸이 없다. 이제 강제는 **생성 뒤**에 일어난다:
+
+       python Tools/ArtPipeline/enforce_palette.py <뽑은것>.png --scene <scene>
+
+   그래서 이 PNG 의 쓰임이 둘로 갈렸다:
+     ① 후처리 양자화의 **목표 색** (여기가 강제다)
+     ② 웹 도구 Create Tileset 의 Target Palette 칸 (**보조** — 적중률만 올린다)
+
+🔴 그래도 **팔레트가 앵커보다 먼저다.** 이유는 바뀌었다 —
+   강제라서가 아니라, 팔레트가 **앵커를 고르는 판정 기준**이기 때문이다.
+   기준 없이 뽑은 앵커는 무엇과 비교해 고를지가 없다.
 
 🔑 PIL 을 안 쓴다. 색 몇 개짜리 격자 PNG 는 표준 라이브러리로 충분하고,
    아트 담당자가 의존성 설치 없이 바로 돌릴 수 있는 쪽이 낫다.
@@ -161,7 +171,8 @@ def main():
             total_warn += 1
 
     print("\n완료 → %s" % os.path.relpath(OUT_DIR, ROOT))
-    print("   PixelLab 의 color_image / Target Palette 칸에 넣는다.")
+    print("   ① 후처리 목표 색 — Tools/ArtPipeline/enforce_palette.py --scene <scene>")
+    print("   ② 웹 도구 Create Tileset 의 Target Palette 칸 (보조 수단)")
     if total_warn:
         print("\n⚠️ 경고 %d건 — 근거는 10_BIBLE/04-palette.md" % total_warn)
         print("   경고는 실패가 아니다. 어기려면 왜 어기는지 _palettes.txt 주석에 적을 것.")
