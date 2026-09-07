@@ -71,6 +71,18 @@ WORD_BUDGET = 40
 #    **판단이지 실측이 아니다** — 앵커를 뽑아 보고 스타일 지정이 안 걸리면 여기를 의심할 것.
 STYLE_WORD_ALLOWANCE = True
 
+# 🆕 2026-09-07 — 호출당 비용(generations). 40_TOOLS/pixellab/profile.md §1·§2 의 실측이다.
+#
+# 🔴 이 숫자를 여기에 두는 이유는 **빌드가 청구서를 같이 내게 하려는 것**이다.
+#    조립본만 보면 "요청 14개"로 보이고 그건 싸 보인다. 실제로는 씬 하나가
+#    244~486 generations 이고, 8씬이면 한 사이클 배정량을 넘는다.
+#    뽑기 시작한 뒤에 알면 이미 늦다 — 되돌릴 방법이 없다.
+#
+# ⚠️ 도구를 바꾸면 이 두 줄도 바꾼다. 여기 있는 것 자체가 도구 어휘라 원래는
+#    40_TOOLS 에 있어야 맞지만, 그러면 계산하는 곳과 값이 갈린다. 옮긴다면 같이 옮길 것.
+COST_IMAGE = (20, 40)     # create_image_pro — 후보 수와 무관하게 호출당
+COST_TILESET = (2, 3)     # create_sidescroller_tileset — 1 이 아니다
+
 # 인물 배제 항목 — [ALLOW-FIGURE] 가 있는 씬에서는 판정 목록에서 뺀다.
 FIGURE_TERMS = ("people", "character", "creature", "monster")
 
@@ -87,15 +99,51 @@ META_PREFIX = "_"
 
 
 def parse_size(text):
-    """'160x96' → {'width': 160, 'height': 96}.
+    """'160x96' → (160, 96).
 
-    🔴 v2 의 image_size 는 문자열이 아니라 **객체**다. legacy 는 문자열을 받았다.
-       (40_TOOLS/pixellab/profile.md §2 — 첫 실호출에서 확인할 것)
+    🔴 2026-09-07 정정 — 여기서 `{"width":…, "height":…}` **객체**를 내고 있었다.
+       실제 인자는 `width` / `height` **정수 두 칸**이다 (profile.md §6 ④).
+       ⚠️ 타입만 어긋난 것이라 **조용히 실패했을 것**이고, 그랬다면 원인을
+          문구나 팔레트에서 찾았을 것이다. 첫 실호출 전에 걸린 게 다행이다.
+
+    💡 `image_size = 160x96` 이라는 **입력 표기는 그대로 둔다.** 그건 우리 DSL 이고,
+       도구 인자로 옮기는 것은 이 함수의 일이다. 파트 파일은 도구를 몰라도 된다.
     """
     m = re.fullmatch(r"\s*(\d+)\s*[xX]\s*(\d+)\s*", str(text))
     if not m:
         raise SystemExit("🔴 image_size 를 못 읽었다: %r (형식은 '160x96')" % text)
-    return {"width": int(m.group(1)), "height": int(m.group(2))}
+    return int(m.group(1)), int(m.group(2))
+
+
+def candidates_for(width, height):
+    """create_image_pro 가 **한 호출에** 주는 후보 수. 캔버스가 작을수록 많다.
+
+    🔴 비용은 후보 수가 아니라 **호출당**이다. 둘을 섞으면 "여러 장 뽑는다"를
+       여러 번 호출로 읽어 값을 네 배로 낸다 (profile.md §7).
+    """
+    longest = max(width, height)
+    if longest <= 42:
+        return 64
+    if longest <= 85:
+        return 16
+    if longest <= 170:
+        return 4
+    return 1
+
+
+def scene_seed(scene_id):
+    """씬 이름에서 정해지는 고정 seed. 한 씬의 레이어들이 같은 값을 쓴다.
+
+    🔴 seed 는 `40_TOOLS` 가 "한 씬 안에서 고정한다"고 정한 규약인데, 사람이 매번
+       같은 숫자를 적어 넣는 방식이면 반드시 한 번은 어긋난다. 씬 이름에서 **파생**시킨다.
+    ⚠️ 이것이 색온도 일치를 보장하지는 않는다 — seed 는 *같은 인자*에 같은 그림을 주는
+       장치이고, 한 씬의 레이어들은 애초에 문구가 서로 다르다. 세션 규약의 대체가 아니다.
+    💡 난수를 안 쓰는 이유: 다시 빌드하면 값이 바뀌어 조립본 diff 가 매번 더러워진다.
+    """
+    digest = 0
+    for ch in scene_id:
+        digest = (digest * 131 + ord(ch)) & 0x7FFFFFFF
+    return digest
 
 
 def style_phrases(resolved, style_words, label, warnings):
@@ -277,33 +325,67 @@ def build_one(scene_id, scene, part_id, part, core, params, motifs, vocab, warni
         resolved.update(parse_kv(part["OVERRIDE"]))
 
     palette = "palettes/%s.png" % scene_id
+    style_words = parse_kv(params.get("STYLE-WORDS", ""))
 
-    # ── 타일셋은 요청 모양이 아예 다르다 (웹 도구, description 이 셋) ────
+    # ── 타일셋은 요청 모양이 아예 다르다 ────────────────────────────────
+    #
+    # 🔴 2026-09-07 — 이 블록은 **거의 전부 틀렸었다.** 실제 인자를 보고 고쳤다:
+    #      inner_description → lower_description   (이름이 다르다)
+    #      outer_description → 없는 칸. 배경이 투명하게 나오므로 그릴 필요가 없다
+    #      transition_size   → 0.0~0.5 비율. `1`·`2` 는 범위 밖이었다
+    #      border_jitter     → 없는 칸. 대응물은 tileset_adherence(_freedom)
+    #      color_image       → 없는 칸. 팔레트는 후처리만이 집행한다
+    #
+    # 🔑 반대로 outline/shading/detail 은 **여기엔 필드로 있다** — 이미지 쪽과 정반대다.
+    #    그래서 타일셋만 [STYLE-WORDS] 를 문구가 아니라 **칸으로** 받는다.
+    #    어휘는 같은 표를 쓴다 — 값이 두 곳으로 갈리면 반드시 어긋난다.
     if kind == "tileset":
         material = scene_pick(scene, part.get("USE-SCENE", "MATERIAL"), scene.get("MATERIAL", ""))
-        # 🔴 outer 는 씬이 덮을 수 있다. stage5(고인 데)는 바닥 밖이 허공이 아니라 물이다.
-        outer = scene.get("TILE-OUTER") or part.get("OUTER", "")
+        label_base = "%s/%s" % (scene_id, part_id)
         req = {
-            "tool": resolved.get("tool", "create-tileset"),
-            "inner_description": joined(part.get("INNER", ""), material),
+            "tool": resolved.get("tool", "create_sidescroller_tileset"),
+            "lower_description": joined(part.get("INNER", ""), material),
             "transition_description": joined(part.get("TRANSITION", ""), material),
-            "outer_description": outer,
             "tile_size": resolved.get("tile_size", 32),
-            "transition_size": resolved.get("transition_size", 1),
-            "border_jitter": resolved.get("border_jitter", "medium"),
-            # 🔑 타일셋만 웹 도구라 Target Palette 칸이 아직 있다 — 넣으면 적중률이 오른다.
-            #    다만 **집행은 여기서도 후처리가 한다**(_palette). 이 칸은 보조 수단이다.
-            "color_image": palette,
+            "transition_size": resolved.get("transition_size", 0.25),
+            "tileset_adherence": resolved.get("tileset_adherence", 100),
+            "tileset_adherence_freedom": resolved.get("tileset_adherence_freedom", 500),
+            "tile_strength": resolved.get("tile_strength", 1),
+            "seed": scene_seed(scene_id),
             "_palette": palette,
         }
-        for key in ("inner_description", "transition_description", "outer_description"):
-            label = "%s/%s %s" % (scene_id, part_id, key)
+        for field in ("outline", "shading", "detail"):
+            value = resolved.get(field)
+            if not value:
+                continue
+            key = "%s_%s" % (field, str(value).strip().replace(" ", "_"))
+            if key in style_words:
+                req[field] = style_words[key]
+            else:
+                warnings.append("%s: [STYLE-WORDS] 에 '%s' 가 없다 — '%s' 칸이 빠진다"
+                                % (label_base, key, field))
+
+        # 🔴 씬의 [TILE-OUTER] 는 **타일셋으로 못 넣는다** — 그 칸이 없다.
+        #    땅 밖에 무엇이 있는지는 배경 레이어가 말한다. 지우지 않고 메타로 남긴다 —
+        #    조용히 버리면 stage5(고인 데)의 "바닥 밖은 물"이 어디로 갔는지 알 수 없다.
+        outer = scene.get("TILE-OUTER") or part.get("OUTER", "")
+        if outer:
+            check_hangul(outer, "%s _outer_note" % label_base)
+            req["_outer_note"] = outer
+
+        # 🔑 지면 → 벽 순서. 파트가 [FOLLOWS] 로 선행 타일셋을 선언하면
+        #    그쪽 base_tile_id 를 물려 두 타일셋이 이어 붙는다. 이미지 쪽 앵커와 같은 규약이다.
+        follows = part.get("FOLLOWS", "").strip()
+        if follows:
+            req["_base_tile_from"] = follows
+
+        for key in ("lower_description", "transition_description"):
+            label = "%s %s" % (label_base, key)
             check_hangul(req[key], label)
             check_forbidden(req[key], label, forbidden, suspect, warnings)
         return [("", req, 1)]
 
-    # ── 이미지 생성 (v2 Pro — 앵커/파생이 style_image 유무로만 갈린다) ────
-    style_words = parse_kv(params.get("STYLE-WORDS", ""))
+    # ── 이미지 생성 (Pro — 앵커/파생이 style_image 유무로만 갈린다) ────
     split_name = part.get("SPLIT-SCENE", "").strip()
     variants = scene.get(split_name + "@lines") if split_name else None
 
@@ -337,7 +419,7 @@ def build_one(scene_id, scene, part_id, part, core, params, motifs, vocab, warni
         pieces.append(core.get("TONE", ""))
     pieces.append(core.get("CORE", ""))
 
-    endpoint = parse_kv(params.get("ANCHOR", "")).get("endpoint", "/generate-image-v2")
+    tool = parse_kv(params.get("ANCHOR", "")).get("tool", "create_image_pro")
     count = int(part.get("COUNT", "1") or 1)
     label = "%s/%s description" % (scene_id, part_id)
 
@@ -358,30 +440,54 @@ def build_one(scene_id, scene, part_id, part, core, params, motifs, vocab, warni
         check_hangul(description, label)
         check_forbidden(description, label, forbidden, suspect, warnings)
 
+        width, height = parse_size(resolved.get("image_size", "64x64"))
         req = {
-            "endpoint": endpoint,
+            "tool": tool,
             "description": description,
-            # 🔴 v2 의 image_size 는 문자열이 아니라 {width, height} 객체다.
-            "image_size": parse_size(resolved.get("image_size", "64x64")),
-            # ⚠️ v2 에 이 칸이 있는지 미확인 — 없으면 chroma_cutout.py 로 뺀다.
-            #    (40_TOOLS/pixellab/profile.md §6 ①)
+            # 🔴 width/height 는 **정수 두 칸**이다. 객체가 아니다 (profile.md §6 ④).
+            "width": width,
+            "height": height,
+            # 🔴 이 칸의 기본값은 **true** 다 — 안 실으면 배경이 투명하게 나온다.
+            #    그래서 값이 false 여도 **항상 싣는다.** 빠뜨리는 쪽이 위험한 칸이다.
             "no_background": bool(resolved.get("no_background", False)),
             # 밑줄로 시작하는 것은 요청 본문이 아니라 파이프라인 메타다.
             "_palette": palette,
             "_reject_if": reject_if,
-            # 예산 계산에서 뺄 몫. v2 로 오면서 문구로 내려온 스타일 지정이다.
+            # 예산 계산에서 뺄 몫. Pro 로 오면서 문구로 내려온 스타일 지정이다.
             "_style_words": style_word_count,
+            # 🔑 한 호출이 주는 후보 수. **비용은 이 수와 무관하게 호출당**이다.
+            "_candidates": candidates_for(width, height),
         }
+
+        # 🔴 프롭만 seed 를 안 건다 — 고정하면 다섯 개가 전부 닮은 물건이 된다.
+        if kind != "prop":
+            req["seed"] = scene_seed(scene_id)
 
         if is_anchor:
             # 앵커는 참조할 것이 없으므로 style_image 없이 뽑는다. 이 한 장이 화풍을 정한다.
-            req["_note"] = "ANCHOR - pick one of several, save to anchors/<scene>.png"
+            req["_note"] = ("ANCHOR - one call returns %d candidates; pick one, "
+                            "save to anchors/<scene>.png" % req["_candidates"])
         else:
             # 🔑 파생은 앵커를 style_image 로 물고 간다. 화풍을 붙드는 유일한 장치다.
-            #    legacy 는 여기서 모델이 갈렸다(pixflux → bitforge). v2 는 같은
-            #    엔드포인트에 이 칸의 유무로만 갈린다 — 규약은 그대로고 수단만 단순해졌다.
+            #    legacy 는 여기서 모델이 갈렸다(pixflux → bitforge). Pro 는 같은
+            #    도구에 이 칸의 유무로만 갈린다 — 규약은 그대로고 수단만 단순해졌다.
+            #
+            # ⚠️ 경로는 **메타**다. 도구는 base64 나 url 을 받지 파일 경로를 받지 않는다.
+            #    보내는 쪽이 이 파일을 읽어 실어야 한다 — 경로를 인자 이름으로 두면
+            #    "그대로 보내면 되는 줄" 알고 조용히 실패한다.
             style_scene = scene.get("STYLE-FROM", scene_id)
-            req["style_image"] = "anchors/%s.png" % style_scene
+            req["_style_image_path"] = "anchors/%s.png" % style_scene
+
+            # 🔴 style_copy 를 안 주면 넷 다 베낀다 — 배경 앵커의 lineless 가
+            #    발판·프롭까지 따라와 우리가 명시한 selective outline 을 덮어쓴다.
+            #    배경만 lineless 인 것은 취향이 아니라 조작 대상을 가르는 장치다.
+            profile = "bg" if kind == "bg" else "sprite"
+            copy_spec = parse_kv(params.get("STYLE-COPY", "")).get(profile)
+            if copy_spec:
+                req["style_copy"] = [s.strip() for s in str(copy_spec).split(",") if s.strip()]
+            else:
+                warnings.append("%s/%s: [STYLE-COPY] 에 '%s' 가 없다 — 기본값(넷 다)으로 떨어져 "
+                                "앵커가 outline 지정을 덮어쓴다" % (scene_id, part_id, profile))
 
         out.append(("_%d" % index if variants else "", req, count))
 
@@ -397,7 +503,8 @@ def main():
 
     for need, src, table in (
             (("CORE", "MOTIF", "TONE", "NEGATIVE", "FORBIDDEN", "GLOBAL"), CORE_FILE, core),
-            (("ANCHOR", "PALETTE", "STYLE-WORDS", "PARAMS-BG", "PARAMS-TILESET", "PARAMS-PROP"),
+            (("ANCHOR", "PALETTE", "STYLE-WORDS", "STYLE-COPY",
+              "PARAMS-BG", "PARAMS-TILESET", "PARAMS-PROP"),
              PARAMS_FILE, params)):
         missing = [k for k in need if k not in table]
         if missing:
@@ -443,7 +550,7 @@ def main():
             for suffix, req, count in build_one(scene_id, scene, part_id, part,
                                                 core, params, motifs, vocab, warnings):
                 name = part_id + suffix
-                text = req.get("description") or req.get("inner_description", "")
+                text = req.get("description") or req.get("lower_description", "")
                 words = len(text.split())
                 # 🔑 스타일 어구는 내용이 아니라 v2 가 필드를 없애서 문구로 내려온 관용어다.
                 #    예산은 **내용에 쓸 단어 수**이므로 그 몫을 빼고 잰다 (위 STYLE_WORD_ALLOWANCE).
@@ -480,21 +587,19 @@ def main():
             for part_id, req, count in rows:
                 f.write("## %s  <sub>x%d</sub>\n\n" % (part_id, count))
                 text = req.get("description") or (
-                    "inner: %s\ntransition: %s\nouter: %s"
-                    % (req.get("inner_description"), req.get("transition_description"),
-                       req.get("outer_description")))
+                    "lower: %s\ntransition: %s"
+                    % (req.get("lower_description"), req.get("transition_description")))
                 f.write("```\n%s\n```\n\n" % text)
                 # 🔑 표에는 **실제로 보내는 것만** 싣는다.
                 #    밑줄로 시작하는 키는 파이프라인 메타지 요청 본문이 아니다 —
                 #    섞어서 보여 주면 손으로 옮겨 담을 때 없는 칸을 찾게 된다.
-                skip = {"description", "inner_description", "transition_description",
-                        "outer_description"}
+                skip = {"description", "lower_description", "transition_description"}
                 f.write("| 항목 | 값 |\n|---|---|\n")
                 for k, v in req.items():
                     if k in skip or v is None or k.startswith(META_PREFIX):
                         continue
                     f.write("| `%s` | %s |\n" % (k, json.dumps(v, ensure_ascii=False)
-                                                 if isinstance(v, dict) else v))
+                                                 if isinstance(v, (dict, list)) else v))
                 if req.get("_note"):
                     f.write("\n> 🔴 %s\n" % req["_note"])
                 f.write("\n")
@@ -509,6 +614,26 @@ def main():
 
     print("\n완료 — %d개 요청 → %s" % (total, os.path.relpath(OUT_DIR, ROOT)))
     print("   카탈로그: assembled/00_ALL.md")
+
+    # ── 🆕 청구서. 요청 수가 아니라 **호출 수 × 호출당 비용**으로 센다 ──────────
+    #
+    # 🔑 한 호출이 후보를 여러 장 주므로 "5장 필요 = 5번 호출"이 아니다.
+    #    48x48 은 한 호출에 16장을 주니 COUNT 5 도 한 번이면 된다.
+    #    이 구분을 안 하면 예산을 실제의 몇 배로 잡고 겁먹거나, 반대로 셈을 놓친다.
+    image_calls = tileset_calls = 0
+    for _, rows in catalog:
+        for _, req, count in rows:
+            if req.get("tool", "").endswith("tileset"):
+                tileset_calls += 1
+            else:
+                per_call = req.get("_candidates", 1)
+                image_calls += -(-count // per_call)      # 올림 나눗셈
+    low = image_calls * COST_IMAGE[0] + tileset_calls * COST_TILESET[0]
+    high = image_calls * COST_IMAGE[1] + tileset_calls * COST_TILESET[1]
+    print("\n💰 예상 비용 — 이미지 %d호출 + 타일셋 %d호출 = **%d~%d generations**"
+          % (image_calls, tileset_calls, low, high))
+    print("   (재생성·앵커 재선정은 안 센 값이다. 잔여량은 get_balance 로 본다)")
+
     if warnings:
         print("\n⚠️ 경고 %d건:" % len(warnings))
         for w in warnings:

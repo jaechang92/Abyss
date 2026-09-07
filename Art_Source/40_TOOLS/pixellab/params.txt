@@ -13,6 +13,12 @@
 #      negative_description  → 판정 목록 (조립본 .md 체크리스트)
 #      outline/shading/detail/view → 아래 [STYLE-WORDS] 가 문구로 갖고 있다
 #    자세한 것은 profile.md §0.
+#
+# 🆕 2026-09-07 PixelLab MCP 연결. **도구를 바꾼 것이 아니라 같은 도구에 손이 닿은 것**이다.
+#    그래서 이 파일은 새로 쓰지 않고 **틀린 곳만 고쳤다** — 그 구분이 중요하다.
+#    profile.md §6 에 "첫 실호출 때 채운다"고 적어 둔 미확인 6개가 전부 확정됐고,
+#    그중 둘은 적어 둔 내용이 **사실과 반대**였다([PARAMS-TILESET]·[PARAMS-PROP]).
+#    ⚠️ 값을 지어내 채우지 않은 덕에 무엇이 틀렸는지 알 수 있었다. 그 습관을 유지할 것.
 # ══════════════════════════════════════════════════════════════
 
 [ANCHOR]
@@ -26,13 +32,38 @@
 # 💡 legacy 는 앵커/파생이 서로 다른 모델이었다(pixflux → bitforge).
 #    v2 는 **같은 엔드포인트에 style_image 유무로만 갈린다.** 규약은 그대로고 수단만 단순해졌다.
 #
-# ⚠️ style_strength 대응 칸이 v2 에 있는지 **확인 못 했다**(profile.md §6 ③).
-#    있으면 여기에 적는다. 없으면 화풍이 갈릴 때 손쓸 수단이 앵커 재선정뿐이다.
+# 🆕 2026-09-07 MCP 연결로 확정 — style_strength 대응 칸은 **없다.**
+#    대신 `style_copy` 가 있다: 앵커에서 무엇을 베낄지 **항목으로 고른다**
+#    (color_palette / outline / detail / shading 중 고르며, 안 주면 넷 다).
+#    🔑 강도 조절이 아니라 **선택적 복사**다. 이게 오히려 우리 쪽에 맞는다 — 아래 [STYLE-COPY].
 #
 # 🔴 다른 씬의 앵커를 style_image 로 쓰지 않는다.
 #    예외는 hidden 하나 — 거울상 영역이라 의도적으로 stage1 앵커를 쓴다([STYLE-FROM]).
-endpoint = /generate-image-v2
+#
+# 🔴 한 호출이 후보를 **여러 장** 준다 (캔버스가 작을수록 많다):
+#      ≤42px 64장 · ≤85px 16장 · ≤170px 4장 · 그 위 1장
+#    160x96 은 최장변 160 이라 **한 호출에 4장**이다.
+#    💡 그래서 "앵커를 여러 장 뽑아 고른다"가 여러 번 호출이 아니라 **한 번 호출**이다.
+#    ⚠️ 비용은 후보 수가 아니라 **호출당**이다 — 4장을 받든 1장을 받든 같은 값을 낸다.
+tool = create_image_pro
 anchor_needs_style_image = false
+
+[STYLE-COPY]
+# 🆕 2026-09-07 신설. `style_copy` 에 실을 항목을 파트 종류별로 정한다.
+#
+# 🔴 넷 다 베끼면(기본값) 배경 앵커의 `lineless` 가 발판·프롭까지 따라간다.
+#    그런데 [PARAMS-PLATFORM]·[PARAMS-PROP] 은 `outline = selective` 를 명시한다 —
+#    **앵커가 우리 지정을 덮어쓴다.** 배경만 lineless 인 것은 연출이 아니라
+#    가독성 장치다(무엇이 조작 대상인지 가르는 선). 기본값을 쓰면 그 장치가 죽는다.
+#
+# 🔑 그래서 파생 종류마다 베낄 항목이 다르다:
+#      배경 레이어  넷 다 — 같은 판의 다른 층이라 선·밀도까지 같아야 한다
+#      발판·프롭    색과 명암만 — 윤곽선·밀도는 제 지정을 지킨다
+#
+# ⚠️ color_palette 를 여기서 베끼는 것과 후처리 집행은 **다른 일**이다.
+#    여기는 적중률을 올리는 보조 수단이고, 집행은 enforce_palette.py 가 한다.
+bg = color_palette, outline, detail, shading
+sprite = color_palette, shading
 
 [PALETTE]
 # 🔴 이 블록이 게임 가독성을 지킨다. 빼면 캐릭터가 배경에 묻힌다.
@@ -124,18 +155,49 @@ detail = low
 view = side
 
 [PARAMS-TILESET]
-# 🔴 이건 API 가 아니라 **웹 도구(Create tileset)** 다.
-#    그래서 **이번 Pro 전환의 영향을 안 받는다** — 여기만 옛 모양 그대로다.
-#    입력은 셋: inner / transition / outer.
-#    tile_size 는 16 또는 32 만 된다.
-#    transition_size 는 경계 높이 — 0 이면 평평하고 값이 크면 벽이 선다.
+# 🔴 2026-09-07 — 이 블록은 **거의 전부 틀렸었다.** MCP 로 실제 인자를 보고 고쳤다.
+#    적어 둔 네 줄 중 세 줄이 사실과 달랐다. 아래가 정정 내역이다.
 #
-# ⚠️ 웹 도구에는 Target Palette 칸이 있다. 넣어도 된다 —
-#    다만 **집행은 여기서도 후처리가 한다.** 넣는 것은 적중률을 올리는 보조 수단이다.
-tool = create-tileset
+#    ❌ "API 가 아니라 웹 도구다. Pro 전환의 영향을 안 받는다"
+#    ✅ **API 다** — `create_sidescroller_tileset`. 손으로 옮겨 담을 일이 없다.
+#
+#    ❌ "입력은 셋: inner / transition / outer"
+#    ✅ **둘이다** — lower(밟는 땅의 속) + transition(윗면).
+#       🔑 outer 칸이 없는 이유는 빠뜨려서가 아니라 **배경이 투명하게 나오기 때문**이다.
+#          횡스크롤 타일셋은 땅이 아닌 곳을 그리지 않는다. 그 자리는 알파다.
+#       ⚠️ 그래서 씬의 [TILE-OUTER](stage5 = 물)는 **타일셋으로 못 넣는다.**
+#          땅 밖에 무엇이 있는지는 배경 레이어가 말한다. build.py 가 메타로 강등한다.
+#
+#    ❌ "transition_size 는 경계 높이 — 크면 벽이 선다"
+#    ✅ **윗면 층의 두께 비율(0.0~0.5 실수)** 이다. 0 = 윗면 없음 · 0.25 = 얇게 ·
+#       0.5 = 두껍게. 예전 값 `1` 은 아예 범위 밖이었다.
+#       💡 [TRANSITION] 이 "평평한 한 줄"을 요구하므로 얇은 쪽이 맞다 → 0.25.
+#
+#    ❌ "Target Palette 칸이 있다"
+#    ✅ **없다.** 팔레트는 후처리(enforce_palette.py)만이 집행한다 — 보조 수단도 없다.
+#
+# 🔑 반대로 **이쪽에는 남아 있는 칸**이 있다. 이미지 생성에는 없어서 문구로 내린
+#    outline / shading / detail 이 타일셋에는 **필드로 있다.**
+#    그래서 타일셋 파트만 [STYLE-WORDS] 를 안 거친다 (build.py 가 갈라 낸다).
+#
+# 🔑 base_tile_id — 문서에 없던 장치다. 먼저 만든 타일셋의 기준 타일 id 를 넘기면
+#    다음 타일셋이 **그것에 이어 붙게** 나온다. 지면과 벽이 따로 놀지 않게 하는
+#    유일한 수단이고, 이미지 쪽 앵커 규약에 정확히 대응한다.
+#    → 순서: ground 를 먼저 만든다 → get_sidescroller_tileset 으로 id 를 받는다
+#            → wall 을 그 id 로 만든다. 순서를 바꾸면 벽이 기준이 된다.
+#
+# ⚠️ 비용은 **호출당 2~3 generations** 다 (1 이 아니다). 소요 ~100초.
+tool = create_sidescroller_tileset
 tile_size = 32
-transition_size = 1
-border_jitter = medium
+transition_size = 0.25
+outline = selective
+shading = basic
+detail = medium
+# 구조 엄격도. border_jitter 는 없는 칸이었고, 실제 대응물은 이 둘이다.
+# 🔴 윗면이 울퉁불퉁하면(=콜라이더와 어긋나면) freedom 을 낮춘다. 기본 500.
+tileset_adherence = 100
+tileset_adherence_freedom = 500
+tile_strength = 1
 
 [PARAMS-PLATFORM]
 # 떠 있는 발판은 타일셋이 아니라 낱개다(사방이 뚫려 있어 Wang 이 안 맞는다).
@@ -149,9 +211,12 @@ view = side
 [PARAMS-PROP]
 # 장식·트랩·인터랙티브. 알파 필수 — 배경 위에 얹는 것이다.
 #
-# 🔴 v2 에 no_background 가 있는지 **확인 못 했다**(profile.md §6 ①).
-#    없으면 배경 단색으로 뽑아 Tools/ArtPipeline/chroma_cutout.py 로 뺀다 —
-#    gen1 이 그 방식이었고 그 스크립트는 아직 그대로 있다.
+# 🆕 2026-09-07 확정 — `no_background` **있다.** chroma_cutout.py 는 안 쓴다.
+#
+# 🔴 그런데 함정이 반대 방향에 있다. Pro 의 기본값이 **true** 다
+#    ("pro is normally used for assets"). 즉 **배경 레이어에서 이 칸을 빠뜨리면
+#    하늘·먼 배경이 투명하게 나온다.** 프롭이 아니라 배경이 위험한 칸이다.
+#    → build.py 는 이 값을 **항상 실어 보낸다**(기본 false). 빠지는 경우가 없어야 한다.
 image_size = 48x48
 no_background = true
 outline = selective
@@ -176,10 +241,11 @@ less dark than what is around it, easy to spot, not lit
 #    패럴랙스는 여러 장이 겹쳐 보이는 구조라 색온도 차이가 그대로 층으로 드러난다.
 #    날짜를 넘겨 이어 뽑으면 같은 설정이어도 갈린다 — gen2·gen3 가 둘 다 적어 둔 것이다.
 #
-# 🔴 **Pro 로 오면서 이 규약이 더 무거워졌다.** legacy 에서는 seed 를 고정해 흔들림을
-#    잡았는데, /generate-image-v2 에 그 칸이 있는지 확인 못 했다(profile.md §6 ②).
-#    없다면 **한 세션 규약이 유일한 방어선**이다.
+# 🆕 2026-09-07 확정 — `seed` **있다.** 이미지·타일셋 양쪽 다 있다.
+#    "한 세션 규약이 유일한 방어선"이던 상태는 풀렸다. 다만 규약을 약하게 두지 않는다 —
+#    seed 는 같은 인자에 같은 그림을 주는 장치이고, **인자가 바뀌면 아무것도 보장하지 않는다.**
+#    한 씬의 레이어들은 문구가 서로 다르므로, seed 고정은 세션 규약의 대체가 아니라 보강이다.
 #
-#   seed          있다면 한 씬 안에서 고정 (프롭만 예외 — 서로 닮으면 안 된다)
+#   seed          한 씬 안에서 고정 (프롭만 예외 — 서로 닮으면 안 된다)
 #   style_image   그 씬의 앵커. 절대 다른 씬 것을 쓰지 않는다
 #   팔레트         생성이 아니라 **생성 뒤**에 집행한다 (enforce_palette.py)
