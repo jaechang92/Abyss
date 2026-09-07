@@ -1,0 +1,185 @@
+# ══════════════════════════════════════════════════════════════
+# PixelLab Pro (v2) 생성 파라미터 + 앵커 규약
+#
+# 🔥 이 파일은 **버리는 층**이다. 도구가 바뀌면 40_TOOLS/ 만 새로 쓰고
+#    00_SOURCE / 10_BIBLE / 20_SUBJECTS / 30_BLOCKS 는 그대로 간다.
+#    넉 달에 도구가 세 번 바뀌었고 그때마다 정체성까지 같이 죽었다. 그래서 나눴다.
+#
+# 🔑 2026-09-06 Pro 전환에서 이 구조가 처음으로 값을 했다 —
+#    엔드포인트를 통째로 갈았는데 위 네 층은 한 글자도 안 바뀌었다.
+#
+# 🔴 v2 에서 사라진 칸 셋. 전부 다른 데로 옮겼다:
+#      color_image           → 후처리 Tools/ArtPipeline/enforce_palette.py 가 집행
+#      negative_description  → 판정 목록 (조립본 .md 체크리스트)
+#      outline/shading/detail/view → 아래 [STYLE-WORDS] 가 문구로 갖고 있다
+#    자세한 것은 profile.md §0.
+# ══════════════════════════════════════════════════════════════
+
+[ANCHOR]
+# 🔴 이 파이프라인의 중심 규약. 순서를 지키지 않으면 전부 다시 뽑는다.
+#
+#   1. 씬마다 **앵커 한 장**을 style_image 없이 뽑는다 (bg_mid).
+#      여러 장 뽑아 사람이 고른다 — 이 한 장이 그 씬의 화풍 전부를 결정한다.
+#   2. 고른 앵커를 Art_Source/anchors/<scene>.png 로 저장한다.
+#   3. 그 씬의 **나머지 전부**는 style_image = 그 앵커.
+#
+# 💡 legacy 는 앵커/파생이 서로 다른 모델이었다(pixflux → bitforge).
+#    v2 는 **같은 엔드포인트에 style_image 유무로만 갈린다.** 규약은 그대로고 수단만 단순해졌다.
+#
+# ⚠️ style_strength 대응 칸이 v2 에 있는지 **확인 못 했다**(profile.md §6 ③).
+#    있으면 여기에 적는다. 없으면 화풍이 갈릴 때 손쓸 수단이 앵커 재선정뿐이다.
+#
+# 🔴 다른 씬의 앵커를 style_image 로 쓰지 않는다.
+#    예외는 hidden 하나 — 거울상 영역이라 의도적으로 stage1 앵커를 쓴다([STYLE-FROM]).
+endpoint = /generate-image-v2
+anchor_needs_style_image = false
+
+[PALETTE]
+# 🔴 이 블록이 게임 가독성을 지킨다. 빼면 캐릭터가 배경에 묻힌다.
+#
+# ⚠️ **2026-09-06 — 집행 지점이 바뀌었다.**
+#    예전에는 여기에 color_image 를 적었고 그것이 강제였다. v2 Pro 에는 그 칸이 없다.
+#    이제 강제는 **생성 뒤**에 일어난다:
+#
+#        python Tools/ArtPipeline/enforce_palette.py raw/*.png --scene <scene>
+#
+#    🔑 이것이 오히려 설계를 고쳤다 — 바이블의 핵심 장치가 *버리기로 한 층의 기능*에
+#       걸려 있었다. 후처리는 도구가 네 번째로 바뀌어도 안 죽는다. (10_BIBLE/04 머리말)
+#
+# ⚠️ 2026-09-06 에 **피해야 할 대상도 바뀌었다.**
+#    예전에는 폼 액센트 4색이었다. 이제는 **시너지 축 6색**이다 —
+#    색을 폼에서 떼어 축에 줬기 때문이다(10_BIBLE/04 §1).
+#
+#    축 6색 (SynergyAxis.cs 가 SoT — 아트가 이 값을 정하지 않는다):
+#       fire       #FF752E    blood_pact #E6384D
+#       abyss      #A36BF5    frost      #73CCFF
+#       guard      #FFCC52    soul       #8CF2B3
+#
+#    S1  신호 색을 월드에 칠하지 않는다.
+#    S3  씬 팔레트는 이 6색과 **명도 또는 채도에서** 갈려야 한다.
+#        색상만 피하는 것으로는 부족하다.
+#
+# ⚠️ 팔레트 파일에 무엇을 넣느냐가 이 파이프라인에서 가장 중요한 손작업이다.
+#    색을 고르는 순간 판정이 끝난다.
+# 🔴 그래서 **팔레트가 앵커보다 먼저다** — 이유는 바뀌었지만(강제 → 판정 기준) 결론은 같다.
+#    앵커를 무엇과 비교해 고를지가 없으면 고를 수 없다.
+enforce_after = true
+palette_file = palettes/<scene>.png
+
+[STYLE-WORDS]
+# 🆕 v2 에는 outline/shading/detail/view 칸이 없다. 그 지정을 **문구로 내린다.**
+#
+# 🔑 **거의 항등 사상이다. 그게 맞다.**
+#    legacy 의 enum 값(`lineless` `flat shading` `low detail` `side view`)은
+#    애초에 영어 프롬프트 어휘 그대로였다. 칸에서 문구로 자리만 옮기면 된다.
+#
+# ⚠️ 처음에는 설명형으로 길게 썼다가 되돌렸다 —
+#    `lineless, edges read by value not by line` 식으로 쓰면 네 필드가 20 단어가 되어
+#    **[WORD-BUDGET] 40 을 스타일 지정만으로 절반 먹는다.** 파트 문구가 그만큼 밀리고,
+#    PixelLab 은 문구가 길면 서로 희석되는 모델이다. 정체성을 말할 자리를 뺏으면 안 된다.
+#
+# 💡 그래도 이 표가 있어야 하는 이유 셋:
+#      ① 이 값들이 이제 **필드가 아니라 문구**라는 사실이 여기 적혀 있다
+#      ② 모델이 못 알아들으면 **고칠 곳이 여기 한 곳**이다
+#      ③ 오타를 build.py 가 잡는다 — 없는 키는 경고가 뜬다.
+#         (조용히 빠지면 "안 실었다"와 "모델이 무시했다"를 구분할 수 없다)
+# 🔴 값은 **짧은 토큰 하나로 통일**한다 (`medium`, `low`, `high` — `medium detail` 아님).
+#    첫 빌드에서 파트 파일 5줄이 전체 enum 형(`flat shading`·`highly detailed`)을 쓰고 있어
+#    어휘가 갈려 있었고, build.py 경고가 그것을 잡았다. 둘 다 받게 하면 파편화가 남는다.
+#    ⚠️ 새 값을 쓸 때는 반드시 여기에도 줄을 추가할 것. 없으면 경고가 뜬다(조용히 안 빠진다).
+outline_lineless = lineless
+outline_selective = selective outline
+shading_flat = flat shading
+shading_basic = basic shading
+shading_medium = medium shading
+detail_low = low detail
+detail_medium = medium detail
+detail_high = highly detailed
+view_side = side view
+
+[PARAMS-BG]
+# 패럴랙스 배경 레이어. 방은 가로로 스크롤되므로 가로가 길다.
+#
+# 🔴 크기는 **한계가 아니라 판단이다.** 160x96 은 원래 무료 티어 면적 제한(200x200)
+#    때문에 고른 값인데, Pro 에는 그 제한이 없다(최대 512x512 / 688x384).
+#    그래도 안 올린다 — 688x384 로 뽑으면 픽셀 아트가 아니라
+#    "픽셀처럼 생긴 일러스트"가 된다. 픽셀 밀도는 이제 우리가 정한다. (profile.md §1)
+image_size = 160x96
+outline = lineless
+shading = basic
+detail = low
+view = side
+# 🔑 배경만 lineless 다. 윤곽선이 있으면 배경 물체가 캐릭터만큼 또렷해져
+#    무엇이 조작 대상인지 화면에서 안 갈린다. 발판·프롭은 selective 를 쓴다.
+#    이 대비가 10_BIBLE/03 L3(좁은 명도 대비)의 해답 후보다 —
+#    명도로 못 가르면 윤곽선 유무로 가른다.
+
+[PARAMS-BG-SKY]
+# 최원경만 예외적으로 더 흐리다 — 패럴랙스 계수가 가장 낮아 크게 안 움직인다.
+# 🔴 구름을 그리지 않는다(10_BIBLE/03 L7). 하늘은 텍스처가 아니라 면이다.
+image_size = 160x96
+outline = lineless
+shading = flat
+detail = low
+view = side
+
+[PARAMS-TILESET]
+# 🔴 이건 API 가 아니라 **웹 도구(Create tileset)** 다.
+#    그래서 **이번 Pro 전환의 영향을 안 받는다** — 여기만 옛 모양 그대로다.
+#    입력은 셋: inner / transition / outer.
+#    tile_size 는 16 또는 32 만 된다.
+#    transition_size 는 경계 높이 — 0 이면 평평하고 값이 크면 벽이 선다.
+#
+# ⚠️ 웹 도구에는 Target Palette 칸이 있다. 넣어도 된다 —
+#    다만 **집행은 여기서도 후처리가 한다.** 넣는 것은 적중률을 올리는 보조 수단이다.
+tool = create-tileset
+tile_size = 32
+transition_size = 1
+border_jitter = medium
+
+[PARAMS-PLATFORM]
+# 떠 있는 발판은 타일셋이 아니라 낱개다(사방이 뚫려 있어 Wang 이 안 맞는다).
+image_size = 48x16
+no_background = true
+outline = selective
+shading = basic
+detail = medium
+view = side
+
+[PARAMS-PROP]
+# 장식·트랩·인터랙티브. 알파 필수 — 배경 위에 얹는 것이다.
+#
+# 🔴 v2 에 no_background 가 있는지 **확인 못 했다**(profile.md §6 ①).
+#    없으면 배경 단색으로 뽑아 Tools/ArtPipeline/chroma_cutout.py 로 뺀다 —
+#    gen1 이 그 방식이었고 그 스크립트는 아직 그대로 있다.
+image_size = 48x48
+no_background = true
+outline = selective
+shading = medium
+detail = medium
+view = side
+
+[SILENT]
+# 장식·트랩용. 배경에 녹아들어야 한다.
+muted and dusty, blends into the wall
+
+[NOTICEABLE]
+# 인터랙티브 전용. 어두운 방에서 플레이어가 찾아낼 수 있어야 한다.
+#
+# 🔴 2026-09-06 변경 — gen3 는 `faint pale glow` 였다.
+#    10_BIBLE/03 L1(광원 금지)에 걸린다. 빛나는 프롭은 광원이다.
+#    발광을 빼고 **주변보다 덜 어둡게**로 바꿨다. `glow` 는 이제 빌드 실패 어휘다.
+less dark than what is around it, easy to spot, not lit
+
+[SETTINGS]
+# 🔴 한 씬의 레이어들은 반드시 한 세션 안에서 끝낸다.
+#    패럴랙스는 여러 장이 겹쳐 보이는 구조라 색온도 차이가 그대로 층으로 드러난다.
+#    날짜를 넘겨 이어 뽑으면 같은 설정이어도 갈린다 — gen2·gen3 가 둘 다 적어 둔 것이다.
+#
+# 🔴 **Pro 로 오면서 이 규약이 더 무거워졌다.** legacy 에서는 seed 를 고정해 흔들림을
+#    잡았는데, /generate-image-v2 에 그 칸이 있는지 확인 못 했다(profile.md §6 ②).
+#    없다면 **한 세션 규약이 유일한 방어선**이다.
+#
+#   seed          있다면 한 씬 안에서 고정 (프롭만 예외 — 서로 닮으면 안 된다)
+#   style_image   그 씬의 앵커. 절대 다른 씬 것을 쓰지 않는다
+#   팔레트         생성이 아니라 **생성 뒤**에 집행한다 (enforce_palette.py)

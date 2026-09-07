@@ -1,0 +1,25 @@
+# ══════════════════════════════════════════════════════════════
+# 보스 방 전용 배경 (한 장짜리, 패럴랙스 아님)
+#
+# 🔑 보스 방은 스크롤되지 않는다. 카메라가 고정된 아레나이므로 가로 심리스가
+#    필요 없고, 대신 **한 장으로 완성된 그림**이어야 한다.
+#    그래서 유일하게 화면 중앙에 초점이 있어도 되는 배경이다.
+#
+# ⚠️ 그래도 중앙 하단은 비워 둔다 — 거기서 싸운다.
+#    큰 것은 중앙 **상단**에 두어 보스 뒤로 서게 한다.
+# ══════════════════════════════════════════════════════════════
+
+[KIND] bg
+[PARAMS] PARAMS-BG
+[USE-SCENE] SETTING, MATERIAL, LIGHT
+[USE-MOTIF] yes
+[USE-TONE] no
+[WORD-BUDGET] 50
+[COUNT] 1
+
+[OVERRIDE]
+detail = medium
+
+[BODY]
+one wide open chamber, a single large shape in the upper centre,
+the lower centre empty

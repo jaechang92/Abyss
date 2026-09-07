@@ -1,0 +1,63 @@
+# ══════════════════════════════════════════════════════════════
+# 세계 정체성 SoT — Abyss 환경 아트 (PixelLab)
+#
+# 🔴 손으로 재조립하지 않는다. build.py 가 갖다 붙인다.
+#    캐릭터 쪽 prompts/01_character.txt 와 같은 자리다.
+#
+# 🔑 왜 이 파일이 있는가 —
+#    스테이지 5개는 테마가 전부 다르다(유적·용암·왕궁·얼음·우주).
+#    테마만 나열하면 그냥 다른 게임 다섯 개다. 하나의 세계로 읽히게 하는 것은
+#    테마가 아니라 [MOTIF] 세 가지다. 그것만 전 스테이지에 공통으로 들어간다.
+#
+# ⚠️ PixelLab 은 NovelAI 가 아니다 — 문장이 짧아야 한다.
+#    태그를 수십 개 쌓으면 서로 희석되어 아무것도 안 걸린다.
+#    한 생성의 description 은 대략 20~35 단어를 넘기지 않는다.
+#    그래서 아래 블록들은 "고를 수 있는 문구 창고"이고,
+#    build.py 가 파트마다 필요한 것만 골라 붙인다.
+#
+# 출처 (지어낸 것이 아니다):
+#    Docs/game-design/00-concept.md         §1 로그라인 · §5 톤 앤 매너
+#    Docs/game-design/10-narrative-plan.md  §2 캐스트
+#    Docs/game-design/12-prologue-ending-text.md §2 인칭·정체
+#    Docs/game-design/08-content-roadmap.md §6-1 스테이지 진척
+# ══════════════════════════════════════════════════════════════
+
+[CORE]
+# 전 파트에 들어가는 최소 공통. 짧게 유지할 것 — 여기가 길면 파트 문구가 밀린다.
+dark fantasy underground ruins
+
+[MOTIF]
+# 🔴 세계를 하나로 묶는 세 가지. 파트마다 이 중 하나만 골라 쓴다(전부 넣으면 희석된다).
+#
+#   ① fallen  — 이 세계의 모든 것은 위에서 내려왔다. 방향성이 항상 아래다.
+#               (프롤로그 "떨어지는 동안에도 나는 아직 나였다")
+#   ② carved  — 각인사가 파편에 이름을 새긴다. 벽에도 누군가 새겼다.
+#               (10-narrative-plan §2-2 — 이름이 이 게임의 서사 화폐다)
+#   ③ unclimbed — 아무도 못 올라갔다. 위를 향하다 만 것들만 남았다.
+#               (기록자 = 그 자신도 올라가지 못한 자)
+fallen = rubble fallen from above
+carved = names scratched into the stone by hand
+unclimbed = stairs that stop halfway up
+
+[TONE]
+# 00-concept §5 — 무거운 철학이 아니라 절제된 현실감이다.
+# 여기 있던 것들은 대단한 존재가 아니라 사람이었다.
+quiet, melancholy, not heroic
+
+[NEGATIVE]
+# ⚠️ pixflux 의 negative_description 은 API 에서 deprecated 다 — 넣어도 안 먹는다.
+#    bitforge 에서만 유효하므로 스타일 앵커 이후 생성에만 실린다.
+# 🔴 인물 배제가 최우선이다. 배경에 사람이 그려지면 플레이어와 겹쳐
+#    무엇이 조작 대상인지 화면에서 구분이 안 된다.
+people, character, creature, monster, bright saturated colors,
+blue sky, daylight, grass, text, watermark, ui
+
+[GLOBAL]
+# 전 생성 공통 파라미터. 파트가 덮어쓸 수 있다.
+# 값은 PixelLab API 스펙(api.pixellab.ai/v1/openapi.json, 2026-09-03 확인)의 enum 그대로다.
+view = side
+outline = selective outline
+shading = medium shading
+detail = medium detail
+isometric = false
+text_guidance_scale = 8

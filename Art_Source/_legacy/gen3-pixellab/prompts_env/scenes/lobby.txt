@@ -1,0 +1,40 @@
+# ══════════════════════════════════════════════════════════════
+# 로비 — 거점 (Lobby.unity)
+#
+# 🔑 유일하게 **안전한 장소**다. 그래서 이 씬만 따뜻한 색을 쓴다.
+#    다른 씬이 전부 차갑고 어두우므로, 로비에 돌아왔을 때의 온도 차이가
+#    "살아 돌아왔다"를 말한다. 텍스트 없이 되는 서사다.
+#
+# ⚠️ 여기서는 주황(불빛)을 써도 된다 — **전투가 없기 때문이다.**
+#    02_params.txt [PALETTE] 의 액센트 회피 규칙은 캐릭터 가독성을 위한 것이고,
+#    로비에서는 캐릭터가 적과 겹칠 일이 없다. 단, 밝기는 여전히 낮게 둔다.
+#
+# 📌 여기 서 있는 NPC 4명이 서사 전체를 진다 (10-narrative-plan §2):
+#      기록자(순수 화자) · 각인사(폼 선택) · 안내자(던전 진입) · 제단지기(메타)
+#    그래서 로비 배경은 **네 자리가 구분되게** 생겨야 한다.
+#    prop_landmark 넷이 각 NPC 의 자리 표식이다.
+# ══════════════════════════════════════════════════════════════
+
+[ANCHOR-PART] bg_mid
+
+[SETTING]
+a small sheltered camp under a stone overhang
+
+[MATERIAL]
+worn stone, patched awnings, a low stone altar
+
+[LIGHT]
+warm low firelight from one contained fire
+
+[MOTIF] carved
+
+[STORY]
+# 여기에도 각인이 있다 — 다만 여기 것은 죽은 사람이 아니라 돌아온 사람이 새긴다.
+a wall where survivors add one mark each return
+a rack of empty forms nobody claimed
+a chair nobody sits in
+
+[PARTS]
+bg_sky, bg_far, bg_mid, bg_near,
+prop_decor,
+prop_interactive, prop_landmark

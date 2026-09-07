@@ -1,0 +1,29 @@
+# ══════════════════════════════════════════════════════════════
+# 근경 오버레이 — 플레이어보다 **앞에** 그려진다
+#
+# 🔴 그래서 규칙이 하나 뒤집힌다 — 다른 배경은 캐릭터를 가리면 안 되지만
+#    이 층은 가리는 것이 일이다. 대신 **가장 어둡고 형태만** 있어야 한다.
+#    무늬가 보이면 시야를 잡아먹는다.
+#
+# ⚠️ 화면 아래·좌우 가장자리에만 걸치게 쓴다. 가운데를 덮으면 게임이 안 보인다.
+# ⚠️ 알파가 필요하다 — 가운데가 뚫려 있어야 하므로 다른 배경 층과 다르다.
+#
+# 📌 L3(좁은 명도 대비)의 유일한 예외 후보다. 이 층은 거의 검정에 가까워도 된다 —
+#    다만 순검정은 아니다(P4). 확정은 10_BIBLE/99-conflicts.md.
+# ══════════════════════════════════════════════════════════════
+
+[KIND] bg
+[PARAMS] PARAMS-BG
+[USE-SCENE] MATERIAL
+[USE-MOTIF] no
+[USE-TONE] no
+[COUNT] 1
+
+[OVERRIDE]
+no_background = true
+shading = flat
+detail = low
+
+[BODY]
+a foreground overlay, very dark flat shapes along the bottom and side edges only,
+open and empty through the middle

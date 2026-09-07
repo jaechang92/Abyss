@@ -1,0 +1,50 @@
+# ══════════════════════════════════════════════════════════════
+# 스테이지 5 — 심연의 핵 (테마: 추상적 공간·우주)
+# 08-content-roadmap §6-1 · 중간보스 Clockwork / 보스 SoulHarvester · 10~12방
+# 📌 도입 시점 M3. EA 최종 스테이지다.
+#
+# ⚠️ 보라는 공허궁수(void_archer) 액센트 #A36BF5 와 겹친다.
+#    여기의 보라는 **거의 검정에 가까운 자주**여야 하고, 밝은 보라는 안 쓴다.
+#
+# 🔴 이 스테이지만 규칙이 하나 깨진다 — **바닥이 없다.**
+#    다른 스테이지의 지면 타일셋은 "땅"이지만 여기서는 떠 있는 파편이다.
+#    tileset_ground 의 outer 재질이 흙·공기가 아니라 **허공**이므로
+#    Wang 전이 타일이 "잘린 단면"이 되어야 한다. parts/tileset_ground.txt
+#    가 씬별로 outer 를 받아 가는 이유가 이것이다.
+#
+# 💡 서사적으로 여기가 회수 지점이다 — 떨어진 것들이 바닥에 쌓이지 않고
+#    아직도 떨어지는 중이다. [MOTIF] fallen 을 가장 문자 그대로 쓴다.
+# ══════════════════════════════════════════════════════════════
+
+[ANCHOR-PART] bg_mid
+
+[SETTING]
+a bottomless void, broken architecture floating
+
+[MATERIAL]
+weightless stone shards, drifting torn cloth
+
+[GROUND-MATERIAL]
+# 여기 바닥은 떠 있는 파편의 윗면이다. 떠다니는 천은 프롭이지 바닥 재질이 아니다.
+dark fractured shard stone, faint pale veins
+
+[TILE-OUTER]
+# 🔴 이 씬만 outer 가 "어두운 허공"이 아니다 — 바닥 밖에는 아무것도 없다.
+nothing at all, empty void
+
+[LIGHT]
+a dim ambient wash from no source
+
+[MOTIF] fallen
+
+[STORY]
+# 파편 하나하나에 이름이 있다 — 각인사가 새긴 것들이 여기 모여 있다.
+names carved on a floating shard
+a door frame drifting with no wall around it
+things still falling that have not landed
+
+[PARTS]
+bg_sky, bg_far, bg_mid, bg_near, bg_boss_arena,
+tileset_ground, tileset_wall, tile_platform,
+prop_decor,
+prop_hazard, prop_interactive, prop_landmark

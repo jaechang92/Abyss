@@ -1,0 +1,30 @@
+# ══════════════════════════════════════════════════════════════
+# 트랩 / 위험 지형
+#
+# ⚠️ 트랩이 [SILENT] 를 쓰는 것이 이상해 보이지만 의도다.
+#    트랩은 발동 전에는 지형처럼 보여야 하고, 위험 신호는 **색이 아니라 형태**로 준다.
+#    00-concept §5 가 색약 대응으로 "형태 포함"을 명시했다 —
+#    빨간색으로 위험을 말하면 그 플레이어들에게는 아무 말도 안 한 것이다.
+#
+# 🔑 그래서 트랩의 실루엣에는 **뾰족하거나 벌어진 것**이 들어간다.
+#    색을 지워도 위험이 읽혀야 한다. 흑백으로 축소해서 확인할 것.
+#
+# ⚠️ 단, 그 뾰족함이 캐릭터 실루엣과 안 겹쳐야 한다 —
+#    폼 4종의 실루엣 축은 세로선·곡선·사각·삼각이다(GUIDELINE.md §6).
+#    트랩은 **반복되는 톱니**로 간다. 넷 중 무엇과도 안 겹친다.
+# ══════════════════════════════════════════════════════════════
+
+[KIND] prop
+[PARAMS] PARAMS-PROP
+[USE-SCENE] MATERIAL
+[USE-MOTIF] no
+[USE-TONE] no
+[USE-VOICE] SILENT
+[COUNT] 3
+
+[OVERRIDE]
+image_size = 48x32
+
+[BODY]
+a floor hazard built into the ground, a row of repeating sharp jagged teeth,
+dangerous shape but dull colour

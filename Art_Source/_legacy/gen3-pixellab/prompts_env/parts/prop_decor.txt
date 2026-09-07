@@ -1,0 +1,25 @@
+# ══════════════════════════════════════════════════════════════
+# 장식 프롭 — 방을 채우는 물건들
+#
+# 🔴 장식은 **눈에 띄면 실패**다. 플레이어가 다가가 상호작용을 시도했는데
+#    아무 일도 없으면, 그다음부터는 진짜 인터랙티브도 무시하게 된다.
+#    한 번 배신당한 어포던스는 회복되지 않는다.
+#
+# 그래서 [SILENT] 문구가 붙는다 — 벽에 녹아들어야 한다.
+#
+# 💡 COUNT 가 5인 이유: 스테이지당 5~8종이 필요하다
+#    (08-content-roadmap §6-4 "환경 오브젝트"). 씬 하나에서 seed 만 바꿔
+#    여러 장 뽑고 고른다. 프롭은 **seed 를 고정하지 않는 유일한 카테고리**다 —
+#    고정하면 전부 비슷하게 생긴 물건이 나온다(02_params.txt [SETTINGS]).
+# ══════════════════════════════════════════════════════════════
+
+[KIND] prop
+[PARAMS] PARAMS-PROP
+[USE-SCENE] MATERIAL
+[USE-MOTIF] yes
+[USE-TONE] no
+[USE-VOICE] SILENT
+[COUNT] 5
+
+[BODY]
+a single small piece of scenery clutter that sits against a wall

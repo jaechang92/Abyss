@@ -1,0 +1,29 @@
+# ══════════════════════════════════════════════════════════════
+# 벽면 타일셋 — Create Tileset 도구
+#
+# 지면과 별개로 뽑는다. 같은 재질이어도 **벽은 세로로 이어지고 지면은 가로로 이어진다** —
+# 한 타일셋으로 둘 다 하면 한쪽이 반드시 어색해진다.
+#
+# ⚠️ 벽은 지면보다 한 단계 더 어둡고 조용해야 한다.
+#    벽은 화면에서 차지하는 면적이 가장 넓어서, 여기가 시끄러우면
+#    다른 무엇을 조용하게 만들어도 화면이 안 정리된다.
+#
+# 💡 transition_size 를 지면보다 크게 준다 — 벽은 두께가 보여야 벽으로 읽힌다.
+# ══════════════════════════════════════════════════════════════
+
+[KIND] tileset
+[PARAMS] PARAMS-TILESET
+[USE-SCENE] MATERIAL
+[COUNT] 1
+
+[OVERRIDE]
+transition_size = 2
+
+[INNER]
+a flat wall face, plain and quiet
+
+[TRANSITION]
+the broken edge where the wall ends
+
+[OUTER]
+dark empty air

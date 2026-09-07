@@ -1,0 +1,40 @@
+# ══════════════════════════════════════════════════════════════
+# 타이틀 — 키 아트 (Title 씬)
+#
+# 🔴 이 씬만 [NEGATIVE] 의 인물 배제를 **해제한다.**
+#    다른 모든 배경에서 사람이 나오면 사고지만, 타이틀에서는
+#    떨어지는 실루엣 하나가 이 게임이 무엇인지 한 장으로 말한다.
+#    프롤로그 확정본이 "떨어지는 동안에도 나는 아직 나였다"이므로
+#    타이틀의 그림과 첫 문장이 같은 것을 가리키게 된다.
+#
+# ⚠️ 얼굴은 여기서도 안 보인다. 캐릭터 규약(prompts/01_character.txt
+#    [IDENTITY-LOCK])과 어긋나면 타이틀의 인물이 게임의 주인공으로 안 읽힌다.
+#    실루엣으로만 그린다 — 그러면 4폼 어느 것과도 모순되지 않는다.
+#
+# 💡 이 씬은 패럴랙스가 아니라 **한 장짜리 정지화**다. 그래서 파트가 적다.
+#    상위 티어면 image_size 를 320x180 으로 올려 뽑는다.
+# ══════════════════════════════════════════════════════════════
+
+[ANCHOR-PART] bg_mid
+
+[SETTING]
+looking down into a vast rift from far above
+
+[MATERIAL]
+sheer stone walls
+
+[LIGHT]
+a thin ring of pale daylight far above
+
+[MOTIF] fallen
+
+[ALLOW-FIGURE]
+# 🔴 이 블록이 있는 씬에서만 인물이 허용된다. build.py 가 이걸 보고
+#    [NEGATIVE] 에서 인물 항목을 뺀다.
+one tiny falling silhouette, face not visible
+
+[STORY]
+nothing has landed yet
+
+[PARTS]
+bg_mid, bg_far

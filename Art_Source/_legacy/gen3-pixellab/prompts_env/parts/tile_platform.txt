@@ -1,0 +1,26 @@
+# ══════════════════════════════════════════════════════════════
+# 떠 있는 발판 — 낱개 오브젝트 (타일셋 아님)
+#
+# 🔴 발판은 Wang 타일셋으로 만들 수 없다. Wang 은 "두 재질이 만나는 경계"를
+#    푸는 도구인데, 떠 있는 발판은 **사방이 전부 바깥**이라 경계가 아니라 섬이다.
+#    그래서 이것만 bitforge 로 낱개 생성하고 알파를 켠다.
+#
+# 🔑 발판은 게임에서 가장 중요한 타일이다 — 플레이어가 "저기 설 수 있나"를
+#    0.2초 안에 판단해야 한다. 그래서 이것 하나만 **윤곽선을 준다**
+#    (배경은 lineless, 발판은 selective outline).
+#    이 대비가 밟을 수 있는 것과 없는 것을 가른다.
+#
+# ⚠️ 윗면이 평평해야 한다. 모델이 자꾸 바위처럼 둥글게 만드는데,
+#    둥글면 어디까지가 설 수 있는 면인지 안 보인다.
+# ══════════════════════════════════════════════════════════════
+
+[KIND] prop
+[PARAMS] PARAMS-PLATFORM
+[USE-SCENE] MATERIAL
+[USE-MOTIF] no
+[USE-TONE] no
+[COUNT] 3
+
+[BODY]
+a small floating platform seen from the side, flat level top surface,
+broken underside, nothing holding it up

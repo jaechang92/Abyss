@@ -1,0 +1,36 @@
+# ══════════════════════════════════════════════════════════════
+# 벽면 타일셋 — Create Tileset 도구
+#
+# 지면과 별개로 뽑는다. 같은 재질이어도 **벽은 세로로 이어지고 지면은 가로로 이어진다** —
+# 한 타일셋으로 둘 다 하면 한쪽이 반드시 어색해진다.
+#
+# 🔴 gen3 의 미해결을 여기서 닫는다 — 그때는 벽이 [MATERIAL](배경 재질)을 그대로 썼고
+#    00_WORKFLOW.md 가 "같은 문제가 남아 있다"고 적어 두었다.
+#    이제 [WALL-MATERIAL] 을 먼저 보고, 없으면 GROUND-MATERIAL, 그다음 MATERIAL 로 떨어진다.
+#    지면 어휘(floor slabs)를 벽에 그대로 쓸 수 없으므로 씬이 벽 재질을 따로 적는다.
+#
+# ⚠️ 벽은 지면보다 한 단계 더 어둡고 조용해야 한다. 화면에서 차지하는 면적이 가장 넓어서,
+#    여기가 시끄러우면 다른 무엇을 조용하게 만들어도 화면이 안 정리된다.
+#
+# 💡 transition_size 를 지면보다 크게 준다 — 벽은 두께가 보여야 벽으로 읽힌다.
+#
+# 📌 벽은 [MOTIF] carved 가 가장 잘 붙는 자리다 — 벽에 손으로 새긴 이름(3권 21장).
+#    다만 타일에 글자를 구우면 반복되므로, 글자는 prop_decor/prop_interactive 로 얹는다.
+# ══════════════════════════════════════════════════════════════
+
+[KIND] tileset
+[PARAMS] PARAMS-TILESET
+[USE-SCENE] WALL-MATERIAL, GROUND-MATERIAL, MATERIAL
+[COUNT] 1
+
+[OVERRIDE]
+transition_size = 2
+
+[INNER]
+a flat wall face, plain and quiet, one even repeating material
+
+[TRANSITION]
+the broken edge where the wall ends
+
+[OUTER]
+dark empty air

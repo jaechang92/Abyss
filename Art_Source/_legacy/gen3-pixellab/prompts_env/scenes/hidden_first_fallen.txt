@@ -1,0 +1,47 @@
+# ══════════════════════════════════════════════════════════════
+# 히든 — 첫 추락자의 회랑 (테마: 거울상 영역)
+# 08-content-roadmap §6-1 · 히든보스 FirstFallen/Echo · 5방
+# 📌 도입 시점 M4. 히든 엔딩에서 이름 「하란」이 회수되는 자리다
+#    (12-prologue-ending-text §2-2).
+#
+# 🔑 이 씬만 만드는 법이 다르다 — **스테이지 1의 앵커를 style_image 로 쓴다.**
+#    거울상 영역이므로 같은 장소여야 하고, 다르게 만들면 거울이 아니라
+#    그냥 여섯 번째 스테이지가 된다.
+#    그 위에 팔레트만 무채색으로 갈아끼운다(color_image).
+#
+# 🔴 그래서 [ANCHOR-PART] 가 없다. 앵커를 새로 뽑지 않는다.
+#    build.py 가 style_from 을 읽어 stage1 의 앵커를 가리킨다.
+#
+# 💡 "먼저 떨어진 자"는 이름을 잃고 아래로 간 첫 번째 하란이다
+#    (12-prologue-ending-text §1). 이름을 잃었다는 것이 시각적으로
+#    **색이 빠진 것**으로 나타난다 — 무채색은 연출이 아니라 설정이다.
+# ══════════════════════════════════════════════════════════════
+
+[STYLE-FROM] stage1_rift_entrance
+
+[SETTING]
+the same temple ruins, colourless and inverted
+
+[MATERIAL]
+colourless limestone, inverted architecture
+
+[GROUND-MATERIAL]
+# 거울상 영역이라 스테이지 1 과 같은 돌이되 색과 이끼가 빠졌다.
+colourless bleached limestone slabs, no moss
+
+[LIGHT]
+light falling upward instead of down
+
+[MOTIF] carved
+
+[STORY]
+# 🔴 여기서만 쓰는 장치 — 플레이어의 이름이 이미 새겨져 있다.
+#    "또 하나의 낙오자인가"(기록자 첫 대사)에 대한 시각적 응답이다.
+a name already carved here before you arrived
+the same tally marks continuing
+a mirror that shows the corridor but not you
+
+[PARTS]
+bg_sky, bg_far, bg_mid, bg_near, bg_boss_arena,
+tileset_ground, tileset_wall, tile_platform,
+prop_decor, prop_interactive, prop_landmark
