@@ -21,8 +21,8 @@
 
 [OVERRIDE]
 no_background = true
-shading = flat shading
-detail = low detail
+shading = flat
+detail = low
 
 [BODY]
 a foreground overlay, very dark flat shapes along the bottom and side edges only,

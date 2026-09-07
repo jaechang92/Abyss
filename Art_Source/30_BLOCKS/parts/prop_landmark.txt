@@ -26,7 +26,7 @@
 
 [OVERRIDE]
 image_size = 96x96
-detail = highly detailed
+detail = high
 
 [BODY]
 one large distinctive thing standing alone, tall enough to mark the room

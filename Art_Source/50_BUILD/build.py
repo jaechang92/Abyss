@@ -54,8 +54,68 @@ BLOCK = re.compile(r"\[([A-Z0-9\- ]+)\](.*)")
 #    다만 짧은 설명을 전제로 한 모델이라, 길어지면 앞 문구부터 흐려진다.
 WORD_BUDGET = 40
 
-# 인물 배제 항목 — [ALLOW-FIGURE] 가 있는 씬에서는 부정 프롬프트에서 뺀다.
+# 🆕 2026-09-06 Pro(v2) 전환의 청구서.
+#
+#    [WORD-BUDGET] 은 **내용에 쓸 단어 수**로 잡은 값이다. legacy 에서는 outline/shading/
+#    detail/view 가 API 필드라 문구를 한 글자도 안 먹었다. v2 에는 그 칸이 없어서
+#    같은 지정이 이제 문구로 들어간다 — 배경 파트 기준 **7 단어**
+#    (`side view` + `lineless` + `basic shading` + `low detail`).
+#
+#    그대로 두면 전환만으로 내용 예산이 40 → 33 으로 조용히 줄어든다. 실제로 첫 빌드에서
+#    멀쩡하던 파트 4개가 초과 경고를 냈다 — 내용은 한 글자도 안 늘었는데.
+#
+# 🔑 그래서 스타일 어구는 예산 밖으로 센다. **내용 예산을 원래 값으로 지키는 것**이
+#    이 상수의 뜻이다.
+# ⚠️ 총 문구는 실제로 길어졌다. PixelLab 은 문구가 길면 희석되는 모델이므로 공짜가 아니다.
+#    다만 붙는 자리가 맨 끝이고 전부 짧은 관용어라, 정체성 문구를 깎는 것보다 낫다고 봤다.
+#    **판단이지 실측이 아니다** — 앵커를 뽑아 보고 스타일 지정이 안 걸리면 여기를 의심할 것.
+STYLE_WORD_ALLOWANCE = True
+
+# 인물 배제 항목 — [ALLOW-FIGURE] 가 있는 씬에서는 판정 목록에서 뺀다.
 FIGURE_TERMS = ("people", "character", "creature", "monster")
+
+# 🆕 2026-09-06 Pro(v2) 전환 —
+#    v2 에는 outline/shading/detail/view 칸이 **없다.** 그 지정을 문구로 내린다.
+#    params.txt [STYLE-WORDS] 에서 `<필드>_<값>` 으로 찾는다 (예: outline_lineless).
+STYLE_FIELDS = ("view", "outline", "shading", "detail")
+
+# 요청 본문이 아닌 파이프라인 메타는 밑줄로 시작한다.
+#   _palette    후처리(enforce_palette.py)가 쓸 팔레트 — 생성 요청에는 안 들어간다
+#   _reject_if  판정 목록 — v2 에 negative_description 이 없어서 사람이 보고 거른다
+#   _count      몇 장 뽑을 것인가
+META_PREFIX = "_"
+
+
+def parse_size(text):
+    """'160x96' → {'width': 160, 'height': 96}.
+
+    🔴 v2 의 image_size 는 문자열이 아니라 **객체**다. legacy 는 문자열을 받았다.
+       (40_TOOLS/pixellab/profile.md §2 — 첫 실호출에서 확인할 것)
+    """
+    m = re.fullmatch(r"\s*(\d+)\s*[xX]\s*(\d+)\s*", str(text))
+    if not m:
+        raise SystemExit("🔴 image_size 를 못 읽었다: %r (형식은 '160x96')" % text)
+    return {"width": int(m.group(1)), "height": int(m.group(2))}
+
+
+def style_phrases(resolved, style_words, label, warnings):
+    """outline/shading/detail/view 토큰을 [STYLE-WORDS] 의 영문 어구로 옮긴다.
+
+    🔴 못 찾으면 **경고한다.** 조용히 빠지면 그 지정이 사라진 채로 그림이 나오고,
+       나온 그림만 봐서는 '문구를 안 실었다'와 '모델이 무시했다'를 구분할 수 없다.
+    """
+    out = []
+    for field in STYLE_FIELDS:
+        value = resolved.get(field)
+        if not value:
+            continue
+        key = "%s_%s" % (field, str(value).strip().replace(" ", "_"))
+        if key in style_words:
+            out.append(style_words[key])
+        else:
+            warnings.append("%s: [STYLE-WORDS] 에 '%s' 가 없다 — '%s = %s' 지정이 문구에서 빠진다"
+                            % (label, key, field, value))
+    return out
 
 
 # ────────────────────────────────────────────────────────────── 파싱
@@ -231,7 +291,10 @@ def build_one(scene_id, scene, part_id, part, core, params, motifs, vocab, warni
             "tile_size": resolved.get("tile_size", 32),
             "transition_size": resolved.get("transition_size", 1),
             "border_jitter": resolved.get("border_jitter", "medium"),
+            # 🔑 타일셋만 웹 도구라 Target Palette 칸이 아직 있다 — 넣으면 적중률이 오른다.
+            #    다만 **집행은 여기서도 후처리가 한다**(_palette). 이 칸은 보조 수단이다.
             "color_image": palette,
+            "_palette": palette,
         }
         for key in ("inner_description", "transition_description", "outer_description"):
             label = "%s/%s %s" % (scene_id, part_id, key)
@@ -239,7 +302,8 @@ def build_one(scene_id, scene, part_id, part, core, params, motifs, vocab, warni
             check_forbidden(req[key], label, forbidden, suspect, warnings)
         return [("", req, 1)]
 
-    # ── 이미지 생성 (pixflux 앵커 / bitforge 파생) ────────────────────────
+    # ── 이미지 생성 (v2 Pro — 앵커/파생이 style_image 유무로만 갈린다) ────
+    style_words = parse_kv(params.get("STYLE-WORDS", ""))
     split_name = part.get("SPLIT-SCENE", "").strip()
     variants = scene.get(split_name + "@lines") if split_name else None
 
@@ -273,41 +337,51 @@ def build_one(scene_id, scene, part_id, part, core, params, motifs, vocab, warni
         pieces.append(core.get("TONE", ""))
     pieces.append(core.get("CORE", ""))
 
-    model = "pixflux" if is_anchor else "bitforge"
+    endpoint = parse_kv(params.get("ANCHOR", "")).get("endpoint", "/generate-image-v2")
     count = int(part.get("COUNT", "1") or 1)
-    out = []
+    label = "%s/%s description" % (scene_id, part_id)
 
+    # 🆕 v2 에는 outline/shading/detail/view 칸이 없다 — 문구 끝에 붙여 보낸다.
+    #    [CORE] 뒤에 오므로 정체성 문구가 앞자리를 지킨다.
+    styles = style_phrases(resolved, style_words, label, warnings)
+    pieces.extend(styles)
+    style_word_count = sum(len(s.split()) for s in styles)
+
+    # 판정 목록. 요청에 안 실린다 — v2 에 negative_description 이 없다.
+    reject_if = build_negative(core.get("NEGATIVE", ""), allow_figure)
+    check_hangul(reject_if, "%s/%s reject_if" % (scene_id, part_id))
+
+    out = []
     for index, variant in enumerate(variants or [None], start=1):
         filled = [variant if p == "\x00" else p for p in pieces]
         description = joined(*filled)
-        label = "%s/%s description" % (scene_id, part_id)
         check_hangul(description, label)
         check_forbidden(description, label, forbidden, suspect, warnings)
 
         req = {
-            "endpoint": "/generate-image-%s" % model,
+            "endpoint": endpoint,
             "description": description,
-            "image_size": resolved.get("image_size", "64x64"),
-            "view": resolved.get("view", "side"),
-            "outline": resolved.get("outline"),
-            "shading": resolved.get("shading"),
-            "detail": resolved.get("detail"),
-            "isometric": bool(resolved.get("isometric", False)),
+            # 🔴 v2 의 image_size 는 문자열이 아니라 {width, height} 객체다.
+            "image_size": parse_size(resolved.get("image_size", "64x64")),
+            # ⚠️ v2 에 이 칸이 있는지 미확인 — 없으면 chroma_cutout.py 로 뺀다.
+            #    (40_TOOLS/pixellab/profile.md §6 ①)
             "no_background": bool(resolved.get("no_background", False)),
-            "text_guidance_scale": resolved.get("text_guidance_scale", 8),
-            "color_image": palette,
+            # 밑줄로 시작하는 것은 요청 본문이 아니라 파이프라인 메타다.
+            "_palette": palette,
+            "_reject_if": reject_if,
+            # 예산 계산에서 뺄 몫. v2 로 오면서 문구로 내려온 스타일 지정이다.
+            "_style_words": style_word_count,
         }
 
-        if model == "bitforge":
-            # 🔑 파생 생성은 앵커를 style_image 로 물고 간다. 화풍을 붙드는 유일한 장치다.
+        if is_anchor:
+            # 앵커는 참조할 것이 없으므로 style_image 없이 뽑는다. 이 한 장이 화풍을 정한다.
+            req["_note"] = "ANCHOR - pick one of several, save to anchors/<scene>.png"
+        else:
+            # 🔑 파생은 앵커를 style_image 로 물고 간다. 화풍을 붙드는 유일한 장치다.
+            #    legacy 는 여기서 모델이 갈렸다(pixflux → bitforge). v2 는 같은
+            #    엔드포인트에 이 칸의 유무로만 갈린다 — 규약은 그대로고 수단만 단순해졌다.
             style_scene = scene.get("STYLE-FROM", scene_id)
             req["style_image"] = "anchors/%s.png" % style_scene
-            req["style_strength"] = parse_kv(params.get("ANCHOR", "")).get("style_strength", 50)
-            # ⚠️ negative_description 은 pixflux 에서 deprecated 라 bitforge 에만 싣는다.
-            req["negative_description"] = build_negative(core.get("NEGATIVE", ""), allow_figure)
-            check_hangul(req["negative_description"], "%s/%s negative" % (scene_id, part_id))
-        else:
-            req["_note"] = "ANCHOR - pick one of several, save to anchors/<scene>.png"
 
         out.append(("_%d" % index if variants else "", req, count))
 
@@ -323,7 +397,8 @@ def main():
 
     for need, src, table in (
             (("CORE", "MOTIF", "TONE", "NEGATIVE", "FORBIDDEN", "GLOBAL"), CORE_FILE, core),
-            (("ANCHOR", "PALETTE", "PARAMS-BG", "PARAMS-TILESET", "PARAMS-PROP"), PARAMS_FILE, params)):
+            (("ANCHOR", "PALETTE", "STYLE-WORDS", "PARAMS-BG", "PARAMS-TILESET", "PARAMS-PROP"),
+             PARAMS_FILE, params)):
         missing = [k for k in need if k not in table]
         if missing:
             raise SystemExit("🔴 %s 에 블록이 없다: %s"
@@ -370,10 +445,13 @@ def main():
                 name = part_id + suffix
                 text = req.get("description") or req.get("inner_description", "")
                 words = len(text.split())
+                # 🔑 스타일 어구는 내용이 아니라 v2 가 필드를 없애서 문구로 내려온 관용어다.
+                #    예산은 **내용에 쓸 단어 수**이므로 그 몫을 빼고 잰다 (위 STYLE_WORD_ALLOWANCE).
+                content_words = words - (req.get("_style_words", 0) if STYLE_WORD_ALLOWANCE else 0)
                 budget = int(part.get("WORD-BUDGET", WORD_BUDGET))
-                if words > budget:
-                    warnings.append("%s/%s: 문구가 %d단어다 (%d 권장). USE-SCENE 을 줄일 것"
-                                    % (scene_id, name, words, budget))
+                if content_words > budget:
+                    warnings.append("%s/%s: 내용이 %d단어다 (%d 권장, 총 %d). USE-SCENE 을 줄일 것"
+                                    % (scene_id, name, content_words, budget, words))
                 req["_count"] = count
                 with open(os.path.join(OUT_DIR, "%s__%s.json" % (scene_id, name)),
                           "w", encoding="utf-8") as f:
@@ -385,8 +463,20 @@ def main():
             f.write("# %s\n\n" % scene_id)
             anchor = scene.get("ANCHOR-PART") or "(STYLE-FROM %s)" % scene.get("STYLE-FROM", "?")
             f.write("앵커: **%s** — 이것부터 여러 장 뽑아 한 장을 고른다.\n" % anchor)
-            f.write("팔레트: `palettes/%s.png` (color_image 칸)\n" % scene_id)
-            f.write("판정: `10_BIBLE/03-light.md §5` 체크리스트\n\n")
+            f.write("팔레트: `palettes/%s.png`\n" % scene_id)
+            f.write("판정: `10_BIBLE/03-light.md §5` 체크리스트 + 아래 「다시 뽑는 조건」\n\n")
+            # 🔴 v2 에는 팔레트 강제 칸이 없다. 뽑은 뒤 반드시 이 줄을 돌려야 P1~P5 가 선다.
+            f.write("**🔴 뽑은 뒤 반드시 집행한다** — v2 에는 팔레트 강제 칸이 없다:\n\n")
+            f.write("```\npython Tools/ArtPipeline/enforce_palette.py <뽑은것>.png --scene %s\n```\n\n"
+                    % scene_id)
+            f.write("ΔE 가 크면 스냅해서 쓰지 말고 **다시 뽑는다.** "
+                    "ΔE 0 도 합격이 아니다 — 「쓰인 색」 단수를 같이 본다.\n\n")
+            reject = next((r.get("_reject_if") for _, r, _ in rows if r.get("_reject_if")), "")
+            if reject:
+                f.write("### 다시 뽑는 조건 (이게 보이면)\n\n")
+                f.write("> %s\n\n" % reject)
+                f.write("v2 에는 `negative_description` 칸이 없다. **막는 것은 프롬프트가 아니라 판정이다.**\n\n")
+            f.write("---\n\n")
             for part_id, req, count in rows:
                 f.write("## %s  <sub>x%d</sub>\n\n" % (part_id, count))
                 text = req.get("description") or (
@@ -394,19 +484,26 @@ def main():
                     % (req.get("inner_description"), req.get("transition_description"),
                        req.get("outer_description")))
                 f.write("```\n%s\n```\n\n" % text)
+                # 🔑 표에는 **실제로 보내는 것만** 싣는다.
+                #    밑줄로 시작하는 키는 파이프라인 메타지 요청 본문이 아니다 —
+                #    섞어서 보여 주면 손으로 옮겨 담을 때 없는 칸을 찾게 된다.
                 skip = {"description", "inner_description", "transition_description",
-                        "outer_description", "_count"}
+                        "outer_description"}
                 f.write("| 항목 | 값 |\n|---|---|\n")
                 for k, v in req.items():
-                    if k not in skip and v is not None:
-                        f.write("| `%s` | %s |\n" % (k, v))
+                    if k in skip or v is None or k.startswith(META_PREFIX):
+                        continue
+                    f.write("| `%s` | %s |\n" % (k, json.dumps(v, ensure_ascii=False)
+                                                 if isinstance(v, dict) else v))
+                if req.get("_note"):
+                    f.write("\n> 🔴 %s\n" % req["_note"])
                 f.write("\n")
         catalog.append((scene_id, rows))
 
     with open(os.path.join(OUT_DIR, "00_ALL.md"), "w", encoding="utf-8") as f:
         f.write("# Abyss 환경 아트 — 조립된 생성 요청 전체\n\n")
         f.write("씬마다 **팔레트를 먼저 굽고, 앵커를 뽑아** `anchors/<scene>.png` 로 저장한 뒤 나머지를 뽑는다.\n")
-        f.write("앵커 없이 bitforge 를 돌리면 `style_image` 가 비어 화풍이 갈린다.\n\n")
+        f.write("앵커 없이 파생을 돌리면 `style_image` 가 비어 화풍이 갈린다.\n\n")
         for scene_id, rows in catalog:
             f.write("- [%s](./%s.md) — %d개 요청\n" % (scene_id, scene_id, len(rows)))
 

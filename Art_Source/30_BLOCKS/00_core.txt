@@ -47,9 +47,14 @@ left = belongings still in place, dust lying evenly
 fallen = things that came down from somewhere above
 
 [NEGATIVE]
-# ⚠️ pixflux 의 negative_description 은 API 에서 deprecated 다 — 앵커에는 안 실린다.
-#    bitforge 에서만 유효하므로 앵커 이후 생성에만 붙는다.
-#    🔴 그래서 앵커에서 이것들이 나오면 부정 프롬프트를 손보지 말고 **다시 뽑는다.**
+# 🔴 2026-09-06 Pro 전환 — **이제 이것은 프롬프트가 아니라 판정 목록이다.**
+#    v2 에는 negative_description 칸이 자체가 없다. build.py 는 이 목록을
+#    요청에 싣지 않고 조립본 .md 의 **「이게 보이면 다시 뽑는다」 체크리스트**로 낸다.
+#
+# 💡 실질적 변화는 생각보다 작다. legacy 에서도 이 칸은 pixflux(앵커)에서 deprecated 라
+#    **앵커에는 원래 안 실렸다.** 그래서 규약이 이미 "앵커에서 나오면 다시 뽑는다"였다.
+#    이제 그 규약이 **전 단계로 넓어졌을 뿐**이다.
+#    🔑 막는 것은 프롬프트가 아니라 판정이다. (10_BIBLE/03-light.md §5)
 #
 # 인물 배제가 최우선이다 — 배경에 사람이 그려지면 플레이어와 겹쳐
 # 무엇이 조작 대상인지 화면에서 구분이 안 된다. (10_BIBLE/06 C8)
@@ -91,10 +96,16 @@ cave, dungeon, abandoned, dead, skull, bones, ancientlike, eerie, cursed
 
 [GLOBAL]
 # 전 생성 공통 파라미터. 파트가 덮어쓸 수 있다.
-# 값은 PixelLab API 스펙의 enum 그대로다 (40_TOOLS/pixellab/profile.md 참조).
+#
+# ⚠️ 2026-09-06 Pro 전환 — 이 값들은 **더 이상 API 필드가 아니다.**
+#    v2 에는 outline/shading/detail/view 칸이 없어서, build.py 가
+#    40_TOOLS/pixellab/params.txt 의 [STYLE-WORDS] 로 번역해 **문구에 실어 보낸다.**
+#    그래서 값이 짧은 토큰이다 (`selective outline` → `selective`).
+#
+# 🔴 `isometric` · `text_guidance_scale` 은 뺐다 — v2 에 없는 칸이다.
+#    isometric 은 어차피 전부 false 였다. text_guidance_scale 대응물이 있는지는
+#    확인 못 했다 (profile.md §6).
 view = side
-outline = selective outline
-shading = medium shading
-detail = medium detail
-isometric = false
-text_guidance_scale = 8
+outline = selective
+shading = medium
+detail = medium
