@@ -161,3 +161,4 @@ Art_Source/**/qa/
 # 이미지 생성 도구가 작업 디렉터리에 남기는 잔재
 tmp/
 output/
+Art_Source/anchors/_candidates/
