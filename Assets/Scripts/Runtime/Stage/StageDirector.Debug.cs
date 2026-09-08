@@ -92,7 +92,7 @@ namespace Abyss.Runtime.Stage
         /// </summary>
         private void DespawnAllEnemies()
         {
-            var all = FindObjectsByType<EnemyBase>(FindObjectsSortMode.None);
+            var all = FindObjectsByType<EnemyBase>();
             for (int i = 0; i < all.Length; i++)
             {
                 if (all[i] == null) continue;

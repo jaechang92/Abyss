@@ -62,13 +62,13 @@ namespace Abyss.Runtime.Player
         // 같은 버퍼를 쓰면 진행 중인 순회 대상이 폭발 결과로 덮여 원래 공격의 남은 히트가 사라진다.
         private static readonly Collider2D[] explosionOverlapBuffer = new Collider2D[32];
         private static readonly List<EnemyBase> explosionHitList = new();
-        private static ContactFilter2D explosionFilter = new ContactFilter2D().NoFilter();
+        private static ContactFilter2D explosionFilter = ContactFilter2D.noFilter;
 
         // 반격 전용 버퍼. 피격은 적의 공격 처리 도중에 발생하므로 어느 순회 안에 끼어들지 알 수 없다
         // (불꽃 갑옷이 자기 버퍼를 따로 두는 것과 같은 이유이고, 그 둘은 같은 피격에서 연달아 돈다).
         private static readonly Collider2D[] counterOverlapBuffer = new Collider2D[32];
         private static readonly List<EnemyBase> counterHitList = new();
-        private static ContactFilter2D counterFilter = new ContactFilter2D().NoFilter();
+        private static ContactFilter2D counterFilter = ContactFilter2D.noFilter;
 
         /// <summary>대시 쿨다운 감소량(초). 심연 동료 활성 시에만 0보다 크다.</summary>
         public float DashCooldownReduction => isAbyssAllyActive ? ABYSS_ALLY_DASH_CD_REDUCTION : 0f;

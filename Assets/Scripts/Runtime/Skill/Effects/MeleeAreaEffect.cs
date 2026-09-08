@@ -18,8 +18,8 @@ namespace Abyss.Runtime.Skill.Effects
         // OverlapBoxAll의 매 호출 배열 할당(GC)을 피하기 위한 무할당 버퍼. 32개면 실전 동시 히트 수 충분.
         private static readonly Collider2D[] overlapResults = new Collider2D[32];
         // useTriggers를 매 호출 갱신해야 하므로 readonly 불가 (struct 필드 직접 대입).
-        // NoFilter()는 정적이 아닌 인스턴스 메서드라 기본 인스턴스를 만들어 호출한다.
-        private static ContactFilter2D overlapFilter = new ContactFilter2D().NoFilter();
+        // Unity 6.6부터 인스턴스 메서드 NoFilter()는 deprecated — 정적 noFilter 프로퍼티를 쓴다.
+        private static ContactFilter2D overlapFilter = ContactFilter2D.noFilter;
 
         public async Awaitable ApplyAsync(IGameplayContext context, GenericAbilityData data, CancellationToken token)
         {

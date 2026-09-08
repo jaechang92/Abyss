@@ -419,7 +419,7 @@ namespace Abyss.EditorTools
             EditorGUIUtility.PingObject(directorGo);
 
             // 기존 수동 배치 적 안내
-            var manualEnemies = UnityEngine.Object.FindObjectsByType<EnemyBase>(FindObjectsSortMode.None)
+            var manualEnemies = UnityEngine.Object.FindObjectsByType<EnemyBase>()
                 .Where(e => e.transform.root != directorGo.transform)
                 .ToArray();
             if (manualEnemies.Length > 0)

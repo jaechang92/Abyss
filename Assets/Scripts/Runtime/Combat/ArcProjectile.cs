@@ -35,7 +35,7 @@ namespace Abyss.Runtime.Combat
         private bool consumed;
 
         private static readonly Collider2D[] blastBuffer = new Collider2D[16];
-        private static ContactFilter2D blastFilter = new ContactFilter2D().NoFilter();
+        private static ContactFilter2D blastFilter = ContactFilter2D.noFilter;
 
         /// <summary>
         /// 목표 지점에 <paramref name="flightTime"/>초 뒤 떨어지도록 발사한다.

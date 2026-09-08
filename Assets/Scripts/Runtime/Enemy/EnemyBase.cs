@@ -81,7 +81,7 @@ namespace Abyss.Runtime.Enemy
 
             // Enemy ↔ Enemy 콜리전 무시 — 적끼리 서로 밀어내며 이동 방해하는 문제 방지.
             // IgnoreCollision은 양방향이므로 자기 자신만 처리해도 기존 적과의 쌍이 모두 등록됨.
-            var others = FindObjectsByType<EnemyBase>(FindObjectsSortMode.None);
+            var others = FindObjectsByType<EnemyBase>();
             for (int o = 0; o < others.Length; o++)
             {
                 if (others[o] == null || others[o] == this) continue;

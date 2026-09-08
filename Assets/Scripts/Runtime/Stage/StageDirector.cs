@@ -278,7 +278,7 @@ namespace Abyss.Runtime.Stage
         /// </summary>
         private void WarnUntrackedEnemies(RoomData room)
         {
-            var all = FindObjectsByType<EnemyBase>(FindObjectsSortMode.None);
+            var all = FindObjectsByType<EnemyBase>();
             for (int i = 0; i < all.Length; i++)
             {
                 var enemy = all[i];
