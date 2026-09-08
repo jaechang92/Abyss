@@ -126,7 +126,22 @@ shading_medium = medium shading
 detail_low = low detail
 detail_medium = medium detail
 detail_high = highly detailed
-view_side = side view
+# 🔴 2026-09-08 — `side view` → 아래로. 위 ②("모델이 못 알아들으면 고칠 곳이 여기 한 곳")가
+#    실제로 일어났다. 2차 앵커 후보 4장 중 **셋이 아이소메트릭**으로 나왔다 —
+#    문구에 `side view` 가 분명히 실려 있었는데도 윗면이 보이고 면이 우상으로 물러났다.
+#    횡스크롤 패럴랙스 층은 3/4 부감이면 못 쓴다.
+#
+# 🔑 신호 셋을 겹쳤다. 부정문은 하나도 안 쓴다([TONE] 의 `not ruined` 교훈):
+#      flat              깊이가 없다
+#      side-scroller     이 도구가 아는 장르 어휘다(create_sidescroller_tileset 이 있다)
+#      straight-on elevation   제도 용어. 정면에서 본 입면
+#    `orthographic` 은 뺐다 — 아이소메트릭도 정사영이라 되레 부를 수 있다.
+#
+# 💡 여기를 늘리는 것이 싼 이유: build.py STYLE_WORD_ALLOWANCE 가 스타일 어구를
+#    내용 예산에서 빼고 센다. 6단어로 늘려도 정체성 문구를 한 글자도 안 깎는다.
+#    ⚠️ 다만 총 문구는 길어지고 PixelLab 은 길면 희석되는 모델이다. 공짜는 아니다 —
+#       이번 라운드가 그 값을 재는 실측이기도 하다.
+view_side = flat side view, side-scroller, straight-on elevation
 
 [PARAMS-BG]
 # 패럴랙스 배경 레이어. 방은 가로로 스크롤되므로 가로가 길다.
