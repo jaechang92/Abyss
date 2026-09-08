@@ -22,8 +22,30 @@
 |---|---|
 | `color_image` | 후처리 `Tools/ArtPipeline/enforce_palette.py` (`_palette`가 그 입력) |
 | `negative_description` | 조립본 `.md`의 **「다시 뽑는 조건」** 체크리스트 (`_reject_if`) |
-| `outline`/`shading`/`detail`/`view` | `[STYLE-WORDS]`를 거쳐 **문구 끝**에 붙는다 |
-| `image_size` 문자열 | `{"width":…, "height":…}` **객체** |
+| `outline`/`shading`/`detail`/`view` | `[STYLE-WORDS]`를 거쳐 **문구 끝**에 붙는다 (단 타일셋은 **칸으로** 받는다) |
+| `image_size` 문자열 | ~~`{"width":…,"height":…}` 객체~~ → 🔴 **`width`/`height` 정수 두 칸** (아래 정정) |
+
+### 🔴 2026-09-07 MCP 연결 — 조립기가 내던 모양이 틀려 있었다
+
+**도구를 바꾼 것이 아니라 같은 도구에 손이 닿은 것**이라, 이 파일은 새로 쓰지 않고 틀린 곳만 고쳤다.
+실제 인자와 대조해 보니 **여섯 군데가 어긋나 있었고, 그중 둘은 사실과 반대**였다.
+
+| 내던 것 | 실제 | 어떻게 됐을 것인가 |
+|---|---|---|
+| `image_size: {width,height}` | `width` / `height` **정수 두 칸** | 🔴 타입만 어긋나 **조용히 실패** — 원인을 문구나 팔레트에서 찾았을 것이다 |
+| `endpoint: /generate-image-v2` | `tool: create_image_pro` | 보낼 곳이 없다 |
+| `style_image: "anchors/…png"` | 도구는 base64·url을 받는다 | 경로가 인자 이름에 있으면 "그대로 보내면 되는 줄" 안다 → `_style_image_path` 메타로 강등 |
+| `style_copy` 없음 | 안 주면 **넷 다 베낀다** | 🔴 배경 앵커의 `lineless`가 발판·프롭의 `selective outline`을 **덮어쓴다** |
+| 타일셋 `inner`/`outer_description` | `lower_description` 하나 (outer 칸은 **없다**) | 이름이 안 맞아 실패 · outer는 조용히 버려졌을 것 |
+| 타일셋 `transition_size: 1`·`2` | **0.0~0.5 비율** | 범위 밖 |
+| 타일셋 `border_jitter`·`color_image` | **없는 칸** | 무시되거나 거부 |
+
+🆕 **더해진 것**: `seed`(씬 이름에서 파생 — 프롭만 제외) · `_candidates`(한 호출이 주는 후보 수) ·
+`_base_tile_from`(지면→벽 이어붙이기) · **빌드 끝의 청구서**.
+
+> 🔑 **④가 이 정리의 값이다.** 나머지는 호출이 실패해서 알게 됐을 것이다.
+> `style_copy`는 **성공한 채로 틀린다** — 그림은 나오는데 발판 윤곽선만 조용히 사라진다.
+> 그리고 그건 "모델이 지정을 무시했다"로 읽혀서, 고칠 곳을 문구에서 찾게 된다.
 
 > 🔑 **문구 예산의 청구서** — 스타일 지정이 필드(공짜)에서 문구로 내려오며 배경 파트마다 **7단어**를 먹는다.
 > 그대로 두면 내용 예산이 40 → 33으로 조용히 줄어, 첫 빌드에서 멀쩡하던 파트 4개가 초과 경고를 냈다

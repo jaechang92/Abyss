@@ -12,7 +12,7 @@
 |---|---|---|
 | SoT | **소설 `Docs/novel/` 전 3권** | 게임 기획 문서는 SoT가 아니다. `13-novel-game-glossary.md`(2026-08-19)가 이미 그렇게 정했다 |
 | 화풍 | **픽셀 아트** | ADR-008의 전제("Skul은 픽셀")는 오류였으나 결론은 유지 |
-| 도구 | **PixelLab Pro / v2** (`/generate-image-v2`) | `style_image`로 화풍을 붙들 수 있는 **비-legacy 경로가 이것뿐**이다. 팔레트 강제는 도구가 아니라 **후처리**가 한다 (`Tools/ArtPipeline/enforce_palette.py`) |
+| 도구 | **PixelLab Pro** (`create_image_pro`, MCP) | `style_image`로 화풍을 붙들 수 있는 **비-legacy 경로가 이것뿐**이다. 팔레트 강제는 도구가 아니라 **후처리**가 한다 (`Tools/ArtPipeline/enforce_palette.py`). ⚠️ **비용이 호출당 20~40 generations** — 8씬이 한 사이클에 안 들어간다. 재검토 대상 (`40_TOOLS/pixellab/profile.md §2`) |
 | 기존 에셋 | **전부 임시. 전량 재작업** | 🔑 **기존 도트와 화풍·팔레트를 맞출 의무가 없다** — 소설 기준으로 새로 정할 수 있다 |
 | 착수 | **환경(씬) 먼저** | 소설의 층 감각이 환경에서 가장 직접 드러난다 |
 
