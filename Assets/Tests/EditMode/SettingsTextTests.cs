@@ -117,13 +117,12 @@ namespace Abyss.Tests.EditMode
 
             foreach (LocalizationLanguage language in Enum.GetValues(typeof(LocalizationLanguage)))
             {
-                string nativeName = LocalizationLanguageNames.GetNativeName(language);
-
+                // 「열거형 이름과 다른가」로 결손을 추정하지 않는다 — English는 자기 표기가
+                // 정말로 열거형 이름과 같아서 그 추정이 항상 실패한다. 등록 여부를 직접 묻는다.
+                Assert.IsTrue(LocalizationLanguageNames.TryGetNativeName(language, out string nativeName),
+                    $"{language}의 표기가 LocalizationLanguageNames에 없다 — 항목 추가를 빠뜨렸다.");
                 Assert.IsFalse(string.IsNullOrWhiteSpace(nativeName),
                     $"{language}의 표기가 비었다.");
-                Assert.AreNotEqual(language.ToString(), nativeName,
-                    $"{language}의 표기가 열거형 이름 그대로다 — " +
-                    $"LocalizationLanguageNames에 항목을 추가하는 것을 빠뜨렸다.");
                 Assert.IsTrue(seen.Add(nativeName),
                     $"표기 「{nativeName}」가 두 언어에 쓰였다 — 셀렉터에서 구분되지 않는다.");
             }

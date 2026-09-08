@@ -28,12 +28,43 @@ namespace Abyss.Runtime.Localization
     /// </summary>
     public static class LocalizationLanguageNames
     {
-        public static string GetNativeName(LocalizationLanguage language) => language switch
+        /// <summary>
+        /// 표기를 <paramref name="nativeName"/>에 담고, <b>그 표기가 등록되어 있었는지</b>를 돌려준다.
+        /// 등록이 없으면 열거형 이름을 담고 false를 돌려준다.
+        ///
+        /// 🔑 <see cref="GetNativeName"/>과 나눈 이유 — 화면은 「무엇을 그릴까」만 알면 되지만
+        /// 검사는 「등록되어 있는가」를 물어야 한다. 그 둘을 반환값 하나로 겸하면
+        /// <b>「표기가 열거형 이름과 같으면 빠뜨린 것」</b>이라는 추정을 쓸 수밖에 없고,
+        /// 그 추정은 <b>English처럼 자기 표기가 실제로 열거형 이름과 같은 언어에서 무너진다.</b>
+        /// (2026-09-08: SettingsTextTests가 정확히 그 자리에서 실패하고 있었다.)
+        /// </summary>
+        public static bool TryGetNativeName(LocalizationLanguage language, out string nativeName)
         {
-            LocalizationLanguage.Korean => "한국어",
-            LocalizationLanguage.English => "English",
-            LocalizationLanguage.Japanese => "日本語",
-            _ => language.ToString(),
-        };
+            switch (language)
+            {
+                case LocalizationLanguage.Korean:
+                    nativeName = "한국어";
+                    return true;
+                case LocalizationLanguage.English:
+                    nativeName = "English";
+                    return true;
+                case LocalizationLanguage.Japanese:
+                    nativeName = "日本語";
+                    return true;
+                default:
+                    nativeName = language.ToString();
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// 화면에 그릴 표기. 등록이 없으면 열거형 이름이 그대로 뜬다
+        /// — 조용히 틀리는 대신 눈에 띄게 틀린다(위 클래스 주석 참조).
+        /// </summary>
+        public static string GetNativeName(LocalizationLanguage language)
+        {
+            TryGetNativeName(language, out string nativeName);
+            return nativeName;
+        }
     }
 }
