@@ -63,7 +63,7 @@ namespace Abyss.Tests.PlayMode
             director = null;
 
             // 스폰된 적 정리. 비활성 개체까지 포함해야 한다 — 아래 BuildDirector 주석 참조.
-            var enemies = Object.FindObjectsByType<EnemyBase>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var enemies = Object.FindObjectsByType<EnemyBase>(FindObjectsInactive.Include);
             foreach (var enemy in enemies)
             {
                 if (enemy != null) Object.Destroy(enemy.gameObject);
@@ -268,7 +268,7 @@ namespace Abyss.Tests.PlayMode
         /// </summary>
         private void KillLiveEnemies()
         {
-            var enemies = Object.FindObjectsByType<EnemyBase>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var enemies = Object.FindObjectsByType<EnemyBase>(FindObjectsInactive.Include);
             foreach (var enemy in enemies)
             {
                 if (enemy == null || enemy.IsDead) continue;

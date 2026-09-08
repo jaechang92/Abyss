@@ -122,9 +122,18 @@ namespace Singleton_Core
         }
 
         /// <summary>
-        /// 싱글톤 인스턴스를 강제로 생성
+        /// 싱글톤 인스턴스를 강제로 생성한다.
+        ///
+        /// <b>[RuntimeInitializeOnLoadMethod]를 붙이지 않는다.</b> 제네릭 타입 안의 메서드는 Unity가
+        /// 어떤 T로 호출할지 정할 수 없어 애초에 수집 대상이 아니다 — 이전 버전에서는 조용히
+        /// 무시됐고, Unity 6.6부터 "methods cannot be in generic types" 에러 로그로 드러난다.
+        /// 즉 이 메서드는 지금껏 자동 실행된 적이 없으며, 각 싱글톤은 첫 <see cref="Instance"/>
+        /// 접근 시점에 지연 생성돼 왔다. 속성을 떼도 런타임 동작은 달라지지 않는다.
+        ///
+        /// 씬 로드 전에 미리 만들어야 하는 싱글톤이 생기면, 비제네릭 클래스에
+        /// [RuntimeInitializeOnLoadMethod]를 두고 <c>SomeManager.EnsureInstance()</c>처럼
+        /// T를 확정해 호출할 것.
         /// </summary>
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void EnsureInstance()
         {
             if (!HasInstance)

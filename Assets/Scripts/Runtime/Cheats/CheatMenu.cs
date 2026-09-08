@@ -21,6 +21,8 @@ namespace Abyss.Runtime.Cheats
     public sealed partial class CheatMenu : MonoBehaviour
     {
         private const KeyCode ToggleHint = KeyCode.F1;
+        // IMGUI 윈도우 식별자. 인스턴스당 하나만 존재하므로 고정 상수로 충분하다.
+        private const int WindowId = 0xCEA7;
 
         private bool visible;
         private Rect windowRect = new(12, 44, 380, 600);
@@ -68,7 +70,7 @@ namespace Abyss.Runtime.Cheats
             }
 
             if (!visible) return;
-            windowRect = GUILayout.Window(GetInstanceID(), windowRect, DrawWindow, "Cheat Menu");
+            windowRect = GUILayout.Window(WindowId, windowRect, DrawWindow, "Cheat Menu");
         }
 
         private void DrawWindow(int id)
@@ -219,7 +221,7 @@ namespace Abyss.Runtime.Cheats
         private void DrawEnemySection()
         {
             GUILayout.Label("■ 적", headerStyle);
-            var enemies = FindObjectsByType<EnemyBase>(FindObjectsSortMode.None);
+            var enemies = FindObjectsByType<EnemyBase>();
             GUILayout.Label($"생존 적 = {CountAlive(enemies)}");
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("전체 처치"))

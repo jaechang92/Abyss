@@ -63,13 +63,13 @@ namespace Abyss.Runtime.Player
         // (Synergy·Passive의 다른 버퍼와 공유하지 않는 것과 같은 이유).
         private static readonly Collider2D[] afterimageOverlapBuffer = new Collider2D[32];
         private static readonly List<EnemyBase> afterimageHitList = new();
-        private static ContactFilter2D afterimageFilter = new ContactFilter2D().NoFilter();
+        private static ContactFilter2D afterimageFilter = ContactFilter2D.noFilter;
 
         // 불꽃 갑옷 전용 버퍼. Combat·Synergy 버퍼와 공유하지 않는다 —
         // 피격은 적의 공격 처리 도중에 발생하므로 어느 순회 안에 끼어들지 알 수 없다.
         private static readonly Collider2D[] flameArmorOverlapBuffer = new Collider2D[32];
         private static readonly List<EnemyBase> flameArmorHitList = new();
-        private static ContactFilter2D flameArmorFilter = new ContactFilter2D().NoFilter();
+        private static ContactFilter2D flameArmorFilter = ContactFilter2D.noFilter;
 
         /// <summary>
         /// 연소 피해 배율(1 = 무보정). 연소를 <b>부여하는 시점</b>에 곱해 확정한다 —
