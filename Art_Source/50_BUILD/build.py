@@ -573,8 +573,10 @@ def main():
             f.write("팔레트: `palettes/%s.png`\n" % scene_id)
             f.write("판정: `10_BIBLE/03-light.md §5` 체크리스트 + 아래 「다시 뽑는 조건」\n\n")
             # 🔴 v2 에는 팔레트 강제 칸이 없다. 뽑은 뒤 반드시 이 줄을 돌려야 P1~P5 가 선다.
+            #    --crop-gutter 가 붙는 이유는 40_TOOLS/pixellab/profile.md §6-B —
+            #    컨택트 시트에서 잘라 온 흰 테두리가 붙은 채로는 ΔE 를 믿을 수 없다.
             f.write("**🔴 뽑은 뒤 반드시 집행한다** — v2 에는 팔레트 강제 칸이 없다:\n\n")
-            f.write("```\npython Tools/ArtPipeline/enforce_palette.py <뽑은것>.png --scene %s\n```\n\n"
+            f.write("```\npython Tools/ArtPipeline/enforce_palette.py <뽑은것>.png --scene %s --crop-gutter\n```\n\n"
                     % scene_id)
             f.write("ΔE 가 크면 스냅해서 쓰지 말고 **다시 뽑는다.** "
                     "ΔE 0 도 합격이 아니다 — 「쓰인 색」 단수를 같이 본다.\n\n")

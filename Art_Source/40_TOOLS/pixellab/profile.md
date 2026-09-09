@@ -153,7 +153,7 @@ stage1 = 이미지 12요청 + 타일셋 2요청
                          🔑 한 호출이 4장을 준다 — 여러 번 부르지 않는다
 ④ 사람이 한 장 고른다     →  anchors/<scene>.png
 ⑤ 나머지를 뽑는다         create_image_pro + style_image = 그 앵커 (+ style_copy)
-⑥ 🆕 팔레트를 집행한다    Tools/ArtPipeline/enforce_palette.py
+⑥ 🆕 거터를 떼고 집행한다  Tools/ArtPipeline/enforce_palette.py --crop-gutter
 ⑦ 타일셋을 뽑는다         create_sidescroller_tileset
                          🔑 ground 를 먼저 → 그 base_tile_id 로 wall. 순서가 규약이다
 ⑧ 한 씬을 Unity 재생까지 관통한다
@@ -260,6 +260,14 @@ gen2·gen3가 둘 다 이 줄을 적어 두고도 지키지 못했다.
   자르기 전 536 → 자른 뒤 26.6 이었다. 재는 값이 거터를 비교하고 있었다.
 - ⚠️ 두께가 라운드마다 달랐으므로 **고정 픽셀로 자르면 안 된다.** 각 변이 90% 이상 흰지
   보고 그 변만 떼어 낸다.
+
+> ✅ **자동화됨 (2026-09-09)** — `Tools/ArtPipeline/enforce_palette.py --crop-gutter`.
+> 여기 적힌 90% 규칙 그대로다. 5라운드 내내 손으로 잘랐고, 파생 13장을 손으로 자르면 한 번은
+> 빠뜨린다. 그래서 **플래그를 안 켜도 거터가 붙어 있으면 알린다** — 미는 것이 아니라 막는 쪽이다.
+>
+> 🔑 자르는 일은 여기(버리는 층)가 아니라 `Tools/` 에 있다. **거터가 생기는 이유는 도구 사정이지만
+> 잘라 내는 일은 도구와 무관하다** — 팔레트 집행을 후처리로 옮긴 것과 같은 이유다.
+> 픽스처: `Tools/ArtPipeline/test_enforce_palette.py` (G1~G8).
 
 ### 🔴 seed 가 씬 이름에서 파생되므로 「그냥 다시 뽑기」가 안 된다
 
