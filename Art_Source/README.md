@@ -43,7 +43,7 @@ Art_Source/
 ├─ 50_BUILD/     조립기 build.py
 │
 ├─ anchors/      사람이 고른 기준 이미지     ✅ 추적 (다시 못 만든다)
-├─ curated/      게임에 들어갈 것            ✅ 추적 (사람이 고른 결과)
+├─ curated/      게임에 들어갈 것            ✅ 추적 (사람이 고른 결과)  ← stage1 27장 (2026-09-09)
 ├─ assembled/    조립본                     ❌ 비추적 (build.py가 다시 만든다)
 ├─ raw/ cut/ frames/ qa/  생성 원본·중간 산출물  ❌ 비추적
 └─ _legacy/      폐기된 세 세대              📖 읽기 전용
