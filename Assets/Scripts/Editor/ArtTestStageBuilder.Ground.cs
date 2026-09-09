@@ -28,7 +28,7 @@ namespace Abyss.EditorTools
 
             CreateLabel("SeamLabel",
                         "◀ 지면 타일          이음매          벽 타일 ▶\n같은 높이로 맞대 놓았다 — 걸어서 지나가며 재질이 바뀌는지 본다",
-                        new Vector3(SeamX, SurfaceY + 2.4f, -5f), 0.2f,
+                        new Vector3(SeamX, SurfaceY + 2.4f, -5f), 0.3f,
                         new Color32(0xD2, 0xD9, 0xDB, 0xFF), TextAnchor.LowerCenter);
 
             BuildVerticalWall(root);
@@ -86,7 +86,7 @@ namespace Abyss.EditorTools
             }
 
             CreateLabel("WallLabel", "세운 벽 — 무늬 방향이 맞는가",
-                        new Vector3(wallX + 1f, SurfaceY + height + 2f, -5f), 0.2f,
+                        new Vector3(wallX + 1f, SurfaceY + height + 1.2f, -5f), 0.3f,
                         new Color32(0x99, 0xA6, 0xAC, 0xFF), TextAnchor.LowerCenter);
         }
 
@@ -118,7 +118,7 @@ namespace Abyss.EditorTools
 
             CreateLabel("SwatchLabel",
                         "재질 견본 — 왼쪽이 지면, 오른쪽이 벽 (surface / top / interior 짝)",
-                        new Vector3(SeamX + 5.5f, y + 1.6f, -5f), 0.2f,
+                        new Vector3(SeamX + 5.5f, y + 1.4f, -5f), 0.3f,
                         new Color32(0x99, 0xA6, 0xAC, 0xFF), TextAnchor.LowerCenter);
         }
 
@@ -182,7 +182,7 @@ namespace Abyss.EditorTools
             }
 
             CreateLabel($"{groupName}Label", groupName,
-                        new Vector3(startX - 0.4f, SurfaceY - 0.7f, -5f), 0.16f,
+                        new Vector3(startX - 0.4f, SurfaceY - 0.5f, -5f), 0.26f,
                         new Color32(0x7C, 0x8A, 0x8C, 0xFF), TextAnchor.UpperLeft);
         }
 
@@ -199,7 +199,7 @@ namespace Abyss.EditorTools
             if (wall != null) CreateSprite(root, "sheet_wall", wall, new Vector3(9f, 7.5f, 0f), OrderSheets);
 
             CreateLabel("SheetLabel", "지면 시트 / 벽 시트 (각 128px = 4유닛, 32px 타일 16장)",
-                        new Vector3(6.5f, 10f, -5f), 0.2f,
+                        new Vector3(6.5f, 10f, -5f), 0.3f,
                         new Color32(0x99, 0xA6, 0xAC, 0xFF), TextAnchor.LowerCenter);
         }
 
@@ -228,7 +228,7 @@ namespace Abyss.EditorTools
 
             CreateLabel("ScaleLabel",
                         "2 유닛 = 플레이어 키 = 64px\n(색은 램프 위 3단 — 배경이 안 쓰는 대역)",
-                        new Vector3(-44f, SurfaceY + 2.4f, -5f), 0.18f,
+                        new Vector3(-44f, SurfaceY + 2.6f, -5f), 0.28f,
                         new Color32(0xD2, 0xD9, 0xDB, 0xFF), TextAnchor.LowerCenter);
         }
     }
