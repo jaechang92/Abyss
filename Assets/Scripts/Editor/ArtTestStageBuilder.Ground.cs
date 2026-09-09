@@ -99,11 +99,14 @@ namespace Abyss.EditorTools
             var swatch = new GameObject("Swatches").transform;
             swatch.SetParent(parent, false);
 
+            // 🔴 2026-09-09 — `*_surface`(wang_15)를 뺐다. **두 타일셋 모두 그 칸이 비어 있다.**
+            //    네 모서리가 전부 transition 인 타일은 「밑에 땅이 없는 윗면」이라
+            //    사이드스크롤러 타일셋에서 만들어지지 않는다(실측: 16칸 중 wang_15 하나만 불투명 0).
+            //    ⚠️ 그동안 견본 두 칸이 **아무것도 안 보여 주고 있었다** — 빈 그림은 조용하다.
             var pairs = new[]
             {
-                ("ground_surface", -1.5f), ("wall_surface", -0.5f),
-                ("ground_top", 0.7f), ("wall_top", 1.7f),
-                ("ground_interior", 2.9f), ("wall_interior", 3.9f),
+                ("ground_top", -1.5f), ("wall_top", -0.5f),
+                ("ground_interior", 0.7f), ("wall_interior", 1.7f),
             };
 
             const float y = 2.2f;
@@ -117,7 +120,7 @@ namespace Abyss.EditorTools
             }
 
             CreateLabel("SwatchLabel",
-                        "재질 견본 — 왼쪽이 지면, 오른쪽이 벽 (surface / top / interior 짝)",
+                        "재질 견본 — 왼쪽이 지면, 오른쪽이 벽 (top / interior 짝)",
                         new Vector3(SeamX + 5.5f, y + 1.4f, -5f), 0.3f,
                         new Color32(0x99, 0xA6, 0xAC, 0xFF), TextAnchor.LowerCenter);
         }
@@ -204,31 +207,71 @@ namespace Abyss.EditorTools
         }
 
         /// <summary>
-        /// 축척 표지 — <b>2유닛</b>. 플레이어 콜라이더 높이이고, PPU 32에서 64px이다.
-        /// 🔑 캐릭터를 안 띄우는 대신 이것이 "사람이 여기 서면 이만하다"를 말한다.
-        /// 바닥 타일이 램프 위 3단을 7.9%나 쓰고 있어 <b>실루엣이 바닥에 묻히는지</b>를
-        /// 이 표지 옆에서 본다.
+        /// 축척·실루엣 대조 구역. 지면 띠 왼쪽 끝을 통째로 여기에 쓴다.
+        ///
+        /// 🔴 <b>2026-09-09 — 여기에 캐릭터가 없어서 판정 하나를 못 했다.</b>
+        /// 원래는 2유닛 흰 표지만 세워 뒀는데, 그건 <b>축척은 말해도 「읽히는가」는 못 말한다.</b>
+        /// 바닥이 램프 위 3단을 7.9~11.7% 쓰고 있어 실루엣이 묻히는지가 진짜 질문인데,
+        /// 묻힐 실루엣이 없었다. → 폼 4종을 실제로 세운다.
+        ///
+        /// 🔑 <b>같은 폼을 벽 재질 위에도 하나 세운다.</b> 지면과 벽은 밝기가 다르므로
+        /// 한쪽에서 읽히는 실루엣이 다른 쪽에서 묻힐 수 있다 — 한 자리에서만 보면 그걸 못 잡는다.
         /// </summary>
         private static void BuildScaleReference()
+        {
+            var root = new GameObject("ScaleAndSilhouette").transform;
+            BuildUnitMarker(root);
+
+            // 폼은 PPU 128 · 256px 이라 정확히 2유닛이고 피벗이 발밑이다 → y 를 바닥 윗면에 둔다.
+            string[] forms = { "dark_blade", "void_archer", "ancient_shield", "void_thrower" };
+            for (int i = 0; i < forms.Length; i++)
+            {
+                var sprite = LoadForm(forms[i]);
+                if (sprite == null) continue;
+                CreateSprite(root, forms[i], sprite,
+                             new Vector3(-49f + i * 1.6f, SurfaceY, 0f), OrderProps);
+            }
+
+            CreateLabel("SilhouetteLabel",
+                        "폼 4종 — 지면 위. 바닥이 실루엣을 먹는가",
+                        new Vector3(-46.6f, SurfaceY + 2.6f, -5f), 0.28f,
+                        new Color32(0xD2, 0xD9, 0xDB, 0xFF), TextAnchor.LowerCenter);
+
+            // 🔑 같은 폼을 벽 재질 위에도. 두 바닥을 한 실루엣으로 비교한다.
+            var onWall = LoadForm("dark_blade");
+            if (onWall != null)
+            {
+                CreateSprite(root, "dark_blade_on_wall", onWall,
+                             new Vector3(SeamX + 7f, SurfaceY, 0f), OrderProps);
+                CreateLabel("SilhouetteWallLabel",
+                            "같은 폼 — 벽 재질 위",
+                            new Vector3(SeamX + 7f, SurfaceY + 2.6f, -5f), 0.28f,
+                            new Color32(0xD2, 0xD9, 0xDB, 0xFF), TextAnchor.LowerCenter);
+            }
+        }
+
+        /// <summary>
+        /// 절대 축척 표지 — <b>2유닛</b>(플레이어 콜라이더 높이 · PPU 32 에서 64px).
+        /// 색은 램프 위 3단 중 가장 밝은 것이라 <b>배경이 절대 안 쓰는 대역</b>이다.
+        /// 폼 실루엣이 「읽히는가」를 말한다면 이쪽은 「몇 유닛인가」를 말한다.
+        /// </summary>
+        private static void BuildUnitMarker(Transform parent)
         {
             var square = EditorPlatformFactory.LoadWhiteSquare();
             if (square == null) return;
 
-            var go = CreateSprite(null, "ScaleReference_2units", square,
-                                  new Vector3(-44f, SurfaceY + 1f, 0f), OrderProps);
+            var go = CreateSprite(parent, "ScaleReference_2units", square,
+                                  new Vector3(-51f, SurfaceY + 1f, 0f), OrderProps);
 
             Vector3 unit = square.bounds.size;
             go.transform.localScale = new Vector3(
                 unit.x > 0f ? 1f / unit.x : 1f,
                 unit.y > 0f ? 2f / unit.y : 1f,
                 1f);
-
-            // 램프 위 3단 중 가장 밝은 색 — 배경이 절대 안 쓰는 대역이라 대비 기준이 된다.
             go.GetComponent<SpriteRenderer>().color = new Color32(0xD2, 0xD9, 0xDB, 0xFF);
 
-            CreateLabel("ScaleLabel",
-                        "2 유닛 = 플레이어 키 = 64px\n(색은 램프 위 3단 — 배경이 안 쓰는 대역)",
-                        new Vector3(-44f, SurfaceY + 2.6f, -5f), 0.28f,
+            CreateLabel("ScaleLabel", "2 유닛 = 64px",
+                        new Vector3(-51f, SurfaceY + 2.2f, -5f), 0.26f,
                         new Color32(0xD2, 0xD9, 0xDB, 0xFF), TextAnchor.LowerCenter);
         }
     }

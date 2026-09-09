@@ -193,7 +193,16 @@ flat worn stone slabs, one even surface
 
 [WALL-MATERIAL]
 # gen3 는 벽이 배경 재질을 그대로 썼다. 이제 따로 적는다.
-a plain stone wall face, quiet and even
+#
+# 🔴 2026-09-09 — `deep dark` 를 넣었다. **잰 것:**
+#    지면 타일셋에 `the same dark stone throughout` 을 넣어 어둡게 만들었더니
+#    벽이 상대적으로 **밝아졌다**(평균 단 지면 2.87 vs 벽 3.66). 규약은 그 반대다 —
+#    벽이 화면에서 가장 넓으므로 가장 어둡고 조용해야 한다(tileset_wall.txt 머리말).
+#
+# 🔑 값(명도)은 **재질 어휘가 말할 것**이지 타일셋 블록이 말할 것이 아니다.
+#    타일셋 블록에 `the darkest surface in the room` 을 적어 봤지만 안 먹었다 —
+#    「방」이 무엇인지 모델은 모른다. **재질 이름에 붙이면 어디에 쓰이든 따라간다.**
+deep dark stone wall face, quiet and even
 
 [SKY]
 # 🔴 구름을 그리지 않는다(L7). 하늘은 텍스처가 아니라 면이다.

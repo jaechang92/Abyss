@@ -63,7 +63,7 @@ namespace Abyss.EditorTools
         private const float GroundRowY = -3f;
         private const float SurfaceY = GroundRowY + 0.5f;
 
-        private const float GroundMinX = -46f;
+        private const float GroundMinX = -52f;
         private const float SeamX = 0f;
         private const float WallMaxX = 14f;
 
@@ -195,7 +195,7 @@ namespace Abyss.EditorTools
                 $"FHD 1920x1080 에서 정확히 x{FhdScale} — 정수라서 픽셀이 고르게 그려진다 (ortho {cam.orthographicSize:0.###})",
                 $"배경 160x96 을 x{BackgroundUpscale} 확대 → 640x384 아트px (가로 딱 맞고 세로 24px 여유)",
                 $"⚠ 배경 1px = {BackgroundUpscale * FhdScale} 스크린px,  프롭 1px = {FhdScale} 스크린px — {bgPixel:0}배 차이",
-                "판정: ① x=0 이음매에서 벽/지면이 갈리는가  ② 배경 픽셀 4배 차이  ③ bg_near 1px  ④ 바닥이 캐릭터를 먹는가",
+                "판정: ① x=0 이음매에서 벽/지면이 갈리는가  ② bg_near 1px  ③ 바닥이 캐릭터를 먹는가(왼쪽 끝 폼 4종 · 벽 위 1종)",
             });
 
             CreateLabel("Readout", text, new Vector3(-9.6f, 5.2f, -5f), 0.32f,
@@ -210,6 +210,19 @@ namespace Abyss.EditorTools
             var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
             if (sprite == null)
                 Debug.LogWarning($"[ArtTestStageBuilder] 스프라이트 없음: {path}");
+            return sprite;
+        }
+
+        /// <summary>
+        /// 폼 캐릭터 스프라이트. <b>바닥이 캐릭터를 먹는지</b>는 진짜 실루엣이 있어야 판정된다 —
+        /// 2유닛 표지는 축척은 말해도 「읽히는가」는 못 말한다(2026-09-09 사용자 지적).
+        /// </summary>
+        private static Sprite LoadForm(string fileName)
+        {
+            string path = $"{AbyssPaths.FormSprites}/{fileName}.png";
+            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            if (sprite == null)
+                Debug.LogWarning($"[ArtTestStageBuilder] 폼 스프라이트 없음: {path}");
             return sprite;
         }
 

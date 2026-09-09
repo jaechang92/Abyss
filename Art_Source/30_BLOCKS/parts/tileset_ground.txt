@@ -44,9 +44,19 @@ solid packed ground, one even repeating material, nothing lying on it
 
 [TRANSITION]
 # 밟는 면. "평평함"과 "여기서 땅이 끝난다"가 동시에 읽혀야 한다.
-# 아래보다 밝게 두는 것은 연출이 아니라 가독성이다 — 서는 자리가 선으로 보여야 한다.
+#
+# 🔴 2026-09-09 — `slightly lighter than the ground below` 를 뺐다. **잰 것:**
+#    그 한 마디가 상판을 **따뜻한 베이지**로 만들었고(이 씬에서 금지된 색),
+#    집행 후에도 램프 **위 3단을 7.9%** 쓰게 했다 — 캐릭터에게 남겨 둔 대역이다.
+#    모델이 「밝게」를 **명도가 아니라 색온도로** 읽었다.
+#    ⚠️ W4(부정문을 긍정문으로)로 막을 수 있는 종류가 아니다. 어휘가 아니라 기본값이다.
+#
+# 🔑 그래도 **서는 자리는 선으로 보여야 한다**(원래 의도는 가독성이었다).
+#    그래서 명도 대신 **결**로 가른다 — 발에 닳아 촘촘해진 면 vs 거친 속.
+#    명도를 안 건드리므로 L3(좁은 대비)도 위 3단도 안 침범한다.
 the flat level top surface, one straight walkable line,
-worn smooth, slightly lighter than the ground below
+rubbed smooth by feet, a finer tighter grain than the coarse body below,
+the same dark stone throughout
 
 [OUTER]
 dark empty air
