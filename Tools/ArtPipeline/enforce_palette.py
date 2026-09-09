@@ -51,6 +51,8 @@ import re
 import numpy as np
 from PIL import Image
 
+import de_baselines as deb
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 PALETTE_SRC = os.path.join(REPO, "Art_Source", "palettes", "_palettes.txt")
@@ -58,13 +60,25 @@ PALETTE_SRC = os.path.join(REPO, "Art_Source", "palettes", "_palettes.txt")
 HEX = re.compile(r"\b([0-9A-Fa-f]{6})\b")
 
 # ── 판정 기준선 ────────────────────────────────────────────────────────────────
-# ⚠️ 전부 **지어낸 것**이다. PixelLab 산출물로 아직 안 쟀다.
-#    stage1 앵커를 뽑은 뒤 실측으로 조정한다 — 지금 숫자를 확정으로 옮겨 적으면
-#    안 재고 정하는 것이 된다 (3권 19장 · 10_BIBLE/04 §5).
+# 🔴 **2026-09-10 — 이 선은 170장을 뽑는 동안 한 번도 안 걸렸다.**
 #
-#    ΔE76 기준: 2.3 이 사람이 겨우 구분하는 차이다. 10색 램프에 스냅하면
-#    평균 5~10 은 정상이고, 그 위는 "생성이 팔레트를 안 따랐다"에 가깝다.
-REROLL_MEAN_DE = 12.0        # 평균이 이보다 크면 다시 뽑는 쪽이 낫다
+#       현재 선     평균 12.0 / 상위5% 28.0
+#       관측 최대   평균  9.7 / 상위5% 24.4
+#
+#    「지어낸 값이다」라는 옛 주석보다 이쪽이 큰 문제다 — **있는 줄 알았던 방어선이 없었다.**
+#    그런데도 값을 안 내린다. 이유가 둘이다:
+#
+#      ① **한 선으로 못 자른다.** 파생의 최악(6.2)이 타일셋의 최선(9.2)보다 낮다 —
+#         두 분포가 겹치지 않는다. 하나를 잡으면 다른 하나가 반드시 어긋난다.
+#      ② **표본이 채택본뿐이다.** 후보 143장은 규약상 안 남긴다. 합격한 것만 보고
+#         합격선을 정하는 셈이고, 실제로 ΔE 9.2 짜리 타일셋은 눈으로 보니 멀쩡했다.
+#
+#    🔑 그래서 선을 낮추는 대신 **경로를 가르고, 관측 범위를 말하고, 측정을 쌓는다** —
+#       `de_baselines.py` 가 그 셋을 한다. 이 선은 **마지막 그물**로만 남긴다.
+#       진짜 선은 표본이 모인 뒤에 긋는다. (3권 19장 · 10_BIBLE/04 §5)
+#
+#    ΔE76 기준: 2.3 이 사람이 겨우 구분하는 차이다.
+REROLL_MEAN_DE = 12.0        # 마지막 그물. 경로별 판단은 de_baselines.describe 가 한다
 REROLL_P95_DE = 28.0         # 상위 5% 가 이보다 크면 특정 영역이 통째로 벗어나 있다
 THIN_RAMP_RATIO = 0.5        # 팔레트의 절반도 안 썼으면 그림이 납작하다
 ALPHA_CUT = 8                # 이 아래는 투명으로 보고 색을 재지 않는다
@@ -232,7 +246,8 @@ def describe_peel(peel):
 
 # ────────────────────────────────────────────────────────────── 집행
 
-def enforce(path, out_path, colors, dither=False, check_only=False, crop_gutter=False):
+def enforce(path, out_path, colors, dither=False, check_only=False, crop_gutter=False,
+            path_kind=None, path_why="", path_sure=True, scene=None, log_to=None):
     im = Image.open(path).convert("RGBA")
     arr = np.asarray(im).astype(np.float64)
     name = os.path.basename(path)
@@ -320,6 +335,22 @@ def enforce(path, out_path, colors, dither=False, check_only=False, crop_gutter=
     for line in verdict:
         print("     %s" % line)
 
+    # ── 경로별 관측 범위 안인지 **말한다**. 버릴지는 사람이 정한다 ─────────────
+    if path_kind:
+        for line in deb.describe(path_kind, mean_de, p95_de, confident=path_sure):
+            print("     %s" % line)
+        if path_why:
+            print("     (경로 판별: %s)" % path_why)
+
+        # 🔑 그림은 안 남겨도 숫자는 남긴다 — 다음 씬을 뽑는 동안 진짜 표본이 모인다.
+        # ⚠️ 확신이 없으면 물음표를 붙여 쌓는다. 나중에 표본으로 쓸 때 걸러낼 수 있어야 한다 —
+        #    추측을 사실과 같은 모양으로 적으면 표본이 조용히 오염된다.
+        dest = deb.log(scene, name, path_kind if path_sure else path_kind + "?",
+                       w, h, int(solid.sum()),
+                       mean_de, p95_de, max_de, used_count, len(colors), src_distinct,
+                       log_path=log_to)
+        print("     기록      %s" % short(dest))
+
     if check_only:
         return mean_de, gutter
 
@@ -377,6 +408,12 @@ def main():
     ap.add_argument("--crop-gutter", action="store_true",
                     help="가장자리의 흰 거터를 뗀다 (컨택트 시트에서 잘라 온 이미지). "
                          "끄고 돌려도 붙어 있으면 알린다")
+    ap.add_argument("--path", choices=deb.PATHS, default=None,
+                    help="생성 경로. 안 주면 파일 이름으로 추측하고 근거를 적는다. "
+                         "붙들 수단이 다르면 ΔE 분포가 달라 같은 잣대를 못 댄다")
+    ap.add_argument("--no-log", action="store_true",
+                    help="측정을 Art_Source/_measurements.tsv 에 안 쌓는다")
+    ap.add_argument("--log-to", default=None, help="측정 기록 파일 경로 (시험용)")
     args = ap.parse_args()
 
     if args.palette:
@@ -403,8 +440,12 @@ def main():
         os.makedirs(d, exist_ok=True)
         stem = os.path.splitext(os.path.basename(p))[0]
         out_path = os.path.join(d, stem + args.suffix + ".png")
+        kind, why, sure = deb.classify(stem, explicit=args.path)
         score, gutter = enforce(p, out_path, colors, dither=args.dither,
-                                check_only=args.check, crop_gutter=args.crop_gutter)
+                                check_only=args.check, crop_gutter=args.crop_gutter,
+                                path_kind=kind, path_why=why, path_sure=sure,
+                                scene=args.scene,
+                                log_to=os.devnull if args.no_log else args.log_to)
         if gutter:
             guttered += 1
         if score is not None:
@@ -421,9 +462,11 @@ def main():
         if failed:
             print("🔴 %d장이 재생성 기준(평균 ΔE %.1f)을 넘었다." % (failed, REROLL_MEAN_DE))
             print("   강제는 됐지만 그림이 뭉갰을 가능성이 크다 — 눈으로 보고 판정할 것.")
-        print("\n⚠️ 기준값(%.1f / %.1f)은 아직 **지어낸 것**이다. PixelLab 산출물로 안 쟀다."
+        print("\n📌 기준선 %.1f / %.1f 은 **마지막 그물**이다 — 170장 동안 한 번도 안 걸렸다."
               % (REROLL_MEAN_DE, REROLL_P95_DE))
-        print("   stage1 앵커를 뽑은 뒤 실측으로 조정할 것 — 10_BIBLE/04-palette.md §5")
+        print("   경로마다 분포가 다르다(파생 최악 6.2 < 타일셋 최선 9.2) — 한 선으로 못 자른다.")
+        print("   위의 경로별 관측 범위로 판단하고, 진짜 선은 표본이 모인 뒤에 긋는다.")
+        print("   쌓이는 곳: Art_Source/_measurements.tsv — 10_BIBLE/04-palette.md §5")
 
 
 if __name__ == "__main__":

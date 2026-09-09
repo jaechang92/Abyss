@@ -31,6 +31,7 @@ from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import enforce_palette as ep
+import de_baselines as deb
 
 
 # ── 픽스처용 램프 ──────────────────────────────────────────────────────────────
@@ -62,13 +63,17 @@ def save(arr, name):
     return path
 
 
-def run(path, crop_gutter=False, check_only=True, colors=None):
-    """enforce 를 돌리고 (반환값, 찍힌 글, 출력경로) 를 준다. 화면 출력은 삼킨다."""
+def run(path, crop_gutter=False, check_only=True, colors=None, **kw):
+    """enforce 를 돌리고 (반환값, 찍힌 글, 출력경로) 를 준다. 화면 출력은 삼킨다.
+
+    ⚠️ 경로 판정(**kw: path_kind/path_sure/…)을 안 주면 그 기능이 아예 안 도는데,
+       그게 기본값이라 기존 픽스처 14종은 예전과 똑같이 돈다.
+    """
     buf = io.StringIO()
     out_path = os.path.join(TMP, "out.png")
     with redirect_stdout(buf):
         result = ep.enforce(path, out_path, colors or RAMP,
-                            check_only=check_only, crop_gutter=crop_gutter)
+                            check_only=check_only, crop_gutter=crop_gutter, **kw)
     return result, buf.getvalue(), out_path
 
 
@@ -270,13 +275,59 @@ def r1_real_anchor():
     check("상한 경고 없음", not cap)
 
 
+# ══════════════════════════════════════════════ D — 경로별 관측 범위 (2026-09-10)
+
+def d1_path_classification():
+    print("D1  경로 판별 — 확신이 없으면 확신 없다고 말한다")
+    check("tileset 은 이름으로 갈린다",
+          deb.classify("stage1__tileset_wall") == (deb.TILESET, "이름에 tileset", True))
+    check("앵커도 이름으로 갈린다",
+          deb.classify("bg_mid_cand2")[0] == deb.ANCHOR)
+
+    # 🔴 이 줄이 이 파일에서 가장 중요하다. 실제로 이렇게 틀렸다 —
+    #    타일셋 산출물 wall_r5_final.png 가 derived 로 분류돼 남의 범위를 말했다.
+    kind, why, sure = deb.classify("wall_r5_final")
+    check("raw 이름은 못 가른다 — 확신 False", sure is False, "받은 것: %s" % sure)
+    check("그래도 경로 하나는 고른다(기록용)", kind in deb.PATHS)
+
+    check("--path 가 이름 추측을 이긴다",
+          deb.classify("wall_r5_final", explicit=deb.TILESET) == (deb.TILESET, "지정됨(--path)", True))
+
+
+def d2_describe_withholds():
+    print("D2  확신이 없으면 관측 범위를 **말하지 않는다**")
+    said = " ".join(deb.describe(deb.DERIVED, 3.9, 6.6, confident=True))
+    check("확신하면 범위를 말한다", "관측 범위" in said and "0.3" in said)
+
+    held = " ".join(deb.describe(deb.DERIVED, 3.9, 6.6, confident=False))
+    check("확신 없으면 보류한다", "보류" in held)
+    # 📌 조용히 틀린 범위를 말하는 것이 아무 말도 안 하는 것보다 나쁘다.
+    check("보류하면 숫자를 안 흘린다", "0.3" not in held and "6.2" not in held, held)
+    check("무엇을 해야 하는지 말한다", "--path" in held)
+
+
+def d3_measurement_log():
+    print("D3  측정이 파일로 쌓인다 — 그림은 안 남겨도 숫자는 남긴다")
+    dest = os.path.join(TMP, "m.tsv")
+    deb.log("s1", "a.png", deb.TILESET, 128, 128, 8329, 3.85, 6.60, 9.23, 3, 10, 9, log_path=dest)
+    deb.log("s1", "b.png", "derived?", 64, 64, 100, 1.0, 2.0, 3.0, 8, 10, 8, log_path=dest)
+    lines = open(dest, encoding="utf-8").read().strip().split("\n")
+
+    check("머리줄 + 2행", len(lines) == 3, "받은 것: %d줄" % len(lines))
+    check("머리줄이 컬럼과 같다", lines[0].split("	") == list(deb.COLUMNS))
+    check("덧붙인다 (덮어쓰지 않는다)", "a.png" in lines[1] and "b.png" in lines[2])
+    # ⚠️ 추측을 사실과 같은 모양으로 적으면 표본이 조용히 오염된다.
+    check("확신 없는 행은 물음표가 남는다", lines[2].split("	")[3] == "derived?")
+
+
 CASES = (t0_palette_source,
          f1_exact_colors, f2_flat_two_steps, f3_far_off_palette,
          f4_all_transparent, f5_alpha_preserved,
          g1_no_gutter, g2_two_sides, g3_uneven_thickness,
          g4_not_enough_white, g5_transparent_margin,
          g6_crop_changes_measurement, g7_all_white, g8_peel_cap,
-         r1_real_anchor)
+         r1_real_anchor,
+         d1_path_classification, d2_describe_withholds, d3_measurement_log)
 
 
 def main():
