@@ -40,7 +40,7 @@ namespace Abyss.EditorTools
         private const int BackgroundUpscale = 4;
 
         /// <summary>FHD 1920x1080 에 그려질 때의 배율. <see cref="CameraSize"/>가 이 값을 만든다.</summary>
-        private const int FhdScale = 3;
+        private const int FhdScale = Abyss.Runtime.Camera.PixelScale.ScreenUpscale;
 
         /// <summary>
         /// 라벨 폰트 크기. <b>이 값은 글자의 화면 크기가 아니라 글꼴 텍스처의 해상도다</b> —
@@ -53,11 +53,16 @@ namespace Abyss.EditorTools
         /// 카메라 세로 반높이. <b>FHD 1920x1080에서 정수 배율이 나오는 값이다</b> —
         /// 11.25유닛 x PPU 32 = 360 아트px 이고 1080/360 = 정확히 3배.
         ///
-        /// 🔴 <b>이 숫자는 취향이 아니라 산수다.</b> ortho 5(현재 Run 씬 값)면 세로가
-        /// 320 아트px 이라 1080/320 = 3.375배 — 정수가 아니라서 <b>픽셀이 어떤 줄은 3배,
-        /// 어떤 줄은 4배로 그려진다.</b> 도트가 고르지 않게 보이는데 원인은 그림이 아니다.
+        /// 🔴 <b>이 숫자는 취향이 아니라 산수다.</b> 옛 값 ortho 5 면 세로가 320 아트px 이라
+        /// 1080/320 = 3.375배 — 정수가 아니라서 <b>픽셀이 어떤 줄은 3배, 어떤 줄은 4배로
+        /// 그려진다.</b> 도트가 고르지 않게 보이는데 원인은 그림이 아니다.
+        ///
+        /// 🔴 2026-09-10 — <b>값을 여기서 뺐다.</b> 이 파일이 5.625 를 먼저 알아냈는데 Run·Lobby·Title
+        /// 세 씬은 5 로 남아 있었다. <b>테스트 씬만 옳은 배율로 보고 있었다는 뜻이다</b> —
+        /// 아트를 판정하던 화면과 게임 화면이 서로 다른 배율이었다.
+        /// 이제 <see cref="Abyss.Runtime.Camera.PixelScale"/> 가 SoT 다.
         /// </summary>
-        private const float CameraSize = 5.625f;
+        private const float CameraSize = Abyss.Runtime.Camera.PixelScale.OrthographicSize;
 
         /// <summary>지면 윗줄 타일의 중심 y. 윗면(밟는 자리)은 여기서 +0.5다.</summary>
         private const float GroundRowY = -3f;
