@@ -43,6 +43,12 @@ namespace Abyss.EditorTools
         // 배경 레이어는 Sprite가 아니라 Texture로 임포트한다(RawImage.uvRect 스크롤 대상).
         public const string TitleBackdrop = "Assets/Art/Backgrounds/Title";
 
+        // 환경 아트 — Art_Source/curated/ 에서 넘어온 씬 배경·타일·프롭.
+        // 🔴 원본(SoT)은 Art_Source/curated/ 다. 여기 것은 임포트본이라 다시 만들 수 있다.
+        public const string EnvironmentArt = "Assets/Art/Environment";
+        public const string Stage1Art = EnvironmentArt + "/stage1_rift_entrance";
+        public const string Stage1Tiles = Stage1Art + "/tiles";
+
         // 오디오
         public const string Sfx = "Assets/Audio/SFX";
 
@@ -53,6 +59,7 @@ namespace Abyss.EditorTools
         public const string EnemyProjectilePrefab = CombatPrefabs + "/EnemyProjectile.prefab";
         public const string TitleScene = "Assets/Scenes/Title.unity";
         public const string LobbyScene = "Assets/Scenes/Lobby.unity";
+        public const string ArtTestScene = "Assets/Scenes/ArtTest.unity";
         public const string InputActions = "Assets/InputSystem_Actions.inputactions";
     }
 }
