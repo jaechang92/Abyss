@@ -39,7 +39,25 @@ namespace Abyss.EditorTools
         /// <summary>배경 확대 배율. <b>정수여야 한다</b> — 아니면 픽셀이 찌그러진다.</summary>
         private const int BackgroundUpscale = 4;
 
-        private const float CameraSize = 5f;
+        /// <summary>FHD 1920x1080 에 그려질 때의 배율. <see cref="CameraSize"/>가 이 값을 만든다.</summary>
+        private const int FhdScale = 3;
+
+        /// <summary>
+        /// 라벨 폰트 크기. <b>이 값은 글자의 화면 크기가 아니라 글꼴 텍스처의 해상도다</b> —
+        /// 크게 둘수록 선명하고, 실제 크기는 <c>characterSize</c>가 정한다.
+        /// 그래서 이 숫자는 안 만지고 <see cref="CharacterSizeFor"/>로 월드 높이를 준다.
+        /// </summary>
+        private const int LabelFontSize = 64;
+
+        /// <summary>
+        /// 카메라 세로 반높이. <b>FHD 1920x1080에서 정수 배율이 나오는 값이다</b> —
+        /// 11.25유닛 x PPU 32 = 360 아트px 이고 1080/360 = 정확히 3배.
+        ///
+        /// 🔴 <b>이 숫자는 취향이 아니라 산수다.</b> ortho 5(현재 Run 씬 값)면 세로가
+        /// 320 아트px 이라 1080/320 = 3.375배 — 정수가 아니라서 <b>픽셀이 어떤 줄은 3배,
+        /// 어떤 줄은 4배로 그려진다.</b> 도트가 고르지 않게 보이는데 원인은 그림이 아니다.
+        /// </summary>
+        private const float CameraSize = 5.625f;
 
         /// <summary>지면 윗줄 타일의 중심 y. 윗면(밟는 자리)은 여기서 +0.5다.</summary>
         private const float GroundRowY = -3f;
@@ -165,19 +183,22 @@ namespace Abyss.EditorTools
         {
             float screenUnitsY = cam.orthographicSize * 2f;
             float screenUnitsX = screenUnitsY * 16f / 9f;
+            float artPixelsY = screenUnitsY * Ppu;
+            float artPixelsX = screenUnitsX * Ppu;
             float bgPixel = BackgroundUpscale;   // 프롭 픽셀 1개당 배경 픽셀 크기 비
 
             string text = string.Join("\n", new[]
             {
                 "stage1 아트 테스트 — 방향키 이동 · Q/E 확대 · R 원위치",
-                $"PPU {Ppu:0}  (타일 32px = 1유닛,  플레이어 2유닛 = 64px)",
-                $"카메라 ortho {cam.orthographicSize:0.#}  →  화면 {screenUnitsX:0.#} x {screenUnitsY:0.#} 유닛",
-                $"배경 160x96 = 5 x 3 유닛  →  x{BackgroundUpscale} 확대해 {5 * BackgroundUpscale} x {3 * BackgroundUpscale} 유닛",
-                $"⚠ 그래서 배경 픽셀이 프롭 픽셀보다 {bgPixel:0}배 크다 — 거슬리면 배경을 크게 다시 뽑아야 한다",
-                "판정: ① x=0 이음매에서 벽/지면이 갈리는가  ② 배경 픽셀 크기  ③ bg_near 1px  ④ 바닥이 캐릭터를 먹는가",
+                $"PPU {Ppu:0}  ·  타일 32px = 1유닛  ·  플레이어 2유닛 = 64px",
+                $"화면 {screenUnitsX:0.##} x {screenUnitsY:0.##} 유닛 = {artPixelsX:0} x {artPixelsY:0} 아트px",
+                $"FHD 1920x1080 에서 정확히 x{FhdScale} — 정수라서 픽셀이 고르게 그려진다 (ortho {cam.orthographicSize:0.###})",
+                $"배경 160x96 을 x{BackgroundUpscale} 확대 → 640x384 아트px (가로 딱 맞고 세로 24px 여유)",
+                $"⚠ 배경 1px = {BackgroundUpscale * FhdScale} 스크린px,  프롭 1px = {FhdScale} 스크린px — {bgPixel:0}배 차이",
+                "판정: ① x=0 이음매에서 벽/지면이 갈리는가  ② 배경 픽셀 4배 차이  ③ bg_near 1px  ④ 바닥이 캐릭터를 먹는가",
             });
 
-            CreateLabel("Readout", text, new Vector3(-12.5f, 4.4f, -5f), 0.22f,
+            CreateLabel("Readout", text, new Vector3(-9.6f, 5.2f, -5f), 0.32f,
                         new Color32(0xBA, 0xC4, 0xC9, 0xFF), TextAnchor.UpperLeft);
         }
 
@@ -214,9 +235,27 @@ namespace Abyss.EditorTools
             return go;
         }
 
-        /// <summary>월드 공간 라벨. 캔버스를 안 쓰는 이유는 <see cref="BuildReadout"/> 주석 참조.</summary>
+        /// <summary>
+        /// <c>TextMesh</c>의 한 줄 높이(월드 유닛) → <c>characterSize</c>.
+        ///
+        /// 🔴 <b>2026-09-09에 이걸 안 해서 라벨이 화면을 덮었다.</b> <c>characterSize</c>를
+        /// 「크기」로 읽고 0.22 같은 값을 그대로 넘겼는데, 실제 한 줄 높이는
+        /// <c>fontSize x characterSize / 10</c> = <b>1.4유닛</b>이었다 — 화면 세로가
+        /// 11.25유닛이니 <b>한 줄이 화면의 1/8</b>이다.
+        ///
+        /// 📌 <c>characterSize</c>는 크기가 아니라 <b>배율</b>이고, 배율은 무엇에 대한 배율인지를
+        /// 모르면 값을 못 고른다. 그래서 부르는 쪽은 언제나 <b>월드 높이</b>로 말한다.
+        /// (10은 Unity가 fontSize 1점을 월드 0.1유닛으로 잡는 데서 온다 — 근사값이다.)
+        /// </summary>
+        private static float CharacterSizeFor(float worldLineHeight)
+            => worldLineHeight * 10f / LabelFontSize;
+
+        /// <summary>
+        /// 월드 공간 라벨. <paramref name="lineHeight"/>는 <b>한 줄의 월드 높이(유닛)</b>다.
+        /// 캔버스를 안 쓰는 이유는 <see cref="BuildReadout"/> 주석 참조.
+        /// </summary>
         private static TextMesh CreateLabel(string name, string text, Vector3 position,
-                                            float size, Color color, TextAnchor anchor)
+                                            float lineHeight, Color color, TextAnchor anchor)
         {
             var go = new GameObject(name);
             go.transform.position = position;
@@ -225,8 +264,8 @@ namespace Abyss.EditorTools
             mesh.text = text;
             mesh.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf")
                         ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
-            mesh.fontSize = 64;
-            mesh.characterSize = size;
+            mesh.fontSize = LabelFontSize;
+            mesh.characterSize = CharacterSizeFor(lineHeight);
             mesh.color = color;
             mesh.anchor = anchor;
             mesh.alignment = TextAlignment.Left;
