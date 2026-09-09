@@ -28,10 +28,12 @@ namespace Abyss.EditorTools
         public const string BuildRoomLayouts = Build + "Room Layouts in Active Scene";
         public const string BuildPlatforms = Build + "Test Platforms in Active Scene";
         public const string BuildFormAltar = Build + "Form Altar in Active Scene";
+        public const string BuildArtTestStage = Build + "Art Test Stage (stage1)";
 
         // Generate — 에셋(콘텐츠/프리팹) 생성
         // Generate — 아트 임포트 설정
         public const string ApplyFormSpriteImport = Generate + "Form Sprite Import Settings";
+        public const string ApplyEnvironmentArtImport = Generate + "Environment Art Import Settings";
 
         public const string GenerateShopContent = Generate + "Shop Content (add missing items)";
         public const string GenerateRelicContent = Generate + "Relic Content (add missing relics)";
