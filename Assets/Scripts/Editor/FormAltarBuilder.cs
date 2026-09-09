@@ -242,7 +242,9 @@ namespace Abyss.EditorTools
             }
         }
 
-        /// <summary>제단 스프라이트 임포트 설정 보장(Sprite/Point/PPU32) 후 로드. 미생성 시 null.</summary>
+        /// <summary>제단 스프라이트 임포트 설정 보장(Sprite/Point/PPU) 후 로드. 미생성 시 null.
+        /// PPU 는 <see cref="Abyss.Runtime.Camera.PixelScale"/> 를 본다 — 제단은 월드에 놓이는
+        /// Point 필터 픽셀 아트라 <b>환경 아트와 같은 격자</b>여야 도트 굵기가 안 어긋난다.</summary>
         private static Sprite LoadAltarSprite()
         {
             var importer = AssetImporter.GetAtPath(AbyssPaths.FormAltarSprite) as TextureImporter;
@@ -250,13 +252,13 @@ namespace Abyss.EditorTools
 
             if (importer.textureType != TextureImporterType.Sprite
                 || importer.filterMode != FilterMode.Point
-                || Mathf.Abs(importer.spritePixelsPerUnit - 32f) > 0.1f)
+                || Mathf.Abs(importer.spritePixelsPerUnit - Abyss.Runtime.Camera.PixelScale.PixelsPerUnit) > 0.1f)
             {
                 importer.textureType        = TextureImporterType.Sprite;
                 importer.spriteImportMode    = SpriteImportMode.Single;
                 importer.filterMode          = FilterMode.Point;
                 importer.textureCompression  = TextureImporterCompression.Uncompressed;
-                importer.spritePixelsPerUnit = 32;
+                importer.spritePixelsPerUnit = Abyss.Runtime.Camera.PixelScale.PixelsPerUnit;
                 importer.mipmapEnabled       = false;
                 importer.SaveAndReimport();
             }
