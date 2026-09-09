@@ -58,7 +58,7 @@ namespace Abyss.EditorTools
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.04f, 0.04f, 0.07f);
             cam.orthographic = true;
-            cam.orthographicSize = 5f;
+            cam.orthographicSize = Abyss.Runtime.Camera.PixelScale.OrthographicSize;
             go.AddComponent<AudioListener>();
         }
 

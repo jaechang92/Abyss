@@ -30,8 +30,9 @@ namespace Abyss.EditorTools
     /// </summary>
     public static class EnvironmentArtImporter
     {
-        /// <summary>월드 픽셀 밀도. 32px 타일 = 1유닛.</summary>
-        public const float PixelsPerUnit = 32f;
+        /// <summary>월드 픽셀 밀도. 32px 타일 = 1유닛. 값은 <see cref="Abyss.Runtime.Camera.PixelScale"/> 가 갖는다 —
+        /// 카메라 ortho 산수와 같은 축이라 두 곳에 적으면 반드시 갈린다.</summary>
+        public const float PixelsPerUnit = Abyss.Runtime.Camera.PixelScale.PixelsPerUnit;
 
         [MenuItem(AbyssMenu.ApplyEnvironmentArtImport)]
         public static void Apply()
