@@ -155,17 +155,23 @@ gen3에서 살릴 값이 있는 판단이었다.
 ④ P5 검사 — 초록이 없는가 (지상 씬 제외)
 ⑤ PNG 로 굽는다                    → 50_BUILD/make_palettes.py
 ⑥ 앵커를 뽑고 03-light §5 체크리스트로 판정
-⑦ 집행한다                         → Tools/ArtPipeline/enforce_palette.py
+⑦ 가장자리의 흰 거터를 뗀다        → Tools/ArtPipeline/enforce_palette.py --crop-gutter
+⑧ 집행한다                         → Tools/ArtPipeline/enforce_palette.py (같은 호출)
 ```
 
-**⑦이 강제가 일어나는 유일한 자리다.** 생성 도구가 무엇이든 여기를 지나야 P1~P5가 보장된다.
+**⑧이 강제가 일어나는 유일한 자리다.** 생성 도구가 무엇이든 여기를 지나야 P1~P5가 보장된다.
 그리고 이 단계가 **⑥의 판정을 숫자로 거든다** — 옮긴 거리(ΔE)가 크면 그 앵커는 팔레트를
 안 따른 것이므로, 스냅해서 쓰지 말고 다시 뽑는다.
 
 ```
-python Tools/ArtPipeline/enforce_palette.py raw/*.png --scene stage1_rift_entrance
-python Tools/ArtPipeline/enforce_palette.py raw/*.png --scene stage1_rift_entrance --check   # 재기만
+python Tools/ArtPipeline/enforce_palette.py raw/*.png --scene stage1_rift_entrance --crop-gutter
+python Tools/ArtPipeline/enforce_palette.py raw/*.png --scene stage1_rift_entrance --check --crop-gutter   # 재기만
 ```
+
+🔴 **⑦을 먼저 하지 않으면 ⑧의 숫자를 믿을 수 없다.** 생성기가 준 그림에 순백 테두리가
+딸려 오는 일이 있는데, 그것이 붙은 채로 재면 ΔE·「쓰인 색」·뭉침이 전부 그 순백까지 재고 나온다
+— 실측에서 ΔE 0.8 / 8단이 자른 뒤 0.0 / 7단으로 바뀌었다. `--crop-gutter` 를 안 켜도 붙어
+있으면 알리므로, **경고가 뜨면 켜고 다시 돌린다.** 두께가 매번 달라 고정 픽셀로는 못 자른다.
 
 ⚠️ **ΔE 0이 합격이 아니다.** 이미 팔레트 색만 쓴 그림은 거리가 0으로 나오는데,
 램프 10단 중 2단만 쓴 납작한 그림도 마찬가지로 0이다. **「쓰인 색」 줄을 같이 본다.**

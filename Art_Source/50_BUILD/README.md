@@ -65,12 +65,16 @@ python Art_Source/50_BUILD/make_palettes.py                        # ① 팔레�
 python Art_Source/50_BUILD/build.py                                # ② 전 씬
 python Art_Source/50_BUILD/build.py stage1_rift_entrance           # ② 한 씬만
 #   ③ 뽑는다 (PixelLab — 계정이 필요해 사람이 한다)
-python Tools/ArtPipeline/enforce_palette.py <뽑은것>.png --scene stage1_rift_entrance   # ④ 집행
+python Tools/ArtPipeline/enforce_palette.py <뽑은것>.png --scene stage1_rift_entrance --crop-gutter   # ④ 크롭+집행
 ```
 
 🔴 **①이 먼저다.** 근거는 2026-09-06에 바뀌었다 — 예전에는 `color_image`가 명령이라서였고,
 Pro(v2)에는 그 칸이 없다. 지금은 **팔레트가 앵커를 고르는 판정 기준**이기 때문이다.
 기준 없이 뽑은 앵커는 무엇과 비교해 고를지가 없고, 그 한 장이 씬 전부의 화풍을 정한다.
+
+🔴 **④의 `--crop-gutter` 를 빼지 않는다.** 생성기가 흰 거터를 딸려 보내는데, 붙은 채로 재면
+아래 ΔE·「쓰인 색」이 전부 그 순백까지 재고 나온 값이다. 안 켜도 붙어 있으면 알린다 — 경고가 뜨면
+켜고 다시 돌린다. 왜 고정 픽셀로 못 자르는지는 `40_TOOLS/pixellab/profile.md §6-B`.
 
 🔴 **④를 건너뛸 수 없다.** 생성 단계에 강제 장치가 없으므로 **여기가 P1~P5가 지켜지는 유일한 자리**다.
 그리고 이 단계가 ③의 판정을 숫자로 거든다 — 옮긴 거리(ΔE)가 크면 그 그림은 팔레트를 안 따른 것이라

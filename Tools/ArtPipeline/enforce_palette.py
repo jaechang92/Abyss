@@ -2,7 +2,7 @@
 """
 enforce_palette.py — 생성된 이미지를 씬 팔레트로 강제 양자화하고, **강제의 대가를 잰다.**
 
-    python Tools/ArtPipeline/enforce_palette.py raw/*.png --scene stage1_rift_entrance
+    python Tools/ArtPipeline/enforce_palette.py raw/*.png --scene stage1_rift_entrance --crop-gutter
     python Tools/ArtPipeline/enforce_palette.py raw/bg_mid.png --palette Art_Source/palettes/stage1_rift_entrance.png
     python Tools/ArtPipeline/enforce_palette.py raw/*.png --scene stage1_rift_entrance --check
 
@@ -68,6 +68,23 @@ REROLL_MEAN_DE = 12.0        # 평균이 이보다 크면 다시 뽑는 쪽이 �
 REROLL_P95_DE = 28.0         # 상위 5% 가 이보다 크면 특정 영역이 통째로 벗어나 있다
 THIN_RAMP_RATIO = 0.5        # 팔레트의 절반도 안 썼으면 그림이 납작하다
 ALPHA_CUT = 8                # 이 아래는 투명으로 보고 색을 재지 않는다
+
+# ── 흰 거터 ────────────────────────────────────────────────────────────────────
+# 🔴 **잰 것**(2026-09-08, stage1 앵커 5라운드 20장):
+#
+#       R2  160x96 요청 → 158x89   거터 위/아래 2~5px · 좌/우 2px
+#       R3~R5 같은 요청 → 159x95   거터 1px
+#       붙는 두 변이 후보마다 다르다 (아래+오 / 아래+왼 / 위+오 / 위+왼)
+#
+#    두께도 변도 매번 달라서 **고정 픽셀로 못 자른다.** 그래서 「몇 px 인가」가 아니라
+#    「이 줄이 거터인가」를 한 줄씩 다시 묻는다.
+#
+# 💡 순백이 팔레트에 없는 것이 이 판정을 가능하게 한다 — P4(순검정·순백을 램프 양끝에
+#    쓰지 않는다)가 색 규약으로 정해 둔 것이 여기서 **탐지 근거**가 됐다.
+#    stage1 팔레트에서 가장 밝은 색이 #D2D9DB(210,217,219)이고 앵커 실측 최대는 140이다.
+GUTTER_MIN_RGB = 246         # 세 채널 모두 이 위면 순백 쪽 — 어느 씬 팔레트보다도 밝다
+GUTTER_EDGE_RATIO = 0.90     # 한 변의 90% 이상이 흰색이면 그 한 줄을 뗀다
+GUTTER_MAX_PEEL = 8          # 한 변에서 이만큼 떼고도 희면 멈추고 사람에게 넘긴다
 
 
 def short(path):
@@ -151,13 +168,103 @@ def load_from_png(path):
     return out
 
 
+# ────────────────────────────────────────────────────────────── 흰 거터 제거
+#
+# 🔴 이 칼이 왜 팔레트 집행기 안에 있나 —
+#    거터는 PixelLab 이 한 호출에 후보 4장을 2x2 컨택트 시트로 주기 때문에 생긴다.
+#    도구 사정이니 지식은 40_TOOLS/pixellab/profile.md 에 있다. 그런데 **잘라 내는 일**은
+#    도구와 무관한 후처리이고, 모든 이미지가 지나는 지점은 여기 하나뿐이다.
+#    팔레트 집행을 여기로 옮긴 것과 같은 이유다 — 도구가 또 바뀌어도 이 칼은 안 죽는다.
+#
+# 🔴 안 자르면 조용히 실패한다: 순백이 그림에 남아 L3(명도 규약)에서 탈락하고,
+#    그게 앵커면 style_image 를 타고 파생 12장 전부에 번진다.
+#    그리고 자르기 전에는 「가로 양끝이 이어지는가」를 **잴 수조차 없다**(끝단차 536 → 26.6).
+
+def white_ratio(line, min_rgb=GUTTER_MIN_RGB):
+    """한 줄(행 또는 열)에서 불투명한 순백 픽셀의 비율.
+
+    ⚠️ 투명 픽셀은 흰색으로 세지 않는다. 프롭 컷아웃의 투명 여백을 거터로 오인하면
+       스프라이트의 캔버스 정렬이 말없이 어긋난다 — 거터와 여백은 다른 것이다.
+    """
+    px = np.asarray(line, dtype=np.float64)
+    white = (px[..., :3] >= min_rgb).all(axis=-1) & (px[..., 3] >= ALPHA_CUT)
+    return float(white.mean()) if white.size else 0.0
+
+
+def find_gutter(arr, min_rgb=GUTTER_MIN_RGB, ratio=GUTTER_EDGE_RATIO, max_peel=GUTTER_MAX_PEEL):
+    """네 변에서 몇 줄씩 떼야 하는지 센다. → (peel, hit_cap)
+
+    peel    {"top","bottom","left","right"} → 뗄 줄 수. 전부 0이면 거터가 없다.
+    hit_cap 상한까지 뗐는데도 아직 흰 변들. **거터가 아니라 그림일 수 있다** —
+            비어 있어야 정상이고, 차 있으면 사람이 봐야 한다.
+
+    한 줄 뗄 때마다 창을 줄이고 네 변을 다시 잰다. 모서리에서 거터가 겹칠 때
+    한 번 훑고 끝내면 안쪽 줄이 남기 때문이다.
+    """
+    h, w = arr.shape[:2]
+    peel = {"top": 0, "bottom": 0, "left": 0, "right": 0}
+    hit_cap = set()
+
+    while True:
+        if h - peel["top"] - peel["bottom"] <= 1 or w - peel["left"] - peel["right"] <= 1:
+            return None, hit_cap          # 그림이 안 남는다 — 판정을 포기한다
+        win = arr[peel["top"]:h - peel["bottom"], peel["left"]:w - peel["right"]]
+        lines = {"top": win[0, :], "bottom": win[-1, :], "left": win[:, 0], "right": win[:, -1]}
+
+        moved = False
+        for side, line in lines.items():
+            if white_ratio(line, min_rgb) < ratio:
+                continue
+            if peel[side] >= max_peel:
+                hit_cap.add(side)
+                continue
+            peel[side] += 1
+            moved = True
+        if not moved:
+            return peel, hit_cap
+
+
+def describe_peel(peel):
+    """사람이 읽는 순서(위·아래·왼·오)로. 0인 변은 안 적는다."""
+    label = [("top", "위"), ("bottom", "아래"), ("left", "왼"), ("right", "오")]
+    return " · ".join("%s %d" % (ko, peel[k]) for k, ko in label if peel[k])
+
+
 # ────────────────────────────────────────────────────────────── 집행
 
-def enforce(path, out_path, colors, dither=False, check_only=False):
+def enforce(path, out_path, colors, dither=False, check_only=False, crop_gutter=False):
     im = Image.open(path).convert("RGBA")
     arr = np.asarray(im).astype(np.float64)
-    h, w = arr.shape[:2]
+    name = os.path.basename(path)
+    h0, w0 = arr.shape[:2]
 
+    # ── 흰 거터를 먼저 뗀다 ────────────────────────────────────────────────
+    # 순서가 이유다: 거터가 붙은 채로 재면 ΔE·쓰인 색·뭉침이 전부 순백에 오염된다.
+    # 그리고 자르는 것은 되돌릴 수 없으므로, **끄고 돌려도 붙어 있다는 사실은 알린다** —
+    # 손으로 자르던 5라운드에 빠뜨린 적이 없다고 다음 13장에서도 안 빠뜨리는 것이 아니다.
+    # 찍는 것은 헤더(크기·불투명 px) 뒤로 미룬다 — 헤더가 자른 뒤의 크기를 말해야 하는데
+    # 자르는 일은 그보다 먼저 일어나야 하기 때문이다. 파일명을 두 번 적지 않으려는 것뿐이다.
+    notes = []
+    peel, hit_cap = find_gutter(arr)
+    if peel is None:
+        notes.append("🔴 네 변이 다 희다 — 거터 판정을 포기했다. 눈으로 볼 것")
+        peel, hit_cap = {"top": 0, "bottom": 0, "left": 0, "right": 0}, set()
+    gutter = sum(peel.values())
+
+    if gutter and crop_gutter:
+        arr = arr[peel["top"]:h0 - peel["bottom"], peel["left"]:w0 - peel["right"]]
+        notes.append("🔪 거터 제거  %s   %dx%d → %dx%d"
+                     % (describe_peel(peel), w0, h0, arr.shape[1], arr.shape[0]))
+    elif gutter:
+        notes.append("🔴 흰 거터가 붙어 있다  %s — --crop-gutter 없이 진행하면 순백이 그림에 남는다."
+                     % describe_peel(peel))
+        notes.append("   L3 탈락이고, 앵커면 style_image 로 파생 12장에 번진다")
+    if hit_cap:
+        ko = {"top": "위", "bottom": "아래", "left": "왼", "right": "오"}
+        notes.append("⚠️ %s 변은 %d줄을 떼고도 아직 희다 — 거터가 아니라 그림일 수 있다. 눈으로 볼 것"
+                     % ("·".join(ko[k] for k in sorted(hit_cap)), GUTTER_MAX_PEEL))
+
+    h, w = arr.shape[:2]
     rgb = arr[..., :3]
     alpha = arr[..., 3]
     solid = alpha >= ALPHA_CUT
@@ -166,8 +273,10 @@ def enforce(path, out_path, colors, dither=False, check_only=False):
     pal_lab = srgb_to_lab(pal_rgb)
 
     if not solid.any():
-        print("  %-26s 전부 투명 — 건너뜀" % os.path.basename(path))
-        return None
+        print("  %-26s 전부 투명 — 건너뜀" % name)
+        for line in notes:
+            print("     %s" % line)
+        return None, gutter
 
     px = rgb[solid]
     if dither:
@@ -190,8 +299,9 @@ def enforce(path, out_path, colors, dither=False, check_only=False):
     used_count = int((used > 0).sum())
     src_distinct = len({tuple(v) for v in px.astype(np.uint8).reshape(-1, 3)})
 
-    name = os.path.basename(path)
     print("  %-26s %dx%d · 불투명 %d px" % (name, w, h, int(solid.sum())))
+    for line in notes:
+        print("     %s" % line)
     print("     옮긴 거리  평균 ΔE %.1f · 상위5%% %.1f · 최대 %.1f" % (mean_de, p95_de, max_de))
     print("     쓰인 색    %d / %d 단" % (used_count, len(colors)))
     print("     뭉침       원본 %d색 → %d색" % (src_distinct, used_count))
@@ -211,12 +321,12 @@ def enforce(path, out_path, colors, dither=False, check_only=False):
         print("     %s" % line)
 
     if check_only:
-        return mean_de
+        return mean_de, gutter
 
     out = np.dstack([out_rgb, alpha]).astype(np.uint8)
     Image.fromarray(out, "RGBA").save(out_path)
     print("     → %s" % short(out_path))
-    return mean_de
+    return mean_de, gutter
 
 
 def _dither(rgb, solid, pal_rgb, pal_lab):
@@ -264,6 +374,9 @@ def main():
     ap.add_argument("--dither", action="store_true",
                     help="Floyd-Steinberg 디더. 기본은 끔 — 배경 flat 규약을 깬다")
     ap.add_argument("--check", action="store_true", help="재기만 하고 파일을 쓰지 않는다")
+    ap.add_argument("--crop-gutter", action="store_true",
+                    help="가장자리의 흰 거터를 뗀다 (컨택트 시트에서 잘라 온 이미지). "
+                         "끄고 돌려도 붙어 있으면 알린다")
     args = ap.parse_args()
 
     if args.palette:
@@ -281,7 +394,7 @@ def main():
         print("   ⚠️ 디더 켜짐 — 배경(lineless·flat)에는 권하지 않는다")
     print()
 
-    scores, failed = [], 0
+    scores, failed, guttered = [], 0, 0
     for p in args.inputs:
         if not os.path.exists(p):
             print("  건너뜀 (파일 없음): %s" % p)
@@ -290,11 +403,18 @@ def main():
         os.makedirs(d, exist_ok=True)
         stem = os.path.splitext(os.path.basename(p))[0]
         out_path = os.path.join(d, stem + args.suffix + ".png")
-        score = enforce(p, out_path, colors, dither=args.dither, check_only=args.check)
+        score, gutter = enforce(p, out_path, colors, dither=args.dither,
+                                check_only=args.check, crop_gutter=args.crop_gutter)
+        if gutter:
+            guttered += 1
         if score is not None:
             scores.append(score)
             if score > REROLL_MEAN_DE:
                 failed += 1
+
+    if guttered and not args.crop_gutter:
+        print("\n🔴 %d장에 흰 거터가 붙어 있는데 --crop-gutter 를 안 켰다." % guttered)
+        print("   위 ΔE 는 그 순백까지 재고 나온 값이라 판정 근거로 쓸 수 없다 — 켜고 다시 돌릴 것.")
 
     if scores:
         print("\n완료 — %d장 · 평균 ΔE %.1f" % (len(scores), sum(scores) / len(scores)))
