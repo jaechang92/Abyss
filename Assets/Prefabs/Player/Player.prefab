@@ -66,6 +66,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2904992738066118411
 SpriteRenderer:
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -84,6 +85,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -105,9 +108,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 5
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 8bac7315b900c434e862994514140e4e, type: 3}
   m_Color: {r: 1, g: 0.95, b: 0.3, a: 0.85}
   m_FlipX: 0
@@ -117,8 +122,8 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!114 &5601418163540420001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -149,6 +154,8 @@ GameObject:
   - component: {fileID: 3935612139731907536}
   - component: {fileID: 7684517092623361700}
   - component: {fileID: 2175505536384033575}
+  - component: {fileID: 4047620893821886822}
+  - component: {fileID: 6291135310669277660}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -173,6 +180,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7684517092623361700
 SpriteRenderer:
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -191,6 +199,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -212,9 +222,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 8bac7315b900c434e862994514140e4e, type: 3}
   m_Color: {r: 0.25, g: 0.85, b: 0.9, a: 1}
   m_FlipX: 0
@@ -224,8 +236,8 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!114 &2175505536384033575
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -241,6 +253,41 @@ MonoBehaviour:
   formController: {fileID: 0}
   target: {fileID: 0}
   fallbackSprite: {fileID: 0}
+--- !u!95 &4047620893821886822
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4449475650373643521}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 22100000, guid: f11a52fe5fb74d34f96071ed21817d58, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &6291135310669277660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4449475650373643521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff73b7043cae13d459a9ed7f53107d26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Anim.Core::Anim.Core.AnimatorDriver
+  animator: {fileID: 0}
 --- !u!1 &5226801069297863493
 GameObject:
   m_ObjectHideFlags: 0
@@ -259,6 +306,7 @@ GameObject:
   - component: {fileID: 7175454138553924794}
   - component: {fileID: 3295370437265660595}
   - component: {fileID: 4463701489163567858}
+  - component: {fileID: 9066027863005923396}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -453,9 +501,6 @@ MonoBehaviour:
   heavyFlashColor: {r: 1, g: 0.6, b: 0.4, a: 1}
   lightFlashDuration: 0.12
   heavyFlashDuration: 0.2
-  body: {fileID: 1803158467654373588}
-  formController: {fileID: 1528170450245826649}
-  stateMachine: {fileID: 7175454138553924794}
   baseHp: 100
   moveSpeed: 6
   jumpForce: 12
@@ -489,6 +534,9 @@ MonoBehaviour:
   counterStanceReflectRatio: 0.4
   counterStanceRadius: 3
   counterStanceRingDuration: 0.2
+  body: {fileID: 1803158467654373588}
+  formController: {fileID: 1528170450245826649}
+  stateMachine: {fileID: 7175454138553924794}
 --- !u!114 &7175454138553924794
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -555,6 +603,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   promptLabel: {fileID: 0}
+--- !u!114 &9066027863005923396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5226801069297863493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c96ea79c70cbf534c929d998f41dafc0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Player.PlayerAnimationBinder
+  stateMachine: {fileID: 7175454138553924794}
+  animatorDriver: {fileID: 0}
 --- !u!1 &8995934511413934537
 GameObject:
   m_ObjectHideFlags: 0

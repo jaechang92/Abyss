@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a42cd8f25d7fc3245817fa9d9f45e42b
+guid: 6dc72cb6bbfe7dd42b5c5561abae4b7b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4060174037560958507
-    second: knight_red_walk_east_0
+      213: -7743981151287732622
+    second: knight_red_attackheavy_east_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -102,7 +102,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: knight_red_walk_east_0
+      name: knight_red_attackheavy_east_0
       rect:
         serializedVersion: 2
         x: 20
@@ -117,41 +117,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b2e951386c2a85830800000000000000
-      internalID: 4060174037560958507
+      spriteID: 2769c2a1c2ad78490800000000000000
+      internalID: -7743981151287732622
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_walk_east_1
+      name: knight_red_attackheavy_east_1
       rect:
         serializedVersion: 2
-        x: 112
+        x: 109
         y: 15
-        width: 56
-        height: 60
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 12c5f7df54fb8344091d6fadec23f7dd
-      internalID: 367422518
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: knight_red_walk_east_2
-      rect:
-        serializedVersion: 2
-        x: 201
-        y: 15
-        width: 56
+        width: 63
         height: 61
       alignment: 7
       pivot: {x: 0.5, y: 0}
@@ -161,20 +139,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b6801b3d1ff87e34db5f56bc5e8ba214
-      internalID: 1023626394
+      spriteID: c0d921e38b18f60429b0004c8001e506
+      internalID: 1770481286
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_walk_east_3
+      name: knight_red_attackheavy_east_2
       rect:
         serializedVersion: 2
-        x: 291
+        x: 198
         y: 15
-        width: 55
-        height: 63
+        width: 47
+        height: 61
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -183,41 +161,41 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e845d9a3e8f529e419926e0425d01dbe
-      internalID: 421171687
+      spriteID: eee7be99efa3e3d408a9240651da47d6
+      internalID: 1899461821
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_walk_east_4
+      name: knight_red_attackheavy_east_3
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 15
+        width: 46
+        height: 62
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7dbc57409c8ce5e41b57e09f21278d5a
+      internalID: 910715805
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: knight_red_attackheavy_east_4
       rect:
         serializedVersion: 2
         x: 381
         y: 15
-        width: 56
-        height: 61
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 8cbfffbca4154f84991c354e9259858e
-      internalID: -1714770258
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: knight_red_walk_east_5
-      rect:
-        serializedVersion: 2
-        x: 474
-        y: 15
-        width: 54
+        width: 49
         height: 60
       alignment: 7
       pivot: {x: 0.5, y: 0}
@@ -227,20 +205,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 18e6fcf52bc5a7845ae7015ff730568f
-      internalID: -1540294687
+      spriteID: 119a8cfd326a67247a7619835c2d8cae
+      internalID: -1610044280
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_walk_east_6
+      name: knight_red_attackheavy_east_5
       rect:
         serializedVersion: 2
-        x: 568
+        x: 473
         y: 15
-        width: 53
-        height: 60
+        width: 68
+        height: 62
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -249,20 +227,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 797f7a7019701984888c5051dc98df47
-      internalID: 2089497727
+      spriteID: e509911f870305c4eb67206d658a5b38
+      internalID: -650838418
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_walk_east_7
+      name: knight_red_attackheavy_east_6
       rect:
         serializedVersion: 2
-        x: 663
-        y: 15
-        width: 53
-        height: 60
+        x: 562
+        y: 14
+        width: 68
+        height: 62
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -271,20 +249,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c0e03646664786e49916af48eef666d0
-      internalID: 208123713
+      spriteID: f9fdcd35be04f2b439801467ac264eb9
+      internalID: 411578437
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_walk_east_8
+      name: knight_red_attackheavy_east_7
       rect:
         serializedVersion: 2
-        x: 756
-        y: 15
-        width: 54
-        height: 61
+        x: 656
+        y: 14
+        width: 63
+        height: 57
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -293,8 +271,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4938bfc47116f924393023b9f276e805
-      internalID: 2047367483
+      spriteID: ff15e4453cab04d478de4f74db9b8105
+      internalID: 5397046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: knight_red_attackheavy_east_8
+      rect:
+        serializedVersion: 2
+        x: 751
+        y: 15
+        width: 49
+        height: 58
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7677a69c8322d6b4f9c0dab6ee7a4296
+      internalID: -1644922954
       vertices: []
       indices: 
       edges: []
@@ -303,7 +303,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 187de7e2bc86b0449b3478ad021cafa4
+    spriteID: 2dcadea45080ec74a89a4b36e0aedcd3
     internalID: 0
     vertices: []
     indices: 
@@ -315,15 +315,15 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.0},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":7,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      knight_red_walk_east_0: 4060174037560958507
-      knight_red_walk_east_1: 367422518
-      knight_red_walk_east_2: 1023626394
-      knight_red_walk_east_3: 421171687
-      knight_red_walk_east_4: -1714770258
-      knight_red_walk_east_5: -1540294687
-      knight_red_walk_east_6: 2089497727
-      knight_red_walk_east_7: 208123713
-      knight_red_walk_east_8: 2047367483
+      knight_red_attackheavy_east_0: -7743981151287732622
+      knight_red_attackheavy_east_1: 1770481286
+      knight_red_attackheavy_east_2: 1899461821
+      knight_red_attackheavy_east_3: 910715805
+      knight_red_attackheavy_east_4: -1610044280
+      knight_red_attackheavy_east_5: -650838418
+      knight_red_attackheavy_east_6: 411578437
+      knight_red_attackheavy_east_7: 5397046
+      knight_red_attackheavy_east_8: -1644922954
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

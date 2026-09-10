@@ -43,19 +43,40 @@ namespace Abyss.EditorTools
 
         private const string SpritePropertyName = "m_Sprite";
 
-        /// <summary>한 폼이 어느 시트에서 어느 상태를 얻는가. 폼이 늘면 여기에 줄을 더한다.</summary>
+        /// <summary>
+        /// 한 폼이 어느 시트에서 어느 상태를 얻는가. 폼이 늘면 여기에 줄을 더한다.
+        ///
+        /// 🔑 <b>속도를 정하는 방식이 클립의 성질에 따라 다르다.</b>
+        /// 루프 클립(서기·달리기)은 몇 fps가 자연스러운지가 정하고,
+        /// 한 번 재생하고 끝나는 클립(공격·피격)은 <b>FSM 상태가 얼마나 지속되는지</b>가 정한다.
+        /// 후자는 길이가 곧 계약이라, fps를 손으로 적으면 지속시간을 바꿀 때 조용히 어긋난다.
+        /// </summary>
         private readonly struct ClipSource
         {
             public readonly string AnimationId;
             public readonly string SheetPath;
+
+            /// <summary>루프 클립용. 0이면 <see cref="DurationSeconds"/>로 역산한다.</summary>
             public readonly float FrameRate;
 
-            public ClipSource(string animationId, string sheetPath, float frameRate)
+            /// <summary>한 번 재생하고 끝나는 클립용. 프레임 수를 이 값으로 나눠 fps를 얻는다.</summary>
+            public readonly float DurationSeconds;
+
+            private ClipSource(string animationId, string sheetPath, float frameRate, float durationSeconds)
             {
                 AnimationId = animationId;
                 SheetPath = sheetPath;
                 FrameRate = frameRate;
+                DurationSeconds = durationSeconds;
             }
+
+            /// <summary>계속 도는 클립 — 속도는 눈으로 보고 정한다.</summary>
+            public static ClipSource Looping(string animationId, string sheetPath, float frameRate)
+                => new ClipSource(animationId, sheetPath, frameRate, 0f);
+
+            /// <summary>한 번 돌고 멈추는 클립 — 길이를 FSM 상태 지속시간에 맞춘다.</summary>
+            public static ClipSource OneShot(string animationId, string sheetPath, float durationSeconds)
+                => new ClipSource(animationId, sheetPath, 0f, durationSeconds);
         }
 
         /// <summary>
@@ -69,10 +90,25 @@ namespace Abyss.EditorTools
             ["KnightRed"] = new[]
             {
                 // 숨쉬기는 느리게, 달리기는 빠르게. 눈으로 보고 조정할 출발점이다.
-                new ClipSource(PlayerAnimationIds.Idle, "Assets/Art/Sprites/Characters/knight_red_idle_east.png", 10f),
-                new ClipSource(PlayerAnimationIds.Run, "Assets/Art/Sprites/Characters/knight_red_walk_east.png", 12f),
+                ClipSource.Looping(PlayerAnimationIds.Idle, CharacterSheet("knight_red", "idle"), 10f),
+                ClipSource.Looping(PlayerAnimationIds.Run, CharacterSheet("knight_red", "walk"), 12f),
+
+                // 🔴 fps 를 안 적는다. 7프레임을 0.25초에, 9프레임을 0.6초에 — 즉 28fps 와 15fps 인데,
+                //    그 숫자는 FSM 지속시간에서 따라 나온 결과이지 고른 값이 아니다.
+                //    적어 두면 지속시간을 바꿀 때 여기가 안 따라와 클립이 잘리거나 남는다.
+                ClipSource.OneShot(PlayerAnimationIds.AttackLight, CharacterSheet("knight_red", "attacklight"),
+                    PlayerStateMachine.DefaultAttackLightDuration),
+                ClipSource.OneShot(PlayerAnimationIds.AttackHeavy, CharacterSheet("knight_red", "attackheavy"),
+                    PlayerStateMachine.DefaultAttackHeavyDuration),
             },
         };
+
+        /// <summary>
+        /// 시트 경로 규약. 파일명은 <c>{폼}_{상태}_east.png</c> — 방향은 east 한 벌만 그리고
+        /// 좌향은 런타임 flip 으로 얻는다(비용 절반).
+        /// </summary>
+        private static string CharacterSheet(string filePrefix, string sheetState)
+            => $"Assets/Art/Sprites/Characters/{filePrefix}_{sheetState}_east.png";
 
         /// <summary>base 컨트롤러가 갖출 상태. 순서가 곧 Animator 의 기본 상태 순서이며 첫 항목이 기본값이 된다.</summary>
         private static readonly string[] AllAnimationIds =
@@ -182,8 +218,15 @@ namespace Abyss.EditorTools
                     continue;
                 }
 
+                float frameRate = ResolveFrameRate(source, sprites.Length);
+                if (frameRate <= 0f)
+                {
+                    Debug.LogWarning($"[PlayerAnimationBuilder] 재생 속도를 못 정했다 — {formName}/{source.AnimationId}");
+                    continue;
+                }
+
                 string clipPath = $"{ClipFolder}/{formName}_{source.AnimationId}.anim";
-                AnimationClip clip = CreateSpriteClip(sprites, source.FrameRate, source.AnimationId);
+                AnimationClip clip = CreateSpriteClip(sprites, frameRate, source.AnimationId);
 
                 AssetDatabase.DeleteAsset(clipPath);
                 AssetDatabase.CreateAsset(clip, clipPath);
@@ -193,6 +236,17 @@ namespace Abyss.EditorTools
             }
 
             return clips;
+        }
+
+        /// <summary>
+        /// 재생 속도를 정한다. <b>한 번 재생하고 끝나는 클립은 fps 가 결과지 입력이 아니다</b> —
+        /// FSM 상태가 그 길이만큼만 지속되므로, 프레임 수를 지속시간으로 나눈 값이 유일한 답이다.
+        /// 프레임 수가 폼마다 다르기 때문에(수평 베기 7장 · 수직 베기 9장) 폼마다 다시 계산된다.
+        /// </summary>
+        private static float ResolveFrameRate(ClipSource source, int frameCount)
+        {
+            if (source.DurationSeconds > 0f) return frameCount / source.DurationSeconds;
+            return source.FrameRate;
         }
 
         /// <summary>

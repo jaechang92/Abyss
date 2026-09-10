@@ -15,9 +15,24 @@ namespace Abyss.Runtime.Player
         [SerializeField] private PlayerCharacter player;
         [SerializeField] private FormController formController;
 
+        /// <summary>
+        /// 공격 상태 기본 지속시간.
+        ///
+        /// 🔴 <b>공격 클립의 길이가 이 값을 따른다</b> — <c>PlayerAnimationBuilder</c>가 한 번 재생하고 끝나는
+        /// 클립의 프레임레이트를 <b>프레임 수 ÷ 이 값</b>으로 역산한다. 클립이 더 길면 끝을 못 보고 잘리고,
+        /// 더 짧으면 마지막 그림으로 서 있는 시간이 생긴다. 어느 쪽도 오류가 아니라 <b>어색함</b>으로만 나타난다.
+        ///
+        /// ⚠️ 인스펙터에서 값을 바꾸면 <b>그 폼의 공격 클립을 다시 구워야</b> 어긋나지 않는다.
+        /// 직렬화된 값이 여기의 상수를 이기므로, 상수만 고치는 것으로는 프리팹이 안 따라온다.
+        /// </summary>
+        public const float DefaultAttackLightDuration = 0.25f;
+
+        /// <inheritdoc cref="DefaultAttackLightDuration"/>
+        public const float DefaultAttackHeavyDuration = 0.6f;
+
         [Header("공격 상태 지속시간 (이후 일반 전이로 복귀)")]
-        [SerializeField, Min(0.01f)] private float attackLightDuration = 0.25f;
-        [SerializeField, Min(0.01f)] private float attackHeavyDuration = 0.6f;
+        [SerializeField, Min(0.01f)] private float attackLightDuration = DefaultAttackLightDuration;
+        [SerializeField, Min(0.01f)] private float attackHeavyDuration = DefaultAttackHeavyDuration;
 
         [Header("디버그")]
         [SerializeField] private bool logStateChanges;
