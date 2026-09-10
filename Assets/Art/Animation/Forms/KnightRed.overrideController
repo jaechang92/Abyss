@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: KnightRed
+  m_Controller: {fileID: 9100000, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 8870091954445044609, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: b0ed7f0564cf426409cc91e52ef5e184, type: 2}
+  - m_OriginalClip: {fileID: -318629912418690264, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 726f525fac1f7ad409193e13c5420dd6, type: 2}
+  - m_OriginalClip: {fileID: -5957311784691161552, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 0}
+  - m_OriginalClip: {fileID: -4274955231234780675, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 0}
+  - m_OriginalClip: {fileID: -7412606054395621062, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: ec702e642409a304e9af9b370759ef65, type: 2}
+  - m_OriginalClip: {fileID: -5422106551878141932, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 0}
+  - m_OriginalClip: {fileID: 5454859621746601804, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: ea135df3e741ad4468290aa7a162a8f0, type: 2}
+  - m_OriginalClip: {fileID: 4518465427758454114, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 0}
+  - m_OriginalClip: {fileID: 2938847326723838394, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 0}

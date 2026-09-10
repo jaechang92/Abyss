@@ -44,6 +44,9 @@ namespace Abyss.EditorTools
         public const string GenerateRebuildPlayer = Generate + "Rebuild Player Prefab (Force)";
         public const string GenerateSpriteImport = Generate + "Setup Enemy Sprite Import Settings";
 
+        // Generate — 애니메이션 (클립·컨트롤러·폼 오버라이드를 손으로 만들지 않는다)
+        public const string GeneratePlayerAnimation = Generate + "Player Animation Clips";
+
         // Clear — 씬 오브젝트 제거
         public const string ClearPlatforms = Clear + "Test Platforms in Active Scene";
         public const string ClearRoomLayouts = Clear + "Room Layouts in Active Scene";

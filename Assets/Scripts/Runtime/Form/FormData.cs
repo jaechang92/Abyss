@@ -22,6 +22,9 @@ namespace Abyss.Runtime.Form
 
         [Tooltip("게임 화면에 그려질 몸통 스프라이트. 비우면 기존 흰 사각형 + castColor 틴트로 폴백.")]
         public Sprite bodySprite;
+
+        [Tooltip("이 폼의 애니메이션 한 벌(AnimatorOverrideController). 비우면 bodySprite 정지 그림으로 폴백.")]
+        public RuntimeAnimatorController animatorController;
         [TextArea(2, 4)] public string description;
         public Sprite icon;
 

@@ -5,6 +5,7 @@
         "Abyss.Runtime",
         "GAS.Core",
         "FSM.Core",
+        "Anim.Core",
         "Singleton.Core",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"

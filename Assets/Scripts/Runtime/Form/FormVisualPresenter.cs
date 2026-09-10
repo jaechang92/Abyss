@@ -1,4 +1,5 @@
 using Abyss.Runtime.Form;
+using Anim.Core;
 using UnityEngine;
 
 namespace Abyss.Runtime.Form
@@ -34,6 +35,9 @@ namespace Abyss.Runtime.Form
         [Tooltip("bodySprite가 없는 폼에서 쓸 폴백 스프라이트(기존 흰 사각형).")]
         [SerializeField] private Sprite fallbackSprite;
 
+        [Tooltip("비우면 자기 자신에서 찾는다. 없으면 애니메이션 없이 정지 그림만 바뀐다.")]
+        [SerializeField] private AnimatorDriver animatorDriver;
+
         private FormData applied;
         private bool hasApplied;
 
@@ -42,6 +46,7 @@ namespace Abyss.Runtime.Form
             if (target == null) target = GetComponent<SpriteRenderer>();
             if (formController == null) formController = GetComponentInParent<FormController>();
             if (fallbackSprite == null && target != null) fallbackSprite = target.sprite;
+            if (animatorDriver == null) animatorDriver = GetComponent<AnimatorDriver>();
         }
 
         private void LateUpdate()
@@ -53,7 +58,7 @@ namespace Abyss.Runtime.Form
 
             applied = current;
             hasApplied = true;
-            FormVisualApplier.Apply(target, current, fallbackSprite);
+            FormVisualApplier.Apply(target, current, fallbackSprite, animatorDriver);
         }
     }
 }

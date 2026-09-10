@@ -1,3 +1,4 @@
+using Anim.Core;
 using UnityEngine;
 
 namespace Abyss.Runtime.Form
@@ -25,9 +26,35 @@ namespace Abyss.Runtime.Form
         /// </summary>
         public static void Apply(SpriteRenderer target, FormData form, Sprite fallback)
         {
+            Apply(target, form, fallback, null);
+        }
+
+        /// <summary>
+        /// 그림에 더해 <b>애니메이션 한 벌까지</b> 적용한다.
+        ///
+        /// 🔑 <b>규칙을 나누지 않으려고 같은 메서드에 둔다.</b> 스프라이트와 애니메이션을 따로 부르게 하면
+        /// 호출자가 둘 다 불러야 하고, 하나를 빠뜨린 곳이 생기면 <b>정지 그림과 움직이는 그림이 서로 다른 폼</b>이 된다.
+        /// 이 프로젝트가 UI 정렬 순위·화폐 표기에서 이미 겪은 파편화 모양이라, 진입점을 하나로 둔다.
+        ///
+        /// 🔴 <b>순서가 있다.</b> 애니메이션을 먼저 정리해야 스프라이트 대입이 살아남는다 —
+        /// 애니메이션이 없는 폼인데 재생기를 켜 둔 채로 두면, 매 프레임 이전 폼의 그림을 다시 써서
+        /// 방금 넣은 정지 그림을 덮는다.
+        /// </summary>
+        public static void Apply(SpriteRenderer target, FormData form, Sprite fallback, AnimatorDriver driver)
+        {
+            if (driver != null) driver.SetController(form != null ? form.animatorController : null);
+
             if (target == null) return;
 
             var sprite = form != null ? form.bodySprite : null;
+
+            // 애니메이션이 이 폼을 맡았다면 스프라이트는 클립이 정한다. 여기서는 틴트만 걷는다.
+            if (form != null && form.animatorController != null)
+            {
+                target.color = Color.white;
+                return;
+            }
+
             if (sprite != null)
             {
                 target.sprite = sprite;

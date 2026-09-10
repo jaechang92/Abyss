@@ -1,15 +1,7 @@
 {
-    "name": "Abyss.Runtime",
-    "rootNamespace": "Abyss",
-    "references": [
-        "GAS.Core",
-        "FSM.Core",
-        "Anim.Core",
-        "Singleton.Core",
-        "Unity.InputSystem",
-        "Unity.ugui",
-        "Newtonsoft.Json"
-    ],
+    "name": "Anim.Core",
+    "rootNamespace": "Anim.Core",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
