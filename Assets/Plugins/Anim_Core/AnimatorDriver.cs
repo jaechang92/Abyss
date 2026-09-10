@@ -54,10 +54,31 @@ namespace Anim.Core
         /// </summary>
         public void SetController(RuntimeAnimatorController controller)
         {
-            if (animator == null || controller == null) return;
-            if (ReferenceEquals(animator.runtimeAnimatorController, controller)) return;
+            if (animator == null) return;
 
+            // 🔑 null 은 "틀 것이 없다"는 뜻이다. Animator 를 켜 둔 채로 두면 마지막으로 평가한 스프라이트를
+            //    매 프레임 다시 써서, 정지 그림으로 물러나려는 쪽을 덮어버린다 — 애니메이션이 아직 없는 폼이
+            //    이전 폼의 그림으로 보이는 경로다. 꺼야 렌더러를 남에게 넘겨줄 수 있다.
+            if (controller == null)
+            {
+                if (!animator.enabled) return;
+
+                animator.enabled = false;
+                currentAnimationId = string.Empty;
+                clipFilled.Clear();
+                OnClipsChanged?.Invoke();
+                return;
+            }
+
+            bool wasDisabled = !animator.enabled;
+            if (!wasDisabled && ReferenceEquals(animator.runtimeAnimatorController, controller)) return;
+
+            animator.enabled = true;
             animator.runtimeAnimatorController = controller;
+
+            // 꺼져 있던 동안 상태가 흘렀을 수 있다. 재생 중이던 이름을 지워 같은 상태로 돌아와도 다시 틀게 한다.
+            if (wasDisabled) currentAnimationId = string.Empty;
+
             RefreshClipTable();
             OnClipsChanged?.Invoke();
         }
