@@ -16,8 +16,8 @@ MonoBehaviour:
   requiresMetaUnlock: 0
   displayName: "\uC554\uD751 \uAC80\uC0AC"
   bodySprite: {fileID: 21300000, guid: 085b980dcc4f7394f856adadfe20d8b4, type: 3}
-  description: "\uADFC\uC811\xB7\uD328\uB9C1\xB7\uD761\uC218 HP. \uBD88\uAF43 \uCD95
-    \uC2DC\uB108\uC9C0. HP \uBCF4\uC815 +20%, \uC774\uB3D9\uC18D\uB3C4 \uAE30\uBCF8."
+  animatorController: {fileID: 22100000, guid: f11a52fe5fb74d34f96071ed21817d58, type: 2}
+  description: "\uADFC\uC811\xB7\uD328\uB9C1\xB7\uD761\uC218 HP. \uBD88\uAF43 \uCD95 \uC2DC\uB108\uC9C0. HP \uBCF4\uC815 +20%, \uC774\uB3D9\uC18D\uB3C4 \uAE30\uBCF8."
   icon: {fileID: 0}
   hpMultiplier: 1.2
   moveSpeedMultiplier: 1
