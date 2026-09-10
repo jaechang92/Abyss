@@ -67,17 +67,44 @@ def orient(cell, rotate, flip):
     return cell.rotate(-rotate, expand=True) if rotate else cell
 
 
+def erode(mask):
+    """상하좌우가 전부 차 있는 픽셀만 남긴다 — 1px 두께(활 시위 같은 것)가 사라진다."""
+    out = mask.copy()
+    out[1:, :] &= mask[:-1, :]
+    out[:-1, :] &= mask[1:, :]
+    out[:, 1:] &= mask[:, :-1]
+    out[:, :-1] &= mask[:, 1:]
+    out[0, :] = out[-1, :] = out[:, 0] = out[:, -1] = False
+    return out
+
+
 def gripPoint(cell, direction):
     """무기의 손잡이 끝. 지정한 방향으로 가장 먼 픽셀들의 무게중심.
 
     `center` 는 예외다 — 활·방패는 손이 **끝이 아니라 한가운데**를 잡는다.
+
+    ⚠️ **`center` 는 bbox 한가운데가 아니라 거기서 가장 가까운 「손이 잡을 수 있는」 픽셀이다.**
+       두 번 어긋났고 두 번 다 활이었다:
+
+       ① bbox 한가운데는 활의 **빈 속**이다 (C 자라서). → 그림 위로 스냅했다
+       ② 그랬더니 이번엔 **시위**에 붙었다 (bbox 중심에 가장 가까운 그림이 시위다).
+          시위는 1px 이고 손은 활대를 잡는다. → **침식으로 1px 을 걷어낸 뒤** 스냅한다
+
+       방패처럼 속이 찬 물건은 침식해도 한가운데가 남아 규칙 하나로 둘 다 맞는다.
     """
     alpha = np.array(cell)[..., 3] > ALPHA_CUT
     if not alpha.any():
         raise SystemExit("🔴 빈 칸이다")
     ys, xs = np.where(alpha)
     if direction == "center":
-        return (xs.min() + xs.max()) / 2.0, (ys.min() + ys.max()) / 2.0
+        cx = (xs.min() + xs.max()) / 2.0
+        cy = (ys.min() + ys.max()) / 2.0
+        thick = erode(alpha)
+        if not thick.any():          # 온통 얇은 물건이면 원본으로 되돌린다
+            thick = alpha
+        ty, tx = np.where(thick)
+        near = np.argmin((tx - cx) ** 2 + (ty - cy) ** 2)
+        return float(tx[near]), float(ty[near])
     dx, dy = GRIP_DIRS[direction]
     proj = xs * dx + ys * dy
     edge = proj >= proj.max() - EDGE_BAND
