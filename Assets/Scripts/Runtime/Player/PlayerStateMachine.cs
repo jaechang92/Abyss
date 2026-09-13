@@ -30,9 +30,21 @@ namespace Abyss.Runtime.Player
         /// <inheritdoc cref="DefaultAttackLightDuration"/>
         public const float DefaultAttackHeavyDuration = 0.6f;
 
-        [Header("공격 상태 지속시간 (이후 일반 전이로 복귀)")]
+        /// <summary>
+        /// 피격 상태 기본 지속시간. 규칙은 공격과 같다 — <b>Hit 클립의 길이가 이 값을 따른다.</b>
+        ///
+        /// 🔴 <b>이 값이 없던 동안 Hit 은 판정 한 번만 유지됐다</b>(2026-09-13 발견). 들어간 바로 다음 판정에서
+        /// Idle·Run 으로 나가 클립의 첫 프레임만 보이고 끝났다. 클립이 없어서 안 드러났을 뿐이다.
+        ///
+        /// ⚠️ 이것은 <b>애니메이션 상태</b>만 붙잡는다. 이동·공격 입력을 막는 경직은 별도 규칙이다.
+        /// 단 <see cref="CanSwapForm"/> 은 Hit 을 차단하므로 <b>피격 후 이 시간 동안 폼 교체가 막힌다</b>(기획 의도).
+        /// </summary>
+        public const float DefaultHitDuration = 0.3f;
+
+        [Header("시간제 상태 지속시간 (이후 일반 전이로 복귀)")]
         [SerializeField, Min(0.01f)] private float attackLightDuration = DefaultAttackLightDuration;
         [SerializeField, Min(0.01f)] private float attackHeavyDuration = DefaultAttackHeavyDuration;
+        [SerializeField, Min(0.01f)] private float hitDuration = DefaultHitDuration;
 
         [Header("디버그")]
         [SerializeField] private bool logStateChanges;
@@ -40,7 +52,7 @@ namespace Abyss.Runtime.Player
         private StateMachine fsm;
         private bool isFormSwapping;
         private bool hitQueued;
-        private float attackStateExitTime;
+        private float timedStateExitTime;  // 공격·피격 공용 — 한 번에 한 상태만 현재이므로 시각 하나로 충분하다
         private System.Func<bool> swapGate;  // 해제 시 동일 인스턴스 비교용(남의 게이트 삭제 방지)
 
         public StateMachine Machine => fsm;
@@ -119,7 +131,7 @@ namespace Abyss.Runtime.Player
         public void TriggerAttackLight()
         {
             if (!CanAttack()) return;
-            attackStateExitTime = Time.time + attackLightDuration;
+            timedStateExitTime = Time.time + attackLightDuration;
             fsm.ForceTransitionTo(PlayerStateIds.AttackLight);
         }
 
@@ -127,7 +139,7 @@ namespace Abyss.Runtime.Player
         public void TriggerAttackHeavy()
         {
             if (!CanAttack()) return;
-            attackStateExitTime = Time.time + attackHeavyDuration;
+            timedStateExitTime = Time.time + attackHeavyDuration;
             fsm.ForceTransitionTo(PlayerStateIds.AttackHeavy);
         }
 
@@ -170,19 +182,18 @@ namespace Abyss.Runtime.Player
             }
             if (current == PlayerStateIds.Dead) return;
 
+            // 피격은 시간제 게이트보다 먼저 본다 — 공격 중에도, 피격 중 다시 맞아도 끊고 들어가 시간을 새로 잰다.
             if (hitQueued)
             {
                 hitQueued = false;
+                timedStateExitTime = Time.time + hitDuration;
                 fsm.ForceTransitionTo(PlayerStateIds.Hit);
                 return;
             }
 
             if (isFormSwapping) return;
 
-            if (current == PlayerStateIds.AttackLight || current == PlayerStateIds.AttackHeavy)
-            {
-                if (Time.time < attackStateExitTime) return;
-            }
+            if (IsTimedStateHeld(current, Time.time, timedStateExitTime)) return;
 
             if (player.IsDashing)
             {
@@ -212,6 +223,21 @@ namespace Abyss.Runtime.Player
             {
                 if (current != PlayerStateIds.Idle) fsm.ForceTransitionTo(PlayerStateIds.Idle);
             }
+        }
+
+        /// <summary>
+        /// 지속시간이 끝나기 전이라 <b>현재 상태를 붙잡아야 하는가</b>. 시간제 상태는 공격 2종과 피격이다.
+        ///
+        /// 📌 순수 함수로 뺀 이유: Hit 이 이 규칙에서 빠져 있었는데 오류도 로그도 없었다. <c>Time.time</c> 을 읽지 않고
+        /// 인자로 받아야 EditMode 에서 고정할 수 있다. 사망·재피격이 이것보다 <b>먼저</b> 판정된다는 순서는
+        /// <see cref="EvaluateTransitions"/> 가 지킨다.
+        /// </summary>
+        public static bool IsTimedStateHeld(string currentStateId, float now, float exitTime)
+        {
+            bool isTimedState = currentStateId == PlayerStateIds.AttackLight
+                || currentStateId == PlayerStateIds.AttackHeavy
+                || currentStateId == PlayerStateIds.Hit;
+            return isTimedState && now < exitTime;
         }
 
         private void HandleSwapStarted(FormData previous, FormData next) => isFormSwapping = true;
