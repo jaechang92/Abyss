@@ -105,12 +105,12 @@ TextureImporter:
       name: knight_red_attackheavy_east_0
       rect:
         serializedVersion: 2
-        x: 20
-        y: 15
-        width: 55
-        height: 60
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 0
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -127,12 +127,12 @@ TextureImporter:
       name: knight_red_attackheavy_east_1
       rect:
         serializedVersion: 2
-        x: 109
-        y: 15
-        width: 63
-        height: 61
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 92
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -149,12 +149,12 @@ TextureImporter:
       name: knight_red_attackheavy_east_2
       rect:
         serializedVersion: 2
-        x: 198
-        y: 15
-        width: 47
-        height: 61
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 184
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -171,12 +171,12 @@ TextureImporter:
       name: knight_red_attackheavy_east_3
       rect:
         serializedVersion: 2
-        x: 290
-        y: 15
-        width: 46
-        height: 62
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 276
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -193,12 +193,12 @@ TextureImporter:
       name: knight_red_attackheavy_east_4
       rect:
         serializedVersion: 2
-        x: 381
-        y: 15
-        width: 49
-        height: 60
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 368
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -215,12 +215,12 @@ TextureImporter:
       name: knight_red_attackheavy_east_5
       rect:
         serializedVersion: 2
-        x: 473
-        y: 15
-        width: 68
-        height: 62
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 460
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -237,12 +237,12 @@ TextureImporter:
       name: knight_red_attackheavy_east_6
       rect:
         serializedVersion: 2
-        x: 562
-        y: 14
-        width: 68
-        height: 62
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 552
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -259,12 +259,12 @@ TextureImporter:
       name: knight_red_attackheavy_east_7
       rect:
         serializedVersion: 2
-        x: 656
-        y: 14
-        width: 63
-        height: 57
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 644
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -281,12 +281,12 @@ TextureImporter:
       name: knight_red_attackheavy_east_8
       rect:
         serializedVersion: 2
-        x: 751
-        y: 15
-        width: 49
-        height: 58
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 736
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -313,7 +313,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.0},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":7,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":92.0,"y":92.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.16300000250339508},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       knight_red_attackheavy_east_0: -7743981151287732622
       knight_red_attackheavy_east_1: 1770481286

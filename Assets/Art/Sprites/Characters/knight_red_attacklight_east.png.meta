@@ -105,12 +105,12 @@ TextureImporter:
       name: knight_red_attacklight_east_0
       rect:
         serializedVersion: 2
-        x: 20
-        y: 15
-        width: 55
-        height: 60
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 0
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -127,12 +127,12 @@ TextureImporter:
       name: knight_red_attacklight_east_1
       rect:
         serializedVersion: 2
-        x: 113
-        y: 15
-        width: 57
-        height: 61
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 92
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -149,12 +149,12 @@ TextureImporter:
       name: knight_red_attacklight_east_2
       rect:
         serializedVersion: 2
-        x: 196
-        y: 15
-        width: 48
-        height: 61
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 184
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -171,12 +171,12 @@ TextureImporter:
       name: knight_red_attacklight_east_3
       rect:
         serializedVersion: 2
-        x: 286
-        y: 15
-        width: 71
-        height: 60
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 276
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -193,12 +193,12 @@ TextureImporter:
       name: knight_red_attacklight_east_4
       rect:
         serializedVersion: 2
-        x: 375
-        y: 15
-        width: 61
-        height: 62
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 368
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -215,12 +215,12 @@ TextureImporter:
       name: knight_red_attacklight_east_5
       rect:
         serializedVersion: 2
-        x: 433
-        y: 29
-        width: 15
-        height: 32
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 460
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -237,12 +237,12 @@ TextureImporter:
       name: knight_red_attacklight_east_6
       rect:
         serializedVersion: 2
-        x: 471
-        y: 15
-        width: 59
-        height: 60
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 552
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -251,50 +251,6 @@ TextureImporter:
       bones: []
       spriteID: 8d228d27b0bf57c46adb0761f0dac42c
       internalID: 1568691250
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: knight_red_attacklight_east_7
-      rect:
-        serializedVersion: 2
-        x: 519
-        y: 50
-        width: 22
-        height: 20
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: d4cffb5bb012dd447a4a3fd08c690954
-      internalID: 1659000817
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: knight_red_attacklight_east_8
-      rect:
-        serializedVersion: 2
-        x: 565
-        y: 15
-        width: 54
-        height: 60
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 6946b8cf9b443744f8f6b58d8efa7d50
-      internalID: -772008308
       vertices: []
       indices: 
       edges: []
@@ -313,7 +269,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.0},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":7,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":92.0,"y":92.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.16300000250339508},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       knight_red_attacklight_east_0: 6334429805933800730
       knight_red_attacklight_east_1: 316432557
@@ -322,8 +278,6 @@ TextureImporter:
       knight_red_attacklight_east_4: 1849561262
       knight_red_attacklight_east_5: 1287399337
       knight_red_attacklight_east_6: 1568691250
-      knight_red_attacklight_east_7: 1659000817
-      knight_red_attacklight_east_8: -772008308
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
