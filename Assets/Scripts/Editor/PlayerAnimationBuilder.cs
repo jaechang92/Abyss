@@ -100,6 +100,11 @@ namespace Abyss.EditorTools
                     PlayerStateMachine.DefaultAttackLightDuration),
                 ClipSource.OneShot(PlayerAnimationIds.AttackHeavy, CharacterSheet("knight_red", "attackheavy"),
                     PlayerStateMachine.DefaultAttackHeavyDuration),
+
+                // 9프레임을 0.3초에 — 뒤로 젖혀졌다 선 자세로 돌아온다(2026-09-13 두 후보 플레이 비교 후 채택).
+                // ⚠️ 몸은 No Weapon 이라 이 클립만 검이 안 보인다 — 나머지 4클립도 No Weapon 으로 다시 뽑을 예정.
+                ClipSource.OneShot(PlayerAnimationIds.Hit, CharacterSheet("knight_red", "hit"),
+                    PlayerStateMachine.DefaultHitDuration),
             },
         };
 
