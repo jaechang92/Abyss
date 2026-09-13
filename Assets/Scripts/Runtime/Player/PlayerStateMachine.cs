@@ -195,34 +195,24 @@ namespace Abyss.Runtime.Player
 
             if (IsTimedStateHeld(current, Time.time, timedStateExitTime)) return;
 
-            if (player.IsDashing)
-            {
-                if (current != PlayerStateIds.Dash) fsm.ForceTransitionTo(PlayerStateIds.Dash);
-                return;
-            }
-            if (current == PlayerStateIds.Dash) return;
+            Vector2 velocity = player.Velocity;
+            string next = ResolveMovementState(player.IsDashing, player.IsGrounded, velocity.y, velocity.x);
+            if (current != next) fsm.ForceTransitionTo(next);
+        }
 
-            if (!player.IsGrounded)
-            {
-                if (player.Velocity.y > 0.01f)
-                {
-                    if (current != PlayerStateIds.Jump) fsm.ForceTransitionTo(PlayerStateIds.Jump);
-                }
-                else
-                {
-                    if (current != PlayerStateIds.Fall) fsm.ForceTransitionTo(PlayerStateIds.Fall);
-                }
-                return;
-            }
-
-            if (Mathf.Abs(player.Velocity.x) > 0.1f)
-            {
-                if (current != PlayerStateIds.Run) fsm.ForceTransitionTo(PlayerStateIds.Run);
-            }
-            else
-            {
-                if (current != PlayerStateIds.Idle) fsm.ForceTransitionTo(PlayerStateIds.Idle);
-            }
+        /// <summary>
+        /// 시간제·사망·피격이 아닐 때 <b>움직임만으로</b> 정해지는 상태. 대시 → 공중(상승/하강) → 지상(달리기/서기) 순.
+        ///
+        /// 🔴 <b>대시가 끝나도 Dash 에서 못 나갔다</b>(2026-09-13 발견 · FSM 을 만든 `7620d10` 부터).
+        /// 원래 코드에 <c>if (current == Dash) return;</c> 이 있어 <c>IsDashing</c> 이 꺼진 뒤에도 전이를 막았다.
+        /// Dash 클립이 없던 동안은 폴백이 Run 그림을 보여 줘 드러나지 않았다.
+        /// 현재 상태를 인자로 받지 않는 것이 방어다 — 「지금 무엇이냐」가 아니라 「지금 어떻게 움직이냐」만 본다.
+        /// </summary>
+        public static string ResolveMovementState(bool isDashing, bool isGrounded, float velocityY, float velocityX)
+        {
+            if (isDashing) return PlayerStateIds.Dash;
+            if (!isGrounded) return velocityY > 0.01f ? PlayerStateIds.Jump : PlayerStateIds.Fall;
+            return Mathf.Abs(velocityX) > 0.1f ? PlayerStateIds.Run : PlayerStateIds.Idle;
         }
 
         /// <summary>

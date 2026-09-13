@@ -105,8 +105,27 @@ namespace Abyss.EditorTools
                 // ⚠️ 몸은 No Weapon 이라 이 클립만 검이 안 보인다 — 나머지 4클립도 No Weapon 으로 다시 뽑을 예정.
                 ClipSource.OneShot(PlayerAnimationIds.Hit, CharacterSheet("knight_red", "hit"),
                     PlayerStateMachine.DefaultHitDuration),
+
+                // 🔑 공중·대시는 연속 동작이 아니라 「자세 하나 + 망토 루프」다(Hollow Knight·Dead Cells·Celeste 방식).
+                //    동작의 중간을 잘라 돌리면 끝에서 튀어 어색했다. 출발·끝 프레임을 같은 키 포즈로 보간해 뽑았다.
+                //    상승은 약 0.4초라 4장이 한 바퀴쯤 돈다. 공중 프레임은 발끝을 키 포즈 기준 15px 로 내려 두었다 —
+                //    그림까지 떠 있으면 착지해 Idle 로 바뀌는 순간 몸이 툭 떨어진다.
+                ClipSource.Looping(PlayerAnimationIds.Jump, CharacterSheet("knight_red", "jump"), 10f),
+                ClipSource.Looping(PlayerAnimationIds.Fall, CharacterSheet("knight_red", "fall"), 10f),
+
+                // 대시는 0.15초뿐이라 5장이 한 번 지나가게 빠르게 돈다. 속도감은 나중에 잔상 이펙트가 맡는다.
+                ClipSource.Looping(PlayerAnimationIds.Dash, CharacterSheet("knight_red", "dash"), 30f),
+
+                // 사망은 스스로 나가지 않는 종착 상태라 FSM 지속시간이 없다 — 쓰러진 뒤 마지막 프레임에 멈춘다.
+                ClipSource.OneShot(PlayerAnimationIds.Dead, CharacterSheet("knight_red", "dead"), DeadClipDuration),
             },
         };
+
+        /// <summary>
+        /// 사망 클립 길이. 다른 한 번 재생 클립과 달리 <b>FSM 계약이 아니다</b> — 사망은 나가지 않는 상태라
+        /// 이 값은 쓰러지는 연출 속도만 정한다(9프레임 → 약 11fps).
+        /// </summary>
+        private const float DeadClipDuration = 0.8f;
 
         /// <summary>
         /// 시트 경로 규약. 파일명은 <c>{폼}_{상태}_east.png</c> — 방향은 east 한 벌만 그리고
