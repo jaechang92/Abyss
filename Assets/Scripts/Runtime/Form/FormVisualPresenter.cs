@@ -38,6 +38,9 @@ namespace Abyss.Runtime.Form
         [Tooltip("비우면 자기 자신에서 찾는다. 없으면 애니메이션 없이 정지 그림만 바뀐다.")]
         [SerializeField] private AnimatorDriver animatorDriver;
 
+        [Tooltip("비우면 자식에서 찾는다. 없으면 무기가 안 붙는다(맨손으로 보인다).")]
+        [SerializeField] private Player.WeaponSocket weaponSocket;
+
         private FormData applied;
         private bool hasApplied;
 
@@ -47,6 +50,7 @@ namespace Abyss.Runtime.Form
             if (formController == null) formController = GetComponentInParent<FormController>();
             if (fallbackSprite == null && target != null) fallbackSprite = target.sprite;
             if (animatorDriver == null) animatorDriver = GetComponent<AnimatorDriver>();
+            if (weaponSocket == null) weaponSocket = GetComponentInChildren<Player.WeaponSocket>(true);
         }
 
         private void LateUpdate()
@@ -58,7 +62,7 @@ namespace Abyss.Runtime.Form
 
             applied = current;
             hasApplied = true;
-            FormVisualApplier.Apply(target, current, fallbackSprite, animatorDriver);
+            FormVisualApplier.Apply(target, current, fallbackSprite, animatorDriver, weaponSocket);
         }
     }
 }
