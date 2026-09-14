@@ -277,28 +277,6 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: knight_red_walk_east_8
-      rect:
-        serializedVersion: 2
-        x: 736
-        y: 0
-        width: 92
-        height: 92
-      alignment: 9
-      pivot: {x: 0.5, y: 0.163}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 4938bfc47116f924393023b9f276e805
-      internalID: 2047367483
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -323,7 +301,6 @@ TextureImporter:
       knight_red_walk_east_5: -1540294687
       knight_red_walk_east_6: 2089497727
       knight_red_walk_east_7: 208123713
-      knight_red_walk_east_8: 2047367483
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

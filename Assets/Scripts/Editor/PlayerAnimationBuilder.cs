@@ -93,7 +93,7 @@ namespace Abyss.EditorTools
                 ClipSource.Looping(PlayerAnimationIds.Idle, CharacterSheet("knight_red", "idle"), 10f),
                 ClipSource.Looping(PlayerAnimationIds.Run, CharacterSheet("knight_red", "walk"), 12f),
 
-                // 🔴 fps 를 안 적는다. 7프레임을 0.25초에, 9프레임을 0.6초에 — 즉 28fps 와 15fps 인데,
+                // 🔴 fps 를 안 적는다. 둘 다 9프레임을 0.25초·0.6초에 — 즉 36fps 와 15fps 인데,
                 //    그 숫자는 FSM 지속시간에서 따라 나온 결과이지 고른 값이 아니다.
                 //    적어 두면 지속시간을 바꿀 때 여기가 안 따라와 클립이 잘리거나 남는다.
                 ClipSource.OneShot(PlayerAnimationIds.AttackLight, CharacterSheet("knight_red", "attacklight"),
@@ -102,7 +102,7 @@ namespace Abyss.EditorTools
                     PlayerStateMachine.DefaultAttackHeavyDuration),
 
                 // 9프레임을 0.3초에 — 뒤로 젖혀졌다 선 자세로 돌아온다(2026-09-13 두 후보 플레이 비교 후 채택).
-                // ⚠️ 몸은 No Weapon 이라 이 클립만 검이 안 보인다 — 나머지 4클립도 No Weapon 으로 다시 뽑을 예정.
+                // 2026-09-14: 9상태 전부 No Weapon 몸으로 통일됐다. 검은 손 앵커로 얹는다.
                 ClipSource.OneShot(PlayerAnimationIds.Hit, CharacterSheet("knight_red", "hit"),
                     PlayerStateMachine.DefaultHitDuration),
 
