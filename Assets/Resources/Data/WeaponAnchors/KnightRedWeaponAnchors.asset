@@ -17,6 +17,7 @@ MonoBehaviour:
   - animationId: AttackHeavy
     isLooping: 0
     needsManual: 0
+    handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.5548, y: 0.8267}
       angle: 0
@@ -57,6 +58,7 @@ MonoBehaviour:
   - animationId: AttackLight
     isLooping: 0
     needsManual: 0
+    handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.5946, y: 0.8759}
       angle: 0
@@ -97,6 +99,7 @@ MonoBehaviour:
   - animationId: Dash
     isLooping: 1
     needsManual: 1
+    handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.7879, y: 1.0582}
       angle: 0
@@ -121,6 +124,7 @@ MonoBehaviour:
   - animationId: Dead
     isLooping: 0
     needsManual: 1
+    handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.5, y: 0.5939}
       angle: 0
@@ -161,6 +165,7 @@ MonoBehaviour:
   - animationId: Fall
     isLooping: 1
     needsManual: 0
+    handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.7283, y: 1.0558}
       angle: 0
@@ -181,6 +186,7 @@ MonoBehaviour:
   - animationId: Hit
     isLooping: 0
     needsManual: 0
+    handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.4277, y: 0.7889}
       angle: 0
@@ -221,6 +227,7 @@ MonoBehaviour:
   - animationId: Idle
     isLooping: 1
     needsManual: 0
+    handOffset: {x: -0.447, y: -0.176}
     frames:
     - position: {x: 0.3635, y: 0.7334}
       angle: 0
@@ -261,6 +268,7 @@ MonoBehaviour:
   - animationId: Jump
     isLooping: 1
     needsManual: 0
+    handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.6935, y: 1.1564}
       angle: 0
@@ -281,6 +289,7 @@ MonoBehaviour:
   - animationId: Run
     isLooping: 1
     needsManual: 1
+    handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.4712, y: 0.6588}
       angle: 0
