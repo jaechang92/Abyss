@@ -255,6 +255,50 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: knight_red_attacklight_east_7
+      rect:
+        serializedVersion: 2
+        x: 644
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: abc935a4ed7c4ee4ba8177c83a1a8a6d
+      internalID: -2045652728
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: knight_red_attacklight_east_8
+      rect:
+        serializedVersion: 2
+        x: 736
+        y: 0
+        width: 92
+        height: 92
+      alignment: 9
+      pivot: {x: 0.5, y: 0.163}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e47c766add99be04698b8c60adb86d65
+      internalID: -407457857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -278,6 +322,8 @@ TextureImporter:
       knight_red_attacklight_east_4: 1849561262
       knight_red_attacklight_east_5: 1287399337
       knight_red_attacklight_east_6: 1568691250
+      knight_red_attacklight_east_7: -2045652728
+      knight_red_attacklight_east_8: -407457857
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
