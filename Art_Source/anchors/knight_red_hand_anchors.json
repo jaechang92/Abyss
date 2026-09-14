@@ -1,0 +1,611 @@
+{
+  "mode": "protrusion",
+  "pivot": {
+    "x": 0.5,
+    "y": 0.163
+  },
+  "ppu": 32.0,
+  "minProtrusion": 6.0,
+  "sheets": [
+    {
+      "sheet": "knight_red_attackheavy_east.png",
+      "frames": 9,
+      "keys": 7,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 63.8,
+          "yPx": 50.5,
+          "x": 0.5548,
+          "y": 0.8267,
+          "source": "보간"
+        },
+        {
+          "frame": 1,
+          "xPx": 63.0,
+          "yPx": 51.8,
+          "x": 0.5312,
+          "y": 0.7869,
+          "source": "키"
+        },
+        {
+          "frame": 2,
+          "xPx": 68.2,
+          "yPx": 36.3,
+          "x": 0.6935,
+          "y": 1.2724,
+          "source": "키"
+        },
+        {
+          "frame": 3,
+          "xPx": 63.9,
+          "yPx": 32.9,
+          "x": 0.5597,
+          "y": 1.378,
+          "source": "키"
+        },
+        {
+          "frame": 4,
+          "xPx": 62.0,
+          "yPx": 33.0,
+          "x": 0.5,
+          "y": 1.3751,
+          "source": "키"
+        },
+        {
+          "frame": 5,
+          "xPx": 65.9,
+          "yPx": 33.7,
+          "x": 0.6219,
+          "y": 1.3533,
+          "source": "키"
+        },
+        {
+          "frame": 6,
+          "xPx": 69.3,
+          "yPx": 39.2,
+          "x": 0.7283,
+          "y": 1.1822,
+          "source": "키"
+        },
+        {
+          "frame": 7,
+          "xPx": 65.3,
+          "yPx": 48.0,
+          "x": 0.6019,
+          "y": 0.9064,
+          "source": "키"
+        },
+        {
+          "frame": 8,
+          "xPx": 64.5,
+          "yPx": 49.3,
+          "x": 0.5784,
+          "y": 0.8665,
+          "source": "보간"
+        }
+      ]
+    },
+    {
+      "sheet": "knight_red_attacklight_east.png",
+      "frames": 9,
+      "keys": 5,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 65.0,
+          "yPx": 49.0,
+          "x": 0.5946,
+          "y": 0.8759,
+          "source": "보간"
+        },
+        {
+          "frame": 1,
+          "xPx": 64.0,
+          "yPx": 49.7,
+          "x": 0.5629,
+          "y": 0.8525,
+          "source": "보간"
+        },
+        {
+          "frame": 2,
+          "xPx": 63.0,
+          "yPx": 50.5,
+          "x": 0.5312,
+          "y": 0.8292,
+          "source": "키"
+        },
+        {
+          "frame": 3,
+          "xPx": 72.1,
+          "yPx": 40.9,
+          "x": 0.8164,
+          "y": 1.129,
+          "source": "키"
+        },
+        {
+          "frame": 4,
+          "xPx": 73.9,
+          "yPx": 33.9,
+          "x": 0.8722,
+          "y": 1.3467,
+          "source": "키"
+        },
+        {
+          "frame": 5,
+          "xPx": 73.1,
+          "yPx": 37.7,
+          "x": 0.8458,
+          "y": 1.2272,
+          "source": "키"
+        },
+        {
+          "frame": 6,
+          "xPx": 68.1,
+          "yPx": 46.7,
+          "x": 0.6896,
+          "y": 0.946,
+          "source": "키"
+        },
+        {
+          "frame": 7,
+          "xPx": 67.1,
+          "yPx": 47.5,
+          "x": 0.6579,
+          "y": 0.9226,
+          "source": "보간"
+        },
+        {
+          "frame": 8,
+          "xPx": 66.0,
+          "yPx": 48.2,
+          "x": 0.6262,
+          "y": 0.8992,
+          "source": "보간"
+        }
+      ]
+    },
+    {
+      "sheet": "knight_red_dash_east.png",
+      "frames": 5,
+      "keys": 0,
+      "needsManual": true,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 71.2,
+          "yPx": 43.1,
+          "x": 0.7879,
+          "y": 1.0582,
+          "source": "제안"
+        },
+        {
+          "frame": 1,
+          "xPx": 71.2,
+          "yPx": 43.1,
+          "x": 0.7879,
+          "y": 1.0582,
+          "source": "제안"
+        },
+        {
+          "frame": 2,
+          "xPx": 71.2,
+          "yPx": 43.1,
+          "x": 0.7879,
+          "y": 1.0582,
+          "source": "제안"
+        },
+        {
+          "frame": 3,
+          "xPx": 71.2,
+          "yPx": 43.1,
+          "x": 0.7879,
+          "y": 1.0582,
+          "source": "제안"
+        },
+        {
+          "frame": 4,
+          "xPx": 71.2,
+          "yPx": 43.1,
+          "x": 0.7879,
+          "y": 1.0582,
+          "source": "제안"
+        }
+      ]
+    },
+    {
+      "sheet": "knight_red_dead_east.png",
+      "frames": 9,
+      "keys": 0,
+      "needsManual": true,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 62.0,
+          "yPx": 58.0,
+          "x": 0.5,
+          "y": 0.5939,
+          "source": "제안"
+        },
+        {
+          "frame": 1,
+          "xPx": 62.0,
+          "yPx": 58.0,
+          "x": 0.5,
+          "y": 0.5939,
+          "source": "제안"
+        },
+        {
+          "frame": 2,
+          "xPx": 62.0,
+          "yPx": 58.0,
+          "x": 0.5,
+          "y": 0.5939,
+          "source": "제안"
+        },
+        {
+          "frame": 3,
+          "xPx": 62.0,
+          "yPx": 58.0,
+          "x": 0.5,
+          "y": 0.5939,
+          "source": "제안"
+        },
+        {
+          "frame": 4,
+          "xPx": 62.0,
+          "yPx": 58.0,
+          "x": 0.5,
+          "y": 0.5939,
+          "source": "제안"
+        },
+        {
+          "frame": 5,
+          "xPx": 62.0,
+          "yPx": 58.0,
+          "x": 0.5,
+          "y": 0.5939,
+          "source": "제안"
+        },
+        {
+          "frame": 6,
+          "xPx": 62.0,
+          "yPx": 58.0,
+          "x": 0.5,
+          "y": 0.5939,
+          "source": "제안"
+        },
+        {
+          "frame": 7,
+          "xPx": 62.0,
+          "yPx": 58.0,
+          "x": 0.5,
+          "y": 0.5939,
+          "source": "제안"
+        },
+        {
+          "frame": 8,
+          "xPx": 62.0,
+          "yPx": 58.0,
+          "x": 0.5,
+          "y": 0.5939,
+          "source": "제안"
+        }
+      ]
+    },
+    {
+      "sheet": "knight_red_fall_east.png",
+      "frames": 4,
+      "keys": 4,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 69.3,
+          "yPx": 43.2,
+          "x": 0.7283,
+          "y": 1.0558,
+          "source": "키"
+        },
+        {
+          "frame": 1,
+          "xPx": 69.3,
+          "yPx": 42.2,
+          "x": 0.7283,
+          "y": 1.0871,
+          "source": "키"
+        },
+        {
+          "frame": 2,
+          "xPx": 69.3,
+          "yPx": 44.2,
+          "x": 0.7283,
+          "y": 1.0246,
+          "source": "키"
+        },
+        {
+          "frame": 3,
+          "xPx": 69.3,
+          "yPx": 44.2,
+          "x": 0.7283,
+          "y": 1.0246,
+          "source": "키"
+        }
+      ]
+    },
+    {
+      "sheet": "knight_red_hit_east.png",
+      "frames": 9,
+      "keys": 6,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 59.7,
+          "yPx": 51.8,
+          "x": 0.4277,
+          "y": 0.7889,
+          "source": "보간"
+        },
+        {
+          "frame": 1,
+          "xPx": 57.3,
+          "yPx": 51.4,
+          "x": 0.3537,
+          "y": 0.8013,
+          "source": "키"
+        },
+        {
+          "frame": 2,
+          "xPx": 58.5,
+          "yPx": 45.1,
+          "x": 0.3894,
+          "y": 0.9965,
+          "source": "키"
+        },
+        {
+          "frame": 3,
+          "xPx": 58.3,
+          "yPx": 41.1,
+          "x": 0.3854,
+          "y": 1.1225,
+          "source": "키"
+        },
+        {
+          "frame": 4,
+          "xPx": 58.6,
+          "yPx": 39.4,
+          "x": 0.3943,
+          "y": 1.1754,
+          "source": "보간"
+        },
+        {
+          "frame": 5,
+          "xPx": 58.9,
+          "yPx": 37.7,
+          "x": 0.4031,
+          "y": 1.2283,
+          "source": "키"
+        },
+        {
+          "frame": 6,
+          "xPx": 61.6,
+          "yPx": 39.3,
+          "x": 0.4876,
+          "y": 1.1774,
+          "source": "보간"
+        },
+        {
+          "frame": 7,
+          "xPx": 64.3,
+          "yPx": 41.0,
+          "x": 0.572,
+          "y": 1.1265,
+          "source": "키"
+        },
+        {
+          "frame": 8,
+          "xPx": 62.1,
+          "yPx": 52.2,
+          "x": 0.5016,
+          "y": 0.7764,
+          "source": "키"
+        }
+      ]
+    },
+    {
+      "sheet": "knight_red_idle_east.png",
+      "frames": 9,
+      "keys": 6,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 57.6,
+          "yPx": 53.5,
+          "x": 0.3635,
+          "y": 0.7334,
+          "source": "보간"
+        },
+        {
+          "frame": 1,
+          "xPx": 57.2,
+          "yPx": 53.5,
+          "x": 0.3487,
+          "y": 0.7353,
+          "source": "키"
+        },
+        {
+          "frame": 2,
+          "xPx": 58.3,
+          "yPx": 52.9,
+          "x": 0.3845,
+          "y": 0.7542,
+          "source": "키"
+        },
+        {
+          "frame": 3,
+          "xPx": 60.1,
+          "yPx": 51.7,
+          "x": 0.4392,
+          "y": 0.7901,
+          "source": "키"
+        },
+        {
+          "frame": 4,
+          "xPx": 60.1,
+          "yPx": 50.8,
+          "x": 0.4408,
+          "y": 0.8176,
+          "source": "키"
+        },
+        {
+          "frame": 5,
+          "xPx": 60.3,
+          "yPx": 50.3,
+          "x": 0.4474,
+          "y": 0.8354,
+          "source": "키"
+        },
+        {
+          "frame": 6,
+          "xPx": 59.1,
+          "yPx": 53.7,
+          "x": 0.408,
+          "y": 0.7276,
+          "source": "키"
+        },
+        {
+          "frame": 7,
+          "xPx": 58.6,
+          "yPx": 53.7,
+          "x": 0.3932,
+          "y": 0.7295,
+          "source": "보간"
+        },
+        {
+          "frame": 8,
+          "xPx": 58.1,
+          "yPx": 53.6,
+          "x": 0.3783,
+          "y": 0.7314,
+          "source": "보간"
+        }
+      ]
+    },
+    {
+      "sheet": "knight_red_jump_east.png",
+      "frames": 4,
+      "keys": 4,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 68.2,
+          "yPx": 40.0,
+          "x": 0.6935,
+          "y": 1.1564,
+          "source": "키"
+        },
+        {
+          "frame": 1,
+          "xPx": 68.2,
+          "yPx": 41.0,
+          "x": 0.6935,
+          "y": 1.1251,
+          "source": "키"
+        },
+        {
+          "frame": 2,
+          "xPx": 68.2,
+          "yPx": 42.0,
+          "x": 0.6935,
+          "y": 1.0939,
+          "source": "키"
+        },
+        {
+          "frame": 3,
+          "xPx": 68.2,
+          "yPx": 41.0,
+          "x": 0.6935,
+          "y": 1.1251,
+          "source": "키"
+        }
+      ]
+    },
+    {
+      "sheet": "knight_red_walk_east.png",
+      "frames": 8,
+      "keys": 0,
+      "needsManual": true,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 61.1,
+          "yPx": 55.9,
+          "x": 0.4712,
+          "y": 0.6588,
+          "source": "제안"
+        },
+        {
+          "frame": 1,
+          "xPx": 61.1,
+          "yPx": 55.9,
+          "x": 0.4712,
+          "y": 0.6588,
+          "source": "제안"
+        },
+        {
+          "frame": 2,
+          "xPx": 61.1,
+          "yPx": 55.9,
+          "x": 0.4712,
+          "y": 0.6588,
+          "source": "제안"
+        },
+        {
+          "frame": 3,
+          "xPx": 61.1,
+          "yPx": 55.9,
+          "x": 0.4712,
+          "y": 0.6588,
+          "source": "제안"
+        },
+        {
+          "frame": 4,
+          "xPx": 61.1,
+          "yPx": 55.9,
+          "x": 0.4712,
+          "y": 0.6588,
+          "source": "제안"
+        },
+        {
+          "frame": 5,
+          "xPx": 61.1,
+          "yPx": 55.9,
+          "x": 0.4712,
+          "y": 0.6588,
+          "source": "제안"
+        },
+        {
+          "frame": 6,
+          "xPx": 61.1,
+          "yPx": 55.9,
+          "x": 0.4712,
+          "y": 0.6588,
+          "source": "제안"
+        },
+        {
+          "frame": 7,
+          "xPx": 61.1,
+          "yPx": 55.9,
+          "x": 0.4712,
+          "y": 0.6588,
+          "source": "제안"
+        }
+      ]
+    }
+  ]
+}

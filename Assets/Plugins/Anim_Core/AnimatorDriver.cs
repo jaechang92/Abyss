@@ -35,6 +35,20 @@ namespace Anim.Core
 
         public string CurrentAnimationId => currentAnimationId;
 
+        /// <summary>
+        /// 현재 상태의 진행도. 재생기가 꺼져 있으면(그 폼에 애니메이션이 없어 정지 그림으로
+        /// 물러난 상태) 0을 준다 — 직전 값에 얼어붙는 것보다 <b>첫 프레임으로 읽게</b> 두는 편이 낫다.
+        /// </summary>
+        public float NormalizedTime
+        {
+            get
+            {
+                if (animator == null || !animator.isActiveAndEnabled) return 0f;
+                if (animator.runtimeAnimatorController == null) return 0f;
+                return animator.GetCurrentAnimatorStateInfo(BaseLayer).normalizedTime;
+            }
+        }
+
         public event Action OnClipsChanged;
 
         private void Awake()

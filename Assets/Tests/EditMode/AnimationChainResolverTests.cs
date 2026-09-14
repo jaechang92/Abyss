@@ -27,6 +27,9 @@ namespace Abyss.Tests.EditMode
 
             public string CurrentAnimationId { get; private set; } = string.Empty;
 
+            /// <summary>사슬 해석은 진행도를 안 본다 — 대역에서는 0으로 둔다.</summary>
+            public float NormalizedTime => 0f;
+
             public bool HasClip(string animationId) => clips.Contains(animationId);
 
             public void Play(string animationId, bool restart, bool immediate)

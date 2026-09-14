@@ -25,6 +25,9 @@ namespace Abyss.Runtime.Form
 
         [Tooltip("이 폼의 애니메이션 한 벌(AnimatorOverrideController). 비우면 bodySprite 정지 그림으로 폴백.")]
         public RuntimeAnimatorController animatorController;
+
+        [Tooltip("이 폼의 프레임별 무기 배치. 비우면 무기가 화면에서 숨는다 — 틀린 자리에 박히는 것보다 낫다.")]
+        public Player.WeaponAnchorSet weaponAnchors;
         [TextArea(2, 4)] public string description;
         public Sprite icon;
 

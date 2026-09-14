@@ -40,9 +40,16 @@ namespace Abyss.Runtime.Form
         /// 애니메이션이 없는 폼인데 재생기를 켜 둔 채로 두면, 매 프레임 이전 폼의 그림을 다시 써서
         /// 방금 넣은 정지 그림을 덮는다.
         /// </summary>
-        public static void Apply(SpriteRenderer target, FormData form, Sprite fallback, AnimatorDriver driver)
+        /// <param name="socket">
+        /// 무기 소켓. 🔑 <b>앵커도 같은 진입점을 타야 한다</b> — 따로 부르게 하면 폼을 바꿨을 때
+        /// 몸은 새 폼인데 무기만 이전 폼의 배치로 남는 곳이 생긴다. 정지 그림과 움직이는 그림을
+        /// 한 곳에 모은 것과 같은 이유다. 안 쓰는 호출부는 비워 두면 된다(로비 등).
+        /// </param>
+        public static void Apply(SpriteRenderer target, FormData form, Sprite fallback,
+                                 AnimatorDriver driver, Player.WeaponSocket socket = null)
         {
             if (driver != null) driver.SetController(form != null ? form.animatorController : null);
+            if (socket != null) socket.SetAnchors(form != null ? form.weaponAnchors : null);
 
             if (target == null) return;
 

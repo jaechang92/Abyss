@@ -133,16 +133,155 @@ def interpolate(values):
     return out, filled
 
 
-def main():
-    ap = argparse.ArgumentParser(description="애니메이션 프레임별 손 앵커 (믿을 수 있는 것만 키로)")
-    ap.add_argument("armed", help="무기 든 몸의 시트 폴더")
-    ap.add_argument("unarmed", help="무기 없는 몸의 시트 폴더")
-    ap.add_argument("--anim", default=None, help="애니메이션 이름(부분 일치)")
-    ap.add_argument("--reference-px", type=int, default=None,
-                    help="무기 픽셀 수 기준. 안 주면 프레임들의 중앙값을 쓴다")
-    ap.add_argument("--json-out", default=None, help="결과를 JSON 으로 저장")
-    args = ap.parse_args()
+# ── 돌출부 모드 ────────────────────────────────────────────────────────────────
+# 🔑 **무장본이 없어도 손을 찾는다** (2026-09-14 실측으로 추가).
+#
+#   diff 모드는 armed/unarmed 두 벌을 요구하는데, 9상태를 No Weapon 한 벌로 통일하고 나니
+#   짝이 없어져 그냥은 못 돌게 됐다. armed 를 다시 뽑으면 gen 45 쯤 든다.
+#
+#   그런데 **순수 측면(east)이라 팔은 항상 몸보다 앞으로 나오고 망토는 뒤로 흐른다.**
+#   그래서 머리·다리를 뺀 실루엣의 **최전방 돌출부**가 곧 손이다. gen 0 이다.
+#
+#   ⚠️ **모든 프레임에서 되지는 않는다.** 팔이 몸통 실루엣 안에 들어간 프레임(걷기 등)은
+#   잡을 돌출이 없다. 그래서 diff 모드와 **같은 구조**로 간다 — 잡히는 것만 키로 쓰고 보간한다.
+#   판별은 무기 픽셀 수가 아니라 **돌출량**이다(몸통 앞면 기준선에서 얼마나 튀어나왔나).
+#
+#   실측 (KnightRed · 2026-09-14)
+#       AttackHeavy  키 7/9   돌출 4~14
+#       AttackLight  키 5/9   돌출 1~22
+#       Idle         키 6/9   돌출 4~8
+#       Walk         키 0/8   돌출 2~4   <- 안 잡힌다. 대신 손이 몇 px 밖에 안 움직여 오차도 작다
 
+HEAD_CUT = 0.28          # 실루엣 위 28% = 머리·후드. 든 손보다 후드가 앞설 때가 있다
+LEG_CUT = 0.70           # 아래 30% = 다리·망토 밑단
+FIST_RADIUS2 = 16        # 최전방점 반경 4px 안을 주먹 덩어리로 본다
+MIN_PROTRUSION = 6.0     # 이만큼 튀어나와야 키로 쓴다
+
+
+def load_unity_sheet(path):
+    """Unity 시트(가로로 이어 붙인 정사각 칸) 를 프레임 배열로."""
+    im = np.array(Image.open(path).convert("RGBA"))
+    cell = im.shape[0]
+    if im.shape[1] % cell:
+        raise SystemExit("🔴 %s 가로(%d)가 칸(%d)의 배수가 아니다" % (path, im.shape[1], cell))
+    n = im.shape[1] // cell
+    return [im[:, i * cell:(i + 1) * cell] for i in range(n)], cell
+
+
+def detect_protrusion(frame):
+    """한 프레임에서 (손 x, 손 y, 돌출량). 좌표는 칸 왼쪽 위 기준 px."""
+    alpha = frame[:, :, 3] > ALPHA_CUT
+    ys = np.where(alpha.max(axis=1))[0]
+    if not len(ys):
+        return None
+    top, bot = ys.min(), ys.max()
+    h = bot - top + 1
+
+    m = alpha.copy()
+    m[:int(top + h * HEAD_CUT)] = False
+    m[int(top + h * LEG_CUT):] = False
+    if not m.any():
+        return None
+
+    # 행마다 가장 앞(오른쪽) 픽셀 → 그 중앙값이 몸통 앞면 기준선
+    front = np.array([np.where(m[y])[0].max() if m[y].any() else -1 for y in range(m.shape[0])])
+    valid = front[front >= 0]
+    x_tip = int(valid.max())
+    body_line = float(np.median(valid))
+
+    y_tip = int(np.where(m[:, x_tip])[0].mean())
+    yy, xx = np.mgrid[0:m.shape[0], 0:m.shape[1]]
+    fist = m & ((xx - x_tip) ** 2 + (yy - y_tip) ** 2 <= FIST_RADIUS2)
+    cx = float((fist * xx).sum() / fist.sum())
+    cy = float((fist * yy).sum() / fist.sum())
+    return cx, cy, x_tip - body_line
+
+
+def run_protrusion(args):
+    sheets = args.sheets
+    pivot_x = args.pivot_x
+    pivot_y_px = None
+    out_all = []
+
+    for path in sheets:
+        frames, cell = load_unity_sheet(path)
+        if pivot_y_px is None:
+            pivot_y_px = cell - args.pivot_y * cell      # 위 기준 y
+        px_cx = pivot_x * cell
+
+        raw = [detect_protrusion(f) for f in frames]
+        keys = [(d[0], d[1]) if d and d[2] >= args.min_protrusion else None for d in raw]
+        n_key = sum(1 for k in keys if k)
+
+        print()
+        print("%s · %d프레임 · 칸 %d" % (os.path.basename(path), len(frames), cell))
+        print(" f   돌출량   판정   손 앵커(px)")
+        for i, d in enumerate(raw):
+            if not d:
+                print("%2d      —      🔴 없음" % i)
+                continue
+            good = keys[i] is not None
+            print("%2d   %6.1f   %s   %s" % (
+                i, d[2], "✅ 키 " if good else "⚠️ 낮음",
+                "(%5.1f,%5.1f)" % (d[0], d[1]) if good else "—"))
+
+        if n_key == 0:
+            # 🔑 **빈칸으로 내보내지 않는다.** 임포트가 빈칸을 만나면 무기가 원점에 박힌다.
+            #    돌출이 낮다는 것은 「손이 몸에 붙어 있다」는 뜻이라, 그 위치가 이미 쓸 만한 근사다.
+            #    다만 키가 아니므로 `제안` 으로 표시해 Unity 에서 다듬을 자리임을 남긴다.
+            #
+            #    0키가 나오는 세 가지는 알고리즘 한계가 아니라 **동작의 성질**이다:
+            #      걷기   팔이 몸통 실루엣 안. 손 이동 폭이 몇 px 라 고정값으로 충분하다
+            #      대시   몸이 앞으로 기울어 팔이 몸 아래로 들어간다. 돌진 자세는 무기가 몸에 붙어야 한다
+            #      사망   🔴 몸이 수평으로 눕는다 — 「팔이 앞으로 나온다」는 이 검출의 전제가 깨진다
+            print("🔴 키가 없다 — 손이 몸에 붙어 있는 동작이다(걷기·대시·사망).")
+            print("   낮은 돌출 위치를 `제안` 으로 채운다. Unity 에서 한 점만 잡아 전체에 복사하면 된다.")
+            med = sorted((d[0], d[1]) for d in raw if d)
+            fallback = med[len(med) // 2] if med else (px_cx, pivot_y_px)
+            out_all.append({
+                "sheet": os.path.basename(path), "frames": len(frames), "keys": 0,
+                "needsManual": True,
+                "anchors": [{
+                    "frame": i,
+                    "xPx": round(fallback[0], 1), "yPx": round(fallback[1], 1),
+                    "x": round((fallback[0] - px_cx) / args.ppu, 4),
+                    "y": round((pivot_y_px - fallback[1]) / args.ppu, 4),
+                    "source": "제안",
+                } for i in range(len(frames))],
+            })
+            continue
+
+        final, filled = interpolate(keys)
+        print("키 %d / %d · 보간 %d" % (n_key, len(frames), len(filled)))
+        anchors = []
+        for i, (x, y) in enumerate(final):
+            anchors.append({
+                "frame": i,
+                "xPx": round(x, 1), "yPx": round(y, 1),
+                # Unity 지역 좌표: 피벗 기준 · 위가 +y · PPU 로 나눈 유닛
+                "x": round((x - px_cx) / args.ppu, 4),
+                "y": round((pivot_y_px - y) / args.ppu, 4),
+                "source": "보간" if i in filled else "키",
+            })
+        xs = [a["xPx"] for a in anchors]
+        ys = [a["yPx"] for a in anchors]
+        print("이동 폭  x %.1fpx · y %.1fpx" % (max(xs) - min(xs), max(ys) - min(ys)))
+        out_all.append({"sheet": os.path.basename(path), "frames": len(frames),
+                        "keys": n_key, "needsManual": False, "anchors": anchors})
+
+    print()
+    print("⚠️ 보간값은 추정이다 — Unity 에서 다듬을 **출발점**이지 최종값이 아니다.")
+    if args.json_out:
+        with open(args.json_out, "w", encoding="utf-8") as f:
+            json.dump({"mode": "protrusion",
+                       "pivot": {"x": pivot_x, "y": args.pivot_y},
+                       "ppu": args.ppu,
+                       "minProtrusion": args.min_protrusion,
+                       "sheets": out_all}, f, ensure_ascii=False, indent=2)
+        print("→ %s" % args.json_out)
+
+
+def run_diff(args):
     A, rowa, (cw, ch) = load_sheet(args.armed, args.anim)
     B, rowb, _ = load_sheet(args.unarmed, args.anim)
     if len(A) != len(B):
@@ -206,12 +345,40 @@ def main():
                 "animation": rowa.get("animation"),
                 "direction": rowa.get("direction"),
                 "cell": {"width": cw, "height": ch},
-                "reference_px": ref,
+                "referencePx": ref,
                 "frames": [{"frame": i, "x": round(x, 1), "y": round(y, 1),
                             "source": "보간" if i in filled else "키"}
                            for i, (x, y) in enumerate(final)],
             }, f, ensure_ascii=False, indent=2)
         print("→ %s" % args.json_out)
+
+
+def main():
+    ap = argparse.ArgumentParser(description="애니메이션 프레임별 손 앵커 (믿을 수 있는 것만 키로)")
+    sub = ap.add_subparsers(dest="mode", required=True)
+
+    d = sub.add_parser("diff", help="무장/비무장 두 벌 diff (서버 시트 폴더 2개)")
+    d.add_argument("armed", help="무기 든 몸의 시트 폴더")
+    d.add_argument("unarmed", help="무기 없는 몸의 시트 폴더")
+    d.add_argument("--anim", default=None, help="애니메이션 이름(부분 일치)")
+    d.add_argument("--reference-px", type=int, default=None,
+                   help="무기 픽셀 수 기준. 안 주면 프레임들의 중앙값을 쓴다")
+    d.add_argument("--json-out", default=None, help="결과를 JSON 으로 저장")
+
+    p = sub.add_parser("protrusion", help="비무장 한 벌에서 최전방 돌출부 검출 (Unity 시트)")
+    p.add_argument("sheets", nargs="+", help="Unity 시트 PNG (가로로 이어 붙인 정사각 칸)")
+    p.add_argument("--pivot-x", type=float, default=0.5, dest="pivot_x")
+    p.add_argument("--pivot-y", type=float, default=0.163, dest="pivot_y",
+                   help="칸 아래에서부터의 비율. 기본 0.163 = 92px 칸의 발밑 15px")
+    p.add_argument("--ppu", type=float, default=32.0, help="Pixels Per Unit")
+    p.add_argument("--min-protrusion", type=float, default=MIN_PROTRUSION, dest="min_protrusion")
+    p.add_argument("--json-out", default=None, help="결과를 JSON 으로 저장")
+
+    args = ap.parse_args()
+    if args.mode == "protrusion":
+        run_protrusion(args)
+    else:
+        run_diff(args)
 
 
 if __name__ == "__main__":
