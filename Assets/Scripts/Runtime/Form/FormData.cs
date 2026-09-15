@@ -28,6 +28,10 @@ namespace Abyss.Runtime.Form
 
         [Tooltip("이 폼의 프레임별 무기 배치. 비우면 무기가 화면에서 숨는다 — 틀린 자리에 박히는 것보다 낫다.")]
         public Player.WeaponAnchorSet weaponAnchors;
+
+        [Tooltip("🔴 이 폼을 얻으면 딸려 오는 기본 무기. 비우면 맨손으로 시작한다. " +
+                 "WeaponData.formBound 가 이 폼의 formId 와 같아야 한다.")]
+        public Weapon.WeaponData defaultWeapon;
         [TextArea(2, 4)] public string description;
         public Sprite icon;
 

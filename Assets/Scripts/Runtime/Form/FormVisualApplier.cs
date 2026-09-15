@@ -49,7 +49,13 @@ namespace Abyss.Runtime.Form
                                  AnimatorDriver driver, Player.WeaponSocket socket = null)
         {
             if (driver != null) driver.SetController(form != null ? form.animatorController : null);
-            if (socket != null) socket.SetAnchors(form != null ? form.weaponAnchors : null);
+            if (socket != null)
+            {
+                // 🔑 앵커와 무기를 <b>같은 줄에서</b> 꽂는다. 따로 부르게 하면 폼을 바꿨을 때
+                //    배치는 새 폼인데 무기는 이전 폼 것으로 남는 곳이 생긴다.
+                socket.SetAnchors(form != null ? form.weaponAnchors : null);
+                socket.SetWeapon(form != null ? form.defaultWeapon : null);
+            }
 
             if (target == null) return;
 

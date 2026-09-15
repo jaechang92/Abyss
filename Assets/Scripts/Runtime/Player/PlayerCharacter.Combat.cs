@@ -13,6 +13,23 @@ namespace Abyss.Runtime.Player
     /// </summary>
     public sealed partial class PlayerCharacter
     {
+        /// <summary>
+        /// 장착한 무기가 주는 공격 배율. 무기가 없으면 1.
+        ///
+        /// 🔑 <b>기존 배율 둘과 같은 모양으로 곱한다</b>(<c>AttackMultiplier</c> 버프 ·
+        /// <c>MetaAttackMult</c> 메타). 셋을 더하기로 섞으면 어느 층이 얼마를 줬는지
+        /// 화면에서 못 읽는다 — 곱셈이면 층이 독립이다.
+        ///
+        /// ⚠️ 강화 단계는 <c>WeaponData.MultiplierAt</c> 이 계산한다. 식을 여기 복제하지 않는다.
+        /// </summary>
+        public float WeaponAttackMult { get; private set; } = 1f;
+
+        /// <summary>무기를 갈아 끼운다. 강화 단계가 오르면 같은 무기로 다시 부른다.</summary>
+        public void SetWeapon(Weapon.WeaponData weapon, int upgradeLevel = 0)
+        {
+            WeaponAttackMult = weapon != null ? weapon.MultiplierAt(upgradeLevel) : 1f;
+        }
+
         [Header("공격 쿨다운")]
         [SerializeField, Min(0f)] private float attackCooldownLight = 0.3f;
         [SerializeField, Min(0f)] private float attackCooldownHeavy = 0.8f;
@@ -62,7 +79,7 @@ namespace Abyss.Runtime.Player
 
             lastAttackLightTime = Time.time;
             stateMachine?.TriggerAttackLight();
-            PerformAttack(Mathf.RoundToInt(lightAttackDamage * AttackMultiplier * MetaAttackMult), lightHitstop, lightShake, isHeavy: false);
+            PerformAttack(Mathf.RoundToInt(lightAttackDamage * AttackMultiplier * MetaAttackMult * WeaponAttackMult), lightHitstop, lightShake, isHeavy: false);
         }
 
         private void OnAttackHeavy(InputValue value)
@@ -72,7 +89,7 @@ namespace Abyss.Runtime.Player
 
             lastAttackHeavyTime = Time.time;
             stateMachine?.TriggerAttackHeavy();
-            PerformAttack(Mathf.RoundToInt(heavyAttackDamage * AttackMultiplier * MetaAttackMult), heavyHitstop, heavyShake, isHeavy: true);
+            PerformAttack(Mathf.RoundToInt(heavyAttackDamage * AttackMultiplier * MetaAttackMult * WeaponAttackMult), heavyHitstop, heavyShake, isHeavy: true);
         }
 
         /// <summary>
