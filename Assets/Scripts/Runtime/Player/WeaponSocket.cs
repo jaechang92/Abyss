@@ -15,12 +15,20 @@ namespace Abyss.Runtime.Player
     /// 결손이 화면에서 바로 읽힌다. 애니메이션 폴백 사슬이 「클립이 없으면 정지 그림으로
     /// 물러난다」로 하는 것과 같은 태도다.
     ///
+    /// 🔴 <b>폼보다 뒤에 돈다.</b> <c>FormVisualPresenter</c>도 <c>LateUpdate</c>라
+    /// 순서를 안 정하면 <b>폼이 바뀐 프레임에 이전 폼 앵커로 한 번 그린다</b>.
+    /// 실행 순서를 <see cref="Form.FormVisualPresenter.VisualOrder"/> 뒤로 못박아 막는다.
+    ///
     /// 규약은 <c>Docs/technical/weapon-attachment.md</c> 에 있다.
     /// </summary>
+    [DefaultExecutionOrder(SocketOrder)]
     [ExecuteAlways]
     [RequireComponent(typeof(SpriteRenderer))]
     public sealed class WeaponSocket : MonoBehaviour
     {
+        /// <summary>폼이 앵커를 꽂은 뒤에 무기를 놓는 차례. 폼보다 커야 한다.</summary>
+        public const int SocketOrder = 40;
+
         [Header("배선 (비우면 자동으로 찾는다)")]
         [SerializeField] private SpriteRenderer weaponRenderer;
 
