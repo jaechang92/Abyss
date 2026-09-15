@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Ability_PhantomStep
   m_EditorClassIdentifier: 
   abilityName: phantom_step
-  description: "5\uCD08\uAC04 \uC774\uB3D9\uC18D\uB3C4\uC640 \uACF5\uACA9\uB825\uC744
-    \uB04C\uC5B4\uC62C\uB9B0\uB2E4."
+  description: "5\uCD08\uAC04 \uC774\uB3D9\uC18D\uB3C4\uC640 \uACF5\uACA9\uB825\uC744 \uB04C\uC5B4\uC62C\uB9B0\uB2E4."
   icon: {fileID: 0}
   cooldownDuration: 12
   requiresAlive: 1

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c07a826fb360447ad820fc71eda40e, type: 3}
+  m_Name: DentedShield
+  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Weapon.WeaponData
+  weaponId: dented_shield
+  formBound: ancient_shield
+  rarity: 0
+  displayName: "\uCC0C\uADF8\uB7EC\uC9C4 \uBC29\uD328"
+  description: "\uC5EC\uB7EC \uBC88 \uB9DE\uC740 \uC790\uAD6D\uC774 \uB0A8\uC558\uB2E4. \uC544\uC9C1 \uBC84\uD2F4\uB2E4."
+  icon: {fileID: 0}
+  sprite: {fileID: 21300000, guid: 1a7082105ae9ecd44a7c4a64358c98ec, type: 3}
+  angleSprites: []
+  bracedUpright: 1
+  attackMultiplier: 1
+  upgradeMultiplierStep: 0.1

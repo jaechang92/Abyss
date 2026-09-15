@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c07a826fb360447ad820fc71eda40e, type: 3}
+  m_Name: ChippedDagger
+  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Weapon.WeaponData
+  weaponId: chipped_dagger
+  formBound: void_thrower
+  rarity: 0
+  displayName: "\uC774 \uBE60\uC9C4 \uB2E8\uAC80"
+  description: "\uB358\uC9C0\uACE0 \uB2E4\uC2DC \uC90D\uAE30\uB97C \uBC18\uBCF5\uD55C \uD754\uC801."
+  icon: {fileID: 0}
+  sprite: {fileID: 21300000, guid: 32e40cd5e5af41c4fbb9ece0344a5f4f, type: 3}
+  angleSprites:
+  - {fileID: 1595276180, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: -1749984423, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 1171837920, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 1391195901, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 415273675, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: -591744626, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: -2078882467, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: -54529026, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 877991769, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: -601303457, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: -1281334493, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 1325875236, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 1265287051, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 1565577472, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 977169325, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 396446842, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 80588463, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 35851619, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: -169411820, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: -756366932, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 171765725, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 28399309, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: -1845504454, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  - {fileID: 470224210, guid: 820e2c7d1f504861a6bed6e21800ad4c, type: 3}
+  bracedUpright: 0
+  attackMultiplier: 1
+  upgradeMultiplierStep: 0.1

@@ -60,6 +60,14 @@ namespace Abyss.Runtime.Player
         private WeaponAnchorSet anchors;
         private Weapon.WeaponData equipped;
 
+        /// <summary>
+        /// 🔑 <b>「아직 안 정해졌다」와 「없음으로 정해졌다」는 다르다.</b>
+        /// 전자는 인스펙터 미리보기로 물러나야 하고(에디터에서 눈으로 맞추는 길),
+        /// 후자는 <b>맨손</b>이라 아무것도 안 그려야 한다.
+        /// 둘을 같게 두면 무기 없는 폼이 <b>이전 배선의 무기를 든다.</b>
+        /// </summary>
+        private bool weaponAssigned;
+
         private void Awake()
         {
             if (weaponRenderer == null) weaponRenderer = GetComponent<SpriteRenderer>();
@@ -92,6 +100,7 @@ namespace Abyss.Runtime.Player
         public void SetWeapon(Weapon.WeaponData weapon)
         {
             equipped = weapon;
+            weaponAssigned = true;
             if (weaponRenderer != null && weapon != null && weapon.sprite != null)
             {
                 weaponRenderer.sprite = weapon.sprite;
@@ -186,23 +195,35 @@ namespace Abyss.Runtime.Player
         }
 
         /// <summary>
-        /// 🔑 <b>비어 있으면 렌더러에 물린 것을 쓴다.</b> 장비 시스템(<c>WeaponData</c>)이 아직 없어
-        /// <see cref="SetWeapon"/>을 부르는 곳이 없다. 필드만 보면 항상 비어서
-        /// <b>무기가 숨어 버린다</b> — 2026-09-14 에 실제로 그랬다.
+        /// 🔴 <b>장비가 꽂혔으면 그 장비의 값만 쓴다 — 「비어 있음」도 그 장비의 대답이다.</b>
+        ///
+        /// 처음에는 칸마다 비면 미리보기로 물러나게 했는데, 그게 <b>방패가 검으로 보이는 버그</b>를
+        /// 만들었다(2026-09-16). 방패는 세워 드니까 각도 스트립을 일부러 안 채우는데,
+        /// 소켓이 그 빈칸을 「미리보기로 물러나라」로 읽고 인스펙터에 남아 있던
+        /// <b>검 24칸</b>을 집었다. 오류는 안 났다 — 방패 폼인데 검이 나왔을 뿐이다.
+        ///
+        /// 🔑 <b>미리보기는 장비가 아예 없을 때의 길</b>이다. 칸 단위로 섞으면
+        /// 「그림은 방패인데 각도는 검」 같은 잡종이 생긴다.
+        /// </summary>
+        private bool UsePreview => !weaponAssigned;
+        private bool HasEquipped => equipped != null;
+
+        /// <summary>
+        /// 손에 얹을 그림. 장비가 있으면 장비 것만 — 그 그림이 없으면 <b>무기를 숨긴다</b>
+        /// (틀린 그림을 얹는 것보다 없는 편이 낫다. 앵커가 없을 때와 같은 태도다).
+        ///
+        /// 장비가 없을 때만 렌더러에 물린 것으로 물러난다 — 장비 시스템이 없던 시절의 배선이다.
         /// </summary>
         private Sprite ResolveWeapon()
         {
-            if (equipped != null && equipped.sprite != null) return equipped.sprite;
+            if (!UsePreview) return HasEquipped ? equipped.sprite : null;
             return weaponRenderer != null ? weaponRenderer.sprite : null;
         }
 
-        /// <summary>장비가 가진 각도 그림. 없으면 인스펙터 미리보기 배선.</summary>
+        /// <summary>각도 그림. 장비가 있으면 장비 것만(없으면 회전으로 물러난다).</summary>
         private Sprite[] ResolveAngleSprites()
         {
-            if (equipped != null && equipped.angleSprites != null && equipped.angleSprites.Length > 0)
-            {
-                return equipped.angleSprites;
-            }
+            if (!UsePreview) return HasEquipped ? equipped.angleSprites : null;
             return angleSprites;
         }
 
@@ -211,7 +232,7 @@ namespace Abyss.Runtime.Player
         /// 소켓의 체크박스로 두면 무기를 바꿀 때마다 손으로 켜고 꺼야 한다.
         /// </summary>
         private bool ResolveBraced()
-            => equipped != null ? equipped.bracedUpright : bracedUpright;
+            => UsePreview ? bracedUpright : HasEquipped && equipped.bracedUpright;
 
         /// <summary>런타임에는 폼이 꽂아 준 것, 에디터에서는 인스펙터에 물린 것.</summary>
         private WeaponAnchorSet ResolveAnchors()

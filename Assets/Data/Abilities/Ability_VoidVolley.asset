@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Ability_VoidVolley
   m_EditorClassIdentifier: 
   abilityName: void_volley
-  description: "\uC804\uBC29 \uBD80\uCC44\uAF34\uB85C \uACF5\uD5C8 \uD654\uC0B4 3\uBC1C\uC744
-    \uB3D9\uC2DC\uC5D0 \uBC1C\uC0AC\uD55C\uB2E4."
+  description: "\uC804\uBC29 \uBD80\uCC44\uAF34\uB85C \uACF5\uD5C8 \uD654\uC0B4 3\uBC1C\uC744 \uB3D9\uC2DC\uC5D0 \uBC1C\uC0AC\uD55C\uB2E4."
   icon: {fileID: 0}
   cooldownDuration: 5
   requiresAlive: 1

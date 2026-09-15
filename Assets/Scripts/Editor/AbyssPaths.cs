@@ -28,6 +28,7 @@ namespace Abyss.EditorTools
         // 열려야 해서 Resources로 옮겼다 — 타이틀에는 StageData·RoomData 참조가 하나도 로드되지 않으므로
         // 전체 적 목록을 얻는 길이 Resources.LoadAll뿐이다(런타임 EnemyCatalog.LoadAll).
         public const string Enemies = RunConfigDir + "/Enemies";
+        public const string Weapons = RunConfigDir + "/Weapons"; // 무기 SO(런타임 WeaponCatalog.LoadAll) — 폴더에 추가 시 자동 편입
 
         // 프리팹 디렉터리
         private const string Prefabs = "Assets/Prefabs";
@@ -41,6 +42,7 @@ namespace Abyss.EditorTools
         public const string SkillIcons = Sprites + "/SkillIcons";
         public const string Props = Sprites + "/Props"; // 월드 오브젝트 스프라이트(제단 등)
         public const string FormSprites = Sprites + "/Forms"; // 폼 캐릭터(PPU 128 · 256px · 발밑 피벗)
+        public const string WeaponSprites = Sprites + "/Weapons"; // 무기(PPU 32 · 피벗 = 자루)
         // 배경 레이어는 Sprite가 아니라 Texture로 임포트한다(RawImage.uvRect 스크롤 대상).
         public const string TitleBackdrop = "Assets/Art/Backgrounds/Title";
 

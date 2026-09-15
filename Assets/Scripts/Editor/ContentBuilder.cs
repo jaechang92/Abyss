@@ -28,6 +28,7 @@ namespace Abyss.EditorTools
                 "  · FormData 4 (dark_blade, void_archer, ancient_shield, void_thrower)\n" +
                 "  · SkillData 18 (불꽃 6 + 심연 6 + 버프 1 + 방패 3 + 투척 2)\n" +
                 "  · EnemyData 10 (근접 2 / 원거리 4 / 엘리트 1 / 보스 1 + Stage2 중간보스 1 / 보스 1)\n" +
+                "  · WeaponData 4 (폼마다 기본 무기 하나)\n" +
                 "  · RunConfig 1\n\n" +
                 "이미 존재하는 에셋은 건너뜁니다.",
                 "생성", "취소");
@@ -36,6 +37,7 @@ namespace Abyss.EditorTools
             EnsureDir(AbyssPaths.Forms);
             EnsureDir(AbyssPaths.Skills);
             EnsureDir(AbyssPaths.Enemies);
+            EnsureDir(AbyssPaths.Weapons);
             EnsureDir(AbyssPaths.RunConfigDir);
             EnsureDir(AbyssPaths.Abilities);
 
@@ -43,11 +45,14 @@ namespace Abyss.EditorTools
             CreateSkills();
             CreateEnemies();
             LinkEnemySfx();   // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다
+            CreateWeapons();
             CreateRunConfig();
             CreateAbilities();
             WireActiveAbilities();
             WireSkillIcons();
-            WireFormBodySprites();   // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다
+            WireFormBodySprites();     // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다
+            WireWeaponSprites();       // 〃 — 무기 그림 + 각도 스트립
+            WireFormDefaultWeapons();  // 〃 — 폼이 들고 시작할 무기
             WireAbilitySfx();
 
             AssetDatabase.SaveAssets();

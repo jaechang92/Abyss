@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Ability_VoidJavelin
   m_EditorClassIdentifier: 
   abilityName: void_javelin
-  description: "\uC804\uBC29\uC73C\uB85C \uACE0\uC704\uB825 \uC2EC\uC5F0 \uD22C\uCC3D\uC744
-    \uB358\uC9C4\uB2E4."
+  description: "\uC804\uBC29\uC73C\uB85C \uACE0\uC704\uB825 \uC2EC\uC5F0 \uD22C\uCC3D\uC744 \uB358\uC9C4\uB2E4."
   icon: {fileID: 0}
   cooldownDuration: 4.5
   requiresAlive: 1
