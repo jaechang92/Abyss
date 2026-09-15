@@ -38,6 +38,10 @@ namespace Abyss.Runtime.Player
         [Tooltip("재생 진행도를 읽을 재생기.")]
         [SerializeField] private AnimatorDriver animatorDriver;
 
+        [Header("자세")]
+        [Tooltip("켜면 앵커 각도를 무시하고 그려진 그대로 세워 든다. 방패처럼 버티는 무기.")]
+        [SerializeField] private bool bracedUpright;
+
         [Header("각도별 그림 (비우면 Transform 회전으로 물러난다)")]
         [Tooltip("각도 0(그려진 그대로)부터 시계방향으로 360/N 도씩 돈 그림들. 자루가 칸 중앙이라 피벗이 같다.")]
         [SerializeField] private Sprite[] angleSprites;
@@ -110,9 +114,14 @@ namespace Abyss.Runtime.Player
             weaponRenderer.enabled = true;
             transform.localPosition = frame.position;
 
+            // 🔑 <b>위치는 손을 따라가되 회전만 고정한다.</b> 방패는 팔이 어디를 향하든
+            //    세워서 버티는 물건이라 앵커 각도를 그대로 먹이면 같이 휘둘러진다.
+            //    (2026-09-16 사용자 지적 — 검·단검·활은 팔을 따라가는 게 맞다)
+            float angle = bracedUpright ? 0f : frame.angle;
+
             // 🔑 각도를 '값'으로 받아 여기서 실현한다 — 앵커 데이터는 그대로 두고
             //    이 줄만 갈아끼운다(weapon-attachment.md §3 이 설계해 둔 자리다).
-            if (TryPickAngleSprite(frame.angle, out Sprite angled))
+            if (TryPickAngleSprite(angle, out Sprite angled))
             {
                 weaponRenderer.sprite = angled;
                 transform.localRotation = Quaternion.identity;   // 회전은 그림이 이미 갖고 있다
@@ -120,7 +129,7 @@ namespace Abyss.Runtime.Player
             else
             {
                 weaponRenderer.sprite = active;
-                transform.localRotation = Quaternion.Euler(0f, 0f, frame.angle);
+                transform.localRotation = Quaternion.Euler(0f, 0f, angle);
             }
 
             if (bodyRenderer != null)
