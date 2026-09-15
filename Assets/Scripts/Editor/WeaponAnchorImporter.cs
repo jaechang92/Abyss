@@ -44,6 +44,25 @@ namespace Abyss.EditorTools
         };
 
         /// <summary>
+        /// 🔑 <b>검출 각도를 안 쓰고 그려진 각도(0)를 유지할 상태.</b>
+        ///
+        /// 각도 추정은 <b>몸통 중심 → 손</b> 벡터다. 팔이 어디를 향하는지는 잡지만
+        /// <b>손목의 꺾임</b>은 못 잡는다. 서 있거나 달리는 동안에는 그 차이가 작아
+        /// 추정이 확실히 낫다(검을 내린다). 그런데 <b>공격은 다르다</b> —
+        /// 무기 그림의 45°가 이미 「치켜든 큰 검」이라 그대로가 더 극적이고,
+        /// 추정값을 넣으면 수평에 가까워져 <b>자유 회전의 픽셀 뭉개짐</b>까지 같이 온다
+        /// (2026-09-15 오프라인 합성으로 비교함).
+        ///
+        /// ⚠️ 여기 있는 상태는 <b>사람이 각도를 직접 채울 자리</b>다. 0 은 「미정」이 아니라
+        /// 「그려진 각도를 쓴다」는 뜻이다.
+        /// </summary>
+        private static readonly HashSet<string> KeepDrawnAngleIds = new()
+        {
+            PlayerAnimationIds.AttackLight, PlayerAnimationIds.AttackHeavy,
+        };
+
+
+        /// <summary>
         /// 루프인 상태. <see cref="WeaponAnchorSet.FrameIndexOf"/>가 끝에서 되감을지를 정한다.
         /// <c>PlayerAnimationBuilder</c>의 <c>Looping</c>/<c>OneShot</c> 구분과 같아야 한다.
         /// </summary>
@@ -90,6 +109,7 @@ namespace Abyss.EditorTools
                 }
                 formPrefix ??= prefix;
 
+                bool keepDrawnAngle = KeepDrawnAngleIds.Contains(animationId);
                 var frames = new WeaponAnchorFrame[sheet.anchors.Length];
                 for (int i = 0; i < sheet.anchors.Length; i++)
                 {
@@ -97,8 +117,9 @@ namespace Abyss.EditorTools
                     frames[i] = new WeaponAnchorFrame
                     {
                         position = new Vector2(a.x, a.y),
-                        // 각도·앞뒤는 아직 검출이 안 준다. 자리를 비워 두고 나중에 채운다.
-                        angle = 0f,
+                        // 팔 벡터에서 추정한 각도. 공격은 그려진 45°가 더 나아 0 으로 둔다.
+                        angle = keepDrawnAngle ? 0f : a.angle,
+                        // 앞뒤는 아직 검출이 안 준다. 자리를 비워 두고 나중에 채운다.
                         isInFront = true,
                         isKey = a.source == "키",
                     };
@@ -236,6 +257,7 @@ namespace Abyss.EditorTools
             public int frame;
             public float x;          // 피벗 기준 유닛
             public float y;
+            public float angle;      // 그려진 각도로부터의 회전량(도)
             public string source;    // "키" | "보간" | "제안"
         }
 #pragma warning restore 0649

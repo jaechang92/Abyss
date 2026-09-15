@@ -38,6 +38,10 @@ namespace Abyss.Runtime.Player
         [Tooltip("재생 진행도를 읽을 재생기.")]
         [SerializeField] private AnimatorDriver animatorDriver;
 
+        [Header("각도별 그림 (비우면 Transform 회전으로 물러난다)")]
+        [Tooltip("각도 0(그려진 그대로)부터 시계방향으로 360/N 도씩 돈 그림들. 자루가 칸 중앙이라 피벗이 같다.")]
+        [SerializeField] private Sprite[] angleSprites;
+
         [Header("에디터 미리보기")]
         [Tooltip("플레이 중이 아닐 때 쓸 앵커. 런타임에는 폼이 꽂아 주므로 비워도 된다.")]
         [SerializeField] private WeaponAnchorSet previewAnchors;
@@ -104,18 +108,63 @@ namespace Abyss.Runtime.Player
             }
 
             weaponRenderer.enabled = true;
-            weaponRenderer.sprite = active;
             transform.localPosition = frame.position;
 
-            // 각도를 '값'으로 받아 여기서 실현한다. 각도별 그림으로 바꾸더라도
-            // 바뀌는 곳은 이 줄이지 앵커 데이터가 아니다(weapon-attachment.md §3).
-            transform.localRotation = Quaternion.Euler(0f, 0f, frame.angle);
+            // 🔑 각도를 '값'으로 받아 여기서 실현한다 — 앵커 데이터는 그대로 두고
+            //    이 줄만 갈아끼운다(weapon-attachment.md §3 이 설계해 둔 자리다).
+            if (TryPickAngleSprite(frame.angle, out Sprite angled))
+            {
+                weaponRenderer.sprite = angled;
+                transform.localRotation = Quaternion.identity;   // 회전은 그림이 이미 갖고 있다
+            }
+            else
+            {
+                weaponRenderer.sprite = active;
+                transform.localRotation = Quaternion.Euler(0f, 0f, frame.angle);
+            }
 
             if (bodyRenderer != null)
             {
                 weaponRenderer.sortingLayerID = bodyRenderer.sortingLayerID;
                 weaponRenderer.sortingOrder = bodyRenderer.sortingOrder + (frame.isInFront ? 1 : -1);
             }
+        }
+
+        /// <summary>
+        /// 목표 각도에 가장 가까운 **미리 돌려 구운 그림**을 고른다.
+        ///
+        /// 🔴 <b>픽셀아트를 런타임에 임의 각도로 돌리면 칼날이 뭉갠다.</b> 무기가 45° 대각선으로
+        /// 그려져 있어 하필 <c>-45°</c> 부근이 최악이다(대각선이 수평으로 눌린다).
+        /// 90° 배수로 스냅하면 깨끗하지만 방향이 넷뿐이라 회전이 툭툭 끊긴다.
+        /// 그래서 <c>bake_weapon_angles.py</c> 로 각도를 미리 구워 둔다 — <b>gen 이 안 든다.</b>
+        ///
+        /// 📌 인덱스 <c>i</c> 는 <c>-360*i/N</c> 도 돌린 그림이므로, 목표 각도 <c>a</c> 는
+        /// <c>i = -a / step</c> 이다. 음수와 한 바퀴 넘는 값을 함께 다루려고 나머지를 두 번 돌린다.
+        /// </summary>
+        private bool TryPickAngleSprite(float degrees, out Sprite sprite)
+        {
+            sprite = null;
+            int count = angleSprites != null ? angleSprites.Length : 0;
+            if (count == 0) return false;
+
+            sprite = angleSprites[AngleIndexOf(degrees, count)];
+            return sprite != null;
+        }
+
+        /// <summary>
+        /// 각도(도) → 구워 둔 그림의 번호. <b>Unity 타입을 안 쓰는 순수 함수</b>라
+        /// 스프라이트 없이 테스트한다(<c>WeaponAnchorSet.FrameIndexOf</c>와 같은 태도).
+        ///
+        /// ⚠️ 한 바퀴를 넘는 값과 음수를 함께 다뤄야 해서 나머지를 두 번 돌린다 —
+        /// C# 의 <c>%</c> 는 음수에 음수를 주기 때문이다.
+        /// </summary>
+        public static int AngleIndexOf(float degrees, int count)
+        {
+            if (count <= 0) return 0;
+
+            float step = 360f / count;
+            int index = Mathf.RoundToInt(-degrees / step);
+            return ((index % count) + count) % count;
         }
 
         /// <summary>

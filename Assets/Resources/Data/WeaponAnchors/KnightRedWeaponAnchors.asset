@@ -102,23 +102,23 @@ MonoBehaviour:
     handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.947, y: 0.6808}
-      angle: 0
+      angle: -57.8
       isInFront: 1
       isKey: 1
     - position: {x: 0.947, y: 0.6808}
-      angle: 0
+      angle: -58.1
       isInFront: 1
       isKey: 1
     - position: {x: 0.947, y: 0.6808}
-      angle: 0
+      angle: -58.1
       isInFront: 1
       isKey: 1
     - position: {x: 0.947, y: 0.6808}
-      angle: 0
+      angle: -60.3
       isInFront: 1
       isKey: 1
     - position: {x: 0.947, y: 0.6808}
-      angle: 0
+      angle: -61.7
       isInFront: 1
       isKey: 1
   - animationId: Dead
@@ -127,39 +127,39 @@ MonoBehaviour:
     handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.4545, y: 0.683}
-      angle: 0
+      angle: -79.7
       isInFront: 1
       isKey: 0
     - position: {x: 0.4148, y: 0.7089}
-      angle: 0
+      angle: -78.7
       isInFront: 1
       isKey: 1
     - position: {x: 0.4783, y: 0.6808}
-      angle: 0
+      angle: -77.7
       isInFront: 1
       isKey: 1
     - position: {x: 0.6027, y: 0.6266}
-      angle: 0
+      angle: -74.1
       isInFront: 1
       isKey: 1
     - position: {x: 0.6531, y: 0.5533}
-      angle: 0
+      angle: -72.7
       isInFront: 1
       isKey: 1
     - position: {x: 0.6134, y: 0.5792}
-      angle: 0
+      angle: -66.6
       isInFront: 1
       isKey: 0
     - position: {x: 0.5737, y: 0.6051}
-      angle: 0
+      angle: -54.7
       isInFront: 1
       isKey: 0
     - position: {x: 0.5339, y: 0.6311}
-      angle: 0
+      angle: -25.2
       isInFront: 1
       isKey: 0
     - position: {x: 0.4942, y: 0.657}
-      angle: 0
+      angle: -7
       isInFront: 1
       isKey: 0
   - animationId: Fall
@@ -168,19 +168,19 @@ MonoBehaviour:
     handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.8224, y: 1.1138}
-      angle: 0
+      angle: -42.9
       isInFront: 1
       isKey: 1
     - position: {x: 0.8224, y: 1.145}
-      angle: 0
+      angle: -41.2
       isInFront: 1
       isKey: 1
     - position: {x: 0.8224, y: 1.0825}
-      angle: 0
+      angle: -44.7
       isInFront: 1
       isKey: 1
     - position: {x: 0.8224, y: 0.9888}
-      angle: 0
+      angle: -50.5
       isInFront: 1
       isKey: 1
   - animationId: Hit
@@ -189,39 +189,39 @@ MonoBehaviour:
     handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.5265, y: 0.7933}
-      angle: 0
+      angle: -68.5
       isInFront: 1
       isKey: 0
     - position: {x: 0.3555, y: 0.6915}
-      angle: 0
+      angle: -83.5
       isInFront: 1
       isKey: 1
     - position: {x: 0.5372, y: 0.7501}
-      angle: 0
+      angle: -71.3
       isInFront: 1
       isKey: 1
     - position: {x: 0.7277, y: 0.9079}
-      angle: 0
+      angle: -54.6
       isInFront: 1
       isKey: 1
     - position: {x: 0.8253, y: 1.0427}
-      angle: 0
+      angle: -46.7
       isInFront: 1
       isKey: 1
     - position: {x: 0.8555, y: 1.09}
-      angle: 0
+      angle: -43.3
       isInFront: 1
       isKey: 1
     - position: {x: 0.8542, y: 1.148}
-      angle: 0
+      angle: -39.4
       isInFront: 1
       isKey: 1
     - position: {x: 0.824, y: 1.0396}
-      angle: 0
+      angle: -46
       isInFront: 1
       isKey: 1
     - position: {x: 0.6974, y: 0.895}
-      angle: 0
+      angle: -55
       isInFront: 1
       isKey: 1
   - animationId: Idle
@@ -230,39 +230,39 @@ MonoBehaviour:
     handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.352, y: 0.7313}
-      angle: 0
+      angle: -81.7
       isInFront: 1
       isKey: 0
     - position: {x: 0.3509, y: 0.7231}
-      angle: 0
+      angle: -82.1
       isInFront: 1
       isKey: 1
     - position: {x: 0.381, y: 0.7189}
-      angle: 0
+      angle: -82.1
       isInFront: 1
       isKey: 1
     - position: {x: 0.4122, y: 0.7501}
-      angle: 0
+      angle: -78.4
       isInFront: 1
       isKey: 1
     - position: {x: 0.4122, y: 0.7501}
-      angle: 0
+      angle: -79.6
       isInFront: 1
       isKey: 1
     - position: {x: 0.4125, y: 0.7548}
-      angle: 0
+      angle: -79.2
       isInFront: 1
       isKey: 1
     - position: {x: 0.3854, y: 0.7475}
-      angle: 0
+      angle: -80
       isInFront: 1
       isKey: 1
     - position: {x: 0.3542, y: 0.7475}
-      angle: 0
+      angle: -81.3
       isInFront: 1
       isKey: 1
     - position: {x: 0.3531, y: 0.7394}
-      angle: 0
+      angle: -82.5
       isInFront: 1
       isKey: 0
   - animationId: Jump
@@ -271,19 +271,19 @@ MonoBehaviour:
     handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.6949, y: 1.0403}
-      angle: 0
+      angle: -45.3
       isInFront: 1
       isKey: 1
     - position: {x: 0.6321, y: 1.0584}
-      angle: 0
+      angle: -44.8
       isInFront: 1
       isKey: 1
     - position: {x: 0.6009, y: 1.0584}
-      angle: 0
+      angle: -46.9
       isInFront: 1
       isKey: 1
     - position: {x: 0.6479, y: 1.0493}
-      angle: 0
+      angle: -45.5
       isInFront: 1
       isKey: 0
   - animationId: Run
@@ -292,34 +292,34 @@ MonoBehaviour:
     handOffset: {x: 0, y: 0}
     frames:
     - position: {x: 0.3501, y: 0.6686}
-      angle: 0
+      angle: -84.7
       isInFront: 1
       isKey: 0
     - position: {x: 0.318, y: 0.6453}
-      angle: 0
+      angle: -87.8
       isInFront: 1
       isKey: 1
     - position: {x: 0.3517, y: 0.6652}
-      angle: 0
+      angle: -85.8
       isInFront: 1
       isKey: 0
     - position: {x: 0.3854, y: 0.685}
-      angle: 0
+      angle: -84.1
       isInFront: 1
       isKey: 1
     - position: {x: 0.4479, y: 0.685}
-      angle: 0
+      angle: -78.9
       isInFront: 1
       isKey: 1
     - position: {x: 0.4479, y: 0.7163}
-      angle: 0
+      angle: -76
       isInFront: 1
       isKey: 1
     - position: {x: 0.4167, y: 0.685}
-      angle: 0
+      angle: -80.1
       isInFront: 1
       isKey: 1
     - position: {x: 0.3821, y: 0.6919}
-      angle: 0
+      angle: -82.6
       isInFront: 1
       isKey: 1

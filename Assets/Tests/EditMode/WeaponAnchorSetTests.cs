@@ -145,6 +145,42 @@ namespace Abyss.Tests.EditMode
             return attribute.order;
         }
 
+        /// <summary>
+        /// 각도 → 구워 둔 그림 번호. 인덱스 <c>i</c> 가 <c>-360*i/N</c> 도 돌린 그림이라는
+        /// <c>bake_weapon_angles.py</c> 의 규약과 **양쪽이 같아야** 한다.
+        /// </summary>
+        [Test]
+        public void AngleIndexOf_각도를_구워둔_번호로_바꾼다()
+        {
+            // 24각도 = 15도 간격. 0도는 그려진 그대로다
+            Assert.AreEqual(0, WeaponSocket.AngleIndexOf(0f, 24));
+            Assert.AreEqual(1, WeaponSocket.AngleIndexOf(-15f, 24));
+            Assert.AreEqual(6, WeaponSocket.AngleIndexOf(-90f, 24));
+            Assert.AreEqual(12, WeaponSocket.AngleIndexOf(-180f, 24));
+        }
+
+        [Test]
+        public void AngleIndexOf_음수와_한바퀴_넘는_값을_감는다()
+        {
+            // 🔴 C# 의 % 는 음수에 음수를 준다 — 배열 색인으로 바로 쓰면 예외가 난다
+            Assert.AreEqual(23, WeaponSocket.AngleIndexOf(15f, 24));      // 반대 방향
+            Assert.AreEqual(0, WeaponSocket.AngleIndexOf(-360f, 24));     // 한 바퀴
+            Assert.AreEqual(6, WeaponSocket.AngleIndexOf(-450f, 24));     // 한 바퀴 + 90도
+            for (int d = -720; d <= 720; d += 7)
+            {
+                int index = WeaponSocket.AngleIndexOf(d, 24);
+                Assert.That(index, Is.InRange(0, 23), $"{d}도에서 범위를 벗어났다");
+            }
+        }
+
+        [Test]
+        public void AngleIndexOf_가장_가까운_칸으로_반올림한다()
+        {
+            // 15도 간격에서 -7도는 0번, -8도는 1번에 가깝다
+            Assert.AreEqual(0, WeaponSocket.AngleIndexOf(-7f, 24));
+            Assert.AreEqual(1, WeaponSocket.AngleIndexOf(-8f, 24));
+        }
+
         private static WeaponAnchorSet Build()
         {
             var set = ScriptableObject.CreateInstance<WeaponAnchorSet>();
