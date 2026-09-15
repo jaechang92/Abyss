@@ -21,6 +21,9 @@ namespace Abyss.EditorTools
     /// 루트의 <c>localScale.x</c> 반전과 겹쳐 <b>두 번 뒤집혀</b> 도로 원래 방향이 된다.
     /// 구워 두면 오른쪽을 볼 때 맞고, 왼쪽을 볼 때는 부모가 한 번만 뒤집어 역시 맞는다.
     ///
+    /// ⚠️ <b>단, 반전은 날붙이에만 해당한다</b>(<see cref="FlipHorizontally"/>).
+    /// 활은 굽은 방향이 곧 쏘는 방향이고 방패는 정면 그림이다.
+    ///
     /// 📌 <b>각도 0 = 그려진 그대로</b>다. 45° 로 그려져 있으면 각도 0 이 그 45° 다.
     /// 나중에 각도별로 새로 그리면 각 그림이 자기 각도의 0 이 되므로 규약이 그대로 산다.
     /// </summary>
@@ -38,10 +41,27 @@ namespace Abyss.EditorTools
         /// </summary>
         private static readonly Dictionary<string, int[]> Picks = new()
         {
+            // 2026-09-16 큐레이션 — 장식·발광·보석이 없는 원형으로 한 종당 하나씩.
             ["sword"] = new[] { 0 },
-            ["bow"] = Array.Empty<int>(),
-            ["shield"] = Array.Empty<int>(),
-            ["dagger"] = Array.Empty<int>(),
+            ["bow"] = new[] { 0 },        // 나무 리커브. 곡선 역할(08-silhouette §4)
+            ["shield"] = new[] { 15 },    // 평평한 위 + 곧은 옆면. 사각 역할
+            ["dagger"] = new[] { 6 },     // 🔑 가드가 있는 것으로 골랐다 — 가드가 없으면
+                                          //    blade 그립(가드~폼멜)이 기준 삼을 것이 없다
+        };
+
+        /// <summary>
+        /// 🔑 <b>좌우를 뒤집어 구울 종류.</b>
+        ///
+        /// 반전이 필요한 이유는 <b>아이템 아이콘 관례</b>다 — 날붙이는 칼끝을 <b>왼쪽 위</b>로 그린다.
+        /// 캐릭터는 오른쪽을 보므로 그대로 쥐면 칼끝이 뒤를 향한다.
+        ///
+        /// ⚠️ <b>그건 날붙이 이야기다.</b> 활은 굽은 방향이 곧 쏘는 방향이라 뒤집으면 반대로 휘고,
+        /// 방패는 정면을 보는 그림이라 뒤집을 이유가 없다(2026-09-16 사용자 지적).
+        /// 전부에 반전을 걸어 두면 <b>오류 없이 활만 반대로 휜다.</b>
+        /// </summary>
+        private static readonly HashSet<string> FlipHorizontally = new()
+        {
+            "sword", "dagger",
         };
 
         [MenuItem("Tools/Abyss/Generate/Weapon Sprites")]
@@ -105,12 +125,14 @@ namespace Abyss.EditorTools
             Debug.Log(made == 0
                 ? "[WeaponSpriteImporter] 고른 후보가 없다 — Picks 에 칸 번호를 넣을 것."
                 : $"[WeaponSpriteImporter] {made}장 들여왔다 → {OutputDir}\n" +
-                  "좌우 반전을 구웠고 피벗은 그립에 맞췄다. PPU 32 · Point · 압축 없음.");
+                  $"좌우 반전: {string.Join(", ", FlipHorizontally)} (나머지는 그대로)\n" +
+                  "피벗은 그립에 맞췄다. PPU 32 · Point · 압축 없음.");
         }
 
-        /// <summary>한 칸을 잘라 <b>좌우로 뒤집어</b> 저장하고, 피벗까지 맞춘다.</summary>
+        /// <summary>한 칸을 잘라 저장하고 피벗까지 맞춘다. 종류에 따라 좌우를 뒤집는다.</summary>
         private static void WriteCell(Texture2D grid, int cell, int index, string kind, GripItem item)
         {
+            bool flip = FlipHorizontally.Contains(kind);
             int columns = grid.width / cell;
             int col = index % columns;
             int row = index / columns;
@@ -119,17 +141,21 @@ namespace Abyss.EditorTools
             int srcY = grid.height - (row + 1) * cell;
 
             Color[] src = grid.GetPixels(col * cell, srcY, cell, cell);
-            var flipped = new Color[src.Length];
-            for (int y = 0; y < cell; y++)
+            if (flip)
             {
-                for (int x = 0; x < cell; x++)
+                var mirrored = new Color[src.Length];
+                for (int y = 0; y < cell; y++)
                 {
-                    flipped[y * cell + (cell - 1 - x)] = src[y * cell + x];
+                    for (int x = 0; x < cell; x++)
+                    {
+                        mirrored[y * cell + (cell - 1 - x)] = src[y * cell + x];
+                    }
                 }
+                src = mirrored;
             }
 
             var tex = new Texture2D(cell, cell, TextureFormat.RGBA32, false);
-            tex.SetPixels(flipped);
+            tex.SetPixels(src);
             tex.Apply();
 
             string assetPath = $"{OutputDir}/{kind}_{index:D2}.png";
@@ -137,14 +163,14 @@ namespace Abyss.EditorTools
             UnityEngine.Object.DestroyImmediate(tex);
 
             AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
-            ApplySettings(assetPath, item);
+            ApplySettings(assetPath, item, flip);
         }
 
         /// <summary>
         /// 🔴 임포트 설정은 몸 시트와 같은 규약이다 — PPU 32 · Point · 압축 없음.
         /// 하나라도 어긋나면 무기만 크기나 선명도가 달라지는데 <b>오류로는 안 잡힌다</b>.
         /// </summary>
-        private static void ApplySettings(string assetPath, GripItem item)
+        private static void ApplySettings(string assetPath, GripItem item, bool flip)
         {
             var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
             if (importer == null) return;
@@ -156,8 +182,9 @@ namespace Abyss.EditorTools
             importer.textureCompression = TextureImporterCompression.Uncompressed;
             importer.mipmapEnabled = false;
 
-            // 좌우를 뒤집었으니 피벗 x 도 뒤집는다. y 는 그대로.
-            float pivotX = 1f - item.pivotUnity[0];
+            // 🔴 그림을 뒤집었을 때만 피벗 x 도 뒤집는다. 안 뒤집은 그림에 이걸 걸면
+            //    자루가 반대편으로 가는데, 무기가 손 반대쪽에 붙을 뿐 오류는 안 난다.
+            float pivotX = flip ? 1f - item.pivotUnity[0] : item.pivotUnity[0];
             importer.spritePivot = new Vector2(pivotX, item.pivotUnity[1]);
 
             TextureImporterSettings settings = new();
