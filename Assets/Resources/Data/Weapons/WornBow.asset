@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c07a826fb360447ad820fc71eda40e, type: 3}
+  m_Name: WornBow
+  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Weapon.WeaponData
+  weaponId: worn_bow
+  formBound: void_archer
+  rarity: 0
+  displayName: "\uB0A1\uC740 \uD65C"
+  description: "\uC2DC\uC704\uAC00 \uB298\uC5B4\uC84C\uB2E4. \uADF8\uB798\uB3C4 \uB2F9\uAE30\uBA74 \uC3D8\uC544\uC9C4\uB2E4."
+  icon: {fileID: 0}
+  sprite: {fileID: 21300000, guid: ba2991baac0e86944ba42e57fec1d420, type: 3}
+  angleSprites:
+  - {fileID: 790336363, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: -418703575, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: -390925178, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: -1790732732, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: -483140953, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: 1305247407, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: 84823967, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: -413837563, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: 564233960, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: 154943613, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: 748088585, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: -704094536, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: 2057969298, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: -50871345, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: 2015043197, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: -1686097091, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: -1300081254, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: 680242768, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: -1324090658, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: -1022629033, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: 1332243214, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: -729204620, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: -514118121, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  - {fileID: 1750079605, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}
+  bracedUpright: 0
+  attackMultiplier: 1
+  upgradeMultiplierStep: 0.1

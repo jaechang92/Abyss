@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Ability_FlameRoar
   m_EditorClassIdentifier: 
   abilityName: flame_roar
-  description: "\uC8FC\uBCC0 \uC801\uC744 \uD654\uC5FC\uC73C\uB85C \uC77C\uC81C\uD788
-    \uAC15\uD0C0\uD55C\uB2E4."
+  description: "\uC8FC\uBCC0 \uC801\uC744 \uD654\uC5FC\uC73C\uB85C \uC77C\uC81C\uD788 \uAC15\uD0C0\uD55C\uB2E4."
   icon: {fileID: 0}
   cooldownDuration: 6
   requiresAlive: 1

@@ -16,8 +16,10 @@ MonoBehaviour:
   requiresMetaUnlock: 0
   displayName: "\uACF5\uD5C8 \uAD81\uC218"
   bodySprite: {fileID: 21300000, guid: 5f8eaf45fad6cad4ab3cb83b27056e04, type: 3}
-  description: "\uC6D0\uAC70\uB9AC\xB7\uAE30\uB3D9\uC131\xB7\uC2EC\uC5F0. \uBE60\uB978
-    \uC5F0\uC0AC\xB7\uBC31\uC2A4\uD15D. HP -10%, \uC774\uB3D9\uC18D\uB3C4 +15%."
+  animatorController: {fileID: 0}
+  weaponAnchors: {fileID: 0}
+  defaultWeapon: {fileID: 11400000, guid: 8f86dbe816b66a74c8a918b2d7baec13, type: 2}
+  description: "\uC6D0\uAC70\uB9AC\xB7\uAE30\uB3D9\uC131\xB7\uC2EC\uC5F0. \uBE60\uB978 \uC5F0\uC0AC\xB7\uBC31\uC2A4\uD15D. HP -10%, \uC774\uB3D9\uC18D\uB3C4 +15%."
   icon: {fileID: 0}
   hpMultiplier: 0.9
   moveSpeedMultiplier: 1.15
