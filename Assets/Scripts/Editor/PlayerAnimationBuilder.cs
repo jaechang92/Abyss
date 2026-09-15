@@ -128,11 +128,20 @@ namespace Abyss.EditorTools
         private const float DeadClipDuration = 0.8f;
 
         /// <summary>
-        /// 시트 경로 규약. 파일명은 <c>{폼}_{상태}_east.png</c> — 방향은 east 한 벌만 그리고
-        /// 좌향은 런타임 flip 으로 얻는다(비용 절반).
+        /// 시트 방향. <b>한 벌만 그리고 좌향은 좌우 반전으로 얻는다</b>(비용 절반).
+        ///
+        /// 🔴 <b>2026-09-15 에 <c>east</c> → <c>southeast</c> 로 바꿨다.</b>
+        /// 순측면(east)은 <b>먼 팔이 몸에 가려</b> 실루엣에 안 나온다. 그래서 손 앵커 검출이
+        /// 「가장 앞으로 나온 점」밖에 못 주고, 그 점이 <b>어느 손인지 모른다</b> —
+        /// 자세마다 몸통 앞면이기도 하고 주먹이기도 해서 클립당 보정값 하나로는 원리적으로 못 맞춘다.
+        /// 3/4 시점(south-east)은 <b>두 팔이 다 보인다.</b>
+        /// 규약은 <c>Art_Source/characters/knight_red/animation_prompts.md</c> 에 있다.
         /// </summary>
+        private const string SheetDirection = "southeast";
+
+        /// <summary>시트 경로 규약. 파일명은 <c>{폼}_{상태}_{방향}.png</c> 다.</summary>
         private static string CharacterSheet(string filePrefix, string sheetState)
-            => $"Assets/Art/Sprites/Characters/{filePrefix}_{sheetState}_east.png";
+            => $"Assets/Art/Sprites/Characters/{filePrefix}_{sheetState}_{SheetDirection}.png";
 
         /// <summary>base 컨트롤러가 갖출 상태. 순서가 곧 Animator 의 기본 상태 순서이며 첫 항목이 기본값이 된다.</summary>
         private static readonly string[] AllAnimationIds =
