@@ -38,11 +38,11 @@ namespace Abyss.Runtime.Player
         [Tooltip("재생 진행도를 읽을 재생기.")]
         [SerializeField] private AnimatorDriver animatorDriver;
 
-        [Header("자세")]
-        [Tooltip("켜면 앵커 각도를 무시하고 그려진 그대로 세워 든다. 방패처럼 버티는 무기.")]
+        [Header("무기가 없을 때 쓸 미리보기 값")]
+        [Tooltip("🔴 장비(WeaponData)가 꽂히면 전부 무시된다. 장비 시스템이 없던 시절의 배선이자 " +
+                 "에디터에서 눈으로 맞추기 위한 자리다.")]
         [SerializeField] private bool bracedUpright;
 
-        [Header("각도별 그림 (비우면 Transform 회전으로 물러난다)")]
         [Tooltip("각도 0(그려진 그대로)부터 시계방향으로 360/N 도씩 돈 그림들. 자루가 칸 중앙이라 피벗이 같다.")]
         [SerializeField] private Sprite[] angleSprites;
 
@@ -58,7 +58,7 @@ namespace Abyss.Runtime.Player
 
         private IAnimationDriver driver;
         private WeaponAnchorSet anchors;
-        private Sprite weapon;
+        private Weapon.WeaponData equipped;
 
         private void Awake()
         {
@@ -81,13 +81,21 @@ namespace Abyss.Runtime.Player
         }
 
         /// <summary>
-        /// 장착한 무기 그림. <b>스프라이트의 피벗이 곧 손이 쥐는 지점</b>이라
-        /// (<c>weapon_grips.py</c> 규약) 여기서 따로 보정하지 않는다.
+        /// 장착한 무기. <b>그림·각도·자세가 한 벌로 온다</b> — 셋이 따로 오면
+        /// 「그림은 방패인데 각도는 검」 같은 어긋남이 생기고, 그건 오류가 안 난다.
+        ///
+        /// 🔑 <b>스프라이트의 피벗이 곧 손이 쥐는 지점</b>이라(<c>weapon_grips.py</c> 규약)
+        /// 여기서 따로 보정하지 않는다.
+        ///
+        /// <c>null</c> 을 주면 미리보기 값으로 물러난다(맨손이 아니라 인스펙터 배선).
         /// </summary>
-        public void SetWeapon(Sprite sprite)
+        public void SetWeapon(Weapon.WeaponData weapon)
         {
-            weapon = sprite;
-            if (weaponRenderer != null) weaponRenderer.sprite = sprite;
+            equipped = weapon;
+            if (weaponRenderer != null && weapon != null && weapon.sprite != null)
+            {
+                weaponRenderer.sprite = weapon.sprite;
+            }
         }
 
         /// <summary>
@@ -117,7 +125,7 @@ namespace Abyss.Runtime.Player
             // 🔑 <b>위치는 손을 따라가되 회전만 고정한다.</b> 방패는 팔이 어디를 향하든
             //    세워서 버티는 물건이라 앵커 각도를 그대로 먹이면 같이 휘둘러진다.
             //    (2026-09-16 사용자 지적 — 검·단검·활은 팔을 따라가는 게 맞다)
-            float angle = bracedUpright ? 0f : frame.angle;
+            float angle = ResolveBraced() ? 0f : frame.angle;
 
             // 🔑 각도를 '값'으로 받아 여기서 실현한다 — 앵커 데이터는 그대로 두고
             //    이 줄만 갈아끼운다(weapon-attachment.md §3 이 설계해 둔 자리다).
@@ -153,10 +161,11 @@ namespace Abyss.Runtime.Player
         private bool TryPickAngleSprite(float degrees, out Sprite sprite)
         {
             sprite = null;
-            int count = angleSprites != null ? angleSprites.Length : 0;
+            Sprite[] set = ResolveAngleSprites();
+            int count = set != null ? set.Length : 0;
             if (count == 0) return false;
 
-            sprite = angleSprites[AngleIndexOf(degrees, count)];
+            sprite = set[AngleIndexOf(degrees, count)];
             return sprite != null;
         }
 
@@ -183,9 +192,26 @@ namespace Abyss.Runtime.Player
         /// </summary>
         private Sprite ResolveWeapon()
         {
-            if (weapon != null) return weapon;
+            if (equipped != null && equipped.sprite != null) return equipped.sprite;
             return weaponRenderer != null ? weaponRenderer.sprite : null;
         }
+
+        /// <summary>장비가 가진 각도 그림. 없으면 인스펙터 미리보기 배선.</summary>
+        private Sprite[] ResolveAngleSprites()
+        {
+            if (equipped != null && equipped.angleSprites != null && equipped.angleSprites.Length > 0)
+            {
+                return equipped.angleSprites;
+            }
+            return angleSprites;
+        }
+
+        /// <summary>
+        /// 세워 들 것인가. <b>장비가 있으면 장비가 정한다</b> — 무기에 딸린 성질이라
+        /// 소켓의 체크박스로 두면 무기를 바꿀 때마다 손으로 켜고 꺼야 한다.
+        /// </summary>
+        private bool ResolveBraced()
+            => equipped != null ? equipped.bracedUpright : bracedUpright;
 
         /// <summary>런타임에는 폼이 꽂아 준 것, 에디터에서는 인스펙터에 물린 것.</summary>
         private WeaponAnchorSet ResolveAnchors()
