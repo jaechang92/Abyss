@@ -19,146 +19,146 @@ MonoBehaviour:
     needsManual: 0
     handOffset: {x: 0, y: 0}
     frames:
-    - position: {x: 0.5548, y: 0.8267}
+    - position: {x: 0.6021, y: 0.8622}
       angle: 0
       isInFront: 1
       isKey: 0
-    - position: {x: 0.5312, y: 0.7869}
+    - position: {x: 0.4766, y: 0.7079}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.6935, y: 1.2724}
+    - position: {x: 0.6295, y: 0.9406}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.5597, y: 1.378}
+    - position: {x: 0.5699, y: 1.3586}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.5, y: 1.3751}
+    - position: {x: 0.4462, y: 1.3543}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.6219, y: 1.3533}
+    - position: {x: 0.5594, y: 1.3845}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.7283, y: 1.1822}
+    - position: {x: 0.6365, y: 1.3521}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.6019, y: 0.9064}
+    - position: {x: 0.6628, y: 1.1251}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.5784, y: 0.8665}
+    - position: {x: 0.7277, y: 1.0165}
       angle: 0
       isInFront: 1
-      isKey: 0
+      isKey: 1
   - animationId: AttackLight
     isLooping: 0
     needsManual: 0
     handOffset: {x: 0, y: 0}
     frames:
-    - position: {x: 0.5946, y: 0.8759}
+    - position: {x: 0.554, y: 0.863}
       angle: 0
       isInFront: 1
       isKey: 0
-    - position: {x: 0.5629, y: 0.8525}
-      angle: 0
-      isInFront: 1
-      isKey: 0
-    - position: {x: 0.5312, y: 0.8292}
+    - position: {x: 0.3767, y: 0.6946}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.8164, y: 1.129}
+    - position: {x: 0.4094, y: 0.7486}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.8722, y: 1.3467}
+    - position: {x: 0.4392, y: 0.8335}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.8458, y: 1.2272}
+    - position: {x: 0.3188, y: 0.8392}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.6896, y: 0.946}
+    - position: {x: 0.2829, y: 0.8077}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.6579, y: 0.9226}
+    - position: {x: 0.443, y: 0.82}
       angle: 0
       isInFront: 1
-      isKey: 0
-    - position: {x: 0.6262, y: 0.8992}
+      isKey: 1
+    - position: {x: 0.6688, y: 0.9689}
       angle: 0
       isInFront: 1
-      isKey: 0
+      isKey: 1
+    - position: {x: 0.7313, y: 1.0314}
+      angle: 0
+      isInFront: 1
+      isKey: 1
   - animationId: Dash
     isLooping: 1
-    needsManual: 1
+    needsManual: 0
     handOffset: {x: 0, y: 0}
     frames:
-    - position: {x: 0.7879, y: 1.0582}
+    - position: {x: 0.947, y: 0.6808}
       angle: 0
       isInFront: 1
-      isKey: 0
-    - position: {x: 0.7879, y: 1.0582}
+      isKey: 1
+    - position: {x: 0.947, y: 0.6808}
       angle: 0
       isInFront: 1
-      isKey: 0
-    - position: {x: 0.7879, y: 1.0582}
+      isKey: 1
+    - position: {x: 0.947, y: 0.6808}
       angle: 0
       isInFront: 1
-      isKey: 0
-    - position: {x: 0.7879, y: 1.0582}
+      isKey: 1
+    - position: {x: 0.947, y: 0.6808}
       angle: 0
       isInFront: 1
-      isKey: 0
-    - position: {x: 0.7879, y: 1.0582}
+      isKey: 1
+    - position: {x: 0.947, y: 0.6808}
       angle: 0
       isInFront: 1
-      isKey: 0
+      isKey: 1
   - animationId: Dead
     isLooping: 0
-    needsManual: 1
+    needsManual: 0
     handOffset: {x: 0, y: 0}
     frames:
-    - position: {x: 0.5, y: 0.5939}
+    - position: {x: 0.4545, y: 0.683}
       angle: 0
       isInFront: 1
       isKey: 0
-    - position: {x: 0.5, y: 0.5939}
+    - position: {x: 0.4148, y: 0.7089}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.4783, y: 0.6808}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6027, y: 0.6266}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6531, y: 0.5533}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6134, y: 0.5792}
       angle: 0
       isInFront: 1
       isKey: 0
-    - position: {x: 0.5, y: 0.5939}
+    - position: {x: 0.5737, y: 0.6051}
       angle: 0
       isInFront: 1
       isKey: 0
-    - position: {x: 0.5, y: 0.5939}
+    - position: {x: 0.5339, y: 0.6311}
       angle: 0
       isInFront: 1
       isKey: 0
-    - position: {x: 0.5, y: 0.5939}
-      angle: 0
-      isInFront: 1
-      isKey: 0
-    - position: {x: 0.5, y: 0.5939}
-      angle: 0
-      isInFront: 1
-      isKey: 0
-    - position: {x: 0.5, y: 0.5939}
-      angle: 0
-      isInFront: 1
-      isKey: 0
-    - position: {x: 0.5, y: 0.5939}
-      angle: 0
-      isInFront: 1
-      isKey: 0
-    - position: {x: 0.5, y: 0.5939}
+    - position: {x: 0.4942, y: 0.657}
       angle: 0
       isInFront: 1
       isKey: 0
@@ -167,19 +167,19 @@ MonoBehaviour:
     needsManual: 0
     handOffset: {x: 0, y: 0}
     frames:
-    - position: {x: 0.7283, y: 1.0558}
+    - position: {x: 0.8224, y: 1.1138}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.7283, y: 1.0871}
+    - position: {x: 0.8224, y: 1.145}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.7283, y: 1.0246}
+    - position: {x: 0.8224, y: 1.0825}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.7283, y: 1.0246}
+    - position: {x: 0.8224, y: 0.9888}
       angle: 0
       isInFront: 1
       isKey: 1
@@ -188,80 +188,80 @@ MonoBehaviour:
     needsManual: 0
     handOffset: {x: 0, y: 0}
     frames:
-    - position: {x: 0.4277, y: 0.7889}
+    - position: {x: 0.5265, y: 0.7933}
       angle: 0
       isInFront: 1
       isKey: 0
-    - position: {x: 0.3537, y: 0.8013}
+    - position: {x: 0.3555, y: 0.6915}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.3894, y: 0.9965}
+    - position: {x: 0.5372, y: 0.7501}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.3854, y: 1.1225}
+    - position: {x: 0.7277, y: 0.9079}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.3943, y: 1.1754}
-      angle: 0
-      isInFront: 1
-      isKey: 0
-    - position: {x: 0.4031, y: 1.2283}
+    - position: {x: 0.8253, y: 1.0427}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.4876, y: 1.1774}
-      angle: 0
-      isInFront: 1
-      isKey: 0
-    - position: {x: 0.572, y: 1.1265}
+    - position: {x: 0.8555, y: 1.09}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.5016, y: 0.7764}
+    - position: {x: 0.8542, y: 1.148}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.824, y: 1.0396}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6974, y: 0.895}
       angle: 0
       isInFront: 1
       isKey: 1
   - animationId: Idle
     isLooping: 1
     needsManual: 0
-    handOffset: {x: -0.447, y: -0.176}
+    handOffset: {x: 0, y: 0}
     frames:
-    - position: {x: 0.3635, y: 0.7334}
+    - position: {x: 0.352, y: 0.7313}
       angle: 0
       isInFront: 1
       isKey: 0
-    - position: {x: 0.3487, y: 0.7353}
+    - position: {x: 0.3509, y: 0.7231}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.3845, y: 0.7542}
+    - position: {x: 0.381, y: 0.7189}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.4392, y: 0.7901}
+    - position: {x: 0.4122, y: 0.7501}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.4408, y: 0.8176}
+    - position: {x: 0.4122, y: 0.7501}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.4474, y: 0.8354}
+    - position: {x: 0.4125, y: 0.7548}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.408, y: 0.7276}
+    - position: {x: 0.3854, y: 0.7475}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.3932, y: 0.7295}
+    - position: {x: 0.3542, y: 0.7475}
       angle: 0
       isInFront: 1
-      isKey: 0
-    - position: {x: 0.3783, y: 0.7314}
+      isKey: 1
+    - position: {x: 0.3531, y: 0.7394}
       angle: 0
       isInFront: 1
       isKey: 0
@@ -270,56 +270,56 @@ MonoBehaviour:
     needsManual: 0
     handOffset: {x: 0, y: 0}
     frames:
-    - position: {x: 0.6935, y: 1.1564}
+    - position: {x: 0.6949, y: 1.0403}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.6935, y: 1.1251}
+    - position: {x: 0.6321, y: 1.0584}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.6935, y: 1.0939}
+    - position: {x: 0.6009, y: 1.0584}
       angle: 0
       isInFront: 1
       isKey: 1
-    - position: {x: 0.6935, y: 1.1251}
+    - position: {x: 0.6479, y: 1.0493}
       angle: 0
       isInFront: 1
-      isKey: 1
+      isKey: 0
   - animationId: Run
     isLooping: 1
-    needsManual: 1
+    needsManual: 0
     handOffset: {x: 0, y: 0}
     frames:
-    - position: {x: 0.4712, y: 0.6588}
+    - position: {x: 0.3501, y: 0.6686}
       angle: 0
       isInFront: 1
       isKey: 0
-    - position: {x: 0.4712, y: 0.6588}
+    - position: {x: 0.318, y: 0.6453}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.3517, y: 0.6652}
       angle: 0
       isInFront: 1
       isKey: 0
-    - position: {x: 0.4712, y: 0.6588}
+    - position: {x: 0.3854, y: 0.685}
       angle: 0
       isInFront: 1
-      isKey: 0
-    - position: {x: 0.4712, y: 0.6588}
+      isKey: 1
+    - position: {x: 0.4479, y: 0.685}
       angle: 0
       isInFront: 1
-      isKey: 0
-    - position: {x: 0.4712, y: 0.6588}
+      isKey: 1
+    - position: {x: 0.4479, y: 0.7163}
       angle: 0
       isInFront: 1
-      isKey: 0
-    - position: {x: 0.4712, y: 0.6588}
+      isKey: 1
+    - position: {x: 0.4167, y: 0.685}
       angle: 0
       isInFront: 1
-      isKey: 0
-    - position: {x: 0.4712, y: 0.6588}
+      isKey: 1
+    - position: {x: 0.3821, y: 0.6919}
       angle: 0
       isInFront: 1
-      isKey: 0
-    - position: {x: 0.4712, y: 0.6588}
-      angle: 0
-      isInFront: 1
-      isKey: 0
+      isKey: 1

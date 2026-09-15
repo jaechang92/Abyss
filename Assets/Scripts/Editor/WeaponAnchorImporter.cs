@@ -11,7 +11,7 @@ namespace Abyss.EditorTools
     /// <summary>
     /// <c>Tools/ArtPipeline/hand_anchors.py</c> 가 낸 JSON을 <see cref="WeaponAnchorSet"/>으로 들여온다.
     ///
-    /// 🔑 <b>시트 파일명이 곧 키다</b> — <c>knight_red_attacklight_east.png</c> → <c>AttackLight</c>.
+    /// 🔑 <b>시트 파일명이 곧 키다</b> — <c>knight_red_attacklight_southeast.png</c> → <c>AttackLight</c>.
     /// 클립 생성기(<see cref="PlayerAnimationBuilder"/>)가 쓰는 규약과 같은 자리라, 한쪽만 바뀌면
     /// 앵커가 조용히 안 붙는다. 그래서 <b>모르는 상태 이름은 오류로 세운다</b>.
     ///
@@ -175,14 +175,18 @@ namespace Abyss.EditorTools
             return created;
         }
 
-        /// <summary>`knight_red_attacklight_east.png` → prefix `knight_red` · state `attacklight`.</summary>
+        /// <summary>
+        /// `knight_red_attacklight_southeast.png` → prefix `knight_red` · state `attacklight`.
+        /// 📌 <b>방향 조각은 이름을 몰라도 된다</b> — 끝의 `_` 하나를 통째로 벗기므로
+        /// `_east` 든 `_southeast` 든 같이 동작한다(2026-09-15 방향 전환에서 확인).
+        /// </summary>
         private static bool TryParseSheetName(string fileName, out string prefix, out string state)
         {
             prefix = state = null;
             if (string.IsNullOrEmpty(fileName)) return false;
 
             string stem = Path.GetFileNameWithoutExtension(fileName);
-            int dir = stem.LastIndexOf('_');          // 끝의 방향 조각(_east)
+            int dir = stem.LastIndexOf('_');          // 끝의 방향 조각(_east · _southeast ...)
             if (dir <= 0) return false;
             string withoutDirection = stem[..dir];
 
