@@ -729,6 +729,7 @@ MonoBehaviour:
   weaponRenderer: {fileID: 81541330100573226}
   bodyRenderer: {fileID: 7684517092623361700}
   animatorDriver: {fileID: 6291135310669277660}
+  bracedUpright: 0
   angleSprites:
   - {fileID: 864176228, guid: 10166adf4978456cae3439ebdaf5d9cd, type: 3}
   - {fileID: 1000705828, guid: 10166adf4978456cae3439ebdaf5d9cd, type: 3}
