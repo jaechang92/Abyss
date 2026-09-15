@@ -28,6 +28,7 @@
 """
 
 import argparse
+import math
 import glob
 import json
 import os
@@ -155,6 +156,8 @@ def interpolate(values):
 HEAD_CUT = 0.28          # 실루엣 위 28% = 머리·후드. 든 손보다 후드가 앞설 때가 있다
 LEG_CUT = 0.70           # 아래 30% = 다리·망토 밑단
 FIST_RADIUS2 = 16        # 최전방점 반경 4px 안을 주먹 덩어리로 본다
+TORSO_CUT = 0.62        # 몸통 무게중심을 잴 때의 아래 경계(다리 제외)
+DRAWN_ANGLE = 45.0      # 무기 그림이 그려져 있는 각도. weapon_grips.py 규약과 같아야 한다
 MIN_PROTRUSION = 6.0     # 이만큼 튀어나와야 키로 쓴다
 
 
@@ -195,6 +198,43 @@ def detect_protrusion(frame):
     cx = float((fist * xx).sum() / fist.sum())
     cy = float((fist * yy).sum() / fist.sum())
     return cx, cy, x_tip - body_line
+
+
+def torso_center(frame):
+    """몸통 밴드(머리·다리 제외)의 알파 무게중심. 팔 벡터의 시작점이다."""
+    alpha = frame[:, :, 3] > ALPHA_CUT
+    ys = np.where(alpha.max(axis=1))[0]
+    if not len(ys):
+        return None
+    top, bot = ys.min(), ys.max()
+    h = bot - top + 1
+    m = alpha.copy()
+    m[:int(top + h * HEAD_CUT)] = False
+    m[int(top + h * TORSO_CUT):] = False
+    if not m.any():
+        return None
+    yy, xx = np.mgrid[0:m.shape[0], 0:m.shape[1]]
+    return float((m * xx).sum() / m.sum()), float((m * yy).sum() / m.sum())
+
+
+def arm_angle(frame, hand_x, hand_y):
+    """몸통 중심 → 손 벡터의 각도(도). **무기 각도의 출발점**이다.
+
+    🔑 팔이 어디를 향하는지가 곧 무기가 향하는 쪽이다 — 손목의 꺾임까지는 못 잡지만,
+       0(그려진 45°) 으로 두는 것보다 훨씬 낫다. 2026-09-15 실측:
+       Idle 은 -83° 로 검을 내리고, AttackHeavy 는 팔을 들면 -28° 로 같이 올라간다.
+
+    ⚠️ **반환값은 「그려진 각도로부터의 회전량」이다.** 무기 그림이 45° 대각선으로
+       그려져 있으므로(`weapon_grips.py` 규약) 목표 방향에서 45 를 뺀다.
+       규약이 바뀌면 이 상수도 같이 바꿔야 한다.
+    """
+    tc = torso_center(frame)
+    if tc is None:
+        return 0.0
+    tx, ty = tc
+    # 화면 y 는 아래가 + 이므로 뒤집어 수학 좌표로 만든다
+    theta = math.degrees(math.atan2(-(hand_y - ty), hand_x - tx))
+    return round(theta - DRAWN_ANGLE, 1)
 
 
 def run_protrusion(args):
@@ -247,6 +287,7 @@ def run_protrusion(args):
                     "x": round((fallback[0] - px_cx) / args.ppu, 4),
                     "y": round((pivot_y_px - fallback[1]) / args.ppu, 4),
                     "source": "제안",
+                    "angle": arm_angle(frames[i], fallback[0], fallback[1]),
                 } for i in range(len(frames))],
             })
             continue
@@ -262,6 +303,8 @@ def run_protrusion(args):
                 "x": round((x - px_cx) / args.ppu, 4),
                 "y": round((pivot_y_px - y) / args.ppu, 4),
                 "source": "보간" if i in filled else "키",
+                # 그려진 각도(45°)로부터의 회전량. 임포터가 클립별로 쓸지 말지 정한다
+                "angle": arm_angle(frames[i], x, y),
             })
         xs = [a["xPx"] for a in anchors]
         ys = [a["yPx"] for a in anchors]
