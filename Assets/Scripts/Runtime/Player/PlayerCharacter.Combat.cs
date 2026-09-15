@@ -82,8 +82,9 @@ namespace Abyss.Runtime.Player
         /// </summary>
         private void PerformAttack(int damage, float hitstop, Vector2 shake, bool isHeavy)
         {
-            if (isHeavy) attackEffect?.PlayHeavy();
-            else attackEffect?.PlayLight();
+            // 이펙트 크기는 판정 박스에서 파생된다 - 화면이 사거리를 부풀리지 않게 값을 넘긴다.
+            if (isHeavy) attackEffect?.PlayHeavy(attackBoxSize);
+            else attackEffect?.PlayLight(attackBoxSize);
 
             // 본체 sprite tint flash — AttackEffect는 옆에 표시되는 검기, 본체 flash는 캐릭터 자체가 공격함을 인지시킴.
             TriggerAttackFlash(isHeavy ? heavyFlashColor : lightFlashColor,

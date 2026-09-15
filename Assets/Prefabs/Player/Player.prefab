@@ -59,7 +59,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.4, y: 1.4, z: 1}
+  m_LocalScale: {x: 1.44, y: 0.9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2282693742304363163}
@@ -114,7 +114,7 @@ SpriteRenderer:
   m_SortingOrder: 5
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 8bac7315b900c434e862994514140e4e, type: 3}
-  m_Color: {r: 1, g: 0.95, b: 0.3, a: 0.85}
+  m_Color: {r: 1, g: 0.97, b: 0.62, a: 0.9}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -138,11 +138,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sr: {fileID: 2904992738066118411}
   lightDuration: 0.18
-  lightColor: {r: 1, g: 0.95, b: 0.3, a: 0.95}
-  lightScale: {x: 1.6, y: 0.8, z: 1}
+  lightColor: {r: 1, g: 0.97, b: 0.62, a: 0.9}
+  lightFill: {x: 0.9, y: 0.75}
   heavyDuration: 0.28
-  heavyColor: {r: 1, g: 0.5, b: 0.1, a: 1}
-  heavyScale: {x: 2.1, y: 1.1, z: 1}
+  heavyColor: {r: 1, g: 0.6, b: 0.22, a: 0.92}
+  heavyFill: {x: 1, y: 1}
 --- !u!1 &4449475650373643521
 GameObject:
   m_ObjectHideFlags: 0
