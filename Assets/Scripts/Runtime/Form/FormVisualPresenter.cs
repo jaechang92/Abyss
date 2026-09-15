@@ -23,10 +23,19 @@ namespace Abyss.Runtime.Form
     ///
     /// 실제 적용 규칙은 <see cref="FormVisualApplier"/>가 갖는다 — 로비도 같은 규칙으로 그리는데
     /// 거기에는 <see cref="FormController"/>가 없다. 이 클래스가 정하는 것은 <b>출처</b>뿐이다.
+    ///
+    /// 🔴 <b>실행 순서가 <see cref="Player.WeaponSocket"/>보다 앞이어야 한다</b> (2026-09-15).
+    /// 둘 다 <c>LateUpdate</c>에서 도는데 Unity 가 정해 주는 순서가 없다. 소켓이 먼저 돌면
+    /// <b>폼이 바뀐 프레임에 이전 폼의 앵커로 무기를 한 번 그린다</b> — 오류도 로그도 안 나고
+    /// 한 프레임이라 눈에 걸릴까 말까다. 그래서 값으로 못박는다.
     /// </summary>
+    [DefaultExecutionOrder(VisualOrder)]
     [RequireComponent(typeof(SpriteRenderer))]
     public sealed class FormVisualPresenter : MonoBehaviour
     {
+        /// <summary>폼이 그림·애니메이션·앵커를 정하는 차례. 무기 소켓은 이 뒤다.</summary>
+        public const int VisualOrder = 30;
+
         [Tooltip("비우면 부모에서 찾는다.")]
         [SerializeField] private FormController formController;
         [Tooltip("비우면 자기 자신에서 찾는다.")]

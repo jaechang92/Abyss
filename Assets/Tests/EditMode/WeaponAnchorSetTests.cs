@@ -1,3 +1,4 @@
+using Abyss.Runtime.Form;
 using Abyss.Runtime.Player;
 using NUnit.Framework;
 using UnityEngine;
@@ -116,6 +117,32 @@ namespace Abyss.Tests.EditMode
             set.TrySample(PlayerAnimationIds.AttackLight, 0f, out WeaponAnchorFrame second);
 
             Assert.AreEqual(new Vector2(1f, 0f), second.position);
+        }
+
+        /// <summary>
+        /// 🔴 <b>폼이 앵커를 꽂은 뒤에 소켓이 읽어야 한다.</b> 둘 다 <c>LateUpdate</c>라
+        /// 순서를 안 정하면 폼이 바뀐 프레임에 <b>이전 폼 앵커로 무기를 한 번 그린다</b>.
+        /// 화면으로만 드러나고 한 프레임이라, 값이 뒤집히는 것은 여기서 잡는다.
+        /// </summary>
+        [Test]
+        public void 무기소켓은_폼_프레젠터보다_뒤에_돈다()
+        {
+            Assert.Less(FormVisualPresenter.VisualOrder, WeaponSocket.SocketOrder,
+                        "폼이 앵커를 꽂기 전에 소켓이 읽으면 폼 교체 프레임에 이전 앵커가 나온다.");
+
+            Assert.AreEqual(FormVisualPresenter.VisualOrder, OrderOf(typeof(FormVisualPresenter)),
+                            "상수와 특성이 갈리면 값만 고치고 실제 순서는 안 바뀐다.");
+            Assert.AreEqual(WeaponSocket.SocketOrder, OrderOf(typeof(WeaponSocket)),
+                            "상수와 특성이 갈리면 값만 고치고 실제 순서는 안 바뀐다.");
+        }
+
+        /// <summary>클래스에 실제로 붙어 있는 <c>DefaultExecutionOrder</c> 값.</summary>
+        private static int OrderOf(System.Type type)
+        {
+            var attribute = (DefaultExecutionOrder)System.Attribute.GetCustomAttribute(
+                type, typeof(DefaultExecutionOrder));
+            Assert.NotNull(attribute, $"{type.Name} 에 DefaultExecutionOrder 가 없다.");
+            return attribute.order;
         }
 
         private static WeaponAnchorSet Build()
