@@ -38,6 +38,13 @@ namespace Abyss.EditorTools
         private static float WaistY => BodyOffset.y;                  // 본체 중앙
         private static float FrontX => BODY_W * 0.9f;                 // 공격 지점 = 몸 앞
 
+        // 🔑 공격 이펙트가 '쉴 때' 보이는 크기·색. 재생 중 크기는 AttackEffect 가 매번
+        // 판정 박스(PlayerCharacter.attackBoxSize)에서 다시 계산해 덮으므로, 이 값은
+        // 에디터에서 눈으로 보는 용도다. 라이트 기본값(판정 1.6x1.2 x 채움 0.9x0.75)에 맞춰 둔다.
+        // 예전 1.4x1.4 는 참격이 그림에 구워져 있던 시절 그 위에 얹던 크기였다.
+        private static readonly Vector3 EffectRestScale = new(1.44f, 0.9f, 1f);
+        private static readonly Color EffectRestColor = new(1f, 0.97f, 0.62f, 0.9f);
+
         private static bool BuildPlayerPrefab(Sprite sprite)
         {
             return BuildPlayerPrefab(sprite, forceRebuild: false);
@@ -106,12 +113,10 @@ namespace Abyss.EditorTools
                 var effectGo = new GameObject("AttackEffect");
                 effectGo.transform.SetParent(attackPoint.transform, false);
                 effectGo.transform.localPosition = Vector3.zero;
-                // 예전 (1.4, 0.7)은 부모 y=2를 상쇄해 월드에서 (1.4, 1.4)를 만들던 값이다.
-                // 루트가 1이 된 지금은 그 의도를 그대로 쓴다.
-                effectGo.transform.localScale = new Vector3(1.4f, 1.4f, 1f);
+                effectGo.transform.localScale = EffectRestScale;
                 var effectSr = effectGo.AddComponent<SpriteRenderer>();
                 effectSr.sprite = sprite;
-                effectSr.color = new Color(1f, 0.95f, 0.3f, 0.85f);
+                effectSr.color = EffectRestColor;
                 effectSr.sortingOrder = 5;
                 effectSr.enabled = false;
                 var attackEffect = effectGo.AddComponent<AttackEffect>();
@@ -350,10 +355,9 @@ namespace Abyss.EditorTools
             changed |= MoveChild(root, "AttackPoint", new Vector3(FrontX, WaistY, 0f));
 
             var effect = root.transform.Find("AttackPoint/AttackEffect");
-            var effectScale = new Vector3(1.4f, 1.4f, 1f);
-            if (effect != null && effect.localScale != effectScale)
+            if (effect != null && effect.localScale != EffectRestScale)
             {
-                effect.localScale = effectScale;
+                effect.localScale = EffectRestScale;
                 EditorUtility.SetDirty(effect.gameObject);
                 changed = true;
             }
