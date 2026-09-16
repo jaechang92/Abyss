@@ -87,38 +87,64 @@ namespace Abyss.EditorTools
         /// </summary>
         private static readonly Dictionary<string, ClipSource[]> FormSources = new Dictionary<string, ClipSource[]>
         {
-            ["KnightRed"] = new[]
-            {
-                // 숨쉬기는 느리게, 달리기는 빠르게. 눈으로 보고 조정할 출발점이다.
-                ClipSource.Looping(PlayerAnimationIds.Idle, CharacterSheet("knight_red", "idle"), 10f),
-                ClipSource.Looping(PlayerAnimationIds.Run, CharacterSheet("knight_red", "walk"), 12f),
+            ["KnightRed"] = StandardClips("knight_red"),
 
-                // 🔴 fps 를 안 적는다. 둘 다 9프레임을 0.25초·0.6초에 — 즉 36fps 와 15fps 인데,
-                //    그 숫자는 FSM 지속시간에서 따라 나온 결과이지 고른 값이 아니다.
-                //    적어 두면 지속시간을 바꿀 때 여기가 안 따라와 클립이 잘리거나 남는다.
-                ClipSource.OneShot(PlayerAnimationIds.AttackLight, CharacterSheet("knight_red", "attacklight"),
-                    PlayerStateMachine.DefaultAttackLightDuration),
-                ClipSource.OneShot(PlayerAnimationIds.AttackHeavy, CharacterSheet("knight_red", "attackheavy"),
-                    PlayerStateMachine.DefaultAttackHeavyDuration),
+            // 2026-09-17 폼 3벌(SE). 시트는 build_form_sheets.py 가 레시피대로 조립한다 —
+            // 상태 9개 · 파일명 규약이 knight_red 와 같으므로 같은 규칙을 그대로 쓴다.
+            // 🔑 한 번 재생 클립은 프레임 수가 달라도(Hit 5장 · 9장) fps 가 지속시간에서 다시 계산된다.
+            ["AncientShield"] = StandardClips("ancient_shield"),
+            ["VoidArcher"] = StandardClips("void_archer"),
+            ["VoidThrower"] = StandardClips("void_thrower"),
+        };
 
-                // 9프레임을 0.3초에 — 뒤로 젖혀졌다 선 자세로 돌아온다(2026-09-13 두 후보 플레이 비교 후 채택).
-                // 2026-09-14: 9상태 전부 No Weapon 몸으로 통일됐다. 검은 손 앵커로 얹는다.
-                ClipSource.OneShot(PlayerAnimationIds.Hit, CharacterSheet("knight_red", "hit"),
-                    PlayerStateMachine.DefaultHitDuration),
+        /// <summary>
+        /// 오버라이드 컨트롤러 이름 → 연결할 <c>FormData.formId</c>.
+        ///
+        /// 🔑 <b>이름이 다른 것은 역사다</b> — 붉은 기사 한 벌이 먼저 있었고 그것이 암흑 검사 폼이 됐다.
+        /// 컨트롤러를 만들고 연결을 손에 남기면 <b>만들어 놓고 안 쓰는</b> 상태가 오류 없이 남는다(2026-09-10 에 실제로
+        /// 디스크에 연결이 안 보여 헷갈렸다). 그래서 굽는 자리에서 같이 잇는다.
+        /// </summary>
+        private static readonly Dictionary<string, string> FormIdsByController = new Dictionary<string, string>
+        {
+            ["KnightRed"] = "dark_blade",
+            ["AncientShield"] = "ancient_shield",
+            ["VoidArcher"] = "void_archer",
+            ["VoidThrower"] = "void_thrower",
+        };
 
-                // 🔑 공중·대시는 연속 동작이 아니라 「자세 하나 + 망토 루프」다(Hollow Knight·Dead Cells·Celeste 방식).
-                //    동작의 중간을 잘라 돌리면 끝에서 튀어 어색했다. 출발·끝 프레임을 같은 키 포즈로 보간해 뽑았다.
-                //    상승은 약 0.4초라 4장이 한 바퀴쯤 돈다. 공중 프레임은 발끝을 키 포즈 기준 15px 로 내려 두었다 —
-                //    그림까지 떠 있으면 착지해 Idle 로 바뀌는 순간 몸이 툭 떨어진다.
-                ClipSource.Looping(PlayerAnimationIds.Jump, CharacterSheet("knight_red", "jump"), 10f),
-                ClipSource.Looping(PlayerAnimationIds.Fall, CharacterSheet("knight_red", "fall"), 10f),
+        /// <summary>
+        /// 9상태 표준 한 벌. 📌 <b>파일명과 클립 이름이 다른 것은 의도다</b> — 소스는 <c>walk</c>지만 FSM 상태는 <c>Run</c>.
+        /// </summary>
+        private static ClipSource[] StandardClips(string filePrefix) => new[]
+        {
+            // 숨쉬기는 느리게, 달리기는 빠르게. 눈으로 보고 조정할 출발점이다.
+            ClipSource.Looping(PlayerAnimationIds.Idle, CharacterSheet(filePrefix, "idle"), 10f),
+            ClipSource.Looping(PlayerAnimationIds.Run, CharacterSheet(filePrefix, "walk"), 12f),
 
-                // 대시는 0.15초뿐이라 5장이 한 번 지나가게 빠르게 돈다. 속도감은 나중에 잔상 이펙트가 맡는다.
-                ClipSource.Looping(PlayerAnimationIds.Dash, CharacterSheet("knight_red", "dash"), 30f),
+            // 🔴 fps 를 안 적는다. knight_red 는 9프레임을 0.25초·0.6초에 — 즉 36fps 와 15fps 인데,
+            //    그 숫자는 FSM 지속시간에서 따라 나온 결과이지 고른 값이 아니다.
+            //    적어 두면 지속시간을 바꿀 때 여기가 안 따라와 클립이 잘리거나 남는다.
+            ClipSource.OneShot(PlayerAnimationIds.AttackLight, CharacterSheet(filePrefix, "attacklight"),
+                PlayerStateMachine.DefaultAttackLightDuration),
+            ClipSource.OneShot(PlayerAnimationIds.AttackHeavy, CharacterSheet(filePrefix, "attackheavy"),
+                PlayerStateMachine.DefaultAttackHeavyDuration),
 
-                // 사망은 스스로 나가지 않는 종착 상태라 FSM 지속시간이 없다 — 쓰러진 뒤 마지막 프레임에 멈춘다.
-                ClipSource.OneShot(PlayerAnimationIds.Dead, CharacterSheet("knight_red", "dead"), DeadClipDuration),
-            },
+            // 뒤로 젖혀졌다 선 자세로 돌아온다(2026-09-13 두 후보 플레이 비교 후 채택).
+            // 2026-09-14: 9상태 전부 No Weapon 몸으로 통일됐다. 무기는 손 앵커로 얹는다.
+            ClipSource.OneShot(PlayerAnimationIds.Hit, CharacterSheet(filePrefix, "hit"),
+                PlayerStateMachine.DefaultHitDuration),
+
+            // 🔑 공중·대시는 연속 동작이 아니라 「자세 하나 + 망토 루프」다(Hollow Knight·Dead Cells·Celeste 방식).
+            //    동작의 중간을 잘라 돌리면 끝에서 튀어 어색했다. 상승은 약 0.4초라 4장이 한 바퀴쯤 돈다.
+            //    공중 프레임도 발밑을 지상과 같은 줄(y=77)에 둔다 — 그림까지 떠 있으면 착지해 Idle 로 바뀌는 순간 몸이 툭 떨어진다.
+            ClipSource.Looping(PlayerAnimationIds.Jump, CharacterSheet(filePrefix, "jump"), 10f),
+            ClipSource.Looping(PlayerAnimationIds.Fall, CharacterSheet(filePrefix, "fall"), 10f),
+
+            // 대시는 0.15초뿐이라 5장이 한 번 지나가게 빠르게 돈다. 속도감은 나중에 잔상 이펙트가 맡는다.
+            ClipSource.Looping(PlayerAnimationIds.Dash, CharacterSheet(filePrefix, "dash"), 30f),
+
+            // 사망은 스스로 나가지 않는 종착 상태라 FSM 지속시간이 없다 — 쓰러진 뒤 마지막 프레임에 멈춘다.
+            ClipSource.OneShot(PlayerAnimationIds.Dead, CharacterSheet(filePrefix, "dead"), DeadClipDuration),
         };
 
         /// <summary>
@@ -365,8 +391,28 @@ namespace Abyss.EditorTools
             AssetDatabase.CreateAsset(overrideController, path);
 
             int filled = formClips.Count;
-            Debug.Log($"[PlayerAnimationBuilder] {formName} — {filled}/{AllAnimationIds.Length} 상태. " +
-                      $"나머지는 폴백 사슬이 처리한다.");
+            Debug.Log($"[PlayerAnimationBuilder] {formName} — {filled}/{AllAnimationIds.Length} 상태 · " +
+                      $"{WireFormData(formName, overrideController)}. 나머지는 폴백 사슬이 처리한다.");
+        }
+
+        /// <summary>
+        /// 만든 오버라이드를 폼에 연결한다. 🔴 <b>지웠다 다시 만들었으므로</b> 기존 연결은 이미 끊겨 있다 —
+        /// 여기서 다시 잇지 않으면 폼이 조용히 정지 그림(<c>bodySprite</c>)으로 물러난다.
+        /// </summary>
+        private static string WireFormData(string formName, AnimatorOverrideController controller)
+        {
+            if (!FormIdsByController.TryGetValue(formName, out string formId)) return "연결할 폼 미등록";
+
+            foreach (string guid in AssetDatabase.FindAssets("t:FormData"))
+            {
+                var form = AssetDatabase.LoadAssetAtPath<Runtime.Form.FormData>(AssetDatabase.GUIDToAssetPath(guid));
+                if (form == null || form.formId != formId) continue;
+
+                form.animatorController = controller;
+                EditorUtility.SetDirty(form);
+                return $"{form.name}.animatorController 에 연결";
+            }
+            return $"formId '{formId}' 인 FormData 없음 — 연결 안 함";
         }
     }
 }

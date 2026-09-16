@@ -162,3 +162,4 @@ Art_Source/**/qa/
 tmp/
 output/
 Art_Source/anchors/_candidates/
+Art_Source/characters/*/_bundle/

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using Abyss.Runtime.Form;
 using Abyss.Runtime.Player;
 using UnityEditor;
 using UnityEngine;
@@ -17,10 +18,16 @@ namespace Abyss.EditorTools
     ///
     /// ⚠️ 덮어쓰기가 아니라 <b>갱신</b>이다 — 이미 있는 에셋이면 그 자리에 값을 채운다.
     /// 지웠다 다시 만들면 인스펙터에서 손으로 다듬은 값과 참조가 같이 날아간다.
+    ///
+    /// 🔑 <b>폼마다 JSON 이 하나다</b>(2026-09-17 폼 3벌 추가). 예전에는 <c>knight_red</c> 파일 하나만 읽었다 —
+    /// 이제 <c>Art_Source/anchors/*_hand_anchors.json</c> 을 전부 읽고, 시트 접두어가 <c>formId</c> 와 같으면
+    /// 그 폼의 <c>FormData.weaponAnchors</c> 에 연결한다.
+    /// (<c>knight_red</c> 는 폼 ID 가 <c>dark_blade</c> 라 연결 대상이 아니다 — 그쪽은 이미 손으로 이어져 있다.)
     /// </summary>
     public static class WeaponAnchorImporter
     {
-        private const string DefaultJson = "Art_Source/anchors/knight_red_hand_anchors.json";
+        private const string AnchorFolder = "Art_Source/anchors";
+        private const string AnchorPattern = "*_hand_anchors.json";
         private const string OutputDir = "Assets/Resources/Data/WeaponAnchors";
 
         /// <summary>
@@ -73,13 +80,21 @@ namespace Abyss.EditorTools
 
         public static void Import()
         {
-            string jsonPath = Path.Combine(Directory.GetCurrentDirectory(), DefaultJson);
-            if (!File.Exists(jsonPath))
+            string folder = Path.Combine(Directory.GetCurrentDirectory(), AnchorFolder);
+            string[] files = Directory.Exists(folder) ? Directory.GetFiles(folder, AnchorPattern) : Array.Empty<string>();
+            if (files.Length == 0)
             {
-                Debug.LogError($"[WeaponAnchorImporter] JSON 이 없다: {DefaultJson}\n" +
+                Debug.LogError($"[WeaponAnchorImporter] JSON 이 없다: {AnchorFolder}/{AnchorPattern}\n" +
                                "먼저 hand_anchors.py protrusion 을 돌릴 것.");
                 return;
             }
+
+            Array.Sort(files, StringComparer.Ordinal);
+            foreach (string jsonPath in files) ImportFile(jsonPath);
+        }
+
+        private static void ImportFile(string jsonPath)
+        {
 
             AnchorDocument doc = JsonUtility.FromJson<AnchorDocument>(File.ReadAllText(jsonPath));
             if (doc?.sheets == null || doc.sheets.Length == 0)
@@ -145,18 +160,39 @@ namespace Abyss.EditorTools
             set.formId = formPrefix;
             set.clips = clips.ToArray();
             EditorUtility.SetDirty(set);
+            string wired = WireFormData(set);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
             var manual = clips.FindAll(c => c.needsManual).ConvertAll(c => c.animationId);
             string carriedNote = carried > 0 ? $" · 손으로 맞춘 오프셋 {carried}건 보존" : string.Empty;
             Debug.Log($"[WeaponAnchorImporter] {assetName} — 클립 {clips.Count}개 · " +
-                      $"키 {totalKeys}/{totalFrames}프레임{carriedNote}\n" +
+                      $"키 {totalKeys}/{totalFrames}프레임{carriedNote} · {wired}\n" +
                       (manual.Count == 0
                           ? "전부 검출로 채워졌다."
                           : $"🔴 손으로 잡아야 하는 것: {string.Join(", ", manual)} — " +
                             "한 점을 잡아 그 클립 전체에 복사할 것."));
             Selection.activeObject = set;
+        }
+
+        /// <summary>
+        /// 같은 <c>formId</c> 의 <see cref="FormData"/> 에 앵커 세트를 연결한다.
+        /// 🔑 에셋만 만들고 연결을 사람 손에 남기면 <b>만들어 놓고 안 쓰는</b> 상태가 오류 없이 남는다.
+        /// 못 찾으면 이유를 돌려준다(로그에 찍힌다).
+        /// </summary>
+        private static string WireFormData(WeaponAnchorSet set)
+        {
+            foreach (string guid in AssetDatabase.FindAssets("t:FormData"))
+            {
+                var form = AssetDatabase.LoadAssetAtPath<FormData>(AssetDatabase.GUIDToAssetPath(guid));
+                if (form == null || form.formId != set.formId) continue;
+                if (form.weaponAnchors == set) return $"{form.name}.weaponAnchors 이미 연결됨";
+
+                form.weaponAnchors = set;
+                EditorUtility.SetDirty(form);
+                return $"{form.name}.weaponAnchors 에 연결";
+            }
+            return $"formId '{set.formId}' 인 FormData 없음 — 연결 안 함";
         }
 
         /// <summary>

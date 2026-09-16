@@ -1,0 +1,73 @@
+{
+  "_note": "stripShadow=true — 종 망토에 구워진 바닥 그림자(strip_ground_shadow.py). 선택 근거는 animation_prompts.md.",
+  "prefix": "void_thrower",
+  "characterId": "0f43556f-6e97-4406-929d-eb79928070eb",
+  "stripShadow": true,
+  "direction": "southeast",
+  "cell": 92,
+  "footY": 77,
+  "outDir": "Assets/Art/Sprites/Characters",
+  "states": {
+    "idle": {
+      "animation": "idle_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "walk": {
+      "animation": "walk_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "attacklight": {
+      "animation": "atk_light_southeast_v2",
+      "frames": "all",
+      "align": "each"
+    },
+    "attackheavy": {
+      "animation": "atk_heavy_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "hit": {
+      "animation": "hit_southeast_v2",
+      "frames": "all",
+      "align": "each"
+    },
+    "dead": {
+      "animation": "dead_southeast_v1",
+      "frames": "all",
+      "align": "first"
+    },
+    "jump": {
+      "animation": "pose_jump_southeast_v1",
+      "frames": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "align": "each"
+    },
+    "fall": {
+      "animation": "pose_fall_southeast_v1",
+      "frames": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "align": "each"
+    },
+    "dash": {
+      "animation": "pose_dash_southeast_v1",
+      "frames": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "align": "each"
+    }
+  }
+}

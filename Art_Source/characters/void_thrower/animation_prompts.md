@@ -51,7 +51,8 @@ python Tools/ArtPipeline/strip_ground_shadow.py <프레임폴더>
 python Tools/ArtPipeline/align_feet.py <프레임폴더> --target 77 --max-shift 8     # 지상 상태만
 ```
 
-📌 밑단 실제 위치가 y=82 라 다른 폼(77)과 5px 차이가 난다 — `--max-shift 8` 이 필요한 이유다.
+🔴 **정정 (2026-09-17)** — 「밑단이 y=82 라 5px 낮다」는 **100x100 캔버스에서 잰 값**이었다. 투척사 애니메이션만 v3 가 캔버스를 100 으로 키웠고,
+가운데 92 로 떼면 발밑은 77~80 이다. 시트 조립은 `build_form_sheets.py`(레시피 `sheet_recipe.json`)가 한다.
 Idle·Walk 17장에서 확인: 그림자 전부 제거 · 망토 안쪽 구멍 없음 · 떨어진 점 1~6px 제거.
 
 ### Hit — hit_southeast_v2 (`frame_count=4` · keep=true)
