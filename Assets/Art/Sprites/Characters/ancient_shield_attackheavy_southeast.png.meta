@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f9f3099a0e0449ebbff9174d28d29a91
+guid: 92cdb74dc6c96a845a0ed3c4effe4837
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7652036520404566576
-    second: knight_red_hit_v3b_southeast_0
+      213: 8221582985015912333
+    second: ancient_shield_attackheavy_southeast_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -42,7 +42,7 @@ TextureImporter:
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 0
+    wrapW: 1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -102,7 +102,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: knight_red_hit_southeast_0
+      name: ancient_shield_attackheavy_southeast_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,16 +115,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 9202ea661316f9c459f14797c91c21a9
-      internalID: -1321145391
+      spriteID: d87e4414a2ee81270800000000000000
+      internalID: 8221582985015912333
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_1
+      name: ancient_shield_attackheavy_southeast_1
       rect:
         serializedVersion: 2
         x: 92
@@ -139,14 +139,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: edf93467ca6d2ee448157d3736ffb133
-      internalID: 1936013133
+      spriteID: 0aacc48bd4a1d2d4695dbfbcc8828125
+      internalID: -877868513
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_2
+      name: ancient_shield_attackheavy_southeast_2
       rect:
         serializedVersion: 2
         x: 184
@@ -161,14 +161,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a81b848f3e12eb74eb6f4ee21a5a02ac
-      internalID: 105821462
+      spriteID: 20eb28bc4215abf459e13fc34c4d1ddb
+      internalID: 1004738387
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_3
+      name: ancient_shield_attackheavy_southeast_3
       rect:
         serializedVersion: 2
         x: 276
@@ -183,14 +183,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 90dee36143bb0ed46b4356b7c26a72e9
-      internalID: 619897619
+      spriteID: 5e5b3e919d4e017498e45b6278c6ef7d
+      internalID: -170169126
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_4
+      name: ancient_shield_attackheavy_southeast_4
       rect:
         serializedVersion: 2
         x: 368
@@ -205,14 +205,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 131a30b24f6e7c94e97a8e8147a9780f
-      internalID: -1856384101
+      spriteID: e5e455ffd0e1e654f95674d460217589
+      internalID: -1992369130
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_5
+      name: ancient_shield_attackheavy_southeast_5
       rect:
         serializedVersion: 2
         x: 460
@@ -227,14 +227,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7da8c05b54b8fbd49800cc0af3b6cc93
-      internalID: 1951445996
+      spriteID: c3d6f6d99d57b4f4a830d6ca7b883b3e
+      internalID: 1350673704
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_6
+      name: ancient_shield_attackheavy_southeast_6
       rect:
         serializedVersion: 2
         x: 552
@@ -249,14 +249,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3ad6c939d54d72e418dba3109e5a4f3d
-      internalID: 390470494
+      spriteID: 1d730cfdbca28bc47a74a42092fb9b65
+      internalID: 1067849100
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_7
+      name: ancient_shield_attackheavy_southeast_7
       rect:
         serializedVersion: 2
         x: 644
@@ -271,14 +271,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 86deebcaad7dd6845a6f9bb0ad5b01b1
-      internalID: 451715033
+      spriteID: 61c82b2e83b7340429cf08f81a7a2cb4
+      internalID: -1266221843
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_8
+      name: ancient_shield_attackheavy_southeast_8
       rect:
         serializedVersion: 2
         x: 736
@@ -293,8 +293,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 78c56e40edb6e9846a1e103301e429d1
-      internalID: -1806712533
+      spriteID: 9df5948d0e31b7442a9b5efec38eb5f5
+      internalID: -664543845
       vertices: []
       indices: 
       edges: []
@@ -303,7 +303,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: a223dfd082aa409f90a0ad4096303ee6
+    spriteID: 2c3005bea7cc31045909a77f6961ab6a
     internalID: 0
     vertices: []
     indices: 
@@ -311,19 +311,17 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":92.0,"y":92.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.16300000250339508},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      knight_red_hit_southeast_0: -1321145391
-      knight_red_hit_southeast_1: 1936013133
-      knight_red_hit_southeast_2: 105821462
-      knight_red_hit_southeast_3: 619897619
-      knight_red_hit_southeast_4: -1856384101
-      knight_red_hit_southeast_5: 1951445996
-      knight_red_hit_southeast_6: 390470494
-      knight_red_hit_southeast_7: 451715033
-      knight_red_hit_southeast_8: -1806712533
+      ancient_shield_attackheavy_southeast_0: 8221582985015912333
+      ancient_shield_attackheavy_southeast_1: -877868513
+      ancient_shield_attackheavy_southeast_2: 1004738387
+      ancient_shield_attackheavy_southeast_3: -170169126
+      ancient_shield_attackheavy_southeast_4: -1992369130
+      ancient_shield_attackheavy_southeast_5: 1350673704
+      ancient_shield_attackheavy_southeast_6: 1067849100
+      ancient_shield_attackheavy_southeast_7: -1266221843
+      ancient_shield_attackheavy_southeast_8: -664543845
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

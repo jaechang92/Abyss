@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f9f3099a0e0449ebbff9174d28d29a91
+guid: 04b59a985c107444fa563b1539e88d97
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7652036520404566576
-    second: knight_red_hit_v3b_southeast_0
+      213: 5743231046333440150
+    second: void_archer_walk_southeast_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -42,7 +42,7 @@ TextureImporter:
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 0
+    wrapW: 1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -102,7 +102,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: knight_red_hit_southeast_0
+      name: void_archer_walk_southeast_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,16 +115,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 9202ea661316f9c459f14797c91c21a9
-      internalID: -1321145391
+      spriteID: 69023bb253e04bf40800000000000000
+      internalID: 5743231046333440150
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_1
+      name: void_archer_walk_southeast_1
       rect:
         serializedVersion: 2
         x: 92
@@ -139,14 +139,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: edf93467ca6d2ee448157d3736ffb133
-      internalID: 1936013133
+      spriteID: 3981481373009284abe7d5b37ecf4815
+      internalID: -57784363
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_2
+      name: void_archer_walk_southeast_2
       rect:
         serializedVersion: 2
         x: 184
@@ -161,14 +161,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a81b848f3e12eb74eb6f4ee21a5a02ac
-      internalID: 105821462
+      spriteID: eeaca4101553e66409fa12069c093dc5
+      internalID: -619684282
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_3
+      name: void_archer_walk_southeast_3
       rect:
         serializedVersion: 2
         x: 276
@@ -183,14 +183,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 90dee36143bb0ed46b4356b7c26a72e9
-      internalID: 619897619
+      spriteID: 95481f653b809054f89e849633ce76bc
+      internalID: 1459872590
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_4
+      name: void_archer_walk_southeast_4
       rect:
         serializedVersion: 2
         x: 368
@@ -205,14 +205,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 131a30b24f6e7c94e97a8e8147a9780f
-      internalID: -1856384101
+      spriteID: eb78eb0abfafa55478506a629564beaa
+      internalID: -2052215041
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_5
+      name: void_archer_walk_southeast_5
       rect:
         serializedVersion: 2
         x: 460
@@ -227,14 +227,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7da8c05b54b8fbd49800cc0af3b6cc93
-      internalID: 1951445996
+      spriteID: e454cba0f9b8348478bbe13b65d13793
+      internalID: -2118420612
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_6
+      name: void_archer_walk_southeast_6
       rect:
         serializedVersion: 2
         x: 552
@@ -249,14 +249,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3ad6c939d54d72e418dba3109e5a4f3d
-      internalID: 390470494
+      spriteID: 8bb129b8d5a5fc340a24f3be0e4f00e7
+      internalID: 2036864397
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: knight_red_hit_southeast_7
+      name: void_archer_walk_southeast_7
       rect:
         serializedVersion: 2
         x: 644
@@ -271,30 +271,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 86deebcaad7dd6845a6f9bb0ad5b01b1
-      internalID: 451715033
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: knight_red_hit_southeast_8
-      rect:
-        serializedVersion: 2
-        x: 736
-        y: 0
-        width: 92
-        height: 92
-      alignment: 9
-      pivot: {x: 0.5, y: 0.163}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 78c56e40edb6e9846a1e103301e429d1
-      internalID: -1806712533
+      spriteID: 5e9357bc4ea62b24b8408b290210605b
+      internalID: -1620167774
       vertices: []
       indices: 
       edges: []
@@ -303,7 +281,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: a223dfd082aa409f90a0ad4096303ee6
+    spriteID: e5e4398047c4baf40b4eaf4449b28944
     internalID: 0
     vertices: []
     indices: 
@@ -311,19 +289,16 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":92.0,"y":92.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.16300000250339508},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      knight_red_hit_southeast_0: -1321145391
-      knight_red_hit_southeast_1: 1936013133
-      knight_red_hit_southeast_2: 105821462
-      knight_red_hit_southeast_3: 619897619
-      knight_red_hit_southeast_4: -1856384101
-      knight_red_hit_southeast_5: 1951445996
-      knight_red_hit_southeast_6: 390470494
-      knight_red_hit_southeast_7: 451715033
-      knight_red_hit_southeast_8: -1806712533
+      void_archer_walk_southeast_0: 5743231046333440150
+      void_archer_walk_southeast_1: -57784363
+      void_archer_walk_southeast_2: -619684282
+      void_archer_walk_southeast_3: 1459872590
+      void_archer_walk_southeast_4: -2052215041
+      void_archer_walk_southeast_5: -2118420612
+      void_archer_walk_southeast_6: 2036864397
+      void_archer_walk_southeast_7: -1620167774
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
