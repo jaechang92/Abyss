@@ -102,7 +102,7 @@ def parse_size(text):
     """'160x96' → (160, 96).
 
     🔴 2026-09-07 정정 — 여기서 `{"width":…, "height":…}` **객체**를 내고 있었다.
-       실제 인자는 `width` / `height` **정수 두 칸**이다 (profile.md §6 ④).
+       실제 인자는 `width` / `height` **정수 두 칸**이다 (pixellab/environment.md §6 ④).
        ⚠️ 타입만 어긋난 것이라 **조용히 실패했을 것**이고, 그랬다면 원인을
           문구나 팔레트에서 찾았을 것이다. 첫 실호출 전에 걸린 게 다행이다.
 
@@ -119,7 +119,7 @@ def candidates_for(width, height):
     """create_image_pro 가 **한 호출에** 주는 후보 수. 캔버스가 작을수록 많다.
 
     🔴 비용은 후보 수가 아니라 **호출당**이다. 둘을 섞으면 "여러 장 뽑는다"를
-       여러 번 호출로 읽어 값을 네 배로 낸다 (profile.md §7).
+       여러 번 호출로 읽어 값을 네 배로 낸다 (pixellab/profile.md §9).
     """
     longest = max(width, height)
     if longest <= 42:
@@ -444,7 +444,7 @@ def build_one(scene_id, scene, part_id, part, core, params, motifs, vocab, warni
         req = {
             "tool": tool,
             "description": description,
-            # 🔴 width/height 는 **정수 두 칸**이다. 객체가 아니다 (profile.md §6 ④).
+            # 🔴 width/height 는 **정수 두 칸**이다. 객체가 아니다 (pixellab/environment.md §6 ④).
             "width": width,
             "height": height,
             # 🔴 이 칸의 기본값은 **true** 다 — 안 실으면 배경이 투명하게 나온다.
@@ -573,7 +573,7 @@ def main():
             f.write("팔레트: `palettes/%s.png`\n" % scene_id)
             f.write("판정: `10_BIBLE/03-light.md §5` 체크리스트 + 아래 「다시 뽑는 조건」\n\n")
             # 🔴 v2 에는 팔레트 강제 칸이 없다. 뽑은 뒤 반드시 이 줄을 돌려야 P1~P5 가 선다.
-            #    --crop-gutter 가 붙는 이유는 40_TOOLS/pixellab/profile.md §6-B —
+            #    --crop-gutter 가 붙는 이유는 40_TOOLS/pixellab/environment.md §6-B —
             #    컨택트 시트에서 잘라 온 흰 테두리가 붙은 채로는 ΔE 를 믿을 수 없다.
             f.write("**🔴 뽑은 뒤 반드시 집행한다** — v2 에는 팔레트 강제 칸이 없다:\n\n")
             f.write("```\npython Tools/ArtPipeline/enforce_palette.py <뽑은것>.png --scene %s --crop-gutter\n```\n\n"
