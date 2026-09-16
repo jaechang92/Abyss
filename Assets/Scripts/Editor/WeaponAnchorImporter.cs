@@ -20,7 +20,6 @@ namespace Abyss.EditorTools
     /// </summary>
     public static class WeaponAnchorImporter
     {
-        private const string MenuPath = "Tools/Abyss/Generate/Weapon Anchor Set";
         private const string DefaultJson = "Art_Source/anchors/knight_red_hand_anchors.json";
         private const string OutputDir = "Assets/Resources/Data/WeaponAnchors";
 
@@ -72,7 +71,6 @@ namespace Abyss.EditorTools
             PlayerAnimationIds.Jump, PlayerAnimationIds.Fall, PlayerAnimationIds.Dash,
         };
 
-        [MenuItem(MenuPath)]
         public static void Import()
         {
             string jsonPath = Path.Combine(Directory.GetCurrentDirectory(), DefaultJson);

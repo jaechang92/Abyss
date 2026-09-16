@@ -45,7 +45,6 @@ namespace Abyss.EditorTools
         private const string SequenceId = "main_run_sequence";
         private const string SequenceName = "본 런 시퀀스";
 
-        [MenuItem(AbyssMenu.BuildStage1)]
         public static void BuildStage1Content()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -74,7 +73,7 @@ namespace Abyss.EditorTools
             {
                 EditorUtility.DisplayDialog(
                     "StageBuilder 실패",
-                    $"EnemyData 누락. 먼저 '{AbyssMenu.GenerateContent}'를 실행하세요.",
+                    $"EnemyData 누락. 먼저 '{AbyssToolNames.GenerateContent}'를 실행하세요.",
                     "확인");
                 return;
             }
@@ -112,7 +111,7 @@ namespace Abyss.EditorTools
             // 휴식은 보스 직전에 둔다 — "지금 내 HP로 보스를 잡을 수 있나"를 스스로 묻게 만드는 자리다.
             var roomRest = CreateOrLoadEventRoom("Room6_Rest_Ember", restEmber, RoomType.Rest);
             var room6 = CreateOrLoadRoom("Room6_Boss",      RoomType.Boss, 50,
-                new[] { (boss, 1) });
+                new[] { (boss, 1) }, hasWeaponReward: true);
 
             // 분기는 항상 '전투 vs 비전투'다 — 전투끼리 갈리면 고를 이유가 숫자뿐이라 선택이 되지 않는다.
             // 폼 보상·엘리트·상점·휴식·보스는 고정이다. 놓치면 런의 밀도가 크게 달라지는 방들이다.
@@ -136,7 +135,6 @@ namespace Abyss.EditorTools
             Debug.Log($"[StageBuilder] Stage 1 콘텐츠 생성 완료 — {AbyssPaths.Stages}/{Stage1File}.asset");
         }
 
-        [MenuItem(AbyssMenu.BuildStage2)]
         public static void BuildStage2Content()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -166,7 +164,7 @@ namespace Abyss.EditorTools
             {
                 EditorUtility.DisplayDialog(
                     "StageBuilder 실패",
-                    $"EnemyData 누락(Stage2 신규 적 포함). 먼저 '{AbyssMenu.GenerateContent}'를 실행하세요.",
+                    $"EnemyData 누락(Stage2 신규 적 포함). 먼저 '{AbyssToolNames.GenerateContent}'를 실행하세요.",
                     "확인");
                 return;
             }
@@ -205,7 +203,7 @@ namespace Abyss.EditorTools
             var rShop = CreateOrLoadShopRoom("Stage2_Room6_Shop_AshTrader", ashTrader);
             var rRest = CreateOrLoadEventRoom("Stage2_Room6_Rest_Camp", restCamp, RoomType.Rest);
             var r6 = CreateOrLoadRoom("Stage2_Room6_Serpent",  RoomType.Boss, 70,
-                new[] { (serpent, 1) });
+                new[] { (serpent, 1) }, hasWeaponReward: true);
 
             var stage2 = CreateOrLoadStage(Stage2File, Stage2Id, Stage2Name, new[]
             {
@@ -231,7 +229,6 @@ namespace Abyss.EditorTools
                       $"{AbyssPaths.Stages}/{Stage2File}.asset, 시퀀스 {sequence.stages.Count} 스테이지");
         }
 
-        [MenuItem(AbyssMenu.BuildStage3)]
         public static void BuildStage3Content()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -263,7 +260,7 @@ namespace Abyss.EditorTools
             {
                 EditorUtility.DisplayDialog(
                     "StageBuilder 실패",
-                    $"EnemyData 누락(Stage3 신규 적 포함). 먼저 '{AbyssMenu.GenerateContent}'를 실행하세요.",
+                    $"EnemyData 누락(Stage3 신규 적 포함). 먼저 '{AbyssToolNames.GenerateContent}'를 실행하세요.",
                     "확인");
                 return;
             }
@@ -299,7 +296,7 @@ namespace Abyss.EditorTools
             var rShop = CreateOrLoadShopRoom("Stage3_Room7_Shop_GraveRobber", graveRobber);
             var rRest = CreateOrLoadEventRoom("Stage3_Room7_Rest_ThroneHall", restThrone, RoomType.Rest);
             var r7 = CreateOrLoadRoom("Stage3_Room8_Thronebound", RoomType.Boss, 100,
-                new[] { (thronebound, 1) });
+                new[] { (thronebound, 1) }, hasWeaponReward: true);
 
             // 구조는 Stage1·2와 같다(분기 2곳 · 중간보스를 앞뒤로 감쌈 · 상점 → 휴식 → 보스).
             // 마지막 스테이지라고 형식을 바꾸지 않는다 — 여기까지 익힌 리듬을 그대로 쓰게 두는 편이
@@ -328,7 +325,6 @@ namespace Abyss.EditorTools
                       $"{AbyssPaths.Stages}/{Stage3File}.asset, 시퀀스 {sequence.stages.Count} 스테이지");
         }
 
-        [MenuItem(AbyssMenu.BuildStageDirector)]
         public static void SetupStageDirectorInActiveScene()
         {
             var scene = EditorSceneManager.GetActiveScene();
@@ -347,7 +343,7 @@ namespace Abyss.EditorTools
                 {
                     EditorUtility.DisplayDialog(
                         "StageBuilder 실패",
-                        $"StageSequenceData·StageData 모두 누락. 먼저 '{AbyssMenu.BuildStage1}'를 실행하세요.",
+                        $"StageSequenceData·StageData 모두 누락. 먼저 '{AbyssToolNames.BuildStage1}'를 실행하세요.",
                         "확인");
                     return;
                 }

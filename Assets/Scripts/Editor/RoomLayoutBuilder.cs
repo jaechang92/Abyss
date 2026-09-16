@@ -137,7 +137,6 @@ namespace Abyss.EditorTools
             },
         };
 
-        [MenuItem(AbyssMenu.BuildRoomLayouts)]
         public static void BuildRoomLayouts()
         {
             var scene = EditorSceneManager.GetActiveScene();
@@ -192,7 +191,7 @@ namespace Abyss.EditorTools
                 if (room == null)
                 {
                     Debug.LogWarning($"[RoomLayoutBuilder] RoomData 누락: {AbyssPaths.Rooms}/{layout.RoomAsset}.asset " +
-                                     $"— 먼저 '{AbyssMenu.BuildStage1}' 실행 필요. 루트는 생성하되 바인딩 비움.");
+                                     $"— 먼저 '{AbyssToolNames.BuildStage1}' 실행 필요. 루트는 생성하되 바인딩 비움.");
                     missingRooms++;
                 }
                 rooms[li] = room;
@@ -232,7 +231,7 @@ namespace Abyss.EditorTools
             if (GameObject.Find(StandalonePlatformsName) != null)
             {
                 Debug.LogWarning($"[RoomLayoutBuilder] 정적 '{StandalonePlatformsName}' 루트가 씬에 남아 있습니다. " +
-                                 $"룸 레이아웃과 겹치므로 '{AbyssMenu.ClearPlatforms}'로 제거 권장.");
+                                 $"룸 레이아웃과 겹치므로 '{AbyssToolNames.ClearPlatforms}'로 제거 권장.");
             }
 
             EditorSceneManager.MarkSceneDirty(scene);
@@ -244,7 +243,6 @@ namespace Abyss.EditorTools
                       ". 첫 룸 레이아웃만 미리보기 활성.");
         }
 
-        [MenuItem(AbyssMenu.ClearRoomLayouts)]
         public static void ClearRoomLayouts()
         {
             var root = GameObject.Find(LayoutsRootName);

@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Abyss.EditorTools
 {
     /// <summary>
-    /// 유물 SO를 <c>Resources/Data/Relics/</c>에 생성한다. 메뉴 경로는 <see cref="AbyssMenu.GenerateRelicContent"/>.
+    /// 유물 SO를 <c>Resources/Data/Relics/</c>에 생성한다. Abyss Tools 창의 <see cref="AbyssToolNames.GenerateRelicContent"/>.
     ///
     /// 🔴 <b>생성 경로만 두지 않는다.</b> 이 프로젝트는 <c>CreateOrLoad</c>가 기존 에셋을 통째로
     /// 건너뛰는 바람에 <i>"코드에는 있는데 게임에는 없는"</i> 상태를 세 번 겪었다
@@ -22,7 +22,6 @@ namespace Abyss.EditorTools
     /// </summary>
     public static class RelicContentBuilder
     {
-        [MenuItem(AbyssMenu.GenerateRelicContent)]
         public static void Generate()
         {
             EnsureDir(AbyssPaths.Relics);

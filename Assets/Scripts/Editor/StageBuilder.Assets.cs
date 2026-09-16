@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,7 +32,8 @@ namespace Abyss.EditorTools
 
         private static RoomData CreateOrLoadRoom(
             string fileName, RoomType roomType, int goldReward, (EnemyData data, int count)[] entries,
-            bool hasFormReward = false, string displayName = null, string hint = null)
+            bool hasFormReward = false, string displayName = null, string hint = null,
+            bool hasWeaponReward = false)
         {
             string path = $"{AbyssPaths.Rooms}/{fileName}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<RoomData>(path);
@@ -47,6 +48,16 @@ namespace Abyss.EditorTools
                     EditorUtility.SetDirty(existing);
                     Debug.Log($"[StageBuilder] 폼 보상 룸 갱신: {path} → {(hasFormReward ? "보상 룸(추첨)" : "none")}");
                 }
+
+                // 무기 보상도 같은 규약으로 재실행 시 반영한다. 고정 지정(weaponReward)은 비워
+                // StageDirector 의 폼별 추첨으로 넘긴다 — 빌드 시점에는 어느 폼일지 알 수 없다.
+                if (existing.hasWeaponReward != hasWeaponReward || existing.weaponReward != null)
+                {
+                    existing.hasWeaponReward = hasWeaponReward;
+                    existing.weaponReward = null;
+                    EditorUtility.SetDirty(existing);
+                    Debug.Log($"[StageBuilder] 무기 보상 룸 갱신: {path} → {(hasWeaponReward ? "보상 룸(추첨)" : "none")}");
+                }
                 ApplyChoiceDisplay(existing, path, displayName, hint);
                 return existing;
             }
@@ -56,6 +67,7 @@ namespace Abyss.EditorTools
             so.roomType = roomType;
             so.clearGoldReward = goldReward;
             so.hasFormReward = hasFormReward;
+            so.hasWeaponReward = hasWeaponReward;
             so.displayName = displayName;
             so.hint = hint;
             so.enemies = entries.Select(e => new EnemySpawnEntry { data = e.data, count = e.count }).ToList();

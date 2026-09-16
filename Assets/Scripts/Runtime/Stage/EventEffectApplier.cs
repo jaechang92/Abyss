@@ -35,7 +35,20 @@ namespace Abyss.Runtime.Stage
         /// 잔액 검사 없이 부르면 나머지 효과만 공짜로 적용된다.
         /// </summary>
         public static int ApplyNonModal(IReadOnlyList<EventEffect> effects)
+            => ApplyNonModal(effects, out _);
+
+        /// <summary>
+        /// <see cref="ApplyNonModal(IReadOnlyList{EventEffect})"/>에 더해, <b>무기를 얻었으면 그 사실을
+        /// 한 줄로</b> 돌려준다(없으면 <c>null</c>).
+        ///
+        /// 🔴 <b>왜 돌려줘야 하나.</b> <c>EventChoice.resultText</c>는 에셋에 미리 쓴 문장이라
+        /// 「무엇이 나왔는지」를 담을 수 없다. 돌려주지 않으면 플레이어는 상자를 열고도
+        /// <b>무엇을 얻었는지 모른 채</b> 방을 넘어간다 — 오류가 안 나는 종류의 결손이다.
+        /// 제단은 프롬프트로, 상점은 진열로 이미 답했고 가차만 답이 없던 자리다.
+        /// </summary>
+        public static int ApplyNonModal(IReadOnlyList<EventEffect> effects, out string weaponGainLine)
         {
+            weaponGainLine = null;
             if (effects == null) return 0;
 
             var run = RunManager.HasInstance ? RunManager.Instance : null;
@@ -74,6 +87,12 @@ namespace Abyss.Runtime.Stage
                         var draft = Object.FindAnyObjectByType<DraftSessionController>();
                         if (draft != null) draft.GrantExtraRerolls(effect.amount);
                         break;
+
+                    case EventEffectType.WeaponGacha:
+                        // 모달을 안 연다 — 뽑을 것이 하나뿐이라 고를 것이 없다(드래프트와 다른 점).
+                        // 그래서 미루지 않고 여기서 끝낸다.
+                        DrawWeapons(run, player, Mathf.Max(1, effect.amount), ref weaponGainLine);
+                        break;
                 }
             }
 
@@ -98,6 +117,49 @@ namespace Abyss.Runtime.Stage
             {
                 run.GrantBonusLevel(DraftTriggerReason.RoomReward);
             }
+        }
+
+        /// <summary>
+        /// 무기 가차 <paramref name="count"/>회. 뽑을 때마다 보유 상태에 담고, 얻은 것을 줄로 모은다.
+        ///
+        /// 🔑 <b>추첨 규칙을 여기 적지 않는다</b> — <c>WeaponReward.Resolve</c>가 제단과 같은 규칙을
+        /// 갖고 있고, 창구마다 규칙이 갈리면 「제단에서는 나오는데 상자에서는 안 나온다」가 된다.
+        /// 등급 가중치도 <c>RunConfig</c> 하나에서 온다.
+        ///
+        /// ⚠️ 뽑을 것이 없으면(폼에 맞는 무기 0개·가중치 0) 조용히 지나간다. 값을 이미 치른
+        /// 선택지라면 손해지만, 여기서 되돌리면 <b>일부 효과만 취소</b>되는 더 나쁜 상태가 된다 —
+        /// 대신 경고를 남겨 콘텐츠 쪽 결손으로 드러나게 한다.
+        /// </summary>
+        private static void DrawWeapons(RunManager run, PlayerCharacter player, int count,
+                                        ref string gainLine)
+        {
+            if (run == null) return;
+
+            float[] weights = run.Config != null ? run.Config.weaponRarityWeights : null;
+            if (weights == null || weights.Length == 0)
+            {
+                Debug.LogWarning("[EventEffectApplier] RunConfig.weaponRarityWeights 가 비어 무기 가차를 건너뛴다");
+                return;
+            }
+
+            var form = player != null ? player.Form : null;
+            string formId = form != null && form.CurrentForm != null ? form.CurrentForm.formId : null;
+
+            var lines = new List<string>();
+            for (int i = 0; i < count; i++)
+            {
+                var weapon = Weapon.WeaponReward.Resolve(null, Weapon.WeaponCatalog.All, formId, weights);
+                if (weapon == null)
+                {
+                    Debug.LogWarning($"[EventEffectApplier] 무기 가차 — 폼 '{formId}'이 쓸 무기가 없어 건너뛴다");
+                    break;
+                }
+
+                bool wasNew = run.Weapons.Grant(weapon);
+                lines.Add(Weapon.WeaponText.GainLine(weapon, wasNew));
+            }
+
+            if (lines.Count > 0) gainLine = string.Join("\n", lines);
         }
 
         /// <summary>최대 HP 대비 백분율을 실제 HP 값으로. 0%가 아닌 이상 최소 1은 나오게 한다.</summary>

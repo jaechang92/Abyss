@@ -34,7 +34,6 @@ namespace Abyss.EditorTools
         /// 카메라 ortho 산수와 같은 축이라 두 곳에 적으면 반드시 갈린다.</summary>
         public const float PixelsPerUnit = Abyss.Runtime.Camera.PixelScale.PixelsPerUnit;
 
-        [MenuItem(AbyssMenu.ApplyEnvironmentArtImport)]
         public static void Apply()
         {
             if (!Directory.Exists(AbyssPaths.EnvironmentArt))

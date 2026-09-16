@@ -46,6 +46,10 @@ namespace Abyss.Runtime.Events
         public static event Action<SkillData, IReadOnlyList<SkillData>> OnDraftSlotReplaceRequested;
         public static event Action<FormData> OnFormRewardOffered;
         public static event Action OnFormRewardResolved; // 폼 보상 모달이 닫힘(획득/거절 모두) — 보상 룸 게이트 해제용
+        // 무기 제단 상호작용 완료 — 무기 보상 룸 게이트 해제용.
+        // 🔴 OnFormRewardResolved 를 같이 쓰지 않는다. 그 핸들러는 '폼 제단을 끈다'까지 하므로
+        //    무기 제단에서 발행하면 엉뚱한 제단이 꺼진다. 해제 규약은 하나여도 '무엇이 끝났는가'는 둘이다.
+        public static event Action OnWeaponRewardResolved;
         public static event Action OnEventResolved;      // 비전투 방(이벤트·휴식·상점) 상호작용 완료 — 룸 게이트 해제용
         // 사망 위치를 함께 싣는다 — 시너지 '폭발 신학'처럼 죽은 자리에서 효과가 나는 소비자가 있고,
         // 발행 시점의 적은 0.3초 뒤 파괴 예약 상태라 구독자가 나중에 위치를 되물을 수 없다.
@@ -90,6 +94,7 @@ namespace Abyss.Runtime.Events
         public static void RaiseDraftSlotReplaceRequested(SkillData incoming, IReadOnlyList<SkillData> currentActives) => OnDraftSlotReplaceRequested?.Invoke(incoming, currentActives);
         public static void RaiseFormRewardOffered(FormData incoming) => OnFormRewardOffered?.Invoke(incoming);
         public static void RaiseFormRewardResolved() => OnFormRewardResolved?.Invoke();
+        public static void RaiseWeaponRewardResolved() => OnWeaponRewardResolved?.Invoke();
         public static void RaiseEventResolved() => OnEventResolved?.Invoke();
         public static void RaiseEnemyKilled(EnemyData data, Vector3 position) => OnEnemyKilled?.Invoke(data, position);
         public static void RaiseBurnStacksChanged(EnemyBase enemy, int stacks) => OnBurnStacksChanged?.Invoke(enemy, stacks);

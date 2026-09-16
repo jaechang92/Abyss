@@ -64,7 +64,6 @@ namespace Abyss.EditorTools
             "sword", "dagger",
         };
 
-        [MenuItem("Tools/Abyss/Generate/Weapon Sprites")]
         public static void ImportPicked()
         {
             string gripPath = Path.Combine(Directory.GetCurrentDirectory(), GripJson);

@@ -9,7 +9,6 @@ namespace Abyss.EditorTools
 {
     public static partial class ContentBuilder
     {
-        [MenuItem(AbyssMenu.GenerateWireSkills)]
         public static void WireAbilitiesOnly()
         {
             EnsureDir(AbyssPaths.Abilities);

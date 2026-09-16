@@ -50,8 +50,14 @@ namespace Abyss.Runtime.Form
         [Tooltip("비우면 자식에서 찾는다. 없으면 무기가 안 붙는다(맨손으로 보인다).")]
         [SerializeField] private Player.WeaponSocket weaponSocket;
 
+        [Tooltip("비우면 부모에서 찾는다. 없으면 무기 공격 배율이 안 붙는다(위력만 기본값으로 남는다).")]
+        [SerializeField] private Player.PlayerCharacter playerCharacter;
+
         private FormData applied;
         private bool hasApplied;
+
+        // 마지막으로 반영한 무기 보유 상태의 판(版). 폼이 안 바뀌어도 이 숫자가 오르면 다시 그린다.
+        private int appliedWeaponVersion;
 
         private void Awake()
         {
@@ -60,18 +66,28 @@ namespace Abyss.Runtime.Form
             if (fallbackSprite == null && target != null) fallbackSprite = target.sprite;
             if (animatorDriver == null) animatorDriver = GetComponent<AnimatorDriver>();
             if (weaponSocket == null) weaponSocket = GetComponentInChildren<Player.WeaponSocket>(true);
+            if (playerCharacter == null) playerCharacter = GetComponentInParent<Player.PlayerCharacter>();
         }
 
         private void LateUpdate()
         {
             if (formController == null || target == null) return;
 
+            // 🔑 <b>무기 보유 상태도 같이 미러링한다.</b> 제단·상점·가차가 무기를 주는 순간에는
+            //    폼이 안 바뀌므로, 폼 참조만 보면 방금 얻은 무기가 다음 폼 교체까지 손에 안 들린다.
+            //    이벤트를 새로 파지 않는 이유는 위 주석과 같다 — 발행을 빠뜨린 창구가 조용히 안 바뀐다.
             var current = formController.CurrentForm;
-            if (hasApplied && ReferenceEquals(current, applied)) return;
+            int weaponVersion = CurrentWeaponVersion();
+            if (hasApplied && ReferenceEquals(current, applied) && weaponVersion == appliedWeaponVersion) return;
 
             applied = current;
+            appliedWeaponVersion = weaponVersion;
             hasApplied = true;
-            FormVisualApplier.Apply(target, current, fallbackSprite, animatorDriver, weaponSocket);
+            FormVisualApplier.Apply(target, current, fallbackSprite, animatorDriver, weaponSocket, playerCharacter);
         }
+
+        /// <summary>런의 무기 보유 상태 판 번호. 런이 없으면(로비·테스트 씬) 0으로 고정된다.</summary>
+        private static int CurrentWeaponVersion()
+            => Run.RunManager.HasInstance ? Run.RunManager.Instance.Weapons.Version : 0;
     }
 }

@@ -47,7 +47,6 @@ namespace Abyss.EditorTools
             new PlatformSpec("Platform_05", new Vector2(12f,  0.75f), new Vector2(4f,   0.5f)),
         };
 
-        [MenuItem(AbyssMenu.BuildPlatforms)]
         public static void BuildTestPlatforms()
         {
             var scene = EditorSceneManager.GetActiveScene();
@@ -98,7 +97,6 @@ namespace Abyss.EditorTools
                       $"루트='{PlatformsRootName}'. 중앙 Platform_03은 더블 점프 필수 구간입니다.");
         }
 
-        [MenuItem(AbyssMenu.ClearPlatforms)]
         public static void ClearTestPlatforms()
         {
             var root = GameObject.Find(PlatformsRootName);

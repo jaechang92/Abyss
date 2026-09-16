@@ -24,8 +24,14 @@ namespace Abyss.Runtime.Stage
         [Tooltip("한 번 방문에 살 수 있는 횟수. 다 팔리면 '품절'로 잠긴다.")]
         [Min(1)] public int stock = 1;
 
-        [Tooltip("가격(GoldSpend)과 보상을 함께 담는다. 가격은 여기서 파생된다.")]
+        [Tooltip("가격(GoldSpend)과 보상을 함께 담는다. 가격은 여기서 파생된다. " +
+                 "🔴 무기 슬롯(isWeaponSlot)이면 여기는 무시된다 — 가격이 RunConfig 에서 온다.")]
         public List<EventEffect> effects = new();
+
+        [Tooltip("이 자리는 무기가 채운다. 🔴 label·description·effects 는 런타임에 뽑힌 무기로 덮인다. " +
+                 "무기는 폼 전용이라 어느 무기가 놓일지는 상점을 여는 시점에야 정해진다 — " +
+                 "제단과 같은 이유로 에셋에 미리 못 적는다.")]
+        public bool isWeaponSlot;
 
         /// <summary>이 품목의 골드 가격(0이면 골드를 받지 않는다).</summary>
         public int GoldCost => EventEffectApplier.GoldCost(effects);

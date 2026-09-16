@@ -113,7 +113,6 @@ namespace Abyss.EditorTools
         /// Assets/Art/Sprites/Enemies/*.png 전체를 순회하여 픽셀아트 임포트 설정 일괄 적용.
         /// TextureType=Sprite, FilterMode=Point, PPU=16, Mipmap 끔, 압축 없음.
         /// </summary>
-        [MenuItem(AbyssMenu.GenerateSpriteImport)]
         public static void SetupEnemySpriteImportSettings()
         {
             string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { AbyssPaths.EnemySprites });

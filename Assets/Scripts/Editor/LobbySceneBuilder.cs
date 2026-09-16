@@ -20,7 +20,7 @@ using UnityEngine.UI;
 namespace Abyss.EditorTools
 {
     /// <summary>
-    /// 허브 로비 씬을 생성하고 빌드 설정에 등록한다. 메뉴 경로는 <see cref="AbyssMenu.BuildLobbyScene"/>.
+    /// 허브 로비 씬을 생성하고 빌드 설정에 등록한다. Abyss Tools 창의 <see cref="AbyssToolNames.BuildLobbyScene"/>.
     /// 구성: 바닥/벽 + 경량 플레이어(이동·상호작용) + 카메라 추적 + 던전 포털 + 폼 선택 패널.
     /// 씬 분리 3단계(H1) — 스컬식 플레이 가능 허브 골격.
     /// </summary>
@@ -29,7 +29,6 @@ namespace Abyss.EditorTools
         // 폼 버튼 강조 색(LobbyController/FormSelectPanel과 일치)
         private static readonly Color FormNormal = new Color(0.18f, 0.18f, 0.22f);
 
-        [MenuItem(AbyssMenu.BuildLobbyScene)]
         public static void Build()
         {
             if (System.IO.File.Exists(AbyssPaths.LobbyScene))
@@ -517,7 +516,7 @@ namespace Abyss.EditorTools
             }
 
             if (list.Count == 0)
-                Debug.LogWarning($"[LobbySceneBuilder] {AbyssPaths.Forms}에 FormData 없음 — '{AbyssMenu.GenerateContent}' 먼저 실행.");
+                Debug.LogWarning($"[LobbySceneBuilder] {AbyssPaths.Forms}에 FormData 없음 — '{AbyssToolNames.GenerateContent}' 먼저 실행.");
 
             // 파일명 기준 정렬로 빌드 재현성 확보(FindAssets 순서는 비결정적).
             list.Sort((a, b) => string.CompareOrdinal(a.name, b.name));

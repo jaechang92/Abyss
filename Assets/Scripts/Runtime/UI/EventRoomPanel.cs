@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Run;
 using Abyss.Runtime.Stage;
@@ -21,12 +21,30 @@ namespace Abyss.Runtime.UI
     /// </summary>
     public sealed class EventRoomPanel : MonoBehaviour
     {
-        private const int MAX_CHOICES = 3;
+        // 선택지 상한. 넘치는 선택지는 조용히 안 보인다 — 에러도 로그도 없다.
+        // 3 → 4 (무기 가차). 기존 이벤트가 정확히 3개씩이라, 올리지 않으면 더한 선택지가 그냥 사라진다.
+        //
+        // 🔴 이제 상한을 올리면 패널이 <b>알아서</b> 커진다. 상점(ShopRoomPanel)에서 같은 함정을
+        //    같은 방식으로 풀었다 — 좌표를 「몇 개가 될 수 있는가」에서 계산하면 잊을 것이 없다.
+        private const int MAX_CHOICES = 4;
 
         private const float PANEL_WIDTH = 760f;
-        private const float PANEL_HEIGHT = 560f;
         private const float CHOICE_HEIGHT = 56f;
         private const float CHOICE_GAP = 12f;
+        private const float CHOICE_STRIDE = CHOICE_HEIGHT + CHOICE_GAP;
+
+        // 선택지가 차지하지 않는 부분(제목·본문·아래 여백)의 합. 선택지 수와 무관한 상수다.
+        private const float PANEL_CHROME = 356f;
+
+        private const float PANEL_HEIGHT = PANEL_CHROME + MAX_CHOICES * CHOICE_STRIDE;
+        private const float PANEL_HALF = PANEL_HEIGHT * 0.5f;
+
+        private const float TITLE_Y = PANEL_HALF - 54f;
+        private const float DESC_Y = PANEL_HALF - 184f;
+        private const float FIRST_CHOICE_Y = DESC_Y - 136f;   // 본문 아래 첫 선택지 중심
+
+        // [계속]은 선택지와 겹쳐도 된다 — 선택하는 순간 선택지들이 숨고 이 버튼이 뜬다(동시 표시 없음).
+        private const float CONTINUE_Y = FIRST_CHOICE_Y - (MAX_CHOICES - 1) * CHOICE_STRIDE - 20f;
 
         private static EventRoomPanel instance;
 
@@ -41,6 +59,11 @@ namespace Abyss.Runtime.UI
         private EventData current;
         private EventChoice chosen;
         private bool isOpen;
+
+        // 선택 시점에 적용하고 남은, [계속] 뒤로 미뤄야 하는 드래프트 횟수.
+        // 🔴 미루는 이유는 <b>모달 겹침 하나뿐</b>이다 — 나머지 효과는 패널이 열린 채 적용해도 안전하다
+        //    (ShopRoomPanel 이 구매 때마다 그렇게 부르고 있다).
+        private int pendingDrafts;
 
         public static bool IsOpen => instance != null && instance.isOpen;
 
@@ -124,9 +147,21 @@ namespace Abyss.Runtime.UI
 
             chosen = current.choices[index];
 
-            // 선택 직후에는 결과 문구만 보여주고 효과는 아직 적용하지 않는다.
-            // 스킬 드래프트가 섞여 있으면 이 패널이 열린 채 드래프트 모달이 겹치기 때문이다(아래 Continue 참조).
-            if (descriptionText != null) descriptionText.text = chosen.resultText;
+            // 모달을 안 여는 효과는 여기서 적용한다. 드래프트만 [계속] 뒤로 미룬다 —
+            // 그것만이 이 패널이 열린 채 겹치는 효과이기 때문이다(아래 Continue 참조).
+            //
+            // 🔴 <b>당긴 이유</b>: 무기 가차는 「무엇이 나왔는지」를 결과 문구에 실어야 하는데,
+            //    resultText 는 에셋에 미리 쓴 문장이라 그걸 못 담는다. 적용을 [계속] 뒤로 미루면
+            //    패널이 이미 닫힌 뒤라 <b>붙일 자리 자체가 없다</b> — 상자를 열고도 무엇을 얻었는지
+            //    모른 채 방을 넘어가게 된다. 잔액은 BindChoices 가 이미 걸렀으므로 앞당겨도 안전하다.
+            pendingDrafts = EventEffectApplier.ApplyNonModal(chosen.effects, out string weaponGain);
+
+            if (descriptionText != null)
+            {
+                descriptionText.text = string.IsNullOrEmpty(weaponGain)
+                    ? chosen.resultText
+                    : $"{chosen.resultText}\n\n{weaponGain}";
+            }
 
             foreach (var b in choiceButtons) b.gameObject.SetActive(false);
             if (continueRoot != null) continueRoot.SetActive(true);
@@ -142,7 +177,8 @@ namespace Abyss.Runtime.UI
         /// </summary>
         private void OnContinueClicked()
         {
-            var applied = chosen;
+            int drafts = pendingDrafts;
+            pendingDrafts = 0;
 
             body.SetActive(false);
             current = null;
@@ -154,9 +190,8 @@ namespace Abyss.Runtime.UI
                 GameEvents.RaiseDraftClosed();
             }
 
-            // 잔액은 BindChoices에서 이미 걸렀다. 드래프트는 패널을 닫은 지금 열어야
-            // 정지가 끊기지 않고 이어진다(EventEffectApplier 주석 참조).
-            int drafts = EventEffectApplier.ApplyNonModal(applied?.effects);
+            // 모달을 안 여는 효과는 선택 시점에 이미 적용됐다. 드래프트만 패널을 닫은 지금 연다 —
+            // 그래야 정지가 끊기지 않고 이어진다(EventEffectApplier 주석 참조).
             EventEffectApplier.GrantDrafts(drafts);
 
             GameEvents.RaiseEventResolved();
@@ -173,11 +208,11 @@ namespace Abyss.Runtime.UI
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = new Color(0.10f, 0.10f, 0.15f, 0.98f);
 
-            titleText = CreateLabel(panel.transform, "TitleText", new Vector2(0, 226), new Vector2(680, 46),
+            titleText = CreateLabel(panel.transform, "TitleText", new Vector2(0, TITLE_Y), new Vector2(680, 46),
                 string.Empty, 26, new Color(1f, 0.9f, 0.7f), TextAnchor.MiddleCenter);
 
             // 본문은 선택 후 결과 문구로도 쓰인다 — 길이가 들쭉날쭉하므로 줄바꿈 + 세로 오버플로 허용.
-            descriptionText = CreateLabel(panel.transform, "DescriptionText", new Vector2(0, 96), new Vector2(660, 180),
+            descriptionText = CreateLabel(panel.transform, "DescriptionText", new Vector2(0, DESC_Y), new Vector2(660, 180),
                 string.Empty, 19, new Color(0.86f, 0.86f, 0.94f), TextAnchor.UpperCenter);
             descriptionText.horizontalOverflow = HorizontalWrapMode.Wrap;
             descriptionText.verticalOverflow = VerticalWrapMode.Overflow;
@@ -192,7 +227,7 @@ namespace Abyss.Runtime.UI
             // 최대 개수만큼 미리 만들어 두고 표시 여부만 토글한다 — 이벤트마다 계층을 다시 짓지 않는다.
             for (int i = 0; i < MAX_CHOICES; i++)
             {
-                float y = -40f - i * (CHOICE_HEIGHT + CHOICE_GAP);
+                float y = FIRST_CHOICE_Y - i * CHOICE_STRIDE;
                 var button = CreateButton(parent, $"Choice{i}", new Vector2(0, y), new Vector2(600, CHOICE_HEIGHT),
                     string.Empty, 19);
 
@@ -207,7 +242,7 @@ namespace Abyss.Runtime.UI
 
         private void BuildContinue(Transform parent)
         {
-            continueButton = CreateButton(parent, "ContinueButton", new Vector2(0, -196), new Vector2(300, 52),
+            continueButton = CreateButton(parent, "ContinueButton", new Vector2(0, CONTINUE_Y), new Vector2(300, 52),
                 "계속", 20);
             continueButton.onClick.AddListener(OnContinueClicked);
             continueRoot = continueButton.gameObject;

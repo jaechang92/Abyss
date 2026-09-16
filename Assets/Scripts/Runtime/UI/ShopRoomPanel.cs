@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Run;
 using Abyss.Runtime.Stage;
@@ -24,20 +24,28 @@ namespace Abyss.Runtime.UI
     /// </summary>
     public sealed class ShopRoomPanel : MonoBehaviour
     {
-        // 진열 상한. 넘치는 품목은 조용히 안 보인다 — 에러도 로그도 없으므로
-        // ShopData 에 물건을 늘릴 때는 반드시 여기와 아래 패널 높이를 함께 본다.
-        // 4 → 5 (리롤권 추가). 한 행이 늘 때마다 PANEL_HEIGHT 와 LEAVE_BUTTON_Y 가 ROW_STRIDE 만큼 따라간다.
-        private const int MAX_ITEMS = 5;
+        // 진열 상한. 넘치는 품목은 조용히 안 보인다 — 에러도 로그도 없다.
+        // 4 → 5 (리롤권) → 6 (무기 좌판).
+        //
+        // 🔴 이제 상한을 올리면 패널이 <b>알아서</b> 커진다. 예전에는 PANEL_HEIGHT·ROW_TOP_Y·
+        //    LEAVE_BUTTON_Y 를 손으로 같이 올리라고 주석이 일렀는데, 그건 잊으면 아무 표시 없이
+        //    맨 아래 물건이 잘린다 — 이 저장소가 상점·도감에서 세 번 밟은 자리다.
+        //    좌표를 「몇 개가 될 수 있는가」에서 계산하면 잊을 것이 없다.
+        private const int MAX_ITEMS = 6;
 
         private const float ROW_HEIGHT = 76f;
         private const float ROW_GAP = 8f;
         private const float ROW_STRIDE = ROW_HEIGHT + ROW_GAP;
 
         private const float PANEL_WIDTH = 820f;
-        private const float PANEL_HEIGHT = 724f;   // 640 + 행 하나
         private const float ROW_WIDTH = 720f;
-        private const float ROW_TOP_Y = 154f;      // 112 + 행 절반(높이 증가분의 절반만큼 위로)
-        private const float LEAVE_BUTTON_Y = -294f;
+
+        // 행이 차지하지 않는 부분(제목·설명·잔액·[떠난다] 여백)의 합. 행 수와 무관한 상수다.
+        private const float PANEL_CHROME = 304f;
+
+        private const float PANEL_HEIGHT = PANEL_CHROME + MAX_ITEMS * ROW_STRIDE;
+        private const float ROW_TOP_Y = PANEL_HEIGHT * 0.5f - 208f;      // 헤더 아래 첫 행 중심
+        private const float LEAVE_BUTTON_Y = -(PANEL_HEIGHT * 0.5f) + 68f; // 바닥에서 띄운 높이
 
         private static readonly Color GoldColor = new Color(0.95f, 0.82f, 0.45f);
         private static readonly Color ShortColor = new Color(0.92f, 0.45f, 0.42f);
@@ -62,6 +70,10 @@ namespace Abyss.Runtime.UI
 
         // 이번 방문의 품목별 구매 횟수. 재고는 방문 단위로 회복된다(같은 상점을 두 번 만나지 않는다).
         private readonly int[] purchasedCounts = new int[MAX_ITEMS];
+
+        // 무기 슬롯이 이번 방문에 파는 것. 🔴 <b>열 때 한 번 정하고 그 뒤로 안 바꾼다</b> —
+        // RefreshItems 는 구매마다 도는데 거기서 뽑으면 물건을 살 때마다 진열이 갈린다.
+        private readonly Weapon.WeaponShop.Offer[] weaponOffers = new Weapon.WeaponShop.Offer[MAX_ITEMS];
 
         // 떠날 때 열어야 하는 드래프트 횟수. 여러 번 사면 그만큼 쌓인다.
         private int pendingDrafts;
@@ -109,6 +121,7 @@ namespace Abyss.Runtime.UI
             current = data;
             pendingDrafts = 0;
             for (int i = 0; i < purchasedCounts.Length; i++) purchasedCounts[i] = 0;
+            ResolveWeaponOffers(data);
 
             if (titleText != null) titleText.text = data.title;
             if (descriptionText != null) descriptionText.text = data.description;
@@ -136,14 +149,22 @@ namespace Abyss.Runtime.UI
                 if (!used) continue;
 
                 var item = current.items[i];
+
+                // 무기 좌판은 후보가 없으면 자리를 아예 감춘다 — "품절"로 두면 팔다가 떨어진 것처럼 보인다.
+                if (item.isWeaponSlot && !weaponOffers[i].IsValid)
+                {
+                    itemRows[i].SetActive(false);
+                    continue;
+                }
+
                 int remaining = Mathf.Max(0, item.stock - purchasedCounts[i]);
                 bool soldOut = remaining <= 0;
-                bool affordable = item.GoldCost <= gold;
+                bool affordable = CostOf(i) <= gold;
 
-                nameLabels[i].text = item.label;
-                descLabels[i].text = item.description;
+                nameLabels[i].text = DisplayNameOf(i);
+                descLabels[i].text = DisplayDescriptionOf(i);
 
-                costLabels[i].text = item.CostText;
+                costLabels[i].text = CostTextOf(i);
                 // 왜 못 사는지가 화면에 없으면 버그처럼 보인다 — 잔액 부족은 가격을 붉게 물들여 알린다.
                 costLabels[i].color = (!soldOut && !affordable) ? ShortColor : GoldColor;
 
@@ -161,17 +182,133 @@ namespace Abyss.Runtime.UI
 
             var item = current.items[index];
             if (purchasedCounts[index] >= item.stock) return;
+            if (item.isWeaponSlot && !weaponOffers[index].IsValid) return;
 
             // 잔액 검사는 여기서 확정한다 — ApplyNonModal은 지불 실패를 조용히 넘기므로
             // (상태 불변) 걸러 두지 않으면 나머지 효과만 공짜로 적용된다.
             int gold = RunManager.HasInstance ? RunManager.Instance.GoldShards : 0;
-            if (item.GoldCost > gold) return;
+            if (CostOf(index) > gold) return;
 
             purchasedCounts[index] += 1;
-            pendingDrafts += EventEffectApplier.ApplyNonModal(item.effects);
-            Debug.Log($"[ShopRoomPanel] 구매: {item.label} ({item.CostText}) — 대기 드래프트 {pendingDrafts}");
+
+            if (item.isWeaponSlot)
+            {
+                BuyWeapon(index);
+            }
+            else
+            {
+                pendingDrafts += EventEffectApplier.ApplyNonModal(item.effects);
+                Debug.Log($"[ShopRoomPanel] 구매: {item.label} ({item.CostText}) — 대기 드래프트 {pendingDrafts}");
+            }
 
             RefreshItems();
+        }
+
+        // ───────────────────────── 무기 좌판 ─────────────────────────
+
+        /// <summary>
+        /// 무기 슬롯이 이번 방문에 팔 것을 정한다. <b>상점을 여는 순간 한 번만</b> 돈다.
+        ///
+        /// 🔑 <b>여는 시점에야 정해지는 이유</b>: 무기는 폼 전용이라 지금 무슨 폼이냐에 따라
+        /// 후보가 달라진다. 에셋에 미리 적으면 인스펙터에 보이는 것과 실제로 나오는 것이 갈린다
+        /// (제단이 <c>Configure</c> 로 런타임에 꽂는 것과 같은 이유다).
+        /// </summary>
+        private void ResolveWeaponOffers(ShopData data)
+        {
+            for (int i = 0; i < weaponOffers.Length; i++) weaponOffers[i] = default;
+
+            int slots = 0;
+            int count = Mathf.Min(data.items.Count, MAX_ITEMS);
+            for (int i = 0; i < count; i++)
+            {
+                if (data.items[i] != null && data.items[i].isWeaponSlot) slots += 1;
+            }
+            if (slots == 0) return;
+
+            var run = RunManager.HasInstance ? RunManager.Instance : null;
+            var config = run != null ? run.Config : null;
+            if (config == null)
+            {
+                Debug.LogWarning("[ShopRoomPanel] RunConfig 미발견 — 무기 좌판을 비운다(자리는 감춰진다).");
+                return;
+            }
+
+            var offers = Weapon.WeaponShop.Build(Weapon.WeaponCatalog.All, CurrentFormId(),
+                                                 config.weaponRarityWeights, config.weaponPriceByRarity, slots);
+
+            // 채운 만큼만 앞에서부터 꽂는다. 모자란 자리는 IsValid 가 false 로 남아 감춰진다.
+            int next = 0;
+            for (int i = 0; i < count && next < offers.Count; i++)
+            {
+                if (data.items[i] == null || !data.items[i].isWeaponSlot) continue;
+                weaponOffers[i] = offers[next++];
+            }
+
+            if (offers.Count < slots)
+            {
+                Debug.LogWarning($"[ShopRoomPanel] 무기 좌판 {slots}자리 중 {offers.Count}개만 채웠다 — " +
+                                 "현재 폼이 쓸 무기가 모자라거나 RunConfig.weaponPriceByRarity 가 0이다.");
+            }
+        }
+
+        private void BuyWeapon(int index)
+        {
+            var offer = weaponOffers[index];
+            var run = RunManager.HasInstance ? RunManager.Instance : null;
+            if (run == null) return;
+
+            // 🔴 값을 먼저 치르고 나서 담는다. 순서가 뒤집히면 잔액이 모자랄 때 공짜로 얻는다.
+            if (!run.SpendGoldShards(offer.Price)) return;
+
+            bool isNew = run.Weapons.Grant(offer.Weapon);
+            Debug.Log($"[ShopRoomPanel] 무기 구매: {offer.Weapon.weaponId} (골드 {offer.Price}) — {(isNew ? "신규" : "강화")}");
+        }
+
+        private static string CurrentFormId()
+        {
+            var player = Object.FindAnyObjectByType<Player.PlayerCharacter>();
+            var form = player != null ? player.Form : null;
+            return form != null && form.CurrentForm != null ? form.CurrentForm.formId : null;
+        }
+
+        // ───────────────────────── 한 자리의 표시·값 ─────────────────────────
+        //
+        // 🔴 진열·잔액 판정·차감이 <b>같은 한 값</b>을 읽게 모아 둔다. 각자 계산하면 어긋나고,
+        //    그건 「살 수 있다고 떴는데 안 사진다」로만 드러난다.
+
+        /// <summary>이 자리의 값(골드). 무기 좌판은 등급 가격, 나머지는 효과에서 파생된 가격.</summary>
+        private int CostOf(int index)
+        {
+            var item = current.items[index];
+            return item.isWeaponSlot ? weaponOffers[index].Price : item.GoldCost;
+        }
+
+        private string CostTextOf(int index)
+        {
+            var item = current.items[index];
+            return item.isWeaponSlot ? $"골드 {weaponOffers[index].Price}" : item.CostText;
+        }
+
+        private string DisplayNameOf(int index)
+        {
+            var item = current.items[index];
+            if (!item.isWeaponSlot) return item.label;
+
+            return Weapon.WeaponText.NameOf(weaponOffers[index].Weapon);
+        }
+
+        /// <summary>
+        /// 무기 좌판의 설명. <b>이미 가진 무기면 「강화」로 읽히게 한다</b> —
+        /// 같은 무기가 또 나왔을 때 꽝으로 보이면 살 이유가 사라진다(제단 프롬프트와 같은 규약).
+        /// </summary>
+        private string DisplayDescriptionOf(int index)
+        {
+            var item = current.items[index];
+            if (!item.isWeaponSlot) return item.description;
+
+            var weapon = weaponOffers[index].Weapon;
+            var run = RunManager.HasInstance ? RunManager.Instance : null;
+            return Weapon.WeaponText.ShopDescription(weapon, run != null && run.Weapons.Owns(weapon));
         }
 
         /// <summary>

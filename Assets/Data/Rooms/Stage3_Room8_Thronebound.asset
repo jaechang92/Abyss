@@ -22,5 +22,7 @@ MonoBehaviour:
   clearGoldReward: 100
   hasFormReward: 0
   formReward: {fileID: 0}
+  hasWeaponReward: 1
+  weaponReward: {fileID: 0}
   eventData: {fileID: 0}
   shopData: {fileID: 0}

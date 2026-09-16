@@ -157,7 +157,6 @@ namespace Abyss.EditorTools
             PlayerAnimationIds.Dead,
         };
 
-        [MenuItem(AbyssMenu.GeneratePlayerAnimation)]
         public static void BuildPlayerAnimation()
         {
             EnsureFolders();

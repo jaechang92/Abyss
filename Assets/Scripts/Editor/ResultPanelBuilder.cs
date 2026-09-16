@@ -8,13 +8,12 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// ResultPanelPresenter가 붙은 GameObject 자식 UI를 일괄 생성·연결.
-    /// 메뉴 경로는 <see cref="AbyssMenu.BuildResultPanel"/>.
+    /// Abyss Tools 창의 <see cref="AbyssToolNames.BuildResultPanel"/>.
     /// </summary>
     public static class ResultPanelBuilder
     {
         private const string UndoLabel = "Build Result Panel Children";
 
-        [MenuItem(AbyssMenu.BuildResultPanel)]
         public static void Build()
         {
             var go = Selection.activeGameObject;
