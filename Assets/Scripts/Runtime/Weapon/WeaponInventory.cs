@@ -65,6 +65,30 @@ namespace Abyss.Runtime.Weapon
         }
 
         /// <summary>
+        /// 폼의 <b>시작 무기를 보유로 들인다</b>(0단계). 이미 가진 무기면 아무것도 안 한다.
+        ///
+        /// 🔴 <b>이것이 없으면 폼마다 첫 획득이 빈손이다.</b> 시작 무기는 <see cref="ResolveFor"/>의
+        /// 폴백으로 손에 들려 있을 뿐 보유 표에는 없어서, 제단·상점·가차가 같은 무기를 주면
+        /// <see cref="Grant"/>가 「첫 획득(0단계)」으로 받는다 — 손에 든 것도 배율도 그대로다.
+        /// 무기가 폼당 한 자루인 동안에는 <b>세 창구의 첫 보상이 전부</b> 이 모양이었고,
+        /// 프롬프트는 「획득」이라고 떠서 오류도 로그도 없었다.
+        ///
+        /// ⚠️ <b><see cref="Version"/>을 올리지 않는다.</b> 들이기 전에도 후에도 손에 든 무기와
+        /// 단계(0)가 같아 다시 그릴 것이 없다. 올리면 뷰가 다시 그리며 또 부르는 고리가 생긴다.
+        ///
+        /// ⚠️ <b>장착 표는 안 건드린다.</b> 다른 무기로 갈아탄 폼에 불려도 손의 무기가 되돌아가면 안 된다.
+        /// </summary>
+        /// <returns>새로 들였으면 <c>true</c>.</returns>
+        public bool Adopt(WeaponData startingWeapon)
+        {
+            if (startingWeapon == null || string.IsNullOrEmpty(startingWeapon.weaponId)) return false;
+            if (levels.ContainsKey(startingWeapon.weaponId)) return false;
+
+            levels[startingWeapon.weaponId] = 0;
+            return true;
+        }
+
+        /// <summary>
         /// <paramref name="formId"/>가 들 무기. 획득한 것이 없으면 <paramref name="fallback"/>
         /// (그 폼의 기본 무기)으로 물러난다 — 런 시작 시점에는 전부 이 경로다.
         /// </summary>
