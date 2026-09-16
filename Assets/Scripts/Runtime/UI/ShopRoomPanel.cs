@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Run;
 using Abyss.Runtime.Stage;
@@ -294,8 +294,7 @@ namespace Abyss.Runtime.UI
             var item = current.items[index];
             if (!item.isWeaponSlot) return item.label;
 
-            var weapon = weaponOffers[index].Weapon;
-            return string.IsNullOrEmpty(weapon.displayName) ? weapon.weaponId : weapon.displayName;
+            return Weapon.WeaponText.NameOf(weaponOffers[index].Weapon);
         }
 
         /// <summary>
@@ -309,10 +308,7 @@ namespace Abyss.Runtime.UI
 
             var weapon = weaponOffers[index].Weapon;
             var run = RunManager.HasInstance ? RunManager.Instance : null;
-            bool owned = run != null && run.Weapons.Owns(weapon);
-
-            string body = string.IsNullOrEmpty(weapon.description) ? "이 폼이 드는 무기다." : weapon.description;
-            return owned ? $"{body} (보유 중 — 사면 강화된다)" : body;
+            return Weapon.WeaponText.ShopDescription(weapon, run != null && run.Weapons.Owns(weapon));
         }
 
         /// <summary>

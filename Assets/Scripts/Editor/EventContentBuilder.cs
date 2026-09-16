@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
 using Abyss.Runtime.Stage;
@@ -36,6 +36,25 @@ namespace Abyss.EditorTools
         public const string RestEmberFile = "Rest_Ember";
         public const string RestCampFile = "Rest_RuinedCamp";
         public const string RestThroneFile = "Rest_ThroneHall";
+
+        /// <summary>
+        /// 이벤트·휴식 SO를 점검한다. <b>없으면 만들고, 있으면 빠진 선택지만 채운다.</b>
+        ///
+        /// 🔴 <b>전용 메뉴가 없어서 겪은 일이 있다.</b> 이전에는 <c>EnsureAllEvents</c>를
+        /// <c>StageBuilder</c>만 불렀다. 그래서 이벤트 선택지를 코드에 더해도
+        /// 「어느 메뉴를 돌려야 반영되는가」가 어디에도 안 보였고,
+        /// <c>Generate ▸ Prototype Content</c>를 돌린 뒤 <b>아무 로그도 안 나는</b> 상태로 멈췄다.
+        /// 상점(<c>Generate ▸ Shop Content</c>)에는 이미 있던 자리라 대칭을 맞춘다.
+        /// </summary>
+        [MenuItem(AbyssMenu.GenerateEventContent)]
+        public static void GenerateEventContentMenu()
+        {
+            EnsureAllEvents(out _, out _, out _, out _, out _, out _);
+            EnsureAllRests(out _, out _, out _);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("[EventContentBuilder] 이벤트 6종 + 휴식 3종 점검 완료 — 위 로그에서 추가된 선택지 수를 확인할 것.");
+        }
 
         /// <summary>
         /// 이벤트 SO 6종을 생성하고(없으면) 반환한다. 순서는 파일명 상수와 같다.
@@ -83,6 +102,11 @@ namespace Abyss.EditorTools
 
                     Choice("그냥 둔다",
                         "누군가 더 급한 사람이 열게 두기로 한다."),
+
+                    Choice("무구 칸을 연다",
+                        "제일 안쪽 칸이 따로 잠겨 있었다. 안에서 쇳내가 올라온다.",
+                        Effect(EventEffectType.GoldSpend, 90),
+                        Effect(EventEffectType.WeaponGacha, 1)),
                 });
 
             abyssalSpring = CreateOrLoad(AbyssalSpringFile, "abyssal_spring", "심연의 샘",
@@ -118,6 +142,11 @@ namespace Abyss.EditorTools
 
                     Choice("돌아선다",
                         "울림이 잦아들 때까지 기다렸다가 자리를 뜬다."),
+
+                    Choice("쇠사슬째 끌어낸다",
+                        "문 안쪽에 세워져 있던 것을 통째로 끌어냈다. 무엇인지는 손에 쥐고서야 알았다.",
+                        Effect(EventEffectType.GoldSpend, 60),
+                        Effect(EventEffectType.WeaponGacha, 1)),
                 });
 
             // Stage 3 "왕좌의 잔해" — 대가가 더 크다. 이 구간의 골드·HP 수입이 앞 스테이지의 2배 이상이라
@@ -137,6 +166,11 @@ namespace Abyss.EditorTools
 
                     Choice("그대로 둔다",
                         "쓴 자가 어떻게 되었는지는 보지 않아도 알 것 같다."),
+
+                    Choice("받침대 아래를 연다",
+                        "왕관보다 아래에 묻어 둔 것이 있었다. 왕이 마지막까지 쥐고 있던 쪽이다.",
+                        Effect(EventEffectType.GoldSpend, 140),
+                        Effect(EventEffectType.WeaponGacha, 1)),
                 });
 
             oathStone = CreateOrLoad(OathStoneFile, "oath_stone", "맹세의 돌",
@@ -213,6 +247,32 @@ namespace Abyss.EditorTools
                 });
         }
 
+        /// <summary>
+        /// 기존 이벤트에 <b>없는 선택지만</b> 덧붙인다. 라벨로 대조하므로
+        /// <b>인스펙터에서 이름을 바꾼 선택지는 다른 것으로 보여 다시 들어온다</b>.
+        /// 문구·효과는 절대 건드리지 않는다 — 손으로 맞춘 것을 되돌리지 않는 것이 원래 규약이다
+        /// (<c>ShopContentBuilder.AddMissingItems</c>와 같다).
+        ///
+        /// ⚠️ <c>EventRoomPanel.MAX_CHOICES</c>를 넘기면 넘친 선택지는 <b>화면에 안 나온다</b>.
+        /// 에러도 로그도 없으므로, 선택지를 늘릴 때는 그 상한을 함께 볼 것.
+        /// </summary>
+        private static int AddMissingChoices(EventData data, EventChoice[] choices)
+        {
+            if (data == null || choices == null) return 0;
+            data.choices ??= new List<EventChoice>();
+
+            int added = 0;
+            for (int i = 0; i < choices.Length; i++)
+            {
+                if (data.choices.Exists(existing => existing != null && existing.label == choices[i].label)) continue;
+                data.choices.Add(choices[i]);
+                added += 1;
+            }
+
+            if (added > 0) EditorUtility.SetDirty(data);
+            return added;
+        }
+
         private static EventData CreateOrLoad(
             string fileName, string eventId, string title, string description, EventChoice[] choices)
         {
@@ -220,7 +280,13 @@ namespace Abyss.EditorTools
             var existing = AssetDatabase.LoadAssetAtPath<EventData>(path);
             if (existing != null)
             {
-                Debug.Log($"[EventContentBuilder] 건너뜀 (존재): {path}");
+                // 🔴 예전에는 그냥 건너뛰었다. 그러면 <b>코드에 선택지를 더해도 아무 일이 안 일어난다</b> —
+                //    빌더를 재실행해도 조용히 그대로라, 「왜 안 나오지」를 한참 찾게 된다.
+                //    상점(ShopContentBuilder.AddMissingItems)이 이미 쓰던 규약을 여기에도 맞춘다.
+                int added = AddMissingChoices(existing, choices);
+                Debug.Log(added > 0
+                    ? $"[EventContentBuilder] 선택지 {added}개 추가: {path}"
+                    : $"[EventContentBuilder] 건너뜀 (존재): {path}");
                 return existing;
             }
 

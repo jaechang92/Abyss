@@ -1,4 +1,4 @@
-using Abyss.Runtime.Events;
+﻿using Abyss.Runtime.Events;
 using Abyss.Runtime.Interaction;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Run;
@@ -47,13 +47,10 @@ namespace Abyss.Runtime.Weapon
                 if (!string.IsNullOrEmpty(promptKey)) return Loc.Get(promptKey);
                 if (rewardWeapon == null) return "무기 획득 (G)";
 
-                string label = string.IsNullOrEmpty(rewardWeapon.displayName)
-                    ? rewardWeapon.weaponId
-                    : rewardWeapon.displayName;
-
+                // 어휘는 WeaponText 하나에서 온다 — 제단·상점·가차가 같은 말을 써야
+                // 중복이 어디서는 강화로, 어디서는 꽝으로 읽히지 않는다.
                 var inventory = ResolveInventory();
-                bool owned = inventory != null && inventory.Owns(rewardWeapon);
-                return owned ? $"{label} 강화 (G)" : $"{label} 획득 (G)";
+                return WeaponText.AltarPrompt(rewardWeapon, inventory != null && inventory.Owns(rewardWeapon));
             }
         }
 

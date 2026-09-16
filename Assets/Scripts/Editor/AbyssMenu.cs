@@ -37,6 +37,7 @@ namespace Abyss.EditorTools
         public const string ApplyEnvironmentArtImport = Generate + "Environment Art Import Settings";
 
         public const string GenerateShopContent = Generate + "Shop Content (add missing items)";
+        public const string GenerateEventContent = Generate + "Event Content (add missing choices)";
         public const string GenerateRelicContent = Generate + "Relic Content (add missing relics)";
         public const string GenerateContent = Generate + "Prototype Content";
         public const string GenerateWireSkills = Generate + "Wire Active Skill Abilities";
