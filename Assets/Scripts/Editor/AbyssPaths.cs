@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 namespace Abyss.EditorTools
 {
     /// <summary>
@@ -58,6 +58,7 @@ namespace Abyss.EditorTools
         // 개별 에셋 파일
         public const string WhiteSquare = Sprites + "/WhiteSquare.png";
         public const string FormAltarSprite = Props + "/form_altar.png";
+        public const string WeaponAltarSprite = Props + "/weapon_altar.png"; // 🔴 아직 없다 — 없으면 form_altar 를 강철빛으로 틴트해 폴백
         public const string Frictionless = Physics + "/Frictionless.physicsMaterial2D";
         public const string EnemyProjectilePrefab = CombatPrefabs + "/EnemyProjectile.prefab";
         public const string TitleScene = "Assets/Scenes/Title.unity";

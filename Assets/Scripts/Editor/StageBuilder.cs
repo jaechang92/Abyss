@@ -112,7 +112,7 @@ namespace Abyss.EditorTools
             // 휴식은 보스 직전에 둔다 — "지금 내 HP로 보스를 잡을 수 있나"를 스스로 묻게 만드는 자리다.
             var roomRest = CreateOrLoadEventRoom("Room6_Rest_Ember", restEmber, RoomType.Rest);
             var room6 = CreateOrLoadRoom("Room6_Boss",      RoomType.Boss, 50,
-                new[] { (boss, 1) });
+                new[] { (boss, 1) }, hasWeaponReward: true);
 
             // 분기는 항상 '전투 vs 비전투'다 — 전투끼리 갈리면 고를 이유가 숫자뿐이라 선택이 되지 않는다.
             // 폼 보상·엘리트·상점·휴식·보스는 고정이다. 놓치면 런의 밀도가 크게 달라지는 방들이다.
@@ -205,7 +205,7 @@ namespace Abyss.EditorTools
             var rShop = CreateOrLoadShopRoom("Stage2_Room6_Shop_AshTrader", ashTrader);
             var rRest = CreateOrLoadEventRoom("Stage2_Room6_Rest_Camp", restCamp, RoomType.Rest);
             var r6 = CreateOrLoadRoom("Stage2_Room6_Serpent",  RoomType.Boss, 70,
-                new[] { (serpent, 1) });
+                new[] { (serpent, 1) }, hasWeaponReward: true);
 
             var stage2 = CreateOrLoadStage(Stage2File, Stage2Id, Stage2Name, new[]
             {
@@ -299,7 +299,7 @@ namespace Abyss.EditorTools
             var rShop = CreateOrLoadShopRoom("Stage3_Room7_Shop_GraveRobber", graveRobber);
             var rRest = CreateOrLoadEventRoom("Stage3_Room7_Rest_ThroneHall", restThrone, RoomType.Rest);
             var r7 = CreateOrLoadRoom("Stage3_Room8_Thronebound", RoomType.Boss, 100,
-                new[] { (thronebound, 1) });
+                new[] { (thronebound, 1) }, hasWeaponReward: true);
 
             // 구조는 Stage1·2와 같다(분기 2곳 · 중간보스를 앞뒤로 감쌈 · 상점 → 휴식 → 보스).
             // 마지막 스테이지라고 형식을 바꾸지 않는다 — 여기까지 익힌 리듬을 그대로 쓰게 두는 편이

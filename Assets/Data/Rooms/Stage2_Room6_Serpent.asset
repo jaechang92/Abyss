@@ -14,7 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roomId: stage2_room6_serpent
   roomType: 2
+  displayName: 
+  hint: 
   enemies:
   - data: {fileID: 11400000, guid: d8f7d7e5b2008ab47abcf19142571daa, type: 2}
     count: 1
   clearGoldReward: 70
+  hasFormReward: 0
+  formReward: {fileID: 0}
+  hasWeaponReward: 1
+  weaponReward: {fileID: 0}
+  eventData: {fileID: 0}
+  shopData: {fileID: 0}

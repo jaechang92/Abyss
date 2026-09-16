@@ -14,7 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roomId: room6_boss
   roomType: 2
+  displayName: 
+  hint: 
   enemies:
   - data: {fileID: 11400000, guid: 7b8e75bd1b115fa449fe708644cbd988, type: 2}
     count: 1
   clearGoldReward: 50
+  hasFormReward: 0
+  formReward: {fileID: 0}
+  hasWeaponReward: 1
+  weaponReward: {fileID: 0}
+  eventData: {fileID: 0}
+  shopData: {fileID: 0}

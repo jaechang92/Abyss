@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 namespace Abyss.EditorTools
 {
     /// <summary>
@@ -28,6 +28,7 @@ namespace Abyss.EditorTools
         public const string BuildRoomLayouts = Build + "Room Layouts in Active Scene";
         public const string BuildPlatforms = Build + "Test Platforms in Active Scene";
         public const string BuildFormAltar = Build + "Form Altar in Active Scene";
+        public const string BuildWeaponAltar = Build + "Weapon Altar in Active Scene";
         public const string BuildArtTestStage = Build + "Art Test Stage (stage1)";
 
         // Generate — 에셋(콘텐츠/프리팹) 생성
