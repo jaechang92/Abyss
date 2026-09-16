@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
 using Abyss.Runtime.Stage;
@@ -69,6 +69,8 @@ namespace Abyss.EditorTools
                     Item("닳은 산가지", "드래프트 리롤 횟수 +1 (이번 런)", 1,
                         Effect(EventEffectType.GoldSpend, 30),
                         Effect(EventEffectType.RerollTicket, 1)),
+
+                    WeaponSlot("녹슨 좌판"),
                 });
 
             ashTrader = CreateOrLoad(AshTraderFile, "shop_ash_trader", "잿더미 행상",
@@ -94,6 +96,8 @@ namespace Abyss.EditorTools
                     Item("그을린 산가지", "드래프트 리롤 횟수 +1 (이번 런)", 2,
                         Effect(EventEffectType.GoldSpend, 50),
                         Effect(EventEffectType.RerollTicket, 1)),
+
+                    WeaponSlot("잿더미 무기대"),
                 });
 
             graveRobber = CreateOrLoad(GraveRobberFile, "shop_grave_robber", "무덤 도굴꾼",
@@ -122,6 +126,8 @@ namespace Abyss.EditorTools
                     Item("부장 산가지", "드래프트 리롤 횟수 +1 (이번 런)", 2,
                         Effect(EventEffectType.GoldSpend, 70),
                         Effect(EventEffectType.RerollTicket, 1)),
+
+                    WeaponSlot("부장 무구함"),
                 });
         }
 
@@ -185,6 +191,26 @@ namespace Abyss.EditorTools
                 description = description,
                 stock = stock,
                 effects = new List<EventEffect>(effects),
+            };
+        }
+
+        /// <summary>
+        /// 무기 좌판 한 자리. 🔑 <b>여기서는 무엇을 파는지 못 적는다</b> — 무기는 폼 전용이라
+        /// 상점을 여는 시점에야 후보가 정해진다(제단과 같은 문제). 라벨은 <b>중복 추가 판정용</b>일
+        /// 뿐이고, 화면에는 런타임에 뽑힌 무기 이름이 찍힌다.
+        ///
+        /// 가격도 비운다 — <c>RunConfig.weaponPriceByRarity</c> 가 등급으로 매긴다.
+        /// 재고는 1이다. 같은 무기를 한 방문에 두 번 강화하게 두면 골드가 곧 위력이 된다.
+        /// </summary>
+        private static ShopItem WeaponSlot(string label)
+        {
+            return new ShopItem
+            {
+                label = label,
+                description = "이 폼이 드는 무기다.",
+                stock = 1,
+                isWeaponSlot = true,
+                effects = new List<EventEffect>(),
             };
         }
 
