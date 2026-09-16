@@ -29,6 +29,11 @@ namespace Abyss.Runtime.Run
         private int goldShards;
         private int bossKillsThisRun;
         private readonly RunStats stats = new();
+
+        // 이번 런의 무기 보유 상태. 획득 3창구(제단·상점·가차)가 여기에 쓰고,
+        // FormVisualApplier가 폼을 비출 때 여기서 읽는다.
+        private readonly Weapon.WeaponInventory weapons = new();
+
         private bool isRunActive;
         private int lastRunAbyssShardsEarned;
         private RunEndReason lastRunEndReason = RunEndReason.Death;
@@ -46,6 +51,13 @@ namespace Abyss.Runtime.Run
         public int ExpToNextLevel => CalcExpRequirement(currentLevel);
         public int GoldShards => goldShards;
         public RunStats Stats => stats;
+
+        /// <summary>
+        /// 이번 런의 무기 보유 상태. <b>런 스코프다</b> — <see cref="StartNewRun"/>에서 비워지고
+        /// 메타 저장에 남지 않는다(유물과 다른 점이다. 유물은 로비에서 뽑아 런을 넘어간다).
+        /// </summary>
+        public Weapon.WeaponInventory Weapons => weapons;
+
         public bool IsRunActive => isRunActive;
         public int LastRunAbyssShardsEarned => lastRunAbyssShardsEarned;
 
@@ -155,6 +167,7 @@ namespace Abyss.Runtime.Run
             lastRunAbyssShardsEarned = 0;
             lastRunEndReason = RunEndReason.Death;
             lastPlaytimeFormId = string.Empty;   // 새 런의 시작 폼도 '변경'으로 잡혀 사용 등록되게
+            weapons.Clear();                      // 지난 런에서 주운 무기·강화는 넘어가지 않는다
             stats.Reset();
             isRunActive = true;
             GameEvents.RaiseGoldShardsChanged(goldShards);

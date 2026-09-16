@@ -45,16 +45,35 @@ namespace Abyss.Runtime.Form
         /// 몸은 새 폼인데 무기만 이전 폼의 배치로 남는 곳이 생긴다. 정지 그림과 움직이는 그림을
         /// 한 곳에 모은 것과 같은 이유다. 안 쓰는 호출부는 비워 두면 된다(로비 등).
         /// </param>
+        /// <param name="combat">
+        /// 전투 배율을 받을 플레이어. 🔑 <b>이것도 같은 진입점이어야 한다</b> — 그림과 배율이
+        /// 따로 꽂히면 <b>손에 든 무기와 실제 위력이 어긋나고, 그건 오류가 안 난다.</b>
+        /// (실제로 <c>PlayerCharacter.SetWeapon</c>은 호출자가 하나도 없어 배율이 계속 1이었다.)
+        /// 전투가 없는 호출부는 비워 두면 된다(로비 등).
+        /// </param>
         public static void Apply(SpriteRenderer target, FormData form, Sprite fallback,
-                                 AnimatorDriver driver, Player.WeaponSocket socket = null)
+                                 AnimatorDriver driver, Player.WeaponSocket socket = null,
+                                 Player.PlayerCharacter combat = null)
         {
             if (driver != null) driver.SetController(form != null ? form.animatorController : null);
-            if (socket != null)
+
+            // 🔑 무기는 <b>보유 상태가 먼저</b>고 폼의 기본 무기는 그 폴백이다(§3-B).
+            //    런이 없는 곳(로비·테스트 씬)에서는 인벤토리가 없으므로 기본 무기로 물러난다.
+            //    무기를 받을 곳이 하나도 없으면(로비 초상) 조회 자체를 건너뛴다.
+            if (socket != null || combat != null)
             {
-                // 🔑 앵커와 무기를 <b>같은 줄에서</b> 꽂는다. 따로 부르게 하면 폼을 바꿨을 때
-                //    배치는 새 폼인데 무기는 이전 폼 것으로 남는 곳이 생긴다.
-                socket.SetAnchors(form != null ? form.weaponAnchors : null);
-                socket.SetWeapon(form != null ? form.defaultWeapon : null);
+                var inventory = ResolveInventory();
+                Weapon.WeaponData weapon = ResolveWeapon(form, inventory);
+
+                if (socket != null)
+                {
+                    // 🔑 앵커와 무기를 <b>같은 줄에서</b> 꽂는다. 따로 부르게 하면 폼을 바꿨을 때
+                    //    배치는 새 폼인데 무기는 이전 폼 것으로 남는 곳이 생긴다.
+                    socket.SetAnchors(form != null ? form.weaponAnchors : null);
+                    socket.SetWeapon(weapon);
+                }
+
+                if (combat != null) combat.SetWeapon(weapon, inventory?.UpgradeLevelOf(weapon) ?? 0);
             }
 
             if (target == null) return;
@@ -80,5 +99,27 @@ namespace Abyss.Runtime.Form
             if (fallback != null) target.sprite = fallback;
             if (form != null) target.color = form.castColor;
         }
+
+        /// <summary>
+        /// 이 폼이 들 무기. 런에서 획득한 것이 있으면 그것, 없으면 <see cref="FormData.defaultWeapon"/>.
+        ///
+        /// 🔴 <b>「장비가 미리보기를 이긴다」의 한 층 위다.</b> 저쪽(<c>WeaponSocket.ResolveWeapon</c>)은
+        /// 인스펙터 배선 대비 우선순위였고, 여기는 <b>획득 무기 대비 폼 기본 무기</b>다.
+        /// </summary>
+        private static Weapon.WeaponData ResolveWeapon(FormData form, Weapon.WeaponInventory inventory)
+        {
+            if (form == null) return null;
+            return inventory != null ? inventory.ResolveFor(form.formId, form.defaultWeapon) : form.defaultWeapon;
+        }
+
+        /// <summary>
+        /// 이번 런의 무기 보유 상태. 런이 없으면 <c>null</c>이다.
+        ///
+        /// ⚠️ <c>HasInstance</c>로 묻는다 — <c>Instance</c>는 없으면 만들어 버리므로,
+        /// 로비나 테스트 씬에서 그림을 그리려다 <c>RunManager</c>가 생겨난다
+        /// (싱글톤 접근 정책: 코어는 <c>Instance</c>, 조회는 <c>HasInstance</c>).
+        /// </summary>
+        private static Weapon.WeaponInventory ResolveInventory()
+            => Run.RunManager.HasInstance ? Run.RunManager.Instance.Weapons : null;
     }
 }
