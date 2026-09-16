@@ -160,6 +160,23 @@
 
 폐기(지우지 않음): `cb29cabb` Shield Body v1 · `1b0ce390` Thrower Body v1.
 
+### ✅ R2 애니메이션 — 3폼 × 9상태 생성 완료 (2026-09-17 · 62 gen · 누적 162 · 잔여 865)
+
+폼별 문구·판정·프레임 후보는 `Art_Source/characters/<formId>/animation_prompts.md` 가 SoT 다.
+
+| | Idle | Walk | AtkL | AtkH | Hit | Dead | Jump | Fall | Dash |
+|---|---|---|---|---|---|---|---|---|---|
+| 방패 | ✅ | ✅ | ✅ | ✅ | ✅ v2 | ✅ | ✅ | ✅ v2 | ⚠️ v2 |
+| 궁수 | ✅ | ✅ | ⚠️ | ✅ | ✅ v3 | ✅ | ✅ | ✅ | ✅ |
+| 투척 | ✅ | ✅ | ⚠️ v2 | ✅ | ✅ v2 | ✅ | ✅ | ✅ | ✅ |
+
+🔑 이번 라운드에서 굳은 것:
+- **Hit 는 SE 에서 앞쪽 동작으로 샌다** — `arms flung outward`·`away from the direction it faces` 를 빼고 **팔을 가슴으로 모으고 웅크린다** · 4프레임(1 gen)
+- **공격은 무기 이름 없이 팔만** — 무기 쥐는 손은 오른손(앵커)
+- **작은 동작어는 안 움직인다**(`flick of the wrist`) — 시작·끝 자세를 크게 벌려 쓴다
+- **무거운 몸은 시작 프레임이 자세를 연다** — 방패 Fall 은 문구로 안 됐고 Jump f6 에서 시작해 됐다
+- **투척사 종 망토 = 구워진 바닥 그림자** → `strip_ground_shadow.py` 를 모든 프레임에
+
 ---
 
 ## 2. 라운드와 비용
