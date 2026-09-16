@@ -43,7 +43,8 @@ namespace Abyss.EditorTools
         /// <summary>캐릭터 시트 전부(<c>*_southeast.png</c>)를 92 격자 · 발밑 피벗으로 슬라이스한다.</summary>
         public static void SliceCharacterSheets()
         {
-            string[] paths = Directory.GetFiles(CharacterFolder, "*" + CharacterSuffix)
+            // 폴더가 Characters/{폼}/{방향}/ 으로 나뉘어 있으므로 하위까지 찾는다(2026-09-17 폴더 정리).
+            string[] paths = Directory.GetFiles(CharacterFolder, "*" + CharacterSuffix, SearchOption.AllDirectories)
                 .Select(p => p.Replace('\\', '/'))
                 .OrderBy(p => p)
                 .ToArray();

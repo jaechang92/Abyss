@@ -27,6 +27,14 @@
     each   프레임마다 아래끝을 footY 로      지상·공중·대시 (knight_red 규약 — 착지 때 몸이 안 떨어진다)
     first  첫 프레임의 이동량을 전 프레임에   사망 — 쓰러지며 아래끝이 움직이는 것이 내용이다
     none   건드리지 않는다
+
+📌 `freezeBelow {row, frame}` — 그 줄부터 아래를 기준 프레임으로 고정한다. 서 있는 상태에서 발이 움직이면 안 될 때
+   (2026-09-17 투척사 Idle: 생성으로는 다리가 계속 움직였다).
+📌 `overlay "<png>"` — 손으로 그린 92x92 조각을 모든 프레임에 얹는다(레시피 기준 상대경로).
+📌 `removeStrays true` — 1px 어두운 잔여선(그림자 테두리 호)을 걷는다.
+📌 `lowerRegion {x0,x1,top,bottom,by,fillFromRow,fillFromFrame}` — 한쪽 발(부츠 줄)만 내려 바닥에 붙인다.
+   틈은 fillFromFrame(기본 0) 프레임의 정강이 줄로 잇는다 — 프레임마다 자기 줄을 쓰면 밑단 외곽선이 섞인다.
+   순서: 떼기 → 그림자 → 발밑 → freezeBelow → overlay → removeStrays → lowerRegion.
 """
 
 import argparse
@@ -55,6 +63,11 @@ def downloadBundle(characterId, folder):
                              BUNDLE_URL.format(id=characterId)])
     if result.returncode != 0:
         raise SystemExit("번들을 못 받았다 — 생성 중이면 423 이다. 큐가 빈 뒤 다시.")
+    # 🔴 이전 번들을 먼저 지운다 — 파일명에 캐릭터 ID 가 들어가 있어, 몸을 바꾸면 두 벌이 섞여
+    #    loadBundle 이 「하나씩」 규칙으로 멈춘다(2026-09-17 투척사 몸 교체에서 겪음).
+    for name in os.listdir(folder):
+        if name.endswith((".json", ".png")):
+            os.remove(os.path.join(folder, name))
     with zipfile.ZipFile(zipPath) as z:
         z.extractall(folder)
 
@@ -105,6 +118,57 @@ def shift(image, dy):
     return moved
 
 
+def freezeLowerBody(frames, row, baseIndex):
+    """`row` 줄부터 아래를 기준 프레임으로 덮는다. 위(몸통)는 각 프레임 그대로."""
+    base = frames[baseIndex]
+    lower = base.crop((0, row, base.width, base.height))
+    frozen = []
+    for f in frames:
+        g = f.copy()
+        g.paste(Image.new("RGBA", lower.size, (0, 0, 0, 0)), (0, row))
+        g.paste(lower, (0, row))
+        frozen.append(g)
+    return frozen
+
+
+def removeStrayLines(image, fromRow=60, darkMax=12):
+    """1px 짜리 어두운 잔여선을 걷는다 — 불투명 4방향 이웃이 1개 이하인 어두운 픽셀을 반복해서 지운다.
+
+    📌 그림자 테두리가 호(弧)로 남는 경우용이다(투척사 Idle v1). 몸 외곽선은 안쪽 이웃이 있어 안 지워진다.
+    """
+    a = np.array(image)
+    for _ in range(6):
+        opaque = a[:, :, 3] > ALPHA_CUT
+        dark = opaque & (a[:, :, :3].max(axis=2) < darkMax)
+        kill = []
+        h, w = opaque.shape
+        for y, x in zip(*np.nonzero(dark)):
+            if y < fromRow:
+                continue
+            neighbours = sum(1 for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1))
+                             if 0 <= y + dy < h and 0 <= x + dx < w and opaque[y + dy, x + dx])
+            if neighbours <= 1:
+                kill.append((y, x))
+        if not kill:
+            break
+        for y, x in kill:
+            a[y, x, 3] = 0
+    return Image.fromarray(a)
+
+
+def lowerRegion(image, r, fillSource):
+    """열 x0..x1 에서 top..bottom 줄(부츠)을 by 만큼 내리고, 비는 줄은 fillSource 의 fillFromRow(정강이) 줄로 채운다."""
+    a = np.array(image)
+    x0, x1, top, bottom, by, fill = r["x0"], r["x1"] + 1, r["top"], r["bottom"], r["by"], r["fillFromRow"]
+    block = a[top:bottom + 1, x0:x1].copy()
+    shin = np.array(fillSource)[fill, x0:x1].copy()
+    a[top:bottom + 1 + by, x0:x1] = 0
+    for y in range(top, top + by):
+        a[y, x0:x1] = shin
+    a[top + by:bottom + 1 + by, x0:x1] = block
+    return Image.fromarray(a)
+
+
 def pickFrames(frames, spec):
     if spec == "all":
         return frames
@@ -137,6 +201,30 @@ def buildState(meta, sheet, state, spec, recipe):
         raise SystemExit(f"🔴 {state}: 이동량 {shifts} 가 {MAX_SHIFT}px 를 넘는다 — 그림이 다른 문제일 수 있다")
 
     frames = [shift(f, s) for f, s in zip(frames, shifts)]
+
+    # 🔑 하체 고정 — 기준 프레임의 아래쪽 줄을 모든 프레임에 그대로 쓴다(발밑 정렬 뒤라 줄이 맞는다).
+    #    v3 는 시작·끝 프레임을 같게 줘도 중간에서 다리를 옮긴다(투척사 Idle v4 실측) — 생성으로는 보장이 안 된다.
+    if "freezeBelow" in spec:
+        frames = freezeLowerBody(frames, spec["freezeBelow"]["row"], spec["freezeBelow"]["frame"])
+
+    # 🔑 손으로 그린 조각을 얹는다 — 생성이 끝내 못 그린 것(투척사 Idle 의 나란히 선 두 다리).
+    #    경로는 레시피 기준 상대경로. 조각은 칸과 같은 크기(92x92)의 투명 PNG 다.
+    if "overlay" in spec:
+        patch = Image.open(os.path.join(recipe["_dir"], spec["overlay"])).convert("RGBA")
+        frames = [Image.alpha_composite(f, patch) for f in frames]
+
+    if spec.get("removeStrays"):
+        frames = [removeStrayLines(f) for f in frames]
+
+    # 🔑 한쪽 발만 떠 있을 때 — 그 발(부츠 줄)을 내리고 생긴 틈을 정강이 줄로 잇는다.
+    #    전체 발밑 정렬(each)은 가장 아래 픽셀 하나만 보므로 **다른 발이 떠 있는 것**을 못 잡는다(투척사 Idle 앞발 3px).
+    if "lowerRegion" in spec:
+        region = spec["lowerRegion"]
+        # 🔴 정강이 줄은 **한 프레임에서** 가져온다(fillFromFrame, 기본 0). 프레임마다 자기 줄을 쓰면
+        #    그 줄을 망토 밑단 외곽선이 지나가는 프레임에서 검정이 세로로 늘어난다(투척사 Idle f4~f8 · 사용자 지적).
+        source = frames[region.get("fillFromFrame", 0)]
+        frames = [lowerRegion(f, region, source) for f in frames]
+
     heights = []
     for f in frames:
         box = f.getchannel("A").getbbox()
@@ -153,6 +241,7 @@ def main():
     args = ap.parse_args()
 
     recipe = json.load(open(args.recipe, encoding="utf-8"))
+    recipe["_dir"] = os.path.dirname(os.path.abspath(args.recipe))
     bundleDir = args.bundle or os.path.join(os.path.dirname(os.path.abspath(args.recipe)), "_bundle")
     if args.download or not os.path.isdir(bundleDir):
         downloadBundle(recipe["characterId"], bundleDir)

@@ -165,9 +165,13 @@ namespace Abyss.EditorTools
         /// </summary>
         private const string SheetDirection = "southeast";
 
-        /// <summary>시트 경로 규약. 파일명은 <c>{폼}_{상태}_{방향}.png</c> 다.</summary>
+        /// <summary>
+        /// 시트 경로 규약 — <c>Characters/{폼}/{방향}/{폼}_{상태}_{방향}.png</c>.
+        /// 📌 <b>폴더로 나눠도 파일명은 그대로 둔다</b>(2026-09-17). 스프라이트 이름이 파일명에서 나오고, 이름이 바뀌면
+        /// 슬라이서가 새 ID 를 발급해 클립 참조가 바뀐다 — 폴더 이동은 <c>.meta</c> 를 같이 옮기면 GUID 가 유지된다.
+        /// </summary>
         private static string CharacterSheet(string filePrefix, string sheetState)
-            => $"Assets/Art/Sprites/Characters/{filePrefix}_{sheetState}_{SheetDirection}.png";
+            => $"Assets/Art/Sprites/Characters/{filePrefix}/{SheetDirection}/{filePrefix}_{sheetState}_{SheetDirection}.png";
 
         /// <summary>base 컨트롤러가 갖출 상태. 순서가 곧 Animator 의 기본 상태 순서이며 첫 항목이 기본값이 된다.</summary>
         private static readonly string[] AllAnimationIds =
