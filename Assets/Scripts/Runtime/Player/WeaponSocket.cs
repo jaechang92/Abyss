@@ -97,6 +97,9 @@ namespace Abyss.Runtime.Player
         ///
         /// <c>null</c> 을 주면 미리보기 값으로 물러난다(맨손이 아니라 인스펙터 배선).
         /// </summary>
+        /// <summary>손에 꽂힌 무기(<see cref="SetWeapon"/>이 준 것). 한 번도 안 꽂혔으면 <c>null</c> — 그때는 미리보기가 그려진다.</summary>
+        public Weapon.WeaponData EquippedWeapon => weaponAssigned ? equipped : null;
+
         public void SetWeapon(Weapon.WeaponData weapon)
         {
             equipped = weapon;

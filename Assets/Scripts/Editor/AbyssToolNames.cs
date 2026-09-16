@@ -56,6 +56,9 @@ namespace Abyss.EditorTools
         // 정리(되돌리는 쪽)
         public const string ClearPlatforms = "Clear Test Platforms";
         public const string ClearRoomLayouts = "Clear Room Layouts";
+
+        // 디버그(조회)
+        public const string OpenStatInspector = "Stat Inspector";
     }
 }
 #endif

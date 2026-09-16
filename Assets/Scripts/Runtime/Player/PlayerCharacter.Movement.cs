@@ -159,6 +159,14 @@ namespace Abyss.Runtime.Player
             jumpsRemaining = Mathf.Max(1, next.jumpCount);
         }
 
+        public float BaseMoveSpeed => moveSpeed;
+
+        /// <summary>
+        /// 실제 이동속도(기본 × 버프 × 폼). 🔑 이동과 스탯 창이 <b>같은 식</b>을 읽게 한 곳에 둔다 —
+        /// 각자 곱하면 배율을 하나 더할 때 창에 보이는 값만 옛 식으로 남는다.
+        /// </summary>
+        public float EffectiveMoveSpeed => moveSpeed * MoveSpeedMultiplier * FormMoveSpeedMultiplier;
+
         private void FixedUpdateMovement()
         {
             if (body == null) return;
@@ -169,7 +177,7 @@ namespace Abyss.Runtime.Player
                 return;
             }
 
-            body.linearVelocity = new Vector2(moveInput.x * moveSpeed * MoveSpeedMultiplier * FormMoveSpeedMultiplier, body.linearVelocity.y);
+            body.linearVelocity = new Vector2(moveInput.x * EffectiveMoveSpeed, body.linearVelocity.y);
         }
 
         private void DrawMovementGizmos()

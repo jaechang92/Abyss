@@ -63,6 +63,12 @@ namespace Abyss.Runtime.Form
             if (socket != null || combat != null)
             {
                 var inventory = ResolveInventory();
+
+                // 🔴 시작 무기를 보유로 들인 뒤에 조회한다 — 안 들이면 그 폼의 첫 획득이 같은 무기를
+                //    「첫 획득(0단계)」으로 받아 빈손이 된다(WeaponInventory.Adopt).
+                //    런 시작의 Clear 가 이것을 지워도 Clear 가 판 번호를 올려 다시 그리며 다시 들인다.
+                if (form != null) inventory?.Adopt(form.defaultWeapon);
+
                 Weapon.WeaponData weapon = ResolveWeapon(form, inventory);
 
                 if (socket != null)

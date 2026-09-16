@@ -24,11 +24,36 @@ namespace Abyss.Runtime.Player
         /// </summary>
         public float WeaponAttackMult { get; private set; } = 1f;
 
+        /// <summary>
+        /// 배율을 준 무기와 그 강화 단계. <b>전투가 실제로 쓰는 쪽</b>이다(스탯 창 조회용).
+        /// 손에 그려진 무기는 <c>WeaponSocket.EquippedWeapon</c> 이 따로 갖는다 — 둘이 갈리면 결함이다.
+        /// </summary>
+        public Weapon.WeaponData CurrentWeapon { get; private set; }
+        public int WeaponUpgradeLevel { get; private set; }
+
         /// <summary>무기를 갈아 끼운다. 강화 단계가 오르면 같은 무기로 다시 부른다.</summary>
         public void SetWeapon(Weapon.WeaponData weapon, int upgradeLevel = 0)
         {
+            CurrentWeapon = weapon;
+            WeaponUpgradeLevel = weapon != null ? upgradeLevel : 0;
             WeaponAttackMult = weapon != null ? weapon.MultiplierAt(upgradeLevel) : 1f;
         }
+
+        /// <summary>
+        /// 공격 배율 세 층(버프 · 메타 · 무기)의 곱.
+        ///
+        /// 🔑 <b>대미지 식을 여기 한 곳에 둔다.</b> 공격 입력과 스탯 창이 각자 곱하면
+        /// 층을 하나 더할 때 한쪽만 고쳐져 <b>창에 보이는 값과 실제로 들어가는 값이 갈린다</b> — 오류가 안 난다.
+        /// ⚠️ 적중 시점에만 붙는 것(심연 충전 2배)은 여기 없다. 헛스윙에는 안 붙기 때문이다.
+        /// </summary>
+        public float TotalAttackMult => AttackMultiplier * MetaAttackMult * WeaponAttackMult;
+
+        public int BaseLightAttackDamage => lightAttackDamage;
+        public int BaseHeavyAttackDamage => heavyAttackDamage;
+        public int LightAttackDamage => Mathf.RoundToInt(lightAttackDamage * TotalAttackMult);
+        public int HeavyAttackDamage => Mathf.RoundToInt(heavyAttackDamage * TotalAttackMult);
+        public float AttackCooldownLight => attackCooldownLight;
+        public float AttackCooldownHeavy => attackCooldownHeavy;
 
         [Header("공격 쿨다운")]
         [SerializeField, Min(0f)] private float attackCooldownLight = 0.3f;
@@ -79,7 +104,7 @@ namespace Abyss.Runtime.Player
 
             lastAttackLightTime = Time.time;
             stateMachine?.TriggerAttackLight();
-            PerformAttack(Mathf.RoundToInt(lightAttackDamage * AttackMultiplier * MetaAttackMult * WeaponAttackMult), lightHitstop, lightShake, isHeavy: false);
+            PerformAttack(LightAttackDamage, lightHitstop, lightShake, isHeavy: false);
         }
 
         private void OnAttackHeavy(InputValue value)
@@ -89,7 +114,7 @@ namespace Abyss.Runtime.Player
 
             lastAttackHeavyTime = Time.time;
             stateMachine?.TriggerAttackHeavy();
-            PerformAttack(Mathf.RoundToInt(heavyAttackDamage * AttackMultiplier * MetaAttackMult * WeaponAttackMult), heavyHitstop, heavyShake, isHeavy: true);
+            PerformAttack(HeavyAttackDamage, heavyHitstop, heavyShake, isHeavy: true);
         }
 
         /// <summary>

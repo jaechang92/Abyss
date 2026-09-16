@@ -149,6 +149,52 @@ namespace Abyss.Tests.EditMode
         }
 
         [Test]
+        public void 시작_무기를_들이면_같은_무기_획득이_강화가_된다()
+        {
+            // 🔴 들이지 않으면 첫 획득이 0단계 — 손에 든 무기·배율이 그대로인 빈손 보상이다.
+            var inventory = new WeaponInventory();
+            var basic = MakeWeapon("rusted_blade", "swordsman");
+
+            Assert.IsTrue(inventory.Adopt(basic));
+            Assert.IsTrue(inventory.Owns(basic), "시작 무기는 보유다 — 상점·제단이 「강화」로 불러야 한다");
+            Assert.AreEqual(0, inventory.UpgradeLevelOf(basic));
+
+            Assert.IsFalse(inventory.Grant(basic), "들인 뒤의 획득은 강화(false)다");
+            Assert.AreEqual(1, inventory.UpgradeLevelOf(basic));
+        }
+
+        [Test]
+        public void 들이기는_쌓인_단계와_장착을_건드리지_않는다()
+        {
+            var inventory = new WeaponInventory();
+            var sword = MakeWeapon("keen_blade", "swordsman");
+            var basic = MakeWeapon("rusted_blade", "swordsman");
+
+            inventory.Grant(basic);
+            inventory.Grant(basic); // 1단계
+            inventory.Grant(sword); // 손은 keen_blade
+
+            int version = inventory.Version;
+            Assert.IsFalse(inventory.Adopt(basic), "이미 가진 무기는 다시 안 들인다");
+            Assert.AreEqual(1, inventory.UpgradeLevelOf(basic), "쌓아 둔 단계가 0으로 돌아가면 안 된다");
+            Assert.AreSame(sword, inventory.ResolveFor("swordsman", basic), "손의 무기가 시작 무기로 돌아가면 안 된다");
+            Assert.AreEqual(version, inventory.Version);
+        }
+
+        [Test]
+        public void 들이기는_판_번호를_올리지_않는다()
+        {
+            // 🔑 뷰가 다시 그리며 들이기를 부른다 — 여기서 판이 오르면 매 프레임 다시 그린다.
+            var inventory = new WeaponInventory();
+            int start = inventory.Version;
+
+            inventory.Adopt(MakeWeapon("rusted_blade", "swordsman"));
+            inventory.Adopt(null);
+
+            Assert.AreEqual(start, inventory.Version);
+        }
+
+        [Test]
         public void 판_번호는_바뀔_때만_오른다()
         {
             // 🔑 뷰가 이 숫자만 보고 다시 그린다. 안 바뀌었는데 오르면 매 프레임 다시 그리고,
