@@ -302,6 +302,12 @@ namespace Abyss.Runtime.Enemy
             return data != null ? data.baseDamage : 0;
         }
 
+        /// <summary>지금 공격이 들어가면 줄 피해(보스 페이즈 배수 반영). 스탯 창 조회용 — 식은 <see cref="GetAttackDamage"/> 하나다.</summary>
+        public int AttackDamage => GetAttackDamage();
+
+        /// <summary>최대 HP. 초기화가 <c>data.baseHp</c> 를 그대로 쓰므로 같은 값을 읽는다.</summary>
+        public int MaxHp => data != null ? data.baseHp : 0;
+
         public void TakeDamage(int amount)
         {
             ApplyDamage(amount, causesStagger: true);

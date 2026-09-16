@@ -43,6 +43,12 @@ namespace Abyss.Runtime.Weapon
         /// </summary>
         public int Version { get; private set; }
 
+        /// <summary>보유 무기와 강화 단계(<c>weaponId</c> → 단계). 조회 전용 — 스탯 창이 승계를 확인하는 데 쓴다.</summary>
+        public IReadOnlyDictionary<string, int> Levels => levels;
+
+        /// <summary>폼마다 장착한 무기(<c>formId</c> → 무기). 조회 전용. 비어 있는 폼은 기본 무기를 든다.</summary>
+        public IReadOnlyDictionary<string, WeaponData> EquippedByForm => equipped;
+
         /// <summary>
         /// 무기를 획득한다. 이미 가진 무기면 <b>강화 단계가 1 오른다</b>(§7 중복=강화).
         /// 어느 쪽이든 그 폼의 장착 무기가 이것으로 바뀐다 — 방금 준 것이 손에 안 들리면

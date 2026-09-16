@@ -184,6 +184,20 @@ namespace Abyss.EditorTools
                         "생성한 방 지형을 지운다.", RoomLayoutBuilder.ClearRoomLayouts, isDestructive: true),
                 },
             },
+
+            // 🔑 맨 뒤에 붙인다 — 탭 선택이 EditorPrefs 에 색인으로 남으므로, 앞에 끼우면 기존 탭이 한 칸씩 밀린다.
+            new Group
+            {
+                Tab = "디버그",
+                Title = "디버그 · 조회",
+                Note = "값을 바꾸지 않고 보기만 한다. 플레이 중에 쓴다.",
+                Tools = new[]
+                {
+                    new AbyssTool(AbyssToolNames.OpenStatInspector,
+                        "선택한 플레이어·적의 스탯 창을 연다. 공격 배율을 버프·메타·무기 층으로 나눠 보여주고, 무기 강화·보유 목록도 나온다.",
+                        StatInspectorWindow.Open),
+                },
+            },
         };
 
         /// <summary>검색어에 걸리는 도구만 추린다. 이름과 설명을 함께 본다(대소문자 무시).</summary>
