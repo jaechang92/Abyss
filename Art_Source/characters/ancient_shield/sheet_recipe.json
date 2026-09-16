@@ -1,0 +1,73 @@
+{
+  "_note": "선택 근거는 animation_prompts.md. 공중·대시 프레임은 pose 의 자세 유지 구간(knight_red 규약: Jump·Fall 4장 · Dash 5장).",
+  "prefix": "ancient_shield",
+  "characterId": "2de47574-d60c-4f47-bd0d-0204065ed52a",
+  "stripShadow": false,
+  "direction": "southeast",
+  "cell": 92,
+  "footY": 77,
+  "outDir": "Assets/Art/Sprites/Characters/ancient_shield/southeast",
+  "states": {
+    "idle": {
+      "animation": "idle_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "walk": {
+      "animation": "walk_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "attacklight": {
+      "animation": "atk_light_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "attackheavy": {
+      "animation": "atk_heavy_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "hit": {
+      "animation": "hit_southeast_v2",
+      "frames": "all",
+      "align": "each"
+    },
+    "dead": {
+      "animation": "dead_southeast_v1",
+      "frames": "all",
+      "align": "first"
+    },
+    "jump": {
+      "animation": "pose_jump_southeast_v1",
+      "frames": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "align": "each"
+    },
+    "fall": {
+      "animation": "pose_fall_southeast_v2",
+      "frames": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "align": "each"
+    },
+    "dash": {
+      "animation": "pose_dash_southeast_v2",
+      "frames": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "align": "each"
+    }
+  }
+}

@@ -1,0 +1,309 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e81e81da6a79122489eff7656c2d7875, type: 3}
+  m_Name: AncientShieldWeaponAnchors
+  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Player.WeaponAnchorSet
+  formId: ancient_shield
+  clips:
+  - animationId: AttackHeavy
+    isLooping: 0
+    needsManual: 0
+    handOffset: {x: 0, y: 0}
+    frames:
+    - position: {x: 0.5969, y: 0.6876}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.8229, y: 1.1238}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5625, y: 1.3751}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5312, y: 1.4064}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5562, y: 1.3783}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.8781, y: 1.0611}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6938, y: 0.6626}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6042, y: 0.8413}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6005, y: 0.7644}
+      angle: 0
+      isInFront: 1
+      isKey: 0
+  - animationId: AttackLight
+    isLooping: 0
+    needsManual: 0
+    handOffset: {x: 0, y: 0}
+    frames:
+    - position: {x: 0.5969, y: 0.6876}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6345, y: 0.6822}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.7169, y: 0.7115}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.7169, y: 0.7115}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.7283, y: 0.8683}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.7313, y: 0.9064}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.7625, y: 0.9064}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.7887, y: 0.9912}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.8555, y: 1.1915}
+      angle: 0
+      isInFront: 1
+      isKey: 1
+  - animationId: Dash
+    isLooping: 1
+    needsManual: 0
+    handOffset: {x: 0, y: 0}
+    frames:
+    - position: {x: 0.4732, y: 1.3067}
+      angle: -29.2
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.4759, y: 1.1919}
+      angle: -35.1
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.4812, y: 1.1564}
+      angle: -34.9
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5071, y: 1.2231}
+      angle: -31
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5714, y: 0.7204}
+      angle: -78.9
+      isInFront: 1
+      isKey: 1
+  - animationId: Dead
+    isLooping: 0
+    needsManual: 0
+    handOffset: {x: 0, y: 0}
+    frames:
+    - position: {x: 0.5969, y: 0.6876}
+      angle: -73.8
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6283, y: 0.663}
+      angle: -75.7
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6344, y: 0.6564}
+      angle: -75.8
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6534, y: 0.5598}
+      angle: -78.7
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6354, y: 0.8725}
+      angle: -39.3
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6946, y: 0.7856}
+      angle: -47
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.7259, y: 0.7544}
+      angle: -49.1
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6829, y: 0.7321}
+      angle: -42.5
+      isInFront: 1
+      isKey: 0
+    - position: {x: 0.6399, y: 0.7099}
+      angle: -29.4
+      isInFront: 1
+      isKey: 0
+  - animationId: Fall
+    isLooping: 1
+    needsManual: 0
+    handOffset: {x: 0, y: 0}
+    frames:
+    - position: {x: 0.7872, y: 0.9689}
+      angle: -50.5
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.7912, y: 1.0513}
+      angle: -46.4
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.7599, y: 1.02}
+      angle: -47.5
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6974, y: 0.9575}
+      angle: -51.7
+      isInFront: 1
+      isKey: 1
+  - animationId: Hit
+    isLooping: 0
+    needsManual: 0
+    handOffset: {x: 0, y: 0}
+    frames:
+    - position: {x: 0.5969, y: 0.6876}
+      angle: -73.8
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5696, y: 0.7544}
+      angle: -71
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5417, y: 0.8413}
+      angle: -63.5
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5601, y: 0.7901}
+      angle: -61.7
+      isInFront: 1
+      isKey: 0
+    - position: {x: 0.5785, y: 0.7388}
+      angle: -65.6
+      isInFront: 1
+      isKey: 0
+  - animationId: Idle
+    isLooping: 1
+    needsManual: 0
+    handOffset: {x: 0, y: 0}
+    frames:
+    - position: {x: 0.5969, y: 0.6876}
+      angle: -73.8
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5658, y: 0.6613}
+      angle: -76.8
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5412, y: 0.7075}
+      angle: -74.7
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5099, y: 0.7075}
+      angle: -77.1
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5435, y: 0.7705}
+      angle: -73.5
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5769, y: 0.7814}
+      angle: -71.4
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.625, y: 0.7119}
+      angle: -72
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6266, y: 0.686}
+      angle: -72.7
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5955, y: 0.6651}
+      angle: -75
+      isInFront: 1
+      isKey: 1
+  - animationId: Jump
+    isLooping: 1
+    needsManual: 0
+    handOffset: {x: 0, y: 0}
+    frames:
+    - position: {x: 0.5408, y: 0.9308}
+      angle: -58.3
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5104, y: 0.8725}
+      angle: -59.7
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.4769, y: 1.2189}
+      angle: -30.7
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5088, y: 1.0749}
+      angle: -46.3
+      isInFront: 1
+      isKey: 0
+  - animationId: Run
+    isLooping: 1
+    needsManual: 0
+    handOffset: {x: 0, y: 0}
+    frames:
+    - position: {x: 0.5089, y: 0.6579}
+      angle: -78.5
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.467, y: 1.2154}
+      angle: -29.4
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5712, y: 0.6772}
+      angle: -77
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.692, y: 0.6906}
+      angle: -70.8
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.7219, y: 0.7189}
+      angle: -67.8
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.6082, y: 0.684}
+      angle: -72.9
+      isInFront: 1
+      isKey: 1
+    - position: {x: 0.5376, y: 0.9966}
+      angle: -52.7
+      isInFront: 1
+      isKey: 0
+    - position: {x: 0.467, y: 1.3092}
+      angle: -25
+      isInFront: 1
+      isKey: 1

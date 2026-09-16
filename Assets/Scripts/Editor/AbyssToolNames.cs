@@ -52,6 +52,7 @@ namespace Abyss.EditorTools
         public const string ImportWeaponSprites = "Weapon Sprites";
         public const string ImportWeaponAnchorSet = "Weapon Anchor Set";
         public const string WireWeaponAngles = "Wire Weapon Angle Sprites";
+        public const string SliceCharacterSheets = "Character Sheets (Grid Slice)";
 
         // 정리(되돌리는 쪽)
         public const string ClearPlatforms = "Clear Test Platforms";

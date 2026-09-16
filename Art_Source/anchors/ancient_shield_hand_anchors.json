@@ -1,0 +1,641 @@
+{
+  "mode": "protrusion",
+  "pivot": {
+    "x": 0.5,
+    "y": 0.163
+  },
+  "ppu": 32.0,
+  "minProtrusion": 2.0,
+  "sheets": [
+    {
+      "sheet": "ancient_shield_attackheavy_southeast.png",
+      "frames": 9,
+      "keys": 8,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 65.1,
+          "yPx": 55.0,
+          "x": 0.5969,
+          "y": 0.6876,
+          "source": "키",
+          "angle": -73.8
+        },
+        {
+          "frame": 1,
+          "xPx": 72.3,
+          "yPx": 41.0,
+          "x": 0.8229,
+          "y": 1.1238,
+          "source": "키",
+          "angle": -41.4
+        },
+        {
+          "frame": 2,
+          "xPx": 64.0,
+          "yPx": 33.0,
+          "x": 0.5625,
+          "y": 1.3751,
+          "source": "키",
+          "angle": -23.9
+        },
+        {
+          "frame": 3,
+          "xPx": 63.0,
+          "yPx": 32.0,
+          "x": 0.5312,
+          "y": 1.4064,
+          "source": "키",
+          "angle": -21.4
+        },
+        {
+          "frame": 4,
+          "xPx": 63.8,
+          "yPx": 32.9,
+          "x": 0.5562,
+          "y": 1.3783,
+          "source": "키",
+          "angle": -22.7
+        },
+        {
+          "frame": 5,
+          "xPx": 74.1,
+          "yPx": 43.0,
+          "x": 0.8781,
+          "y": 1.0611,
+          "source": "키",
+          "angle": -44.8
+        },
+        {
+          "frame": 6,
+          "xPx": 68.2,
+          "yPx": 55.8,
+          "x": 0.6938,
+          "y": 0.6626,
+          "source": "키",
+          "angle": -71.0
+        },
+        {
+          "frame": 7,
+          "xPx": 65.3,
+          "yPx": 50.1,
+          "x": 0.6042,
+          "y": 0.8413,
+          "source": "키",
+          "angle": -45.9
+        },
+        {
+          "frame": 8,
+          "xPx": 65.2,
+          "yPx": 52.5,
+          "x": 0.6005,
+          "y": 0.7644,
+          "source": "보간",
+          "angle": -54.5
+        }
+      ]
+    },
+    {
+      "sheet": "ancient_shield_attacklight_southeast.png",
+      "frames": 9,
+      "keys": 9,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 65.1,
+          "yPx": 55.0,
+          "x": 0.5969,
+          "y": 0.6876,
+          "source": "키",
+          "angle": -73.8
+        },
+        {
+          "frame": 1,
+          "xPx": 66.3,
+          "yPx": 55.2,
+          "x": 0.6345,
+          "y": 0.6822,
+          "source": "키",
+          "angle": -72.7
+        },
+        {
+          "frame": 2,
+          "xPx": 68.9,
+          "yPx": 54.2,
+          "x": 0.7169,
+          "y": 0.7115,
+          "source": "키",
+          "angle": -67.5
+        },
+        {
+          "frame": 3,
+          "xPx": 68.9,
+          "yPx": 54.2,
+          "x": 0.7169,
+          "y": 0.7115,
+          "source": "키",
+          "angle": -67.5
+        },
+        {
+          "frame": 4,
+          "xPx": 69.3,
+          "yPx": 49.2,
+          "x": 0.7283,
+          "y": 0.8683,
+          "source": "키",
+          "angle": -58.6
+        },
+        {
+          "frame": 5,
+          "xPx": 69.4,
+          "yPx": 48.0,
+          "x": 0.7313,
+          "y": 0.9064,
+          "source": "키",
+          "angle": -53.3
+        },
+        {
+          "frame": 6,
+          "xPx": 70.4,
+          "yPx": 48.0,
+          "x": 0.7625,
+          "y": 0.9064,
+          "source": "키",
+          "angle": -52.8
+        },
+        {
+          "frame": 7,
+          "xPx": 71.2,
+          "yPx": 45.3,
+          "x": 0.7887,
+          "y": 0.9912,
+          "source": "키",
+          "angle": -47.8
+        },
+        {
+          "frame": 8,
+          "xPx": 73.4,
+          "yPx": 38.9,
+          "x": 0.8555,
+          "y": 1.1915,
+          "source": "키",
+          "angle": -36.1
+        }
+      ]
+    },
+    {
+      "sheet": "ancient_shield_dash_southeast.png",
+      "frames": 5,
+      "keys": 5,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 61.1,
+          "yPx": 35.2,
+          "x": 0.4732,
+          "y": 1.3067,
+          "source": "키",
+          "angle": -29.2
+        },
+        {
+          "frame": 1,
+          "xPx": 61.2,
+          "yPx": 38.9,
+          "x": 0.4759,
+          "y": 1.1919,
+          "source": "키",
+          "angle": -35.1
+        },
+        {
+          "frame": 2,
+          "xPx": 61.4,
+          "yPx": 40.0,
+          "x": 0.4812,
+          "y": 1.1564,
+          "source": "키",
+          "angle": -34.9
+        },
+        {
+          "frame": 3,
+          "xPx": 62.2,
+          "yPx": 37.9,
+          "x": 0.5071,
+          "y": 1.2231,
+          "source": "키",
+          "angle": -31.0
+        },
+        {
+          "frame": 4,
+          "xPx": 64.3,
+          "yPx": 54.0,
+          "x": 0.5714,
+          "y": 0.7204,
+          "source": "키",
+          "angle": -78.9
+        }
+      ]
+    },
+    {
+      "sheet": "ancient_shield_dead_southeast.png",
+      "frames": 9,
+      "keys": 7,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 65.1,
+          "yPx": 55.0,
+          "x": 0.5969,
+          "y": 0.6876,
+          "source": "키",
+          "angle": -73.8
+        },
+        {
+          "frame": 1,
+          "xPx": 66.1,
+          "yPx": 55.8,
+          "x": 0.6283,
+          "y": 0.663,
+          "source": "키",
+          "angle": -75.7
+        },
+        {
+          "frame": 2,
+          "xPx": 66.3,
+          "yPx": 56.0,
+          "x": 0.6344,
+          "y": 0.6564,
+          "source": "키",
+          "angle": -75.8
+        },
+        {
+          "frame": 3,
+          "xPx": 66.9,
+          "yPx": 59.1,
+          "x": 0.6534,
+          "y": 0.5598,
+          "source": "키",
+          "angle": -78.7
+        },
+        {
+          "frame": 4,
+          "xPx": 66.3,
+          "yPx": 49.1,
+          "x": 0.6354,
+          "y": 0.8725,
+          "source": "키",
+          "angle": -39.3
+        },
+        {
+          "frame": 5,
+          "xPx": 68.2,
+          "yPx": 51.9,
+          "x": 0.6946,
+          "y": 0.7856,
+          "source": "키",
+          "angle": -47.0
+        },
+        {
+          "frame": 6,
+          "xPx": 69.2,
+          "yPx": 52.9,
+          "x": 0.7259,
+          "y": 0.7544,
+          "source": "키",
+          "angle": -49.1
+        },
+        {
+          "frame": 7,
+          "xPx": 67.9,
+          "yPx": 53.6,
+          "x": 0.6829,
+          "y": 0.7321,
+          "source": "보간",
+          "angle": -42.5
+        },
+        {
+          "frame": 8,
+          "xPx": 66.5,
+          "yPx": 54.3,
+          "x": 0.6399,
+          "y": 0.7099,
+          "source": "보간",
+          "angle": -29.4
+        }
+      ]
+    },
+    {
+      "sheet": "ancient_shield_fall_southeast.png",
+      "frames": 4,
+      "keys": 4,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 71.2,
+          "yPx": 46.0,
+          "x": 0.7872,
+          "y": 0.9689,
+          "source": "키",
+          "angle": -50.5
+        },
+        {
+          "frame": 1,
+          "xPx": 71.3,
+          "yPx": 43.4,
+          "x": 0.7912,
+          "y": 1.0513,
+          "source": "키",
+          "angle": -46.4
+        },
+        {
+          "frame": 2,
+          "xPx": 70.3,
+          "yPx": 44.4,
+          "x": 0.7599,
+          "y": 1.02,
+          "source": "키",
+          "angle": -47.5
+        },
+        {
+          "frame": 3,
+          "xPx": 68.3,
+          "yPx": 46.4,
+          "x": 0.6974,
+          "y": 0.9575,
+          "source": "키",
+          "angle": -51.7
+        }
+      ]
+    },
+    {
+      "sheet": "ancient_shield_hit_southeast.png",
+      "frames": 5,
+      "keys": 3,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 65.1,
+          "yPx": 55.0,
+          "x": 0.5969,
+          "y": 0.6876,
+          "source": "키",
+          "angle": -73.8
+        },
+        {
+          "frame": 1,
+          "xPx": 64.2,
+          "yPx": 52.9,
+          "x": 0.5696,
+          "y": 0.7544,
+          "source": "키",
+          "angle": -71.0
+        },
+        {
+          "frame": 2,
+          "xPx": 63.3,
+          "yPx": 50.1,
+          "x": 0.5417,
+          "y": 0.8413,
+          "source": "키",
+          "angle": -63.5
+        },
+        {
+          "frame": 3,
+          "xPx": 63.9,
+          "yPx": 51.7,
+          "x": 0.5601,
+          "y": 0.7901,
+          "source": "보간",
+          "angle": -61.7
+        },
+        {
+          "frame": 4,
+          "xPx": 64.5,
+          "yPx": 53.4,
+          "x": 0.5785,
+          "y": 0.7388,
+          "source": "보간",
+          "angle": -65.6
+        }
+      ]
+    },
+    {
+      "sheet": "ancient_shield_idle_southeast.png",
+      "frames": 9,
+      "keys": 9,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 65.1,
+          "yPx": 55.0,
+          "x": 0.5969,
+          "y": 0.6876,
+          "source": "키",
+          "angle": -73.8
+        },
+        {
+          "frame": 1,
+          "xPx": 64.1,
+          "yPx": 55.8,
+          "x": 0.5658,
+          "y": 0.6613,
+          "source": "키",
+          "angle": -76.8
+        },
+        {
+          "frame": 2,
+          "xPx": 63.3,
+          "yPx": 54.4,
+          "x": 0.5412,
+          "y": 0.7075,
+          "source": "키",
+          "angle": -74.7
+        },
+        {
+          "frame": 3,
+          "xPx": 62.3,
+          "yPx": 54.4,
+          "x": 0.5099,
+          "y": 0.7075,
+          "source": "키",
+          "angle": -77.1
+        },
+        {
+          "frame": 4,
+          "xPx": 63.4,
+          "yPx": 52.3,
+          "x": 0.5435,
+          "y": 0.7705,
+          "source": "키",
+          "angle": -73.5
+        },
+        {
+          "frame": 5,
+          "xPx": 64.5,
+          "yPx": 52.0,
+          "x": 0.5769,
+          "y": 0.7814,
+          "source": "키",
+          "angle": -71.4
+        },
+        {
+          "frame": 6,
+          "xPx": 66.0,
+          "yPx": 54.2,
+          "x": 0.625,
+          "y": 0.7119,
+          "source": "키",
+          "angle": -72.0
+        },
+        {
+          "frame": 7,
+          "xPx": 66.1,
+          "yPx": 55.1,
+          "x": 0.6266,
+          "y": 0.686,
+          "source": "키",
+          "angle": -72.7
+        },
+        {
+          "frame": 8,
+          "xPx": 65.1,
+          "yPx": 55.7,
+          "x": 0.5955,
+          "y": 0.6651,
+          "source": "키",
+          "angle": -75.0
+        }
+      ]
+    },
+    {
+      "sheet": "ancient_shield_jump_southeast.png",
+      "frames": 4,
+      "keys": 3,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 63.3,
+          "yPx": 47.2,
+          "x": 0.5408,
+          "y": 0.9308,
+          "source": "키",
+          "angle": -58.3
+        },
+        {
+          "frame": 1,
+          "xPx": 62.3,
+          "yPx": 49.1,
+          "x": 0.5104,
+          "y": 0.8725,
+          "source": "키",
+          "angle": -59.7
+        },
+        {
+          "frame": 2,
+          "xPx": 61.3,
+          "yPx": 38.0,
+          "x": 0.4769,
+          "y": 1.2189,
+          "source": "키",
+          "angle": -30.7
+        },
+        {
+          "frame": 3,
+          "xPx": 62.3,
+          "yPx": 42.6,
+          "x": 0.5088,
+          "y": 1.0749,
+          "source": "보간",
+          "angle": -46.3
+        }
+      ]
+    },
+    {
+      "sheet": "ancient_shield_walk_southeast.png",
+      "frames": 8,
+      "keys": 7,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 62.3,
+          "yPx": 56.0,
+          "x": 0.5089,
+          "y": 0.6579,
+          "source": "키",
+          "angle": -78.5
+        },
+        {
+          "frame": 1,
+          "xPx": 60.9,
+          "yPx": 38.1,
+          "x": 0.467,
+          "y": 1.2154,
+          "source": "키",
+          "angle": -29.4
+        },
+        {
+          "frame": 2,
+          "xPx": 64.3,
+          "yPx": 55.3,
+          "x": 0.5712,
+          "y": 0.6772,
+          "source": "키",
+          "angle": -77.0
+        },
+        {
+          "frame": 3,
+          "xPx": 68.1,
+          "yPx": 54.9,
+          "x": 0.692,
+          "y": 0.6906,
+          "source": "키",
+          "angle": -70.8
+        },
+        {
+          "frame": 4,
+          "xPx": 69.1,
+          "yPx": 54.0,
+          "x": 0.7219,
+          "y": 0.7189,
+          "source": "키",
+          "angle": -67.8
+        },
+        {
+          "frame": 5,
+          "xPx": 65.5,
+          "yPx": 55.1,
+          "x": 0.6082,
+          "y": 0.684,
+          "source": "키",
+          "angle": -72.9
+        },
+        {
+          "frame": 6,
+          "xPx": 63.2,
+          "yPx": 45.1,
+          "x": 0.5376,
+          "y": 0.9966,
+          "source": "보간",
+          "angle": -52.7
+        },
+        {
+          "frame": 7,
+          "xPx": 60.9,
+          "yPx": 35.1,
+          "x": 0.467,
+          "y": 1.3092,
+          "source": "키",
+          "angle": -25.0
+        }
+      ]
+    }
+  ]
+}

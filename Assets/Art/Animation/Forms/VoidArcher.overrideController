@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: VoidArcher
+  m_Controller: {fileID: 9100000, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: -5876589124316855743, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 707efeb56d112d54b8b86d360ff8f154, type: 2}
+  - m_OriginalClip: {fileID: -6526485548501677990, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: b24a1d2ca99d4d94abae43731e80c3ec, type: 2}
+  - m_OriginalClip: {fileID: 8007930019907724400, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 7aa932528d9e6bd4ea1fa519aede2182, type: 2}
+  - m_OriginalClip: {fileID: -1208484551741472015, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: ec58d96f8aee7eb45b2bc26728234769, type: 2}
+  - m_OriginalClip: {fileID: 5763687967238867820, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 684cbc1c69996fb49b8619b0281e1d39, type: 2}
+  - m_OriginalClip: {fileID: 7712804276329364780, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: a96b7d8830a48b34095bdd929750217c, type: 2}
+  - m_OriginalClip: {fileID: -2508264702026654826, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: e808a2bb11b1dc14d97820bb6e462847, type: 2}
+  - m_OriginalClip: {fileID: 8424799005008013772, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: f640b639ecf4efd4092b33839ae72151, type: 2}
+  - m_OriginalClip: {fileID: 8457154212921679535, guid: 79992a230dbc94f418757116464cb4af, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 7216107107705b1418e0680192f7198b, type: 2}

@@ -1,0 +1,641 @@
+{
+  "mode": "protrusion",
+  "pivot": {
+    "x": 0.5,
+    "y": 0.163
+  },
+  "ppu": 32.0,
+  "minProtrusion": 2.0,
+  "sheets": [
+    {
+      "sheet": "void_archer_attackheavy_southeast.png",
+      "frames": 9,
+      "keys": 9,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 60.2,
+          "yPx": 54.7,
+          "x": 0.4449,
+          "y": 0.6966,
+          "source": "키",
+          "angle": -82.2
+        },
+        {
+          "frame": 1,
+          "xPx": 62.2,
+          "yPx": 52.9,
+          "x": 0.5071,
+          "y": 0.7544,
+          "source": "키",
+          "angle": -76.2
+        },
+        {
+          "frame": 2,
+          "xPx": 64.2,
+          "yPx": 46.9,
+          "x": 0.5696,
+          "y": 0.9419,
+          "source": "키",
+          "angle": -60.4
+        },
+        {
+          "frame": 3,
+          "xPx": 63.3,
+          "yPx": 40.0,
+          "x": 0.5394,
+          "y": 1.1564,
+          "source": "키",
+          "angle": -43.9
+        },
+        {
+          "frame": 4,
+          "xPx": 63.3,
+          "yPx": 35.2,
+          "x": 0.5408,
+          "y": 1.3058,
+          "source": "키",
+          "angle": -30.0
+        },
+        {
+          "frame": 5,
+          "xPx": 63.3,
+          "yPx": 35.2,
+          "x": 0.5408,
+          "y": 1.3058,
+          "source": "키",
+          "angle": -30.1
+        },
+        {
+          "frame": 6,
+          "xPx": 62.4,
+          "yPx": 36.0,
+          "x": 0.5125,
+          "y": 1.2814,
+          "source": "키",
+          "angle": -31.8
+        },
+        {
+          "frame": 7,
+          "xPx": 63.3,
+          "yPx": 35.2,
+          "x": 0.5408,
+          "y": 1.3058,
+          "source": "키",
+          "angle": -30.3
+        },
+        {
+          "frame": 8,
+          "xPx": 70.2,
+          "yPx": 46.9,
+          "x": 0.7571,
+          "y": 0.9419,
+          "source": "키",
+          "angle": -54.5
+        }
+      ]
+    },
+    {
+      "sheet": "void_archer_attacklight_southeast.png",
+      "frames": 9,
+      "keys": 9,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 60.2,
+          "yPx": 54.7,
+          "x": 0.4449,
+          "y": 0.6966,
+          "source": "키",
+          "angle": -82.2
+        },
+        {
+          "frame": 1,
+          "xPx": 64.3,
+          "yPx": 51.2,
+          "x": 0.572,
+          "y": 0.8058,
+          "source": "키",
+          "angle": -69.0
+        },
+        {
+          "frame": 2,
+          "xPx": 65.2,
+          "yPx": 44.0,
+          "x": 0.5997,
+          "y": 1.0314,
+          "source": "키",
+          "angle": -49.8
+        },
+        {
+          "frame": 3,
+          "xPx": 63.2,
+          "yPx": 40.0,
+          "x": 0.5372,
+          "y": 1.1564,
+          "source": "키",
+          "angle": -39.1
+        },
+        {
+          "frame": 4,
+          "xPx": 59.4,
+          "yPx": 43.0,
+          "x": 0.4187,
+          "y": 1.0626,
+          "source": "키",
+          "angle": -52.7
+        },
+        {
+          "frame": 5,
+          "xPx": 59.3,
+          "yPx": 42.2,
+          "x": 0.4158,
+          "y": 1.0871,
+          "source": "키",
+          "angle": -48.0
+        },
+        {
+          "frame": 6,
+          "xPx": 59.3,
+          "yPx": 42.2,
+          "x": 0.4158,
+          "y": 1.0871,
+          "source": "키",
+          "angle": -43.2
+        },
+        {
+          "frame": 7,
+          "xPx": 60.3,
+          "yPx": 43.0,
+          "x": 0.4457,
+          "y": 1.0626,
+          "source": "키",
+          "angle": -47.8
+        },
+        {
+          "frame": 8,
+          "xPx": 63.2,
+          "yPx": 41.1,
+          "x": 0.5384,
+          "y": 1.1209,
+          "source": "키",
+          "angle": -42.1
+        }
+      ]
+    },
+    {
+      "sheet": "void_archer_dash_southeast.png",
+      "frames": 5,
+      "keys": 5,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 70.2,
+          "yPx": 53.0,
+          "x": 0.756,
+          "y": 0.7501,
+          "source": "키",
+          "angle": -68.2
+        },
+        {
+          "frame": 1,
+          "xPx": 73.2,
+          "yPx": 49.9,
+          "x": 0.85,
+          "y": 0.8486,
+          "source": "키",
+          "angle": -60.5
+        },
+        {
+          "frame": 2,
+          "xPx": 75.2,
+          "yPx": 47.6,
+          "x": 0.9115,
+          "y": 0.9185,
+          "source": "키",
+          "angle": -53.0
+        },
+        {
+          "frame": 3,
+          "xPx": 73.1,
+          "yPx": 46.2,
+          "x": 0.8456,
+          "y": 0.9634,
+          "source": "키",
+          "angle": -48.8
+        },
+        {
+          "frame": 4,
+          "xPx": 71.1,
+          "yPx": 49.3,
+          "x": 0.783,
+          "y": 0.8647,
+          "source": "키",
+          "angle": -55.2
+        }
+      ]
+    },
+    {
+      "sheet": "void_archer_dead_southeast.png",
+      "frames": 9,
+      "keys": 6,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 60.2,
+          "yPx": 54.7,
+          "x": 0.4449,
+          "y": 0.6966,
+          "source": "키",
+          "angle": -82.2
+        },
+        {
+          "frame": 1,
+          "xPx": 62.3,
+          "yPx": 54.3,
+          "x": 0.5087,
+          "y": 0.7085,
+          "source": "키",
+          "angle": -83.6
+        },
+        {
+          "frame": 2,
+          "xPx": 64.3,
+          "yPx": 54.0,
+          "x": 0.5714,
+          "y": 0.7204,
+          "source": "키",
+          "angle": -81.3
+        },
+        {
+          "frame": 3,
+          "xPx": 67.1,
+          "yPx": 53.8,
+          "x": 0.6585,
+          "y": 0.7256,
+          "source": "키",
+          "angle": -78.0
+        },
+        {
+          "frame": 4,
+          "xPx": 68.9,
+          "yPx": 58.3,
+          "x": 0.7156,
+          "y": 0.5845,
+          "source": "키",
+          "angle": -70.4
+        },
+        {
+          "frame": 5,
+          "xPx": 63.0,
+          "yPx": 59.0,
+          "x": 0.5312,
+          "y": 0.5626,
+          "source": "키",
+          "angle": -83.3
+        },
+        {
+          "frame": 6,
+          "xPx": 62.3,
+          "yPx": 57.9,
+          "x": 0.5097,
+          "y": 0.5961,
+          "source": "보간",
+          "angle": -87.7
+        },
+        {
+          "frame": 7,
+          "xPx": 61.6,
+          "yPx": 56.9,
+          "x": 0.4881,
+          "y": 0.6296,
+          "source": "보간",
+          "angle": -78.0
+        },
+        {
+          "frame": 8,
+          "xPx": 60.9,
+          "yPx": 55.8,
+          "x": 0.4665,
+          "y": 0.6631,
+          "source": "보간",
+          "angle": 4.4
+        }
+      ]
+    },
+    {
+      "sheet": "void_archer_fall_southeast.png",
+      "frames": 4,
+      "keys": 4,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 64.2,
+          "yPx": 53.9,
+          "x": 0.5696,
+          "y": 0.7231,
+          "source": "키",
+          "angle": -75.9
+        },
+        {
+          "frame": 1,
+          "xPx": 67.1,
+          "yPx": 52.0,
+          "x": 0.6594,
+          "y": 0.7798,
+          "source": "키",
+          "angle": -71.6
+        },
+        {
+          "frame": 2,
+          "xPx": 70.1,
+          "yPx": 51.3,
+          "x": 0.7517,
+          "y": 0.8022,
+          "source": "키",
+          "angle": -64.9
+        },
+        {
+          "frame": 3,
+          "xPx": 71.2,
+          "yPx": 50.3,
+          "x": 0.7862,
+          "y": 0.8357,
+          "source": "키",
+          "angle": -59.3
+        }
+      ]
+    },
+    {
+      "sheet": "void_archer_hit_southeast.png",
+      "frames": 5,
+      "keys": 5,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 60.2,
+          "yPx": 54.7,
+          "x": 0.4449,
+          "y": 0.6966,
+          "source": "키",
+          "angle": -82.2
+        },
+        {
+          "frame": 1,
+          "xPx": 59.2,
+          "yPx": 53.9,
+          "x": 0.4134,
+          "y": 0.7231,
+          "source": "키",
+          "angle": -84.1
+        },
+        {
+          "frame": 2,
+          "xPx": 61.2,
+          "yPx": 53.0,
+          "x": 0.4747,
+          "y": 0.7501,
+          "source": "키",
+          "angle": -78.2
+        },
+        {
+          "frame": 3,
+          "xPx": 62.3,
+          "yPx": 48.4,
+          "x": 0.5099,
+          "y": 0.895,
+          "source": "키",
+          "angle": -52.2
+        },
+        {
+          "frame": 4,
+          "xPx": 63.2,
+          "yPx": 50.0,
+          "x": 0.5372,
+          "y": 0.8439,
+          "source": "키",
+          "angle": -55.7
+        }
+      ]
+    },
+    {
+      "sheet": "void_archer_idle_southeast.png",
+      "frames": 9,
+      "keys": 9,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 60.2,
+          "yPx": 54.7,
+          "x": 0.4449,
+          "y": 0.6966,
+          "source": "키",
+          "angle": -82.2
+        },
+        {
+          "frame": 1,
+          "xPx": 59.2,
+          "yPx": 54.7,
+          "x": 0.4137,
+          "y": 0.6966,
+          "source": "키",
+          "angle": -84.0
+        },
+        {
+          "frame": 2,
+          "xPx": 58.4,
+          "yPx": 54.0,
+          "x": 0.3875,
+          "y": 0.7189,
+          "source": "키",
+          "angle": -83.9
+        },
+        {
+          "frame": 3,
+          "xPx": 60.3,
+          "yPx": 53.0,
+          "x": 0.4457,
+          "y": 0.7501,
+          "source": "키",
+          "angle": -79.4
+        },
+        {
+          "frame": 4,
+          "xPx": 62.3,
+          "yPx": 52.1,
+          "x": 0.5104,
+          "y": 0.7788,
+          "source": "키",
+          "angle": -75.5
+        },
+        {
+          "frame": 5,
+          "xPx": 62.3,
+          "yPx": 52.1,
+          "x": 0.5104,
+          "y": 0.7788,
+          "source": "키",
+          "angle": -77.4
+        },
+        {
+          "frame": 6,
+          "xPx": 61.3,
+          "yPx": 52.1,
+          "x": 0.4792,
+          "y": 0.7788,
+          "source": "키",
+          "angle": -78.6
+        },
+        {
+          "frame": 7,
+          "xPx": 61.2,
+          "yPx": 52.9,
+          "x": 0.4759,
+          "y": 0.7544,
+          "source": "키",
+          "angle": -80.4
+        },
+        {
+          "frame": 8,
+          "xPx": 60.3,
+          "yPx": 54.0,
+          "x": 0.4457,
+          "y": 0.7189,
+          "source": "키",
+          "angle": -81.3
+        }
+      ]
+    },
+    {
+      "sheet": "void_archer_jump_southeast.png",
+      "frames": 4,
+      "keys": 4,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 64.1,
+          "yPx": 49.3,
+          "x": 0.5642,
+          "y": 0.8647,
+          "source": "키",
+          "angle": -70.4
+        },
+        {
+          "frame": 1,
+          "xPx": 66.1,
+          "yPx": 44.0,
+          "x": 0.6281,
+          "y": 1.0298,
+          "source": "키",
+          "angle": -55.1
+        },
+        {
+          "frame": 2,
+          "xPx": 66.1,
+          "yPx": 45.2,
+          "x": 0.6266,
+          "y": 0.9952,
+          "source": "키",
+          "angle": -58.2
+        },
+        {
+          "frame": 3,
+          "xPx": 65.3,
+          "yPx": 46.2,
+          "x": 0.6033,
+          "y": 0.9621,
+          "source": "키",
+          "angle": -59.0
+        }
+      ]
+    },
+    {
+      "sheet": "void_archer_walk_southeast.png",
+      "frames": 8,
+      "keys": 5,
+      "needsManual": false,
+      "anchors": [
+        {
+          "frame": 0,
+          "xPx": 60.8,
+          "yPx": 53.9,
+          "x": 0.4609,
+          "y": 0.7235,
+          "source": "보간",
+          "angle": -81.5
+        },
+        {
+          "frame": 1,
+          "xPx": 60.3,
+          "yPx": 53.8,
+          "x": 0.446,
+          "y": 0.7238,
+          "source": "보간",
+          "angle": -82.4
+        },
+        {
+          "frame": 2,
+          "xPx": 59.8,
+          "yPx": 53.8,
+          "x": 0.4311,
+          "y": 0.7242,
+          "source": "보간",
+          "angle": -84.2
+        },
+        {
+          "frame": 3,
+          "xPx": 59.3,
+          "yPx": 53.8,
+          "x": 0.4162,
+          "y": 0.7246,
+          "source": "키",
+          "angle": -87.5
+        },
+        {
+          "frame": 4,
+          "xPx": 62.3,
+          "yPx": 54.8,
+          "x": 0.5099,
+          "y": 0.6933,
+          "source": "키",
+          "angle": -81.1
+        },
+        {
+          "frame": 5,
+          "xPx": 64.3,
+          "yPx": 53.1,
+          "x": 0.5729,
+          "y": 0.7475,
+          "source": "키",
+          "angle": -74.6
+        },
+        {
+          "frame": 6,
+          "xPx": 63.2,
+          "yPx": 53.9,
+          "x": 0.5384,
+          "y": 0.7231,
+          "source": "키",
+          "angle": -76.9
+        },
+        {
+          "frame": 7,
+          "xPx": 61.2,
+          "yPx": 53.9,
+          "x": 0.4759,
+          "y": 0.7231,
+          "source": "키",
+          "angle": -81.3
+        }
+      ]
+    }
+  ]
+}
