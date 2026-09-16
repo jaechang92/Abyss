@@ -35,6 +35,15 @@ namespace Abyss.Runtime.Stage
                  "설정되어 있으면 hasFormReward와 무관하게 보상 룸으로 취급된다(레거시 호환).")]
         public FormData formReward;
 
+        [Tooltip("체크 시 이 방 클리어 후 무기 보상 제단이 활성화된다. 보상 무기는 현재 폼이 쓸 수 있는 " +
+                 "무기 중에서 등급 가중 추첨된다(이미 가진 무기도 후보다 — 중복은 강화가 된다). " +
+                 "🔴 폼 보상과 동시에 설정하지 말 것 — 폼 보상이 먼저 잡히고 무기 보상은 그 방에서 안 열린다.")]
+        public bool hasWeaponReward;
+
+        [Tooltip("보상 무기 고정 지정(선택). 설정 시 추첨 대신 이 무기를 준다. " +
+                 "설정되어 있으면 hasWeaponReward와 무관하게 무기 보상 룸으로 취급된다(폼 보상과 같은 규약).")]
+        public Weapon.WeaponData weaponReward;
+
         [Header("이벤트 (비전투 방)")]
         [Tooltip("설정 시 이 방은 이벤트 방이 된다. 적 목록은 비워 둘 것 — 적이 있으면 전투가 끝나야 이벤트가 열린다.")]
         public EventData eventData;
@@ -45,6 +54,9 @@ namespace Abyss.Runtime.Stage
 
         /// <summary>이 방이 폼 보상 룸인지. 플래그 또는 고정 폼 지정 중 하나라도 있으면 보상 룸.</summary>
         public bool IsFormRewardRoom => hasFormReward || formReward != null;
+
+        /// <summary>이 방이 무기 보상 룸인지. 폼 보상과 같은 규약(플래그 또는 고정 지정).</summary>
+        public bool IsWeaponRewardRoom => hasWeaponReward || weaponReward != null;
 
         /// <summary>이 방이 이벤트 방인지. <see cref="roomType"/>이 아니라 데이터 유무로 판정한다(보상 룸과 같은 규약).</summary>
         public bool IsEventRoom => eventData != null;

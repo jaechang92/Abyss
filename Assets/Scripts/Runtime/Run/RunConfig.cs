@@ -29,6 +29,12 @@ namespace Abyss.Runtime.Run
         [Min(0f)] public float epicWeight = 10f;
         [Min(0f)] public float legendaryWeight = 2f;
 
+        [Header("무기 (§3-B 획득 3창구)")]
+        [Tooltip("무기 등급별 추첨 가중치. 색인이 WeaponRarity 값이다(일반→고대). " +
+                 "🔴 enum 순서를 바꾸면 확률이 조용히 뒤바뀐다. " +
+                 "항목 수로 나눠 정규화되므로(WeaponDraw) 에셋을 넣고 빼도 등급 분포는 그대로다.")]
+        public float[] weaponRarityWeights = { 38f, 25f, 16f, 10f, 6f, 3f, 2f };
+
         [Header("경험치 곡선")]
         [Min(1)] public int baseExpToLevel = 100;
         [Min(1f)] public float expGrowthPerLevel = 1.2f;

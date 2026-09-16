@@ -56,6 +56,7 @@ namespace Abyss.Runtime.Stage
         {
             GameEvents.OnEnemyKilled += HandleEnemyKilled;
             GameEvents.OnFormRewardResolved += HandleFormRewardResolved;
+            GameEvents.OnWeaponRewardResolved += HandleWeaponRewardResolved;
             GameEvents.OnEventResolved += HandleEventResolved;
             if (startOnEnable) Invoke(nameof(StartSequence), SEQUENCE_START_DELAY);
         }
@@ -64,6 +65,7 @@ namespace Abyss.Runtime.Stage
         {
             GameEvents.OnEnemyKilled -= HandleEnemyKilled;
             GameEvents.OnFormRewardResolved -= HandleFormRewardResolved;
+            GameEvents.OnWeaponRewardResolved -= HandleWeaponRewardResolved;
             GameEvents.OnEventResolved -= HandleEventResolved;
             CancelInvoke();
         }
@@ -355,21 +357,9 @@ namespace Abyss.Runtime.Stage
                 return;
             }
 
-            // 폼 보상 룸: 제단을 활성화하고 상호작용(획득/거절)까지 자동 진행을 보류한다.
-            // 제단 미배선이거나 제시할 폼이 없으면 게이트 없이 진행(스톨 방지).
-            if (room.IsFormRewardRoom && formAltar != null)
-            {
-                var reward = ResolveRewardForm(room);
-                if (reward != null)
-                {
-                    formAltar.Configure(reward);
-                    isRoomGateHeld = true;
-                    Debug.Log($"[StageDirector] 폼 보상 룸 — 제단 활성화({reward.formId}), 상호작용까지 진행 보류");
-                    return;
-                }
-
-                Debug.LogWarning($"[StageDirector] 폼 보상 룸({room.roomId})이나 제시할 폼이 없어 게이트 없이 진행 — FormCatalog 비어 있음 여부 확인");
-            }
+            // 보상 제단(폼·무기)을 연다. 게이트를 걸었으면 여기서 멈춘다.
+            // 규칙은 StageDirector.Rewards.cs 가 갖는다.
+            if (TryOpenRewardAltar(room)) return;
 
             Invoke(nameof(ProceedToNextRoom), delayBetweenRooms);
         }
@@ -386,56 +376,6 @@ namespace Abyss.Runtime.Stage
 
             Debug.Log($"[StageDirector] {reason} — 다음 방 진행");
             Invoke(nameof(ProceedToNextRoom), delayBetweenRooms);
-        }
-
-        /// <summary>
-        /// 보상 룸이 제시할 폼을 결정한다.
-        /// 1) 룸에 고정 폼이 지정되어 있으면 그대로(레거시·의도적 고정 보상).
-        /// 2) 아니면 FormCatalog에서 플레이어 미보유 폼을 우선 추첨.
-        /// 3) 미보유가 없으면(전 폼 보유) 카탈로그 전체에서 현재 슬롯 밖 폼을 추첨, 그마저 없으면 null(게이트 스킵).
-        /// </summary>
-        private FormData ResolveRewardForm(RoomData room)
-        {
-            if (room.formReward != null) return room.formReward;
-
-            var catalog = FormCatalog.All;
-            if (catalog == null || catalog.Length == 0) return null;
-
-            var form = ResolveFormController();
-            var owned = form != null ? form.GetOwnedForms() : null;
-
-            var candidates = FormCatalog.GetExcluding(owned);
-            if (candidates.Count > 0)
-            {
-                return candidates[UnityEngine.Random.Range(0, candidates.Count)];
-            }
-
-            // 전 폼 보유 상태 — 중복이라도 제시해 보상 룸이 빈손이 되지 않게 한다.
-            // GetExcluding과 동일하게 null 엔트리를 배제한 뒤 뽑는다(카탈로그에 깨진 참조가 섞여도 안전).
-            var fallback = FormCatalog.GetExcluding(null);
-            return fallback.Count > 0 ? fallback[UnityEngine.Random.Range(0, fallback.Count)] : null;
-        }
-
-        /// <summary>
-        /// 씬의 FormController를 지연 조회해 캐시한다(런 씬에서 플레이어는 1명).
-        /// StageDirector는 플레이어 생성 순서에 의존하지 않으므로 직렬화 참조 대신 필요 시점에 찾는다.
-        /// </summary>
-        private FormController ResolveFormController()
-        {
-            if (cachedFormController == null)
-            {
-                cachedFormController = FindAnyObjectByType<FormController>();
-            }
-            return cachedFormController;
-        }
-
-        // 폼 보상 모달이 닫히면(획득/거절) 제단을 숨기고 게이트를 푼다.
-        private void HandleFormRewardResolved()
-        {
-            if (!isRoomGateHeld) return;
-
-            if (formAltar != null) formAltar.gameObject.SetActive(false);
-            ReleaseRoomGate("폼 보상 해결");
         }
 
         // 비전투 방(이벤트·휴식·상점)의 상호작용이 끝나면 게이트를 푼다. 그 결과로 스킬 드래프트가
