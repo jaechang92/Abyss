@@ -38,7 +38,6 @@ namespace Abyss.EditorTools
 
         private const string Tag = "[FormAltarBuilder]";
 
-        [MenuItem(AbyssMenu.BuildFormAltar)]
         public static void BuildFormAltarInActiveScene()
         {
             var scene = EditorSceneManager.GetActiveScene();
@@ -53,7 +52,7 @@ namespace Abyss.EditorTools
             {
                 EditorUtility.DisplayDialog(
                     "FormAltarBuilder 실패",
-                    $"보상 FormData 미발견: {AbyssPaths.Forms}/{RewardFormFile}\n먼저 '{AbyssMenu.GenerateContent}'를 실행하세요.",
+                    $"보상 FormData 미발견: {AbyssPaths.Forms}/{RewardFormFile}\n먼저 '{AbyssToolNames.GenerateContent}'를 실행하세요.",
                     "확인");
                 return;
             }

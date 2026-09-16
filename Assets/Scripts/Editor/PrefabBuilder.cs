@@ -12,7 +12,6 @@ namespace Abyss.EditorTools
     /// </summary>
     public static partial class PrefabBuilder
     {
-        [MenuItem(AbyssMenu.GeneratePrefabs)]
         public static void Build()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -29,7 +28,6 @@ namespace Abyss.EditorTools
             RunBuild(forceRebuildEnemies: false, forceRebuildPlayer: false);
         }
 
-        [MenuItem(AbyssMenu.GenerateRebuildEnemies)]
         public static void RebuildEnemies()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -44,7 +42,6 @@ namespace Abyss.EditorTools
             RunBuild(forceRebuildEnemies: true, forceRebuildPlayer: false);
         }
 
-        [MenuItem(AbyssMenu.GenerateRebuildPlayer)]
         public static void RebuildPlayer()
         {
             bool proceed = EditorUtility.DisplayDialog(

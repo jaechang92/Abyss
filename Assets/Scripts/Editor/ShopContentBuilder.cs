@@ -30,7 +30,6 @@ namespace Abyss.EditorTools
         /// 품목 하나를 넣으려고 스테이지 셋을 통째로 다시 돌려야 했다 — 필요한 것보다 넓게 건드리면
         /// 무엇이 바뀐 diff 인지 판별하는 비용이 변경 자체보다 커진다.
         /// </summary>
-        [MenuItem(AbyssMenu.GenerateShopContent)]
         public static void GenerateShopContentMenu()
         {
             EnsureAllShops(out _, out _, out _);

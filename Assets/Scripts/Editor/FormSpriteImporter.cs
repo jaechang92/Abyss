@@ -38,7 +38,6 @@ namespace Abyss.EditorTools
             ["void_thrower"] = new Vector2(0.316f, 0.070f),
         };
 
-        [MenuItem(AbyssMenu.ApplyFormSpriteImport)]
         public static void Apply()
         {
             if (!Directory.Exists(FORMS_DIR))

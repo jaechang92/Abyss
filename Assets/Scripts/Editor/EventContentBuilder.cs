@@ -46,7 +46,6 @@ namespace Abyss.EditorTools
         /// <c>Generate ▸ Prototype Content</c>를 돌린 뒤 <b>아무 로그도 안 나는</b> 상태로 멈췄다.
         /// 상점(<c>Generate ▸ Shop Content</c>)에는 이미 있던 자리라 대칭을 맞춘다.
         /// </summary>
-        [MenuItem(AbyssMenu.GenerateEventContent)]
         public static void GenerateEventContentMenu()
         {
             EnsureAllEvents(out _, out _, out _, out _, out _, out _);

@@ -11,13 +11,12 @@ using UnityEngine.UI;
 namespace Abyss.EditorTools
 {
     /// <summary>
-    /// 타이틀 씬을 생성하고 빌드 설정에 등록한다. 메뉴 경로는 <see cref="AbyssMenu.BuildTitleScene"/>.
+    /// 타이틀 씬을 생성하고 빌드 설정에 등록한다. Abyss Tools 창의 <see cref="AbyssToolNames.BuildTitleScene"/>.
     /// 구성: 카메라 + EventSystem + 캔버스(타이틀 로고·메뉴 버튼 4종·누적 기록 줄).
     /// 완주 루프 계획 Phase 0-2 — 게임을 켜고 끌 수 있는 앱 셸의 진입점.
     /// </summary>
     public static partial class TitleSceneBuilder
     {
-        [MenuItem(AbyssMenu.BuildTitleScene)]
         public static void Build()
         {
             if (System.IO.File.Exists(AbyssPaths.TitleScene))

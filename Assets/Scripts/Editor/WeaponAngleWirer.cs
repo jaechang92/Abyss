@@ -21,11 +21,9 @@ namespace Abyss.EditorTools
     /// </summary>
     public static class WeaponAngleWirer
     {
-        private const string MenuPath = "Tools/Abyss/Wire/Weapon Angle Sprites";
         private const string DefaultStrip = "Assets/Art/Sprites/Weapons/sword_angles.png";
         private const string PlayerPrefab = "Assets/Prefabs/Player/Player.prefab";
 
-        [MenuItem(MenuPath)]
         public static void Wire()
         {
             string stripPath = SelectedTexturePath() ?? DefaultStrip;

@@ -45,7 +45,6 @@ namespace Abyss.EditorTools
         private const string SequenceId = "main_run_sequence";
         private const string SequenceName = "본 런 시퀀스";
 
-        [MenuItem(AbyssMenu.BuildStage1)]
         public static void BuildStage1Content()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -74,7 +73,7 @@ namespace Abyss.EditorTools
             {
                 EditorUtility.DisplayDialog(
                     "StageBuilder 실패",
-                    $"EnemyData 누락. 먼저 '{AbyssMenu.GenerateContent}'를 실행하세요.",
+                    $"EnemyData 누락. 먼저 '{AbyssToolNames.GenerateContent}'를 실행하세요.",
                     "확인");
                 return;
             }
@@ -136,7 +135,6 @@ namespace Abyss.EditorTools
             Debug.Log($"[StageBuilder] Stage 1 콘텐츠 생성 완료 — {AbyssPaths.Stages}/{Stage1File}.asset");
         }
 
-        [MenuItem(AbyssMenu.BuildStage2)]
         public static void BuildStage2Content()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -166,7 +164,7 @@ namespace Abyss.EditorTools
             {
                 EditorUtility.DisplayDialog(
                     "StageBuilder 실패",
-                    $"EnemyData 누락(Stage2 신규 적 포함). 먼저 '{AbyssMenu.GenerateContent}'를 실행하세요.",
+                    $"EnemyData 누락(Stage2 신규 적 포함). 먼저 '{AbyssToolNames.GenerateContent}'를 실행하세요.",
                     "확인");
                 return;
             }
@@ -231,7 +229,6 @@ namespace Abyss.EditorTools
                       $"{AbyssPaths.Stages}/{Stage2File}.asset, 시퀀스 {sequence.stages.Count} 스테이지");
         }
 
-        [MenuItem(AbyssMenu.BuildStage3)]
         public static void BuildStage3Content()
         {
             bool proceed = EditorUtility.DisplayDialog(
@@ -263,7 +260,7 @@ namespace Abyss.EditorTools
             {
                 EditorUtility.DisplayDialog(
                     "StageBuilder 실패",
-                    $"EnemyData 누락(Stage3 신규 적 포함). 먼저 '{AbyssMenu.GenerateContent}'를 실행하세요.",
+                    $"EnemyData 누락(Stage3 신규 적 포함). 먼저 '{AbyssToolNames.GenerateContent}'를 실행하세요.",
                     "확인");
                 return;
             }
@@ -328,7 +325,6 @@ namespace Abyss.EditorTools
                       $"{AbyssPaths.Stages}/{Stage3File}.asset, 시퀀스 {sequence.stages.Count} 스테이지");
         }
 
-        [MenuItem(AbyssMenu.BuildStageDirector)]
         public static void SetupStageDirectorInActiveScene()
         {
             var scene = EditorSceneManager.GetActiveScene();
@@ -347,7 +343,7 @@ namespace Abyss.EditorTools
                 {
                     EditorUtility.DisplayDialog(
                         "StageBuilder 실패",
-                        $"StageSequenceData·StageData 모두 누락. 먼저 '{AbyssMenu.BuildStage1}'를 실행하세요.",
+                        $"StageSequenceData·StageData 모두 누락. 먼저 '{AbyssToolNames.BuildStage1}'를 실행하세요.",
                         "확인");
                     return;
                 }

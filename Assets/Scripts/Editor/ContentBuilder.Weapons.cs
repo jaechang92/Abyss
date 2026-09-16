@@ -73,7 +73,7 @@ namespace Abyss.EditorTools
                 if (sprite == null)
                 {
                     Debug.LogWarning($"[ContentBuilder] 무기 그림이 없다: {w.sprite}.png — " +
-                                     "Tools ▸ Abyss ▸ Generate ▸ Weapon Sprites 를 먼저 돌릴 것.");
+                                     $"Abyss Tools 창의 '{AbyssToolNames.ImportWeaponSprites}' 를 먼저 돌릴 것.");
                 }
 
                 if (!w.braced)

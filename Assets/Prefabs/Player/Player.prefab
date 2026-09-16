@@ -256,6 +256,7 @@ MonoBehaviour:
   fallbackSprite: {fileID: 0}
   animatorDriver: {fileID: 0}
   weaponSocket: {fileID: 0}
+  playerCharacter: {fileID: 0}
 --- !u!95 &4047620893821886822
 Animator:
   serializedVersion: 7

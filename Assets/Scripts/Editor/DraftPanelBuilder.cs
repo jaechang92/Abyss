@@ -8,13 +8,12 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// DraftPanelPresenter가 붙은 GameObject 자식 UI를 일괄 생성·연결.
-    /// 메뉴 경로는 <see cref="AbyssMenu.BuildDraftPanel"/>.
+    /// Abyss Tools 창의 <see cref="AbyssToolNames.BuildDraftPanel"/>.
     /// </summary>
     public static class DraftPanelBuilder
     {
         private const string UndoLabel = "Build Draft Panel Children";
 
-        [MenuItem(AbyssMenu.BuildDraftPanel)]
         public static void Build()
         {
             var go = Selection.activeGameObject;

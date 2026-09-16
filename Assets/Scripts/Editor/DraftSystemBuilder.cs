@@ -9,7 +9,7 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// 현재 씬에 Draft 시스템 GameObject를 생성·연결.
-    /// 메뉴 경로는 <see cref="AbyssMenu.BuildDraftSystem"/>.
+    /// Abyss Tools 창의 <see cref="AbyssToolNames.BuildDraftSystem"/>.
     /// - Draft GameObject (DraftSessionController + DraftPoolManager) 생성
     /// - 씬의 PlayerCharacter에서 FormController 탐색해 session.formController 연결
     /// - 씬의 HUDPresenter 발견 시 Draft Session 필드에 역참조 연결
@@ -21,7 +21,6 @@ namespace Abyss.EditorTools
         private const string DraftGameObjectName = "Draft";
         private const string UndoLabel = "Setup Draft System";
 
-        [MenuItem(AbyssMenu.BuildDraftSystem)]
         public static void Setup()
         {
             bool proceed = EditorUtility.DisplayDialog(

@@ -53,7 +53,7 @@ namespace Abyss.EditorTools
             {
                 Debug.LogError(
                     $"{tag} Run 플레이어 '{player.gameObject.name}'에 PlayerInteractor가 없다 — 제단이 반응하지 않는다.\n" +
-                    $"  → 메뉴 '{AbyssMenu.GeneratePrefabs}'(또는 '{AbyssMenu.GenerateRebuildPlayer}')를 먼저 실행해 프리팹에 심을 것.\n" +
+                    $"  → Abyss Tools 창의 '{AbyssToolNames.GeneratePrefabs}'(또는 '{AbyssToolNames.GenerateRebuildPlayer}')를 먼저 실행해 프리팹에 심을 것.\n" +
                     "  씬 오버라이드로 붙이지 않는 이유: 프리팹·씬을 다시 빌드하면 날아가 같은 문제가 재발한다.");
             }
             return interactor;

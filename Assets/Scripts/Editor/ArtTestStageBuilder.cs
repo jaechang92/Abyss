@@ -82,7 +82,6 @@ namespace Abyss.EditorTools
         private const int OrderNear = 20;
         private const int OrderLabel = 30;
 
-        [MenuItem(AbyssMenu.BuildArtTestStage)]
         public static void Build()
         {
             if (!Directory.Exists(AbyssPaths.Stage1Art))

@@ -5,7 +5,7 @@ namespace Abyss.EditorTools
     /// 에디터 도구가 사용하는 에셋/디렉터리 경로 단일 소스(SoT).
     /// 각 빌더에 흩어져 중복되던 "Assets/..." 경로 리터럴을 한 곳에 모은다.
     /// 폴더 구조 변경 시 이 파일만 고치면 된다. 개별 .asset 경로는 디렉터리 + 파일명으로 조합한다.
-    /// 메뉴 경로는 <see cref="AbyssMenu"/>가 담당(역할 분리).
+    /// 도구 이름은 <see cref="AbyssToolNames"/>가 담당(역할 분리).
     /// </summary>
     internal static class AbyssPaths
     {

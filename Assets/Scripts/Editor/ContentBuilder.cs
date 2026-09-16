@@ -19,7 +19,6 @@ namespace Abyss.EditorTools
     /// </summary>
     public static partial class ContentBuilder
     {
-        [MenuItem(AbyssMenu.GenerateContent)]
         public static void Generate()
         {
             bool proceed = EditorUtility.DisplayDialog(

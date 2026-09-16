@@ -32,7 +32,6 @@ namespace Abyss.EditorTools
         // 폼 제단과 같은 자리(FormAltarBuilder 참조). 둘은 동시에 활성화되지 않는다.
         private static readonly Vector3 AltarPosition = new(5f, -2.5f, 0f);
 
-        [MenuItem(AbyssMenu.BuildWeaponAltar)]
         public static void BuildWeaponAltarInActiveScene()
         {
             var scene = EditorSceneManager.GetActiveScene();
