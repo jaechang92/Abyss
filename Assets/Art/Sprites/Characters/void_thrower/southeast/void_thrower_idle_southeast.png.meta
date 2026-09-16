@@ -293,8 +293,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6dd72ceddc3dd7f4291bcb3fd01372ed
-      internalID: 659724588
+      spriteID: bfe996fc768d0a44caf54c7a304fba03
+      internalID: 1108466887
       vertices: []
       indices: 
       edges: []
@@ -321,7 +321,7 @@ TextureImporter:
       void_thrower_idle_southeast_5: -1194694424
       void_thrower_idle_southeast_6: -877733389
       void_thrower_idle_southeast_7: 2007391467
-      void_thrower_idle_southeast_8: 659724588
+      void_thrower_idle_southeast_8: 1108466887
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

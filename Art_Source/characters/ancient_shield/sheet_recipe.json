@@ -6,7 +6,7 @@
   "direction": "southeast",
   "cell": 92,
   "footY": 77,
-  "outDir": "Assets/Art/Sprites/Characters",
+  "outDir": "Assets/Art/Sprites/Characters/ancient_shield/southeast",
   "states": {
     "idle": {
       "animation": "idle_southeast_v1",
