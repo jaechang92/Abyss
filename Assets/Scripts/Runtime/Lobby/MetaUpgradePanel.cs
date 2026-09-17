@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
+using Abyss.Runtime.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -41,7 +42,6 @@ namespace Abyss.Runtime.Lobby
 
         private readonly List<UpgradeRow> rows = new();
         private Action onClosed;
-        private Font uiFont;
 
         public bool IsOpen { get; private set; }
 
@@ -194,7 +194,7 @@ namespace Abyss.Runtime.Lobby
         {
             var rect = CreateRect(parent, name, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), pos, rectSize);
             var t = rect.gameObject.AddComponent<Text>();
-            ApplyFont(t);
+            UiFactory.ApplyFont(t);
             t.text = content;
             t.fontSize = size;
             t.alignment = anchor;
@@ -221,21 +221,12 @@ namespace Abyss.Runtime.Lobby
             labelRect.offsetMin = Vector2.zero;
             labelRect.offsetMax = Vector2.zero;
             var label = labelRect.gameObject.AddComponent<Text>();
-            ApplyFont(label);
+            UiFactory.ApplyFont(label);
             label.text = labelText;
             label.fontSize = 18;
             label.alignment = TextAnchor.MiddleCenter;
             label.color = Color.white;
             return (btn, img);
-        }
-
-        private void ApplyFont(Text text)
-        {
-            if (uiFont == null)
-            {
-                uiFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
-            }
-            if (uiFont != null) text.font = uiFont;
         }
     }
 }

@@ -1,5 +1,6 @@
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
+using Abyss.Runtime.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -195,7 +196,7 @@ namespace Abyss.Runtime.Lobby
         private Text AddText(RectTransform rect, string content, int size, TextAnchor anchor, Color color)
         {
             var text = rect.gameObject.AddComponent<Text>();
-            ApplyFont(text);
+            UiFactory.ApplyFont(text);
             text.text = content;
             text.fontSize = size;
             text.alignment = anchor;
@@ -243,15 +244,6 @@ namespace Abyss.Runtime.Lobby
             AddText(labelRect, labelText, 18, TextAnchor.MiddleCenter, Color.white);
 
             return (button, image);
-        }
-
-        private void ApplyFont(Text text)
-        {
-            if (uiFont == null)
-            {
-                uiFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
-            }
-            if (uiFont != null) text.font = uiFont;
         }
     }
 }

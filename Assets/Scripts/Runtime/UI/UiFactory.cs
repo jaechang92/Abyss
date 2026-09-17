@@ -182,8 +182,17 @@ namespace Abyss.Runtime.UI
 
         public static void ApplyFont(Text text)
         {
-            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+            var font = GetDefaultFont();
             if (font != null) text.font = font;
+        }
+
+        /// <summary>
+        /// 게임 공용 기본 폰트. <see cref="Text"/>가 아닌 곳(TextMesh 등)에서 같은 폰트가 필요할 때 쓴다.
+        /// 최신 Unity 의 빌트인은 LegacyRuntime.ttf, 옛 버전은 Arial.ttf 라 둘을 차례로 찾는다 — 둘 다 없으면 null.
+        /// </summary>
+        public static Font GetDefaultFont()
+        {
+            return Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
         }
     }
 }

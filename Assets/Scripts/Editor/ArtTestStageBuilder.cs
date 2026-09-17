@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System.IO;
 using Abyss.Runtime.Camera;
+using Abyss.Runtime.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -279,8 +280,7 @@ namespace Abyss.EditorTools
 
             var mesh = go.AddComponent<TextMesh>();
             mesh.text = text;
-            mesh.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf")
-                        ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+            mesh.font = UiFactory.GetDefaultFont();
             mesh.fontSize = LabelFontSize;
             mesh.characterSize = CharacterSizeFor(lineHeight);
             mesh.color = color;
