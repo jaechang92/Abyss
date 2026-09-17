@@ -24,6 +24,29 @@ MonoBehaviour:
   hpMultiplier: 1.5
   moveSpeedMultiplier: 0.85
   jumpCount: 1
+  attackStyle: 0
+  rangedLight:
+    projectilePrefab: {fileID: 0}
+    speed: 0
+    lifetime: 0
+    pierceCount: 0
+    damageScale: 0
+    useWeaponSprite: 0
+    spriteAngleOffset: 0
+  rangedHeavy:
+    projectilePrefab: {fileID: 0}
+    speed: 0
+    lifetime: 0
+    pierceCount: 0
+    damageScale: 0
+    useWeaponSprite: 0
+    spriteAngleOffset: 0
+  guard:
+    isEnabled: 1
+    holdDamageScale: 0.3
+    justGuardWindow: 0.2
+    justGuardRearmDelay: 0.3
+    counterDamageScale: 1.5
   primaryAction: {fileID: 0}
   secondaryAction: {fileID: 0}
   castColor: {r: 1, g: 0.8, b: 0.3, a: 1}
