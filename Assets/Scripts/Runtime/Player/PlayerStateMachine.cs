@@ -162,6 +162,7 @@ namespace Abyss.Runtime.Player
             fsm.AddState(new NamedState(PlayerStateIds.AttackHeavy, () => LogEnter(PlayerStateIds.AttackHeavy)));
             fsm.AddState(new NamedState(PlayerStateIds.Hit, () => LogEnter(PlayerStateIds.Hit)));
             fsm.AddState(new NamedState(PlayerStateIds.Dead, () => LogEnter(PlayerStateIds.Dead)));
+            fsm.AddState(new NamedState(PlayerStateIds.Guard, () => LogEnter(PlayerStateIds.Guard)));
         }
 
         private void LogEnter(string stateId)
@@ -194,6 +195,13 @@ namespace Abyss.Runtime.Player
             if (isFormSwapping) return;
 
             if (IsTimedStateHeld(current, Time.time, timedStateExitTime)) return;
+
+            // 가드는 시간제 상태 뒤에 본다 — 반격(AttackHeavy)이 끝나고도 누르고 있으면 가드로 돌아간다.
+            if (player.IsGuarding)
+            {
+                if (current != PlayerStateIds.Guard) fsm.ForceTransitionTo(PlayerStateIds.Guard);
+                return;
+            }
 
             Vector2 velocity = player.Velocity;
             string next = ResolveMovementState(player.IsDashing, player.IsGrounded, velocity.y, velocity.x);
@@ -235,7 +243,8 @@ namespace Abyss.Runtime.Player
 
         private void HandleHpChanged(int previousHp, int currentHp)
         {
-            if (currentHp < previousHp && currentHp > 0)
+            // 가드로 막은 피해는 경직이 없다(16-shield-guard §6) — 방패를 든 채로 버틴다.
+            if (currentHp < previousHp && currentHp > 0 && !player.IsSuppressingHitStun)
             {
                 hitQueued = true;
             }

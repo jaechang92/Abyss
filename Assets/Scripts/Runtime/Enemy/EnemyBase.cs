@@ -194,7 +194,8 @@ namespace Abyss.Runtime.Enemy
             if (player != null && !player.IsDead)
             {
                 int damage = GetAttackDamage();
-                player.TakeDamage(damage);
+                // 출처 = 이 적 — 방패병 가드의 정면 판정(16-shield-guard §5)
+                player.TakeDamage(damage, transform.position);
             }
         }
 

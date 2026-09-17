@@ -51,6 +51,9 @@ namespace Abyss.Runtime.Form
         [Tooltip("Ranged 일 때 강공격. 관통")]
         public RangedAttackSpec rangedHeavy;
 
+        [Tooltip("켜면 강공격 키 = 가드, 강공격은 가드 성공 시 자동 반격으로만 나간다(방패병)")]
+        public FormGuardSpec guard;
+
         [Header("폼 전용 어빌리티 (P-14에서 채움)")]
         public AbilityData primaryAction;
         public AbilityData secondaryAction;

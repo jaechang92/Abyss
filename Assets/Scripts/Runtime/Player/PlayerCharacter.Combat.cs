@@ -100,6 +100,7 @@ namespace Abyss.Runtime.Player
         private void OnAttack(InputValue value)
         {
             if (!value.isPressed) return;
+            if (isGuarding) return;  // 방패를 든 채로는 약공격을 안 한다
             if (!CanAttackLight) return;
 
             lastAttackLightTime = Time.time;
@@ -110,6 +111,8 @@ namespace Abyss.Runtime.Player
         private void OnAttackHeavy(InputValue value)
         {
             if (!value.isPressed) return;
+            // 가드 폼(방패병)의 X 는 가드다 — 강공격은 가드 성공 시 자동 반격으로만 나간다(PlayerCharacter.Guard).
+            if (UsesGuard) return;
             if (!CanAttackHeavy) return;
 
             lastAttackHeavyTime = Time.time;
@@ -154,8 +157,21 @@ namespace Abyss.Runtime.Player
         {
             var sr = ResolvePlayerSr();
             if (sr == null) return;
+            // 다른 일시 색(플래시 · 가드 틴트)이 없을 때만 지금 색을 원래 색으로 잡는다 — 덮인 색을 원래 색으로 착각하지 않게.
+            if (attackFlashTimer <= 0f && !isGuardTinted) CaptureBaseSpriteColor(sr);
             sr.color = color;
             attackFlashTimer = Mathf.Max(attackFlashTimer, duration);
+        }
+
+        /// <summary>
+        /// 일시 색 효과가 끝나면 돌아갈 색을 <b>효과가 시작되는 순간</b> 잡는다.
+        ///
+        /// 🔴 예전에는 SpriteRenderer 를 처음 찾을 때 한 번만 잡았다. 그 시점이 폼 시각(<c>FormVisualApplier</c>, LateUpdate)이
+        /// 색을 정하기 전이면 프리팹에 남은 옛 틴트가 영구히 「원래 색」이 된다. 폼 교체로 색이 바뀌어도 못 따라갔다.
+        /// </summary>
+        private void CaptureBaseSpriteColor(SpriteRenderer sr)
+        {
+            baseSpriteColor = sr.color;
         }
 
         /// <summary>

@@ -114,7 +114,7 @@ namespace Abyss.Runtime.Combat
                 var player = col.GetComponentInParent<PlayerCharacter>();
                 if (player == null || player.IsDead) continue;
 
-                player.TakeDamage(damage);
+                player.TakeDamage(damage, transform.position); // 출처 = 폭발 중심(16-shield-guard §5)
                 break; // 플레이어는 하나뿐 — 콜라이더가 여러 개여도 한 번만 맞는다.
             }
 

@@ -32,6 +32,7 @@ namespace Abyss.Runtime.Player
         public const string AttackHeavy = "AttackHeavy";
         public const string Hit = "Hit";
         public const string Dead = "Dead";
+        public const string Guard = "Guard";
 
         private static readonly string[] idleChain = { Idle };
         private static readonly string[] runChain = { Run, Idle };
@@ -52,6 +53,9 @@ namespace Abyss.Runtime.Player
         //    피격 자세로 굳는 편이 낫다 — "죽었는데 멀쩡히 서 있다"는 버그로 읽힌다.
         private static readonly string[] deadChain = { Dead, Hit, Idle };
 
+        // 🔴 가드 자세 그림이 아직 없다(16-shield-guard 미결 ⓐ). 서 있는 그림 + 본체 틴트로 대신한다.
+        private static readonly string[] guardChain = { Guard, Idle };
+
         private static readonly string[] emptyChain = { Idle };
 
         /// <summary>
@@ -71,6 +75,7 @@ namespace Abyss.Runtime.Player
                 PlayerStateIds.AttackHeavy => attackHeavyChain,
                 PlayerStateIds.Hit => hitChain,
                 PlayerStateIds.Dead => deadChain,
+                PlayerStateIds.Guard => guardChain,
                 _ => emptyChain,
             };
         }
