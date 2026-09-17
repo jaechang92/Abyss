@@ -525,6 +525,8 @@ MonoBehaviour:
   afterimageDamageRatio: 0.5
   afterimageGhostAlpha: 0.45
   afterimageRingDuration: 0.24
+  rangedMuzzleRadius: 0.35
+  rangedMuzzleDuration: 0.15
   castFlashColor: {r: 0.6, g: 0.9, b: 1, a: 1}
   castFlashDuration: 0.15
   castRingRadius: 1.2

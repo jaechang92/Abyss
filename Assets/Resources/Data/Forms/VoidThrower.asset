@@ -24,6 +24,23 @@ MonoBehaviour:
   hpMultiplier: 0.9
   moveSpeedMultiplier: 1.15
   jumpCount: 2
+  attackStyle: 1
+  rangedLight:
+    projectilePrefab: {fileID: 5872246566582947173, guid: 47253a74e11791d43847ad55931e20e2, type: 3}
+    speed: 16
+    lifetime: 0.45
+    pierceCount: 0
+    damageScale: 0.6
+    useWeaponSprite: 1
+    spriteAngleOffset: -45
+  rangedHeavy:
+    projectilePrefab: {fileID: 5872246566582947173, guid: 47253a74e11791d43847ad55931e20e2, type: 3}
+    speed: 20
+    lifetime: 0.5
+    pierceCount: 2
+    damageScale: 0.6
+    useWeaponSprite: 1
+    spriteAngleOffset: -45
   primaryAction: {fileID: 0}
   secondaryAction: {fileID: 0}
   castColor: {r: 0.75, g: 0.35, b: 0.95, a: 1}
