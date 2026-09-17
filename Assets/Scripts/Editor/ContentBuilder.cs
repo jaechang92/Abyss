@@ -52,6 +52,7 @@ namespace Abyss.EditorTools
             WireFormBodySprites();     // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다
             WireWeaponSprites();       // 〃 — 무기 그림 + 각도 스트립
             WireFormDefaultWeapons();  // 〃 — 폼이 들고 시작할 무기
+            WireFormRangedAttacks();   // 〃 — 궁수·투척사 원거리 기본 공격(발사체 프리팹은 PrefabBuilder)
             WireAbilitySfx();
 
             AssetDatabase.SaveAssets();

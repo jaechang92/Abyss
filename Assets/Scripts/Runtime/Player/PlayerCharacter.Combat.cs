@@ -121,16 +121,22 @@ namespace Abyss.Runtime.Player
         /// 공격 판정 + 시각·촉각 피드백.
         /// attackPoint 기준 OverlapBox 로 적 수집, 중복 히트 방지 후 TakeDamage.
         /// 최소 1히트 시 히트스탑·쉐이크 발생.
+        ///
+        /// 원거리 폼(<see cref="Form.FormAttackStyle.Ranged"/>)은 박스 대신 발사체를 쏜다(<c>PlayerCharacter.Ranged</c>).
         /// </summary>
         private void PerformAttack(int damage, float hitstop, Vector2 shake, bool isHeavy)
         {
-            // 이펙트 크기는 판정 박스에서 파생된다 - 화면이 사거리를 부풀리지 않게 값을 넘긴다.
-            if (isHeavy) attackEffect?.PlayHeavy(attackBoxSize);
-            else attackEffect?.PlayLight(attackBoxSize);
-
             // 본체 sprite tint flash — AttackEffect는 옆에 표시되는 검기, 본체 flash는 캐릭터 자체가 공격함을 인지시킴.
             TriggerAttackFlash(isHeavy ? heavyFlashColor : lightFlashColor,
                                isHeavy ? heavyFlashDuration : lightFlashDuration);
+
+            // 🔴 원거리는 박스 이펙트를 켜기 전에 갈린다 — 그 이펙트는 「판정 박스 크기를 그린다」가 계약이라
+            // 원거리에서 켜면 코앞에 닿을 것 같은 그림이 다시 생긴다.
+            if (TryPerformRangedAttack(damage, hitstop, shake, isHeavy)) return;
+
+            // 이펙트 크기는 판정 박스에서 파생된다 - 화면이 사거리를 부풀리지 않게 값을 넘긴다.
+            if (isHeavy) attackEffect?.PlayHeavy(attackBoxSize);
+            else attackEffect?.PlayLight(attackBoxSize);
 
             if (attackPoint == null) return;
 
