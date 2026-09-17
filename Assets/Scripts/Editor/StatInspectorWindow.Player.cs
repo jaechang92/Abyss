@@ -60,6 +60,7 @@ namespace Abyss.EditorTools
             MultRow("   무기", player.WeaponAttackMult);
             MultRow("   합계", player.TotalAttackMult);
             DrawPlayerRangedAttack(player);
+            DrawPlayerGuard(player);
 
             Row("쿨다운", $"약 {player.AttackCooldownLight:0.00}s · 강 {player.AttackCooldownHeavy:0.00}s");
             if (player.IsAbyssChargeReady) Row("심연 충전", "장전됨 — 다음 적중에 추가 배율");
@@ -78,6 +79,22 @@ namespace Abyss.EditorTools
 
             DrawRangedRow("원거리 약", player.LightAttackDamage, form.rangedLight);
             DrawRangedRow("원거리 강", player.HeavyAttackDamage, form.rangedHeavy);
+        }
+
+        /// <summary>
+        /// 가드 폼이면 지금 막고 있는지 · 저스트 창이 열렸는지 · 반격 피해를 적는다.
+        /// 🔑 저스트 창 0.2초는 눈으로 못 잡는다 — 창이 열린 프레임이 여기 보여야 「안 된다」를 판정할 수 있다.
+        /// </summary>
+        private void DrawPlayerGuard(PlayerCharacter player)
+        {
+            if (!player.UsesGuard) return;
+
+            var spec = player.CurrentGuardSpec;
+            string state = !player.IsGuarding ? "안 막는 중" : player.IsJustGuardOpen ? "막는 중 — 저스트 창 열림" : "막는 중";
+            Row("가드", $"{state}    (받는 피해 ×{spec.holdDamageScale:0.##} · 저스트 {spec.justGuardWindow:0.##}s)");
+
+            int counter = UnityEngine.Mathf.RoundToInt(player.HeavyAttackDamage * spec.counterDamageScale);
+            Row("자동 반격", $"{counter}    (강공격 {player.HeavyAttackDamage} ×{spec.counterDamageScale:0.##})");
         }
 
         private void DrawRangedRow(string label, int meleeDamage, RangedAttackSpec spec)

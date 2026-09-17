@@ -41,6 +41,12 @@ MonoBehaviour:
     damageScale: 0.6
     useWeaponSprite: 1
     spriteAngleOffset: -45
+  guard:
+    isEnabled: 0
+    holdDamageScale: 0
+    justGuardWindow: 0
+    justGuardRearmDelay: 0
+    counterDamageScale: 0
   primaryAction: {fileID: 0}
   secondaryAction: {fileID: 0}
   castColor: {r: 0.75, g: 0.35, b: 0.95, a: 1}

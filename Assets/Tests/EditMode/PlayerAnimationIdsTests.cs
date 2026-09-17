@@ -132,7 +132,7 @@ namespace Abyss.Tests.EditMode
         {
             PlayerStateIds.Idle, PlayerStateIds.Run, PlayerStateIds.Jump, PlayerStateIds.Fall,
             PlayerStateIds.Dash, PlayerStateIds.AttackLight, PlayerStateIds.AttackHeavy,
-            PlayerStateIds.Hit, PlayerStateIds.Dead,
+            PlayerStateIds.Hit, PlayerStateIds.Dead, PlayerStateIds.Guard,
         };
     }
 }

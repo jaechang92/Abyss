@@ -50,6 +50,7 @@ namespace Abyss.Runtime.Player
             if (IsDashing) return;
             if (jumpsRemaining <= 0) return;
 
+            BreakGuardForMovement();
             body.linearVelocity = new Vector2(body.linearVelocity.x, jumpForce);
             jumpsRemaining--;
         }
@@ -60,6 +61,7 @@ namespace Abyss.Runtime.Player
             // 시너지 '심연 동료'가 활성이면 쿨다운이 줄어든다(Synergy 파트가 하한과 함께 계산).
             if (Time.time < lastDashTime + EffectiveDashCooldown) return;
 
+            BreakGuardForMovement();
             lastDashTime = Time.time;
             dashTimer = dashDuration;
             // 입력 방향 우선, 무입력 시 facing SoT(facingSign)로 대시. transform.localScale 직접 읽기 대신 SoT 사용.
@@ -118,6 +120,7 @@ namespace Abyss.Runtime.Player
         private void UpdateFacing()
         {
             if (Mathf.Abs(moveInput.x) <= 0.01f) return;
+            if (isGuarding) return;  // 방패는 든 쪽을 향한다 — 가드 중 방향키로 돌아서면 정면 판정이 뒤집힌다
 
             int desiredSign = moveInput.x > 0f ? 1 : -1;
             if (desiredSign == facingSign) return;
@@ -177,7 +180,9 @@ namespace Abyss.Runtime.Player
                 return;
             }
 
-            body.linearVelocity = new Vector2(moveInput.x * EffectiveMoveSpeed, body.linearVelocity.y);
+            // 가드 중에는 제자리에서 버틴다(16-shield-guard §2).
+            float horizontal = isGuarding ? 0f : moveInput.x * EffectiveMoveSpeed;
+            body.linearVelocity = new Vector2(horizontal, body.linearVelocity.y);
         }
 
         private void DrawMovementGizmos()

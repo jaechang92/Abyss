@@ -129,7 +129,7 @@ namespace Abyss.Runtime.Enemy
             if (player == null || player.IsDead) return false;
 
             int damage = Mathf.RoundToInt(GetAttackDamage() * Mathf.Max(0f, damageMultiplier));
-            if (damage > 0) player.TakeDamage(damage);
+            if (damage > 0) player.TakeDamage(damage, transform.position); // 출처 = 보스(16-shield-guard §5)
             return true;
         }
 

@@ -53,6 +53,7 @@ namespace Abyss.EditorTools
             WireWeaponSprites();       // 〃 — 무기 그림 + 각도 스트립
             WireFormDefaultWeapons();  // 〃 — 폼이 들고 시작할 무기
             WireFormRangedAttacks();   // 〃 — 궁수·투척사 원거리 기본 공격(발사체 프리팹은 PrefabBuilder)
+            WireFormGuards();          // 〃 — 방패병 가드(강공격 키 = 가드 · 자동 반격)
             WireAbilitySfx();
 
             AssetDatabase.SaveAssets();

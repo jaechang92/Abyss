@@ -31,6 +31,7 @@ namespace Abyss.Runtime.Player
         {
             UpdateGrounded();
             UpdateDashTimers();
+            UpdateGuard();      // 방향 전환보다 먼저 — 가드 중에는 방향이 고정된다
             UpdateFacing();
             UpdateAttackFlash();
             UpdateBuff();

@@ -42,7 +42,7 @@ namespace Abyss.Tests.EditMode
             foreach (string stateId in new[]
             {
                 PlayerStateIds.Idle, PlayerStateIds.Run, PlayerStateIds.Jump,
-                PlayerStateIds.Fall, PlayerStateIds.Dash, PlayerStateIds.Dead,
+                PlayerStateIds.Fall, PlayerStateIds.Dash, PlayerStateIds.Dead, PlayerStateIds.Guard,
             })
             {
                 Assert.IsFalse(PlayerStateMachine.IsTimedStateHeld(stateId, 0f, ExitTime), stateId);
@@ -58,7 +58,7 @@ namespace Abyss.Tests.EditMode
             {
                 PlayerStateIds.Idle, PlayerStateIds.Run, PlayerStateIds.Jump, PlayerStateIds.Fall,
                 PlayerStateIds.Dash, PlayerStateIds.AttackLight, PlayerStateIds.AttackHeavy,
-                PlayerStateIds.Hit, PlayerStateIds.Dead,
+                PlayerStateIds.Hit, PlayerStateIds.Dead, PlayerStateIds.Guard,
             })
             {
                 if (!PlayerAnimationIds.IsOneShot(stateId) || stateId == PlayerStateIds.Dead) continue;

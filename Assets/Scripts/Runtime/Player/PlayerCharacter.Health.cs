@@ -64,10 +64,56 @@ namespace Abyss.Runtime.Player
             return cfg != null ? cfg.baseHp : baseHp;
         }
 
+        /// <summary>
+        /// 막을 수 없는 피해. 출처를 모르므로 가드가 끼지 않는다(치트 · 디버그 · 출처가 없는 피해).
+        /// 적 공격은 출처를 넘기는 <see cref="TakeDamage(int, Vector2)"/> 를 쓴다.
+        /// </summary>
         public void TakeDamage(int amount)
         {
             if (isDead || amount <= 0 || DebugInvincible) return;
+            ApplyDamage(amount);
+        }
 
+        /// <summary>
+        /// 출처가 있는 피해 — 가드 판정이 먼저 돈다(<c>16-shield-guard.md</c>).
+        ///
+        /// 🔴 <b>가드가 꺼진 폼에서는 <see cref="TakeDamage(int)"/> 과 결과가 같다.</b> 모든 적 공격이 이 경로로 들어오므로
+        /// 방패병이 아니면 출처는 무시된다.
+        /// </summary>
+        /// <param name="sourcePosition">공격이 날아온 위치(정면 판정용).</param>
+        public void TakeDamage(int amount, Vector2 sourcePosition)
+        {
+            if (isDead || amount <= 0 || DebugInvincible) return;
+
+            GuardOutcome outcome = ResolveIncomingGuard(sourcePosition);
+            if (outcome == GuardOutcome.None)
+            {
+                ApplyDamage(amount);
+                return;
+            }
+
+            int guarded = GuardResolver.ApplyGuard(amount, outcome, CurrentGuardSpec.holdDamageScale);
+            if (guarded > 0)
+            {
+                // 막은 피해는 경직을 안 건다 — 상태 머신이 HP 감소를 보고 Hit 으로 가기 때문에 그 순간만 알린다.
+                isSuppressingHitStun = true;
+                try { ApplyDamage(guarded); }
+                finally { isSuppressingHitStun = false; }
+            }
+
+            // 피해를 먼저 처리한다 — 막고도 1 이 남아 죽었으면 반격하지 않는다.
+            OnGuardSucceeded(outcome);
+        }
+
+        /// <summary>
+        /// 지금 들어온 HP 감소가 <b>막은 피해</b>라 경직을 걸면 안 되는가. <see cref="OnHpChanged"/> 가
+        /// 동기로 호출되는 동안만 true 다(<c>PlayerStateMachine.HandleHpChanged</c> 가 읽는다).
+        /// </summary>
+        public bool IsSuppressingHitStun => isSuppressingHitStun;
+        private bool isSuppressingHitStun;
+
+        private void ApplyDamage(int amount)
+        {
             // 방어 버프(철벽 방어 등) 적용 — 받는 피해 배율. 배율 적용 후에도 최소 1 피해 보장(약공 무효화 방지).
             int mitigated = DefenseMultiplier < 1f
                 ? Mathf.Max(1, Mathf.RoundToInt(amount * DefenseMultiplier))

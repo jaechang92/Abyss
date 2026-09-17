@@ -13,6 +13,9 @@ namespace Abyss.Runtime.Combat
     [RequireComponent(typeof(Collider2D))]
     public sealed class Projectile : MonoBehaviour, IPoolable
     {
+        /// <summary>플레이어 적중 시 출처를 진행 반대로 되짚는 거리(유닛). 가드 정면 판정용.</summary>
+        private const float SOURCE_BACKTRACK = 0.5f;
+
         private Vector2 direction = Vector2.right;
         private int damage;
         private float speed;
@@ -115,7 +118,8 @@ namespace Abyss.Runtime.Combat
                 var player = other.GetComponentInParent<PlayerCharacter>();
                 if (player != null)
                 {
-                    if (!player.IsDead) player.TakeDamage(damage);
+                    // 출처 = 탄 위치에서 진행 반대로 조금. 탄이 몸을 지나 닿아도 날아온 쪽이 정면으로 잡힌다(16-shield-guard §5).
+                    if (!player.IsDead) player.TakeDamage(damage, (Vector2)transform.position - direction * SOURCE_BACKTRACK);
                     ReturnToPool();
                     return;
                 }
