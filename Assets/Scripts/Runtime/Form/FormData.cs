@@ -41,6 +41,16 @@ namespace Abyss.Runtime.Form
         [Tooltip("폼별 다단 점프 횟수. FormA(암흑검사)=2, FormB(공허궁수)=3 (기획 02-form-change-system.md)")]
         [Min(1)] public int jumpCount = 2;
 
+        [Header("기본 공격 방식")]
+        [Tooltip("Melee = 몸 앞 판정 박스 · Ranged = 발사체. 비워 둔 기존 에셋은 Melee 로 읽힌다.")]
+        public FormAttackStyle attackStyle = FormAttackStyle.Melee;
+
+        [Tooltip("Ranged 일 때 약공격. 빠른 단발")]
+        public RangedAttackSpec rangedLight;
+
+        [Tooltip("Ranged 일 때 강공격. 관통")]
+        public RangedAttackSpec rangedHeavy;
+
         [Header("폼 전용 어빌리티 (P-14에서 채움)")]
         public AbilityData primaryAction;
         public AbilityData secondaryAction;

@@ -61,6 +61,10 @@ namespace Abyss.EditorTools
         public const string WeaponAltarSprite = Props + "/weapon_altar.png"; // 🔴 아직 없다 — 없으면 form_altar 를 강철빛으로 틴트해 폴백
         public const string Frictionless = Physics + "/Frictionless.physicsMaterial2D";
         public const string EnemyProjectilePrefab = CombatPrefabs + "/EnemyProjectile.prefab";
+        // 플레이어 원거리 기본 공격 — 적 발사체와 색·모양이 갈려야 누구 것인지 읽힌다(15-ranged-basic-attack §5)
+        public const string PlayerArrowPrefab = CombatPrefabs + "/PlayerArrow.prefab";
+        public const string PlayerDaggerPrefab = CombatPrefabs + "/PlayerDagger.prefab";
+        public const string DefaultDaggerSprite = WeaponSprites + "/dagger_06.png"; // 투척사 기본 무기(이 빠진 단검)
         public const string TitleScene = "Assets/Scenes/Title.unity";
         public const string LobbyScene = "Assets/Scenes/Lobby.unity";
         public const string ArtTestScene = "Assets/Scenes/ArtTest.unity";

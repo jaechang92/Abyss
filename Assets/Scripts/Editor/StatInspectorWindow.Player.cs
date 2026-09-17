@@ -59,10 +59,38 @@ namespace Abyss.EditorTools
             MultRow("   메타 업그레이드", player.MetaAttackMult);
             MultRow("   무기", player.WeaponAttackMult);
             MultRow("   합계", player.TotalAttackMult);
+            DrawPlayerRangedAttack(player);
 
             Row("쿨다운", $"약 {player.AttackCooldownLight:0.00}s · 강 {player.AttackCooldownHeavy:0.00}s");
             if (player.IsAbyssChargeReady) Row("심연 충전", "장전됨 — 다음 적중에 추가 배율");
             MultRow("연소 피해", player.BurnDamageMultiplier);
+        }
+
+        /// <summary>
+        /// 원거리 폼이면 <b>실제로 날아가는 피해</b>를 따로 적는다. 위 「약공격 · 강공격」은 근접 식의 결과이고,
+        /// 원거리는 거기에 폼 배율을 한 번 더 곱한다 — 안 적으면 창의 값과 들어가는 값이 갈린다.
+        /// 식은 런타임과 같은 <see cref="RangedAttackSpec.ScaleDamage"/> 하나다.
+        /// </summary>
+        private void DrawPlayerRangedAttack(PlayerCharacter player)
+        {
+            var form = player.Form != null ? player.Form.CurrentForm : null;
+            if (form == null || form.attackStyle != FormAttackStyle.Ranged) return;
+
+            DrawRangedRow("원거리 약", player.LightAttackDamage, form.rangedLight);
+            DrawRangedRow("원거리 강", player.HeavyAttackDamage, form.rangedHeavy);
+        }
+
+        private void DrawRangedRow(string label, int meleeDamage, RangedAttackSpec spec)
+        {
+            if (!spec.IsValid)
+            {
+                Row(label, "설정 비어 있음 — 근접으로 판정 중");
+                return;
+            }
+
+            int damage = RangedAttackSpec.ScaleDamage(meleeDamage, spec.damageScale);
+            string pierce = spec.pierceCount > 0 ? $" · {spec.pierceCount + 1}체까지 적중" : string.Empty;
+            Row(label, $"{damage}    (×{spec.damageScale:0.##} · 사거리 {spec.Range:0.#}{pierce})");
         }
 
         private void DrawPlayerWeapon(PlayerCharacter player, FormData form, bool isLive)
