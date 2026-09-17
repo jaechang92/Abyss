@@ -38,6 +38,23 @@ namespace Abyss.EditorTools
         /// </summary>
         private static readonly Vector2 CharacterPivot = new(0.5f, 0.163f);
 
+        /// <summary>
+        /// 적 시트 규약 — <c>Enemies/{적}/{방향}/{적}_{상태}_{방향}.png</c> (2026-09-18 근접 병사).
+        /// 🔑 <b>하위 폴더만 본다.</b> <c>Enemies/</c> 바로 아래의 낱장 정지 그림(PPU 16 · Single)은 다른 규약이다.
+        /// </summary>
+        private const string EnemyFolder = AbyssPaths.EnemySprites;
+
+        /// <summary>
+        /// 적은 <b>번들 칸(124)을 그대로</b> 쓴다 — 무기 앵커가 없어 92 규약을 따를 이유가 없고,
+        /// 기어 가는 몸이 92 밖으로 나간다(근접 병사 공격 f2 22px 잘림).
+        /// </summary>
+        private const int EnemyCell = 124;
+
+        /// <summary>🔴 <c>Art_Source/characters/{적}/sheet_recipe.json</c> 의 <c>footY</c> 와 같아야 한다.</summary>
+        private const int EnemyFootY = 92;
+
+        private static readonly Vector2 EnemyPivot = new(0.5f, (EnemyCell - EnemyFootY) / (float)EnemyCell);
+
         internal enum Result { Sliced, AlreadySliced, Failed }
 
         /// <summary>캐릭터 시트 전부(<c>*_southeast.png</c>)를 92 격자 · 발밑 피벗으로 슬라이스한다.</summary>
@@ -49,10 +66,27 @@ namespace Abyss.EditorTools
                 .OrderBy(p => p)
                 .ToArray();
 
+            SliceAll("캐릭터", paths, CharacterCell, CharacterPivot);
+        }
+
+        /// <summary>적 시트 전부(<c>Enemies/*/*_southeast.png</c>)를 124 격자 · 적 발밑 피벗으로 슬라이스한다.</summary>
+        public static void SliceEnemySheets()
+        {
+            string[] paths = Directory.GetFiles(EnemyFolder, "*" + CharacterSuffix, SearchOption.AllDirectories)
+                .Select(p => p.Replace('\\', '/'))
+                .Where(p => Path.GetDirectoryName(p)?.Replace('\\', '/') != EnemyFolder)
+                .OrderBy(p => p)
+                .ToArray();
+
+            SliceAll("적", paths, EnemyCell, EnemyPivot);
+        }
+
+        private static void SliceAll(string label, string[] paths, int cell, Vector2 pivot)
+        {
             int sliced = 0, skipped = 0, failed = 0;
             foreach (string path in paths)
             {
-                switch (SliceGrid(path, CharacterCell, CharacterCell, CharacterPivot))
+                switch (SliceGrid(path, cell, cell, pivot))
                 {
                     case Result.Sliced: sliced++; break;
                     case Result.AlreadySliced: skipped++; break;
@@ -60,7 +94,7 @@ namespace Abyss.EditorTools
                 }
             }
 
-            string message = $"{Tag} 캐릭터 시트 {paths.Length}장 — 슬라이스 {sliced} · 그대로 {skipped} · 실패 {failed}";
+            string message = $"{Tag} {label} 시트 {paths.Length}장 — 슬라이스 {sliced} · 그대로 {skipped} · 실패 {failed}";
             if (failed > 0) Debug.LogError(message);
             else Debug.Log(message);
         }

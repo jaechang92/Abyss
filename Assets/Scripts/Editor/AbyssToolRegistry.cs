@@ -145,6 +145,10 @@ namespace Abyss.EditorTools
                     new AbyssTool(AbyssToolNames.GeneratePlayerAnimation,
                         "플레이어 애니메이션 클립·컨트롤러·폼 오버라이드를 만든다.",
                         PlayerAnimationBuilder.BuildPlayerAnimation),
+                    new AbyssTool(AbyssToolNames.GenerateEnemyAnimation,
+                        "적 애니메이션 클립·공통 컨트롤러·적별 오버라이드를 만들고, 스폰 프리팹에 Visual 자식(발밑)·콜라이더·좌우 반전을 배선한다. " +
+                        "EnemyData 동작 시간을 바꿨으면 다시 실행한다(클립 길이가 그 값이다).",
+                        EnemyAnimationBuilder.Build),
                 },
             },
 
@@ -165,6 +169,9 @@ namespace Abyss.EditorTools
                     new AbyssTool(AbyssToolNames.SliceCharacterSheets,
                         "Characters 폴더의 *_southeast.png 를 92 격자 · 발밑 피벗(0.163)으로 자른다. 이미 같은 슬라이스는 건드리지 않는다(클립 참조 보존).",
                         SpriteSheetSlicer.SliceCharacterSheets),
+                    new AbyssTool(AbyssToolNames.SliceEnemySheets,
+                        "Enemies/{적}/{방향}/ 하위 폴더의 *_southeast.png 를 124 격자 · 적 발밑 피벗(0.258)으로 자른다. Enemies/ 바로 아래 정지 그림은 건드리지 않는다.",
+                        SpriteSheetSlicer.SliceEnemySheets),
                     new AbyssTool(AbyssToolNames.ImportWeaponAnchorSet,
                         "Art_Source/anchors/*_hand_anchors.json 을 전부 읽어 폼마다 WeaponAnchorSet 을 만들고, 같은 formId 의 FormData 에 연결한다.",
                         WeaponAnchorImporter.Import),

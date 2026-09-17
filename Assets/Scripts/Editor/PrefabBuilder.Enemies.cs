@@ -75,6 +75,9 @@ namespace Abyss.EditorTools
 
                 AttachNametag(root.transform, data);
 
+                // 애니메이션이 구워진 적이면 정지 그림을 Visual 자식으로 옮긴다 — 강제 재생성이 배선을 지우지 않게.
+                EnemyAnimationBuilder.TryApplyTo(root, data);
+
                 var prefab = PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
                 LinkSpawnPrefab(data, prefab);
                 Debug.Log($"[PrefabBuilder] 생성: {prefabPath}");
@@ -121,6 +124,10 @@ namespace Abyss.EditorTools
             {
                 string assetPath = AssetDatabase.GUIDToAssetPath(guid);
                 if (!assetPath.EndsWith(".png", System.StringComparison.OrdinalIgnoreCase)) continue;
+
+                // 🔴 하위 폴더는 애니메이션 시트다(Enemies/{적}/{방향}/ · PPU 32 · Multiple) — FindAssets 는 하위까지 훑어서,
+                //    거르지 않으면 이 메뉴가 시트를 Single·PPU 16 으로 되돌리고 클립이 문 스프라이트가 전부 사라진다.
+                if (Path.GetDirectoryName(assetPath)?.Replace('\\', '/') != AbyssPaths.EnemySprites) continue;
 
                 var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
                 if (importer == null) continue;

@@ -7,13 +7,20 @@ namespace Abyss.Runtime.Enemy
     /// 프로토 단계: SpriteRenderer 색상/스케일 변경으로 피드백 제공(Animator 미사용).
     /// nametag 텍스트는 자식 GameObject(TextMesh)로 분리 관리 — 본 컴포넌트는 SpriteRenderer만.
     /// 색 우선순위: 피격 Flash > 지속 Tint(예고) > baseColor. 스케일 펀치는 색과 독립.
+    ///
+    /// 📌 <b>렌더러는 자신 또는 자식에서 찾는다</b>(2026-09-18). 애니메이션이 붙은 적은 그림을 발밑에 맞춘
+    /// 자식(Visual)에 두기 때문이다. 스케일 펀치는 여전히 루트를 키운다(콜라이더와 함께).
     /// </summary>
-    [RequireComponent(typeof(SpriteRenderer))]
     public sealed class EnemyVisuals : MonoBehaviour
     {
         [Header("Hit Flash")]
         [SerializeField, Min(0.01f)] private float flashDuration = 0.08f;
         [SerializeField] private Color flashColor = Color.white;
+
+        [Header("방향")]
+        [Tooltip("이동·조준 방향으로 좌우 반전할지. 그림은 오른쪽(south-east)을 본다고 가정한다. " +
+                 "옛 정지 그림은 방향이 제각각이라 끈 채로 둔다 — EnemyAnimationBuilder 가 애니메이션 적에만 켠다.")]
+        [SerializeField] private bool flipsToFace;
 
         private SpriteRenderer sr;
         private Color baseColor;
@@ -31,9 +38,19 @@ namespace Abyss.Runtime.Enemy
 
         private void Awake()
         {
-            sr = GetComponent<SpriteRenderer>();
+            sr = GetComponentInChildren<SpriteRenderer>(true);
             if (sr != null) baseColor = sr.color;
             baseScale = transform.localScale;
+        }
+
+        /// <summary>
+        /// 바라볼 방향(+1 오른쪽 · -1 왼쪽 · 0 그대로). <see cref="flipsToFace"/> 가 꺼져 있으면 무시한다.
+        /// 🔑 <c>flipX</c> 로 뒤집는다 — 루트 스케일을 음수로 하면 스케일 펀치와 이름표가 같이 뒤집힌다.
+        /// </summary>
+        public void Face(float direction)
+        {
+            if (!flipsToFace || sr == null || Mathf.Approximately(direction, 0f)) return;
+            sr.flipX = direction < 0f;
         }
 
         /// <summary>

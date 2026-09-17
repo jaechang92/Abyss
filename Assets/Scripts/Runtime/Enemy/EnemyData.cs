@@ -22,6 +22,17 @@ namespace Abyss.Runtime.Enemy
         [Min(0f)] public float attackRange = 1.2f;
         [Min(0.1f)] public float attackCooldown = 1.5f;
 
+        [Header("동작 시간 (0 이면 옛 동작 — 애니메이션 없는 적)")]
+        [Tooltip("공격 상태에 들어가 피해가 들어가기까지(초). 0이면 들어가는 순간 즉발. " +
+                 "근접은 이 시각에 사거리를 다시 본다 — 예비동작을 보고 물러나면 안 맞는다.")]
+        [Min(0f)] public float attackWindup;
+        [Tooltip("타격 뒤 공격 상태를 더 붙잡는 시간(초). 공격 클립 길이 = windup + recovery (EnemyAnimationBuilder).")]
+        [Min(0f)] public float attackRecovery;
+        [Tooltip("피격 경직 지속(초). 0이면 한 판정만 Stagger에 머문다. 피격 클립 길이가 이 값이다.")]
+        [Min(0f)] public float staggerDuration;
+        [Tooltip("사망 후 오브젝트가 사라지기까지(초). 사망 클립은 이보다 조금 짧게 구워 마지막 그림이 잠깐 남는다.")]
+        [Min(0.05f)] public float deathLingerDuration = 0.3f;
+
         [Header("순찰")]
         [Tooltip("스폰 지점 기준 좌우 이동 반경. 0이면 Patrol 시 정지 (보스 등)")]
         [Min(0f)] public float patrolRadius = 2f;

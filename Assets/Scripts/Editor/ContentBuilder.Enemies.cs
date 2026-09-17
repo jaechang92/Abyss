@@ -19,6 +19,11 @@ namespace Abyss.EditorTools
                 so.detectionRange = 6f;
                 so.attackRange = 1.2f;
                 so.attackCooldown = 1.5f;
+                // 2026-09-18 애니메이션 — 검을 들어 올리는 동안(0.6초)이 피할 틈이다. 공격 클립 9장 = 0.8초.
+                so.attackWindup = 0.6f;
+                so.attackRecovery = 0.2f;
+                so.staggerDuration = 0.3f;
+                so.deathLingerDuration = 1f;
                 so.expReward = 15;
                 so.goldReward = 3;
             });
