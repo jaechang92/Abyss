@@ -11,7 +11,10 @@ namespace Abyss.Runtime.UI
     /// 씬 배선 없이 코드로 만드는 패널이 둘 이상이 되면서 같은 CreateRect/CreateButton/폰트 적용이
     /// 파일마다 복제될 참이었다. 기준 해상도·폰트·버튼 색 같은 표시 규약이 한 곳에만 있도록 여기로 모은다.
     ///
-    /// 씬 빌더(Editor 어셈블리)가 만드는 패널은 대상이 아니다 — 그쪽은 에디터 전용 경로라 공유하지 않는다.
+    /// 씬 빌더(Editor 어셈블리)는 <b>조립 원시 함수</b>(CreateRect·Stretch·ApplyFont)와 <see cref="ReferenceResolution"/>만 가져다 쓴다.
+    /// 폰트·기준 해상도는 빌더가 구운 씬 UI와 동적 패널이 같아야 하는 값이라 한 곳에 둔다.
+    /// 버튼 색 같은 <b>표시 규약</b>(CreateButton·CreateLabel)은 빌더마다 달라서 공유하지 않는다 —
+    /// 여기 색을 바꿔도 이미 구워진 씬은 빌더를 다시 돌리기 전까지 안 바뀌므로, 묶으면 오히려 어긋남이 가려진다.
     /// </summary>
     public static class UiFactory
     {

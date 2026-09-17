@@ -6,6 +6,7 @@ using Abyss.Runtime.UI;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using static Abyss.Runtime.UI.UiFactory;
 
 namespace Abyss.EditorTools
 {
@@ -84,10 +85,10 @@ namespace Abyss.EditorTools
             var bg = CreateRectChild(root.transform, "Background", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
             var bgImg = bg.AddComponent<Image>();
             bgImg.color = new Color(0.05f, 0.05f, 0.08f, 0.85f);
-            StretchFill((RectTransform)bg.transform);
+            Stretch((RectTransform)bg.transform);
 
             var fill = CreateRectChild(root.transform, "Fill", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)fill.transform);
+            Stretch((RectTransform)fill.transform);
             var fillImg = fill.AddComponent<Image>();
             fillImg.sprite = GetUISprite();
             fillImg.color = new Color(0.9f, 0.22f, 0.28f);
@@ -96,9 +97,9 @@ namespace Abyss.EditorTools
             fillImg.fillAmount = 1f;
 
             var textGo = CreateRectChild(root.transform, "HPText", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)textGo.transform);
+            Stretch((RectTransform)textGo.transform);
             var text = textGo.AddComponent<Text>();
-            ApplyDefaultFont(text);
+            ApplyFont(text);
             text.text = "100/100";
             text.fontSize = 14;
             text.alignment = TextAnchor.MiddleCenter;
@@ -147,7 +148,7 @@ namespace Abyss.EditorTools
             ((RectTransform)icon.transform).offsetMax = Vector2.zero;
 
             var cooldownGo = CreateRectChild(root.transform, "CooldownFill", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)cooldownGo.transform);
+            Stretch((RectTransform)cooldownGo.transform);
             var cooldownImg = cooldownGo.AddComponent<Image>();
             cooldownImg.sprite = GetUISprite();
             cooldownImg.color = new Color(0f, 0f, 0f, 0.55f);
@@ -157,7 +158,7 @@ namespace Abyss.EditorTools
 
             var labelGo = CreateRectChild(root.transform, "Label", new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 0), new Vector2(0, -14), new Vector2(0, 14));
             var label = labelGo.AddComponent<Text>();
-            ApplyDefaultFont(label);
+            ApplyFont(label);
             label.text = "—";
             label.fontSize = 10;
             label.alignment = TextAnchor.MiddleCenter;
@@ -180,15 +181,15 @@ namespace Abyss.EditorTools
             var root = CreateRectChild(parent, "FormBiasWarning", new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -152), new Vector2(360, 48));
 
             var body = CreateRectChild(root.transform, "Body", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)body.transform);
+            Stretch((RectTransform)body.transform);
             var bodyImg = body.AddComponent<Image>();
             bodyImg.color = new Color(0.32f, 0.18f, 0.06f, 0.82f);
             bodyImg.raycastTarget = false;
 
             var labelGo = CreateRectChild(body.transform, "Label", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)labelGo.transform);
+            Stretch((RectTransform)labelGo.transform);
             var label = labelGo.AddComponent<Text>();
-            ApplyDefaultFont(label);
+            ApplyFont(label);
             label.text = "폼 편향 경고";
             label.fontSize = 13;
             label.alignment = TextAnchor.MiddleCenter;
@@ -214,7 +215,7 @@ namespace Abyss.EditorTools
             var root = CreateRectChild(parent, "SynergyCounter", new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -208), new Vector2(800, 32));
 
             var body = CreateRectChild(root.transform, "Body", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)body.transform);
+            Stretch((RectTransform)body.transform);
 
             var layout = body.AddComponent<HorizontalLayoutGroup>();
             layout.childAlignment = TextAnchor.MiddleLeft;
@@ -251,9 +252,9 @@ namespace Abyss.EditorTools
             element.preferredHeight = 28f;
 
             var labelGo = CreateRectChild(chip.transform, "Label", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)labelGo.transform);
+            Stretch((RectTransform)labelGo.transform);
             var label = labelGo.AddComponent<Text>();
-            ApplyDefaultFont(label);
+            ApplyFont(label);
             label.text = "[축] 0";
             label.fontSize = 13;
             label.alignment = TextAnchor.MiddleCenter;
@@ -279,18 +280,18 @@ namespace Abyss.EditorTools
             var root = CreateRectChild(parent, "BurnStack", new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(184, 40), new Vector2(220, 32));
 
             var body = CreateRectChild(root.transform, "Body", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)body.transform);
+            Stretch((RectTransform)body.transform);
 
             var bg = CreateRectChild(body.transform, "Background", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)bg.transform);
+            Stretch((RectTransform)bg.transform);
             var bgImg = bg.AddComponent<Image>();
             bgImg.color = new Color(0.05f, 0.05f, 0.08f, 0.85f);
             bgImg.raycastTarget = false;
 
             var labelGo = CreateRectChild(body.transform, "Label", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)labelGo.transform);
+            Stretch((RectTransform)labelGo.transform);
             var label = labelGo.AddComponent<Text>();
-            ApplyDefaultFont(label);
+            ApplyFont(label);
             label.text = "연소 0스택";
             label.fontSize = 18;
             label.alignment = TextAnchor.MiddleCenter;
@@ -318,20 +319,20 @@ namespace Abyss.EditorTools
             var root = CreateRectChild(parent, "GoldCounter", new Vector2(1, 1), new Vector2(1, 1), new Vector2(1, 1), new Vector2(-24, -24), new Vector2(240, 32));
 
             var bg = CreateRectChild(root.transform, "Background", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)bg.transform);
+            Stretch((RectTransform)bg.transform);
             var bgImg = bg.AddComponent<Image>();
             bgImg.color = new Color(0.05f, 0.05f, 0.08f, 0.85f);
             bgImg.raycastTarget = false;
 
             var labelGo = CreateRectChild(root.transform, "Label", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
             var labelRect = (RectTransform)labelGo.transform;
-            StretchFill(labelRect);
+            Stretch(labelRect);
             // 우측 정렬이라 여백이 없으면 숫자가 배경 모서리에 붙는다.
             labelRect.offsetMin = new Vector2(12f, 0f);
             labelRect.offsetMax = new Vector2(-12f, 0f);
 
             var label = labelGo.AddComponent<Text>();
-            ApplyDefaultFont(label);
+            ApplyFont(label);
             label.text = "골드 0";
             label.fontSize = 16;
             label.alignment = TextAnchor.MiddleRight;
@@ -394,7 +395,7 @@ namespace Abyss.EditorTools
                 new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
                 new Vector2(0f, 120f), new Vector2(700f, 48f));
             var t = go.AddComponent<Text>();
-            ApplyDefaultFont(t);
+            ApplyFont(t);
             t.text = "폼 획득 (G)";
             t.fontSize = 24;
             t.alignment = TextAnchor.MiddleCenter;
@@ -404,26 +405,12 @@ namespace Abyss.EditorTools
         }
 
         // ==================== Helpers ====================
-        private static GameObject CreateRectChild(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 anchoredPosition, Vector2 sizeDelta)
+        /// <summary><see cref="UiFactory.CreateRect"/>에 Undo 등록만 얹는다 — 선택한 오브젝트 밑에 만들므로 Ctrl+Z로 되돌릴 수 있어야 한다.</summary>
+        private static GameObject CreateRectChild(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 anchoredPos, Vector2 size)
         {
-            var go = new GameObject(name, typeof(RectTransform));
+            var go = UiFactory.CreateRect(parent, name, anchorMin, anchorMax, pivot, anchoredPos, size);
             Undo.RegisterCreatedObjectUndo(go, UndoLabel);
-            go.transform.SetParent(parent, false);
-            var rect = (RectTransform)go.transform;
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.pivot = pivot;
-            rect.anchoredPosition = anchoredPosition;
-            rect.sizeDelta = sizeDelta;
             return go;
-        }
-
-        private static void StretchFill(RectTransform rect)
-        {
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
         }
 
         private static Image CreateIcon(Transform parent, string name, Vector2 anchoredPosition, Vector2 size, Color color)
@@ -432,13 +419,6 @@ namespace Abyss.EditorTools
             var img = go.AddComponent<Image>();
             img.color = color;
             return img;
-        }
-
-        private static void ApplyDefaultFont(Text text)
-        {
-            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            if (font == null) font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-            if (font != null) text.font = font;
         }
 
         private static Sprite uiSpriteCache;

@@ -3,6 +3,7 @@ using Abyss.Runtime.UI;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using static Abyss.Runtime.UI.UiFactory;
 
 namespace Abyss.EditorTools
 {
