@@ -34,7 +34,12 @@
 📌 `removeStrays true` — 1px 어두운 잔여선(그림자 테두리 호)을 걷는다.
 📌 `lowerRegion {x0,x1,top,bottom,by,fillFromRow,fillFromFrame}` — 한쪽 발(부츠 줄)만 내려 바닥에 붙인다.
    틈은 fillFromFrame(기본 0) 프레임의 정강이 줄로 잇는다 — 프레임마다 자기 줄을 쓰면 밑단 외곽선이 섞인다.
-   순서: 떼기 → 그림자 → 발밑 → freezeBelow → overlay → removeStrays → lowerRegion.
+   순서: (recolor) → 떼기 → 그림자 → 발밑 → freezeBelow → overlay → removeStrays → lowerRegion.
+📌 `recolor {hueBelow,hueAbove,keepSatBelow,keepValAbove,keepValBelow,hue,satScale,valScale}` — **레시피 최상위**.
+   번들 시트 전체에 한 번 적용해 모든 프레임이 같은 값을 받는다(2026-09-18 적 근접 병사 색 B 건메탈).
+   생성 캐릭터의 재료색이 플레이어 축 색과 겹칠 때 생성을 다시 돌리지 않고 색만 옮긴다.
+📌 적 시트는 `cell` 을 번들 칸(124) 그대로 쓴다 — 무기 앵커가 없어 92 규약을 따를 이유가 없고,
+   기어 가는 몸이 92 밖으로 나간다(근접 병사 공격 f2 22px). 피벗은 `(cell - footY) / cell`.
 """
 
 import argparse
@@ -80,6 +85,57 @@ def loadBundle(folder):
     meta = json.load(open(os.path.join(folder, jsons[0]), encoding="utf-8"))["spritesheet"]
     sheet = Image.open(os.path.join(folder, pngs[0])).convert("RGBA")
     return meta, sheet
+
+
+def rgbToHsv(rgb):
+    """0~1 RGB 배열 → 0~1 HSV 배열 (colorsys 와 같은 정의 · 픽셀 단위 벡터화)."""
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    maxc = rgb.max(axis=-1)
+    minc = rgb.min(axis=-1)
+    delta = maxc - minc
+    safe = np.where(delta == 0, 1, delta)
+    rc, gc, bc = (maxc - r) / safe, (maxc - g) / safe, (maxc - b) / safe
+    h = np.where(maxc == r, bc - gc, np.where(maxc == g, 2.0 + rc - bc, 4.0 + gc - rc))
+    h = np.where(delta == 0, 0.0, (h / 6.0) % 1.0)
+    s = np.where(maxc == 0, 0.0, delta / np.where(maxc == 0, 1, maxc))
+    return np.stack([h, s, maxc], axis=-1)
+
+
+def hsvToRgb(hsv):
+    h, s, v = hsv[..., 0], hsv[..., 1], hsv[..., 2]
+    i = np.floor(h * 6.0).astype(int) % 6
+    f = h * 6.0 - np.floor(h * 6.0)
+    p, q, t = v * (1 - s), v * (1 - s * f), v * (1 - s * (1 - f))
+    choices = [(v, t, p), (q, v, p), (p, v, t), (p, q, v), (t, p, v), (v, p, q)]
+    out = np.zeros(hsv.shape)
+    for k, (rr, gg, bb) in enumerate(choices):
+        mask = i == k
+        out[..., 0] = np.where(mask, rr, out[..., 0])
+        out[..., 1] = np.where(mask, gg, out[..., 1])
+        out[..., 2] = np.where(mask, bb, out[..., 2])
+    return out
+
+
+def recolor(image, r):
+    """붉음~주황 픽셀만 한 색상으로 옮긴다. 강조점(흐린 밝은색)과 외곽선(아주 어두움)은 보존한다.
+
+    🔑 **식은 `Art_Source/20_SUBJECTS/enemies/melee_grunt.md` 「R3 채택」 절에 있던 손으로 적은 값이다.**
+    도구로 옮긴 이유: 프레임마다 같은 값이 들어가야 하고, 애니메이션을 다시 뽑아도 같은 색이 나와야 한다.
+    """
+    a = np.array(image).astype(np.float64)
+    hsv = rgbToHsv(a[..., :3] / 255.0)
+    h, s, v = hsv[..., 0], hsv[..., 1], hsv[..., 2]
+
+    isTarget = (h < r["hueBelow"]) | (h > r["hueAbove"])
+    isKept = ((s < r["keepSatBelow"]) & (v > r["keepValAbove"])) | (v < r["keepValBelow"])
+    change = isTarget & ~isKept & (a[..., 3] > ALPHA_CUT)
+
+    moved = np.stack([np.full_like(h, r["hue"] / 360.0),
+                      np.clip(s * r["satScale"], 0, 1),
+                      np.clip(v * r["valScale"], 0, 1)], axis=-1)
+    rgb = np.round(hsvToRgb(moved) * 255.0)
+    a[..., :3] = np.where(change[..., None], rgb, a[..., :3])
+    return Image.fromarray(a.astype(np.uint8), "RGBA")
 
 
 def cutFrames(meta, sheet, animation, cell):
@@ -246,6 +302,9 @@ def main():
     if args.download or not os.path.isdir(bundleDir):
         downloadBundle(recipe["characterId"], bundleDir)
     meta, sheet = loadBundle(bundleDir)
+    if "recolor" in recipe:
+        sheet = recolor(sheet, recipe["recolor"])
+        print(f"  색 변환 — hue {recipe['recolor']['hue']}° · 채도 ×{recipe['recolor']['satScale']} · 명도 ×{recipe['recolor']['valScale']}")
 
     outDir = recipe["outDir"]
     heightsByState = {}

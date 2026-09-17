@@ -33,3 +33,17 @@ mode           v3 · 비용 = ceil(92·92·frames / 65536) / 방향  →  8프�
 📌 Unity 에서 실제 재생해 보고 어색하면 그때 공격부터 다시 뽑는다(2 gen).
 
 번들: `_bundle/bundle.zip`(비추적) — 행 1 hit · 2 move · 3 attack · 4 dead, 칸 124 · 칸 중심 피벗
+
+## ✅ 시트 조립 → Unity 재생 (2026-09-18 · gen 0 · 사용자 「검증완료」)
+
+```
+레시피   sheet_recipe.json — recolor(색 B) · cell 124 · footY 92 · 4상태 all (사망만 align first)
+시트     Assets/Art/Sprites/Enemies/melee_grunt/southeast/melee_grunt_{move|attack|hit|dead}_southeast.png
+클립     Move 10fps 루프 · Attack 0.8초(windup 0.6 + recovery 0.2) · Hit 0.3초 · Dead 0.8초(사라지기 1초 − 0.2)
+```
+
+- 🔴 **92 칸으로 떼면 잘린다** — 공격 f2 22px · 피격 f4 14px · 사망 3px(기어 가는 몸이 왼쪽으로 뻗는다). 적은 무기 앵커가 없어 124 그대로
+- 발밑: 이동 91~93 · 공격 90~92 · 피격 90~92 → 92 로 정렬(each), 사망은 첫 프레임 기준(first)
+- 공격 f6(검 최고점) → f7(내리침 · 검 사라짐) 사이가 0.6초 — **피해 시각이 그림의 내리침과 맞는다**
+- 📌 공격 재생성(2 gen)은 플레이에서 어색하다고 할 때만
+

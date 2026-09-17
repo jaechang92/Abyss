@@ -1,0 +1,42 @@
+{
+  "_note": "적 근접 병사 4상태. 선택 근거는 animation_prompts.md. 칸은 번들 칸 124 그대로(92 로 떼면 공격 f2 22px 잘림) · 피벗 (124-92)/124 = 0.258 (SpriteSheetSlicer.EnemyPivot). 색은 melee_grunt.md 「R3 채택」 B 건메탈.",
+  "prefix": "melee_grunt",
+  "characterId": "bbdbcfd4-d587-40f4-8eaf-3c9b701f3ba3",
+  "stripShadow": false,
+  "direction": "southeast",
+  "cell": 124,
+  "footY": 92,
+  "outDir": "Assets/Art/Sprites/Enemies/melee_grunt/southeast",
+  "recolor": {
+    "hueBelow": 0.12,
+    "hueAbove": 0.92,
+    "keepSatBelow": 0.25,
+    "keepValAbove": 0.6,
+    "keepValBelow": 0.12,
+    "hue": 200,
+    "satScale": 0.18,
+    "valScale": 0.85
+  },
+  "states": {
+    "move": {
+      "animation": "move_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "attack": {
+      "animation": "attack_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "hit": {
+      "animation": "hit_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "dead": {
+      "animation": "dead_southeast_v1",
+      "frames": "all",
+      "align": "first"
+    }
+  }
+}
