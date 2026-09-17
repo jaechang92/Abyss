@@ -1,11 +1,48 @@
-# 폼 자산 대장 (2026-09-10 정리)
+# 폼 자산 대장 (2026-09-10 정리 · 2026-09-17 갱신)
 
 > PixelLab 계정에 실제로 있는 것. **여기가 「무엇이 있나」의 SoT다.**
 > 폼별 배정·처방은 각 주제 파일(`dark_blade.md` 등)이 갖는다.
 
 ---
 
-## 기준 세트 — 92x92
+## ▶ 현행 — south-east 몸 (2026-09-17)
+
+무기는 몸에서 분리됐다(09-14). 몸은 전부 **무기 없는 state** 이고 `2fbf625f` 에서 파생한다.
+생성 문구·애니메이션 목록은 `Art_Source/characters/<formId>/animation_prompts.md`, 계획은 `_PLAN_SE.md`.
+
+| 폼 | id | state | 애니 |
+|---|---|---|---|
+| **dark_blade** | `2fbf625f-f755-4d1d-a113-adadfdf97ce0` | No Weapon — 🔑 **셋의 파생 소스** | 41 |
+| **ancient_shield** | `2de47574-d60c-4f47-bd0d-0204065ed52a` | Shield Body v2 | 12 |
+| **void_archer** | `38f6e24b-6f1b-4eff-be72-bf8c998c9060` | Archer Body | 11 |
+| **void_thrower** | `911388e0-5b2f-4ea9-be9e-ad85955ec083` | Thrower Body v4 | 10 |
+
+### 계정에 남긴 옛 것
+
+| id | 무엇 | 왜 남기나 |
+|---|---|---|
+| `bc6ce6d5` · `08f53a45` · `6d2aaa33` · `4023918f` | 붉은 기사 east state 4개(Idle·Walk·세로/가로 베기) | `bc6ce6d5` 가 그룹의 출발점 — 지우면 그룹이 어떻게 되는지 모른다 |
+| `93262325` | 보라 궁수 (독립 생성 · 활 구워짐) | 그룹 밖 · 사용자 판단으로 보류 |
+| `d20e6a49` | 금색 방패 4방향 (독립 생성) | 〃 |
+
+### 🗑 2026-09-17 삭제 (8개 · 되돌릴 수 없음)
+
+```
+cb29cabb  Shield Body v1        R1 폐기(후드·망토 붉음 · 부피가 검사와 같음)
+1b0ce390  Thrower Body v1       R1 폐기(망토가 곧게 떨어짐)
+0f43556f  Thrower Body v2       종 망토 · 애니 13개 — 그림자 구워짐·다리 없음으로 v4 교체
+c5c41e78  Thrower Body v3       다리가 늘어 7px 큼
+150cff52  Shield Form gold      ┐
+aae5ce55  Shield Form front     │ 09-10 east 시절 — 무기가 몸에 구워진 state
+f30ebb51  Thrower Form          │
+25569015  Shield Form (1차)     ┘
+```
+
+📌 옛 몸의 시트·클립은 git 이력에 남아 있다(`5a57f2c` 이전). 계정에서 다시 받을 수는 없다.
+
+---
+
+## 📜 기록 — east 기준 세트 (2026-09-10 · 아래 id 중 `bc6ce6d5`·`93262325` 외에는 삭제됨)
 
 🔑 **그림 세로는 60px 이고 캔버스의 나머지는 여백이다.** 한때 64x64 세트가 병행됐는데
 **그림 크기가 똑같아서** 캔버스만 작을 뿐 이득이 없었다. 92px 쪽에 state·애니메이션이
