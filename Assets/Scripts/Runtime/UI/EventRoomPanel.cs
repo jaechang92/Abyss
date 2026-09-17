@@ -18,8 +18,9 @@ namespace Abyss.Runtime.UI
     /// 정지는 <see cref="GameEvents.RaiseDraftOpened"/>/<c>Closed</c>로 기존 DraftOpen FSM 상태를
     /// 빌려 쓴다(전용 정지 로직 불필요). 다만 FormReplacementModal과 달리 <b>동적 생성</b>이라
     /// HudBuilder 수정도 메뉴 재실행도 필요 없다 — HUD 재빌드가 다른 배선을 끊은 전력이 있다.
+    /// 생성·정지 규약은 <see cref="RunModalPanel{T}"/>에 있다.
     /// </summary>
-    public sealed class EventRoomPanel : MonoBehaviour
+    public sealed class EventRoomPanel : RunModalPanel<EventRoomPanel>
     {
         // 선택지 상한. 넘치는 선택지는 조용히 안 보인다 — 에러도 로그도 없다.
         // 3 → 4 (무기 가차). 기존 이벤트가 정확히 3개씩이라, 올리지 않으면 더한 선택지가 그냥 사라진다.
@@ -46,9 +47,6 @@ namespace Abyss.Runtime.UI
         // [계속]은 선택지와 겹쳐도 된다 — 선택하는 순간 선택지들이 숨고 이 버튼이 뜬다(동시 표시 없음).
         private const float CONTINUE_Y = FIRST_CHOICE_Y - (MAX_CHOICES - 1) * CHOICE_STRIDE - 20f;
 
-        private static EventRoomPanel instance;
-
-        private GameObject body;
         private Text titleText;
         private Text descriptionText;
         private readonly List<Button> choiceButtons = new();
@@ -58,14 +56,11 @@ namespace Abyss.Runtime.UI
 
         private EventData current;
         private EventChoice chosen;
-        private bool isOpen;
 
         // 선택 시점에 적용하고 남은, [계속] 뒤로 미뤄야 하는 드래프트 횟수.
         // 🔴 미루는 이유는 <b>모달 겹침 하나뿐</b>이다 — 나머지 효과는 패널이 열린 채 적용해도 안전하다
         //    (ShopRoomPanel 이 구매 때마다 그렇게 부르고 있다).
         private int pendingDrafts;
-
-        public static bool IsOpen => instance != null && instance.isOpen;
 
         /// <summary>이벤트를 연다. 선택이 끝나면 <see cref="GameEvents.OnEventResolved"/>가 발행된다.</summary>
         public static void Open(EventData data)
@@ -78,26 +73,14 @@ namespace Abyss.Runtime.UI
                 return;
             }
 
-            EnsureInstance();
-            if (instance == null) return;
-            instance.Show(data);
+            var panel = EnsureInstance();
+            if (panel == null) return;
+            panel.Show(data);
         }
 
-        /// <summary>도메인 리로드 비활성화 대비 정적 상태 리셋(AbyssBootstrap 선례).</summary>
+        /// <summary>도메인 리로드 비활성화 대비 정적 상태 리셋(AbyssBootstrap 선례). 제네릭 베이스에선 안 불려 여기 둔다.</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStatics() => instance = null;
-
-        private static void EnsureInstance()
-        {
-            // 씬 전환으로 파괴된 인스턴스는 Unity의 == 오버로드 덕에 여기서 null로 판정되어 다시 만들어진다.
-            if (instance != null) return;
-
-            var go = CreateOverlayCanvas("EventRoomPanel", UiSortingOrder.Modal);
-            // Run 씬 전용이므로 DontDestroyOnLoad 하지 않는다(LobbyMenuPanel과 같은 판단).
-            instance = go.AddComponent<EventRoomPanel>();
-            instance.BuildUI(go.transform);
-            instance.body.SetActive(false);
-        }
+        private static void ResetStatics() => ResetInstance();
 
         // ───────────────────────── 흐름 ─────────────────────────
 
@@ -112,13 +95,7 @@ namespace Abyss.Runtime.UI
             BindChoices(data);
             if (continueRoot != null) continueRoot.SetActive(false);
 
-            body.SetActive(true);
-
-            if (!isOpen)
-            {
-                isOpen = true;
-                GameEvents.RaiseDraftOpened();   // 기존 DraftOpen 상태로 전역 정지
-            }
+            ShowBody();
         }
 
         private void BindChoices(EventData data)
@@ -180,15 +157,9 @@ namespace Abyss.Runtime.UI
             int drafts = pendingDrafts;
             pendingDrafts = 0;
 
-            body.SetActive(false);
             current = null;
             chosen = null;
-
-            if (isOpen)
-            {
-                isOpen = false;
-                GameEvents.RaiseDraftClosed();
-            }
+            HideBody();
 
             // 모달을 안 여는 효과는 선택 시점에 이미 적용됐다. 드래프트만 패널을 닫은 지금 연다 —
             // 그래야 정지가 끊기지 않고 이어진다(EventEffectApplier 주석 참조).
@@ -199,11 +170,9 @@ namespace Abyss.Runtime.UI
 
         // ───────────────────────── UI 구성 ─────────────────────────
 
-        private void BuildUI(Transform root)
+        protected override void BuildContent(Transform body)
         {
-            body = CreateDimBody(root, 0.82f);
-
-            var panel = CreateRect(body.transform, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+            var panel = CreateRect(body, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(PANEL_WIDTH, PANEL_HEIGHT));
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = new Color(0.10f, 0.10f, 0.15f, 0.98f);

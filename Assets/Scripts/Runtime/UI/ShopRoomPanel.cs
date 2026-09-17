@@ -21,8 +21,10 @@ namespace Abyss.Runtime.UI
     /// <b>스킬 드래프트는 떠날 때 열린다.</b> 드래프트 모달은 정지를 다시 걸기 때문에 상점이 열린 채로
     /// 띄우면 두 모달이 겹치고 드래프트가 닫힐 때 정지가 풀려 버린다. 이벤트 방도 같은 이유로
     /// 효과를 닫은 뒤 적용하므로, 플레이어가 이미 겪은 순서와 다르지 않다.
+    ///
+    /// 생성·정지 규약은 <see cref="RunModalPanel{T}"/>에 있다.
     /// </summary>
-    public sealed class ShopRoomPanel : MonoBehaviour
+    public sealed class ShopRoomPanel : RunModalPanel<ShopRoomPanel>
     {
         // 진열 상한. 넘치는 품목은 조용히 안 보인다 — 에러도 로그도 없다.
         // 4 → 5 (리롤권) → 6 (무기 좌판).
@@ -51,9 +53,6 @@ namespace Abyss.Runtime.UI
         private static readonly Color ShortColor = new Color(0.92f, 0.45f, 0.42f);
         private static readonly Color DimColor = new Color(0.62f, 0.62f, 0.70f);
 
-        private static ShopRoomPanel instance;
-
-        private GameObject body;
         private Text titleText;
         private Text descriptionText;
         private Text goldText;
@@ -78,10 +77,6 @@ namespace Abyss.Runtime.UI
         // 떠날 때 열어야 하는 드래프트 횟수. 여러 번 사면 그만큼 쌓인다.
         private int pendingDrafts;
 
-        private bool isOpen;
-
-        public static bool IsOpen => instance != null && instance.isOpen;
-
         /// <summary>상점을 연다. 떠나면 <see cref="GameEvents.OnEventResolved"/>가 발행된다.</summary>
         public static void Open(ShopData data)
         {
@@ -93,26 +88,14 @@ namespace Abyss.Runtime.UI
                 return;
             }
 
-            EnsureInstance();
-            if (instance == null) return;
-            instance.Show(data);
+            var panel = EnsureInstance();
+            if (panel == null) return;
+            panel.Show(data);
         }
 
-        /// <summary>도메인 리로드 비활성화 대비 정적 상태 리셋(AbyssBootstrap 선례).</summary>
+        /// <summary>도메인 리로드 비활성화 대비 정적 상태 리셋(AbyssBootstrap 선례). 제네릭 베이스에선 안 불려 여기 둔다.</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStatics() => instance = null;
-
-        private static void EnsureInstance()
-        {
-            // 씬 전환으로 파괴된 인스턴스는 Unity의 == 오버로드 덕에 여기서 null로 판정되어 다시 만들어진다.
-            if (instance != null) return;
-
-            var go = CreateOverlayCanvas("ShopRoomPanel", UiSortingOrder.Modal);
-            // Run 씬 전용이므로 DontDestroyOnLoad 하지 않는다(EventRoomPanel과 같은 판단).
-            instance = go.AddComponent<ShopRoomPanel>();
-            instance.BuildUI(go.transform);
-            instance.body.SetActive(false);
-        }
+        private static void ResetStatics() => ResetInstance();
 
         // ───────────────────────── 흐름 ─────────────────────────
 
@@ -127,13 +110,7 @@ namespace Abyss.Runtime.UI
             if (descriptionText != null) descriptionText.text = data.description;
 
             RefreshItems();
-            body.SetActive(true);
-
-            if (!isOpen)
-            {
-                isOpen = true;
-                GameEvents.RaiseDraftOpened();   // 기존 DraftOpen 상태로 전역 정지
-            }
+            ShowBody();
         }
 
         /// <summary>진열대를 현재 잔액·재고 기준으로 다시 그린다. 구매할 때마다 호출된다.</summary>
@@ -323,14 +300,8 @@ namespace Abyss.Runtime.UI
             int drafts = pendingDrafts;
             pendingDrafts = 0;
 
-            body.SetActive(false);
             current = null;
-
-            if (isOpen)
-            {
-                isOpen = false;
-                GameEvents.RaiseDraftClosed();
-            }
+            HideBody();
 
             EventEffectApplier.GrantDrafts(drafts);
             GameEvents.RaiseEventResolved();
@@ -338,11 +309,9 @@ namespace Abyss.Runtime.UI
 
         // ───────────────────────── UI 구성 ─────────────────────────
 
-        private void BuildUI(Transform root)
+        protected override void BuildContent(Transform body)
         {
-            body = CreateDimBody(root, 0.82f);
-
-            var panel = CreateRect(body.transform, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+            var panel = CreateRect(body, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(PANEL_WIDTH, PANEL_HEIGHT));
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = new Color(0.10f, 0.10f, 0.15f, 0.98f);

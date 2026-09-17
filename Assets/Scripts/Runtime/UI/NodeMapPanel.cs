@@ -15,10 +15,10 @@ namespace Abyss.Runtime.UI
     /// 3종일 때는 "전투 A vs 전투 B"라 선택이 아니었다.
     ///
     /// <see cref="EventRoomPanel"/>과 같은 규약이다: <see cref="UiFactory"/> 동적 생성(HudBuilder 무수정),
-    /// 정지는 <c>RaiseDraftOpened/Closed</c>로 기존 DraftOpen FSM 상태를 빌린다.
+    /// 정지는 <c>RaiseDraftOpened/Closed</c>로 기존 DraftOpen FSM 상태를 빌린다 — 둘 다 <see cref="RunModalPanel{T}"/>가 맡는다.
     /// 표시 라벨·색은 <see cref="RoomTypeDisplay"/>(SoT)에서 가져온다.
     /// </summary>
-    public sealed class NodeMapPanel : MonoBehaviour
+    public sealed class NodeMapPanel : RunModalPanel<NodeMapPanel>
     {
         private const int MAX_OPTIONS = 3;       // 현재 콘텐츠는 2갈래지만 데이터가 앞서갈 수 있다
 
@@ -28,9 +28,6 @@ namespace Abyss.Runtime.UI
         private const float NODE_HEIGHT = 190f;
         private const float NODE_GAP = 40f;
 
-        private static NodeMapPanel instance;
-
-        private GameObject body;
         private readonly List<Button> nodeButtons = new();
         private readonly List<Text> nodeTitles = new();
         private readonly List<Text> nodeTypes = new();
@@ -38,9 +35,6 @@ namespace Abyss.Runtime.UI
 
         private IReadOnlyList<RoomData> options;
         private Action<RoomData> onPicked;
-        private bool isOpen;
-
-        public static bool IsOpen => instance != null && instance.isOpen;
 
         /// <summary>
         /// 갈림길을 연다. <paramref name="onPicked"/>는 선택된 방과 함께 한 번 호출된다.
@@ -63,13 +57,13 @@ namespace Abyss.Runtime.UI
                 return;
             }
 
-            EnsureInstance();
-            if (instance == null)
+            var panel = EnsureInstance();
+            if (panel == null)
             {
                 onPicked?.Invoke(valid[0]);
                 return;
             }
-            instance.Show(valid, onPicked);
+            panel.Show(valid, onPicked);
         }
 
         /// <summary>null 엔트리를 걷어낸 목록. 표시 개수 상한도 여기서 적용한다.</summary>
@@ -87,20 +81,9 @@ namespace Abyss.Runtime.UI
             return result;
         }
 
-        /// <summary>도메인 리로드 비활성화 대비 정적 상태 리셋(AbyssBootstrap 선례).</summary>
+        /// <summary>도메인 리로드 비활성화 대비 정적 상태 리셋(AbyssBootstrap 선례). 제네릭 베이스에선 안 불려 여기 둔다.</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStatics() => instance = null;
-
-        private static void EnsureInstance()
-        {
-            if (instance != null) return;
-
-            var go = CreateOverlayCanvas("NodeMapPanel", UiSortingOrder.Modal);
-            // Run 씬 전용이라 DontDestroyOnLoad 하지 않는다(EventRoomPanel과 같은 판단).
-            instance = go.AddComponent<NodeMapPanel>();
-            instance.BuildUI(go.transform);
-            instance.body.SetActive(false);
-        }
+        private static void ResetStatics() => ResetInstance();
 
         // ───────────────────────── 흐름 ─────────────────────────
 
@@ -119,13 +102,7 @@ namespace Abyss.Runtime.UI
             }
 
             LayoutNodes(roomOptions.Count);
-            body.SetActive(true);
-
-            if (!isOpen)
-            {
-                isOpen = true;
-                GameEvents.RaiseDraftOpened();   // 기존 DraftOpen 상태로 전역 정지
-            }
+            ShowBody();
         }
 
         private void Bind(int index, RoomData room)
@@ -166,14 +143,8 @@ namespace Abyss.Runtime.UI
 
             var picked = options[index];
 
-            body.SetActive(false);
             options = null;
-
-            if (isOpen)
-            {
-                isOpen = false;
-                GameEvents.RaiseDraftClosed();
-            }
+            HideBody();
 
             // 콜백을 먼저 비우고 호출한다 — 콜백 안에서 다시 열어도 중첩되지 않게.
             var callback = onPicked;
@@ -183,11 +154,9 @@ namespace Abyss.Runtime.UI
 
         // ───────────────────────── UI 구성 ─────────────────────────
 
-        private void BuildUI(Transform root)
+        protected override void BuildContent(Transform body)
         {
-            body = CreateDimBody(root, 0.82f);
-
-            var panel = CreateRect(body.transform, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+            var panel = CreateRect(body, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(PANEL_WIDTH, PANEL_HEIGHT));
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = new Color(0.10f, 0.10f, 0.15f, 0.98f);
