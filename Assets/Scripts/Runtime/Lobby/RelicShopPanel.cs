@@ -38,7 +38,6 @@ namespace Abyss.Runtime.Lobby
         public bool IsOpen { get; private set; }
 
         private Action onClosed;
-        private Font uiFont;
 
         private bool built;
         private Text shardsLabel;
