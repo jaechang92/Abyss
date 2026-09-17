@@ -38,6 +38,11 @@ namespace Abyss.EditorTools
                 so.detectionRange = 6f;
                 so.attackRange = 1.5f;
                 so.attackCooldown = 2f;
+                // 2026-09-18 애니메이션 — 무거운 적이라 근접 병사(0.6)보다 길게 든다. 공격 9장 1.2초 → f6(창끝이 땅)이 0.8초.
+                so.attackWindup = 0.8f;
+                so.attackRecovery = 0.4f;
+                so.staggerDuration = 0.3f;
+                so.deathLingerDuration = 1.2f;
                 so.expReward = 25;
                 so.goldReward = 5;
             });
