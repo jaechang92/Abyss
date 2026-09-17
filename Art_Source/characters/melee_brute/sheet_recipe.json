@@ -1,0 +1,32 @@
+{
+  "_note": "적 중장 강적 4상태. 선택 근거는 animation_prompts.md. 칸 124 · footY 92 는 근접 병사와 같은 적 규약(SpriteSheetSlicer.EnemyPivot 0.258). 몸이 이미 건메탈이라 recolor 없음.",
+  "prefix": "melee_brute",
+  "characterId": "49cea6a0-5d3a-4df2-9991-a436743fecd9",
+  "stripShadow": false,
+  "direction": "southeast",
+  "cell": 124,
+  "footY": 92,
+  "outDir": "Assets/Art/Sprites/Enemies/melee_brute/southeast",
+  "states": {
+    "move": {
+      "animation": "move_southeast_v2",
+      "frames": "all",
+      "align": "each"
+    },
+    "attack": {
+      "animation": "attack_southeast_v1",
+      "frames": "all",
+      "align": "first"
+    },
+    "hit": {
+      "animation": "hit_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "dead": {
+      "animation": "dead_southeast_v1",
+      "frames": "all",
+      "align": "first"
+    }
+  }
+}
