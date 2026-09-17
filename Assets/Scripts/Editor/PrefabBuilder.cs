@@ -136,7 +136,7 @@ namespace Abyss.EditorTools
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
         }
 
-        private static string ToPascalCase(string snake)
+        internal static string ToPascalCase(string snake)
         {
             if (string.IsNullOrEmpty(snake)) return string.Empty;
             var parts = snake.Split('_');

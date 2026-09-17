@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: MeleeGrunt
+  m_Controller: {fileID: 9100000, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: -1464502601436996020, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: ca4ec9e2b697e484bbcdaaed8d8b5d2c, type: 2}
+  - m_OriginalClip: {fileID: 1846032518889748156, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: bcbbe775786ef724d9640de12f248419, type: 2}
+  - m_OriginalClip: {fileID: 4088298236823918070, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 761b4a552d378dc43858a64aa387af22, type: 2}
+  - m_OriginalClip: {fileID: -6962735238467964146, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: f1cecf9cf13499946991bc34e4fb0aa1, type: 2}

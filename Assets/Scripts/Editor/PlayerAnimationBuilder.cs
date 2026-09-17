@@ -34,14 +34,8 @@ namespace Abyss.EditorTools
         private const string FormFolder = AnimationRoot + "/Forms";
         private const string BaseControllerPath = AnimationRoot + "/PlayerBase.controller";
 
-        /// <summary>
-        /// 🔴 <b>클립은 <see cref="SpriteRenderer"/>가 <see cref="Animator"/>와 같은 오브젝트에 있다고 보고 구워진다</b>
-        /// (커브 경로가 비어 있다). 둘을 다른 오브젝트에 나누면 클립이 아무것도 못 찾는다 —
-        /// 배선할 때 폼 몸을 담는 자식(Visual)에 <b>둘을 같이</b> 붙일 것.
-        /// </summary>
-        private const string SpriteCurvePath = "";
-
-        private const string SpritePropertyName = "m_Sprite";
+        // 📌 굽는 방법(커브 경로 · 자리표시자 · 오버라이드)은 SpriteClipAssets 에 있다(2026-09-18 적 빌더와 공유).
+        //    🔴 클립은 SpriteRenderer 가 Animator 와 같은 오브젝트에 있다고 보고 구워진다 — 폼 몸을 담는 자식(Visual)에 둘을 같이.
 
         /// <summary>
         /// 한 폼이 어느 시트에서 어느 상태를 얻는가. 폼이 늘면 여기에 줄을 더한다.
@@ -222,48 +216,8 @@ namespace Abyss.EditorTools
             AssetDatabase.Refresh();
         }
 
-        /// <summary>
-        /// 전이가 하나도 없는 평평한 컨트롤러. <b>전이를 그리지 않는 것이 이 컨트롤러의 요점이다</b> —
-        /// 무엇으로 갈지는 게임 FSM 이 정하고, 여기는 이름으로 지목된 클립을 틀기만 한다.
-        /// </summary>
         private static AnimatorController BuildBaseController()
-        {
-            // 이미 있으면 다시 만든다. 상태 목록이 바뀌었을 때 낡은 상태가 남으면
-            // HasClip 이 있지도 않은 그림을 있다고 답한다.
-            AssetDatabase.DeleteAsset(BaseControllerPath);
-
-            var controller = AnimatorController.CreateAnimatorControllerAtPath(BaseControllerPath);
-            if (controller == null)
-            {
-                Debug.LogError($"[PlayerAnimationBuilder] 컨트롤러를 만들지 못했다: {BaseControllerPath}");
-                return null;
-            }
-
-            AnimatorStateMachine stateMachine = controller.layers[0].stateMachine;
-
-            foreach (string animationId in AllAnimationIds)
-            {
-                AnimationClip placeholder = CreatePlaceholderClip(animationId);
-                // 자리표시자를 컨트롤러 안에 넣어 둔다 — 파일로 흩어 두면 지워질 때 오버라이드 키가 통째로 사라진다.
-                AssetDatabase.AddObjectToAsset(placeholder, controller);
-
-                AnimatorState state = stateMachine.AddState(animationId);
-                state.motion = placeholder;
-                state.writeDefaultValues = false;
-            }
-
-            EditorUtility.SetDirty(controller);
-            return controller;
-        }
-
-        /// <summary>
-        /// 빈 클립. <b>이름이 전부다</b> — 오버라이드는 이 이름을 키로 쓰고,
-        /// 폼이 덮어쓰지 않으면 이대로 남아 "그 폼은 이 상태를 아직 안 그렸다"를 뜻한다.
-        /// </summary>
-        private static AnimationClip CreatePlaceholderClip(string animationId)
-        {
-            return new AnimationClip { name = animationId };
-        }
+            => SpriteClipAssets.CreateFlatController(BaseControllerPath, AllAnimationIds);
 
         private static Dictionary<string, AnimationClip> BuildFormClips(
             string formName, ClipSource[] sources, ref int builtClips)
@@ -272,7 +226,7 @@ namespace Abyss.EditorTools
 
             foreach (ClipSource source in sources)
             {
-                Sprite[] sprites = LoadSlicedSprites(source.SheetPath);
+                Sprite[] sprites = SpriteClipAssets.LoadSlicedSprites(source.SheetPath);
                 if (sprites.Length == 0)
                 {
                     Debug.LogWarning($"[PlayerAnimationBuilder] 슬라이스된 스프라이트가 없다 — {source.SheetPath} " +
@@ -288,10 +242,10 @@ namespace Abyss.EditorTools
                 }
 
                 string clipPath = $"{ClipFolder}/{formName}_{source.AnimationId}.anim";
-                AnimationClip clip = CreateSpriteClip(sprites, frameRate, source.AnimationId);
+                AnimationClip clip = SpriteClipAssets.CreateSpriteClip(sprites, frameRate, source.AnimationId,
+                    loop: !PlayerAnimationIds.IsOneShot(source.AnimationId));
 
-                AssetDatabase.DeleteAsset(clipPath);
-                AssetDatabase.CreateAsset(clip, clipPath);
+                SpriteClipAssets.SaveClip(clip, clipPath);
 
                 clips[source.AnimationId] = clip;
                 builtClips++;
@@ -312,87 +266,14 @@ namespace Abyss.EditorTools
         }
 
         /// <summary>
-        /// 프레임을 <see cref="SpriteRenderer"/>의 스프라이트 커브로 굽는다.
-        ///
-        /// 🔑 루프 여부는 <see cref="PlayerAnimationIds.IsOneShot"/>이 정한다 — 생성기와 재생기가
-        /// <b>같은 답을 써야</b> 하기 때문이다. 공격이 루프로 구워지면 재생기가 아무리 한 번만 틀려 해도 계속 돈다.
-        /// </summary>
-        private static AnimationClip CreateSpriteClip(Sprite[] sprites, float frameRate, string animationId)
-        {
-            var clip = new AnimationClip { name = animationId, frameRate = frameRate };
-
-            var binding = new EditorCurveBinding
-            {
-                type = typeof(SpriteRenderer),
-                path = SpriteCurvePath,
-                propertyName = SpritePropertyName,
-            };
-
-            var keyframes = new ObjectReferenceKeyframe[sprites.Length];
-            for (int i = 0; i < sprites.Length; i++)
-            {
-                keyframes[i] = new ObjectReferenceKeyframe
-                {
-                    time = i / frameRate,
-                    value = sprites[i],
-                };
-            }
-
-            AnimationUtility.SetObjectReferenceCurve(clip, binding, keyframes);
-
-            AnimationClipSettings settings = AnimationUtility.GetAnimationClipSettings(clip);
-            settings.loopTime = !PlayerAnimationIds.IsOneShot(animationId);
-            AnimationUtility.SetAnimationClipSettings(clip, settings);
-
-            return clip;
-        }
-
-        /// <summary>
-        /// 시트에서 잘린 스프라이트를 <b>번호 순서대로</b> 읽는다.
-        ///
-        /// 🔴 이름 정렬로는 안 된다 — <c>_10</c>이 <c>_2</c> 앞에 온다. 지금은 9칸이라 안 드러나지만,
-        /// 프레임이 열 장을 넘는 순간 <b>순서가 섞인 채로 조용히 구워진다.</b>
-        /// </summary>
-        private static Sprite[] LoadSlicedSprites(string sheetPath)
-        {
-            return AssetDatabase.LoadAllAssetsAtPath(sheetPath)
-                .OfType<Sprite>()
-                .OrderBy(FrameIndexOf)
-                .ToArray();
-        }
-
-        private static int FrameIndexOf(Sprite sprite)
-        {
-            int underscore = sprite.name.LastIndexOf('_');
-            if (underscore >= 0 && int.TryParse(sprite.name[(underscore + 1)..], out int index)) return index;
-
-            Debug.LogWarning($"[PlayerAnimationBuilder] 프레임 번호를 못 읽었다: {sprite.name} — 이름 뒤에 _0, _1 이 붙어야 한다");
-            return int.MaxValue;
-        }
-
-        /// <summary>
         /// 폼 한 벌. <b>그린 것만 덮어쓰고 나머지는 비운다</b> — 그 빈자리가 폴백 사슬의 근거다.
         /// </summary>
         private static void BuildOverrideController(
             string formName, AnimatorController baseController, Dictionary<string, AnimationClip> formClips)
         {
             string path = $"{FormFolder}/{formName}.overrideController";
-            AssetDatabase.DeleteAsset(path);
-
-            var overrideController = new AnimatorOverrideController(baseController) { name = formName };
-
-            var overrides = new List<KeyValuePair<AnimationClip, AnimationClip>>(overrideController.overridesCount);
-            overrideController.GetOverrides(overrides);
-
-            for (int i = 0; i < overrides.Count; i++)
-            {
-                AnimationClip placeholder = overrides[i].Key;
-                formClips.TryGetValue(placeholder.name, out AnimationClip replacement);
-                overrides[i] = new KeyValuePair<AnimationClip, AnimationClip>(placeholder, replacement);
-            }
-
-            overrideController.ApplyOverrides(overrides);
-            AssetDatabase.CreateAsset(overrideController, path);
+            AnimatorOverrideController overrideController =
+                SpriteClipAssets.CreateOverrideController(path, formName, baseController, formClips);
 
             int filled = formClips.Count;
             Debug.Log($"[PlayerAnimationBuilder] {formName} — {filled}/{AllAnimationIds.Length} 상태 · " +

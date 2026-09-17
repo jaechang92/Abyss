@@ -45,6 +45,7 @@ namespace Abyss.EditorTools
         public const string GenerateRebuildEnemies = "Rebuild Enemy Prefabs (Force)";
         public const string GenerateRebuildPlayer = "Rebuild Player Prefab (Force)";
         public const string GeneratePlayerAnimation = "Player Animation Clips";
+        public const string GenerateEnemyAnimation = "Enemy Animation Clips";
 
         // 아트 임포트
         public const string ApplyFormSpriteImport = "Form Sprite Import Settings";
@@ -53,6 +54,7 @@ namespace Abyss.EditorTools
         public const string ImportWeaponAnchorSet = "Weapon Anchor Set";
         public const string WireWeaponAngles = "Wire Weapon Angle Sprites";
         public const string SliceCharacterSheets = "Character Sheets (Grid Slice)";
+        public const string SliceEnemySheets = "Enemy Sheets (Grid Slice)";
 
         // 정리(되돌리는 쪽)
         public const string ClearPlatforms = "Clear Test Platforms";
