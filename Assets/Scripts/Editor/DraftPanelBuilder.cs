@@ -3,6 +3,8 @@ using Abyss.Runtime.UI;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using static Abyss.EditorTools.SceneBuilderUtil;
+using static Abyss.Runtime.UI.UiFactory;
 
 namespace Abyss.EditorTools
 {
@@ -245,38 +247,12 @@ namespace Abyss.EditorTools
         }
 
         // ==================== Helpers ====================
+        /// <summary><see cref="UiFactory.CreateRect"/>에 Undo 등록만 얹는다 — 선택한 오브젝트 밑에 만들므로 Ctrl+Z로 되돌릴 수 있어야 한다.</summary>
         private static GameObject CreateRect(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 anchoredPos, Vector2 size)
         {
-            var go = new GameObject(name, typeof(RectTransform));
+            var go = UiFactory.CreateRect(parent, name, anchorMin, anchorMax, pivot, anchoredPos, size);
             Undo.RegisterCreatedObjectUndo(go, UndoLabel);
-            go.transform.SetParent(parent, false);
-            var rect = (RectTransform)go.transform;
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.pivot = pivot;
-            rect.anchoredPosition = anchoredPos;
-            rect.sizeDelta = size;
             return go;
-        }
-
-        private static void Stretch(RectTransform rect)
-        {
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-        }
-
-        private static void ApplyFont(Text text)
-        {
-            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
-            if (font != null) text.font = font;
-        }
-
-        private static void SetObject(SerializedObject so, string field, Object value)
-        {
-            var prop = so.FindProperty(field);
-            if (prop != null) prop.objectReferenceValue = value;
         }
     }
 }

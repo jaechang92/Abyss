@@ -1,12 +1,11 @@
 #if UNITY_EDITOR
-using System.Collections.Generic;
 using Abyss.Runtime.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using static Abyss.EditorTools.SceneBuilderUtil;
+using static Abyss.Runtime.UI.UiFactory;
 
 namespace Abyss.EditorTools
 {
@@ -35,12 +34,13 @@ namespace Abyss.EditorTools
 
             CreateCamera();
             CreateEventSystem();
-            var canvas = CreateCanvas();
+            var canvas = CreateSceneCanvas("TitleCanvas");
             BuildMenu(canvas);
 
-            EnsureSceneFolder();
+            EnsureScenesFolder();
             EditorSceneManager.SaveScene(scene, AbyssPaths.TitleScene);
-            RegisterInBuildSettings();
+            // 순서는 Bootstrap → Title → Lobby → Run 이어야 하므로 Bootstrap 바로 뒤에 넣는다.
+            RegisterSceneAfterBootstrap(AbyssPaths.TitleScene, nameof(TitleSceneBuilder));
             AssetDatabase.Refresh();
 
             Debug.Log($"[TitleSceneBuilder] 타이틀 씬 생성 완료 — '{AbyssPaths.TitleScene}'. Bootstrap 플레이로 흐름 확인.");
@@ -59,26 +59,6 @@ namespace Abyss.EditorTools
             cam.orthographic = true;
             cam.orthographicSize = Abyss.Runtime.Camera.PixelScale.OrthographicSize;
             go.AddComponent<AudioListener>();
-        }
-
-        private static void CreateEventSystem()
-        {
-            var go = new GameObject("EventSystem");
-            go.AddComponent<EventSystem>();
-            go.AddComponent<InputSystemUIInputModule>();
-        }
-
-        private static Canvas CreateCanvas()
-        {
-            var go = new GameObject("TitleCanvas", typeof(RectTransform));
-            var canvas = go.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            var scaler = go.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920, 1080);
-            scaler.matchWidthOrHeight = 0.5f;
-            go.AddComponent<GraphicRaycaster>();
-            return canvas;
         }
 
         // ───────────────────────── UI ─────────────────────────
@@ -177,33 +157,6 @@ namespace Abyss.EditorTools
 
         // ───────────────────────── 헬퍼 ─────────────────────────
 
-        private static GameObject CreateRect(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 anchoredPos, Vector2 size)
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            var rect = (RectTransform)go.transform;
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.pivot = pivot;
-            rect.anchoredPosition = anchoredPos;
-            rect.sizeDelta = size;
-            return go;
-        }
-
-        private static void Stretch(RectTransform rect)
-        {
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-        }
-
-        private static void ApplyFont(Text text)
-        {
-            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
-            if (font != null) text.font = font;
-        }
-
         private static void SetPrivateField(Object target, string fieldName, Object value)
         {
             var so = new SerializedObject(target);
@@ -215,43 +168,6 @@ namespace Abyss.EditorTools
             }
             prop.objectReferenceValue = value;
             so.ApplyModifiedProperties();
-        }
-
-        private static void EnsureSceneFolder()
-        {
-            if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
-            {
-                AssetDatabase.CreateFolder("Assets", "Scenes");
-            }
-        }
-
-        /// <summary>
-        /// 빌드 설정에 등록한다. 순서는 Bootstrap → Title → Lobby → Run이어야 하므로 Bootstrap 바로 뒤에 넣는다.
-        /// </summary>
-        private static void RegisterInBuildSettings()
-        {
-            var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
-            foreach (var s in scenes)
-            {
-                if (s.path == AbyssPaths.TitleScene)
-                {
-                    Debug.Log("[TitleSceneBuilder] 빌드 설정에 이미 등록됨 — 스킵.");
-                    return;
-                }
-            }
-
-            int insertAt = scenes.Count;
-            for (int i = 0; i < scenes.Count; i++)
-            {
-                if (scenes[i].path.EndsWith("/Bootstrap.unity"))
-                {
-                    insertAt = i + 1;
-                    break;
-                }
-            }
-            scenes.Insert(insertAt, new EditorBuildSettingsScene(AbyssPaths.TitleScene, true));
-            EditorBuildSettings.scenes = scenes.ToArray();
-            Debug.Log($"[TitleSceneBuilder] 빌드 설정에 등록 (index {insertAt}).");
         }
     }
 }

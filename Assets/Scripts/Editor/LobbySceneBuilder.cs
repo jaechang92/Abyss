@@ -11,11 +11,11 @@ using Abyss.Runtime.Story;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static Abyss.EditorTools.SceneBuilderUtil;
+using static Abyss.Runtime.UI.UiFactory;
 
 namespace Abyss.EditorTools
 {
@@ -57,7 +57,7 @@ namespace Abyss.EditorTools
             var player = CreatePlayer(defaultForm, out var controller, out var interactor, out var groundCheck);
             var portal = CreatePortal();
 
-            var canvas = CreateCanvas();
+            var canvas = CreateSceneCanvas("LobbyCanvas");
             var prompt = CreatePrompt(canvas.transform);
             var panel = CreateFormSelectPanel(canvas, forms, defaultForm);
             var dialogueUI = CreateDialogueUI(canvas);
@@ -85,9 +85,9 @@ namespace Abyss.EditorTools
             WireStoryNpc(storyNpc, storyData, dialogueUI, controller);
             WireRelicShopNpc(relicShopNpc, relicShopPanel, controller);
 
-            EnsureSceneFolder();
+            EnsureScenesFolder();
             EditorSceneManager.SaveScene(scene, AbyssPaths.LobbyScene);
-            RegisterInBuildSettings();
+            RegisterSceneAfterBootstrap(AbyssPaths.LobbyScene, nameof(LobbySceneBuilder));
             AssetDatabase.Refresh();
 
             Debug.Log($"[LobbySceneBuilder] 허브 로비 생성 완료 — '{AbyssPaths.LobbyScene}'. Bootstrap 플레이로 흐름 확인.");
@@ -108,13 +108,6 @@ namespace Abyss.EditorTools
             cam.orthographicSize = Abyss.Runtime.Camera.PixelScale.OrthographicSize;
             go.AddComponent<AudioListener>();
             return go.AddComponent<PlayerCameraFollow>();
-        }
-
-        private static void CreateEventSystem()
-        {
-            var go = new GameObject("EventSystem");
-            go.AddComponent<EventSystem>();
-            go.AddComponent<InputSystemUIInputModule>();
         }
 
         // 바닥 판의 중심과 두께 — 플레이어 스폰 높이를 여기서 파생시킨다.
@@ -251,19 +244,6 @@ namespace Abyss.EditorTools
         }
 
         // ───────────────────────── UI ─────────────────────────
-
-        private static Canvas CreateCanvas()
-        {
-            var go = new GameObject("LobbyCanvas", typeof(RectTransform));
-            var canvas = go.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            var scaler = go.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920, 1080);
-            scaler.matchWidthOrHeight = 0.5f;
-            go.AddComponent<GraphicRaycaster>();
-            return canvas;
-        }
 
         private static Text CreatePrompt(Transform parent)
         {
@@ -475,33 +455,6 @@ namespace Abyss.EditorTools
             return t;
         }
 
-        private static GameObject CreateRect(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 anchoredPos, Vector2 size)
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            var rect = (RectTransform)go.transform;
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.pivot = pivot;
-            rect.anchoredPosition = anchoredPos;
-            rect.sizeDelta = size;
-            return go;
-        }
-
-        private static void Stretch(RectTransform rect)
-        {
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-        }
-
-        private static void ApplyFont(Text text)
-        {
-            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
-            if (font != null) text.font = font;
-        }
-
         private static FormData[] LoadForms()
         {
             // 폴더가 SoT: Forms 폴더의 모든 FormData를 로드해 새 폼이 자동 편입되게 한다(FormCatalog와 동형).
@@ -521,67 +474,6 @@ namespace Abyss.EditorTools
             // 파일명 기준 정렬로 빌드 재현성 확보(FindAssets 순서는 비결정적).
             list.Sort((a, b) => string.CompareOrdinal(a.name, b.name));
             return list.ToArray();
-        }
-
-        private static void SetObject(SerializedObject so, string field, Object value)
-        {
-            var prop = so.FindProperty(field);
-            if (prop != null) prop.objectReferenceValue = value;
-        }
-
-        private static void SetString(SerializedObject so, string field, string value)
-        {
-            var prop = so.FindProperty(field);
-            if (prop != null) prop.stringValue = value;
-        }
-
-        private static void SetObjectArray(SerializedObject so, string field, List<Object> values)
-        {
-            var prop = so.FindProperty(field);
-            if (prop == null) return;
-            prop.arraySize = values.Count;
-            for (int i = 0; i < values.Count; i++)
-            {
-                prop.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
-            }
-        }
-
-        private static void EnsureSceneFolder()
-        {
-            if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
-            {
-                AssetDatabase.CreateFolder("Assets", "Scenes");
-            }
-        }
-
-        /// <summary>
-        /// Lobby 씬을 빌드 설정에 등록한다. 이미 있으면 중복 추가하지 않는다.
-        /// 가능하면 Bootstrap 바로 뒤에 삽입한다. buildIndex가 아니라 SceneNames로 로드하므로 순서는 동작에 무관.
-        /// </summary>
-        private static void RegisterInBuildSettings()
-        {
-            var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
-            foreach (var s in scenes)
-            {
-                if (s.path == AbyssPaths.LobbyScene)
-                {
-                    Debug.Log("[LobbySceneBuilder] 빌드 설정에 이미 등록됨 — 스킵.");
-                    return;
-                }
-            }
-
-            int insertAt = scenes.Count;
-            for (int i = 0; i < scenes.Count; i++)
-            {
-                if (scenes[i].path.EndsWith("/Bootstrap.unity"))
-                {
-                    insertAt = i + 1;
-                    break;
-                }
-            }
-            scenes.Insert(insertAt, new EditorBuildSettingsScene(AbyssPaths.LobbyScene, true));
-            EditorBuildSettings.scenes = scenes.ToArray();
-            Debug.Log($"[LobbySceneBuilder] 빌드 설정에 등록 (index {insertAt}).");
         }
     }
 }

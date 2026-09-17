@@ -7,6 +7,7 @@ using Abyss.Runtime.Meta;
 using Abyss.Runtime.Story;
 using UnityEditor;
 using UnityEngine;
+using static Abyss.EditorTools.SceneBuilderUtil;
 
 namespace Abyss.EditorTools
 {

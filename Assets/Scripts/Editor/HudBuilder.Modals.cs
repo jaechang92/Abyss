@@ -5,6 +5,7 @@ using Abyss.Runtime.UI;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using static Abyss.Runtime.UI.UiFactory;
 
 namespace Abyss.EditorTools
 {
@@ -23,10 +24,10 @@ namespace Abyss.EditorTools
         private static PausePanel CreatePausePanel(Transform parent)
         {
             var root = CreateRectChild(parent, "PausePanel", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)root.transform);
+            Stretch((RectTransform)root.transform);
 
             var body = CreateRectChild(root.transform, "Body", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)body.transform);
+            Stretch((RectTransform)body.transform);
             var dim = body.AddComponent<Image>();
             dim.color = new Color(0, 0, 0, 0.78f);
             dim.raycastTarget = true;
@@ -37,7 +38,7 @@ namespace Abyss.EditorTools
 
             var titleGo = CreateRectChild(panel.transform, "TitleText", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -44), new Vector2(380, 40));
             var title = titleGo.AddComponent<Text>();
-            ApplyDefaultFont(title);
+            ApplyFont(title);
             title.text = "일시정지";
             title.fontSize = 24;
             title.alignment = TextAnchor.MiddleCenter;
@@ -80,9 +81,9 @@ namespace Abyss.EditorTools
             button.colors = colors;
 
             var textGo = CreateRectChild(root.transform, "Text", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)textGo.transform);
+            Stretch((RectTransform)textGo.transform);
             var text = textGo.AddComponent<Text>();
-            ApplyDefaultFont(text);
+            ApplyFont(text);
             text.text = labelText;
             text.fontSize = 17;
             text.alignment = TextAnchor.MiddleCenter;
@@ -96,7 +97,7 @@ namespace Abyss.EditorTools
         private static ReplacementModal CreateReplacementModal(Transform parent)
         {
             var root = CreateRectChild(parent, "ReplacementModal", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)root.transform);
+            Stretch((RectTransform)root.transform);
             var bg = root.AddComponent<Image>();
             bg.color = new Color(0, 0, 0, 0.72f);
             bg.raycastTarget = true;
@@ -107,7 +108,7 @@ namespace Abyss.EditorTools
 
             var titleGo = CreateRectChild(panel.transform, "IncomingText", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -48), new Vector2(480, 40));
             var title = titleGo.AddComponent<Text>();
-            ApplyDefaultFont(title);
+            ApplyFont(title);
             title.text = "획득: ???";
             title.fontSize = 20;
             title.alignment = TextAnchor.MiddleCenter;
@@ -133,7 +134,7 @@ namespace Abyss.EditorTools
         private static FormReplacementModal CreateFormRewardModal(Transform parent)
         {
             var root = CreateRectChild(parent, "FormRewardModal", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)root.transform);
+            Stretch((RectTransform)root.transform);
             var bg = root.AddComponent<Image>();
             bg.color = new Color(0, 0, 0, 0.72f);
             bg.raycastTarget = true;
@@ -144,7 +145,7 @@ namespace Abyss.EditorTools
 
             var titleGo = CreateRectChild(panel.transform, "IncomingText", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -48), new Vector2(480, 40));
             var title = titleGo.AddComponent<Text>();
-            ApplyDefaultFont(title);
+            ApplyFont(title);
             title.text = "폼 획득: ???";
             title.fontSize = 20;
             title.alignment = TextAnchor.MiddleCenter;
@@ -204,9 +205,9 @@ namespace Abyss.EditorTools
             button.colors = colors;
 
             var textGo = CreateRectChild(root.transform, "Text", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            StretchFill((RectTransform)textGo.transform);
+            Stretch((RectTransform)textGo.transform);
             var text = textGo.AddComponent<Text>();
-            ApplyDefaultFont(text);
+            ApplyFont(text);
             text.text = labelText;
             text.fontSize = 14;
             text.alignment = TextAnchor.MiddleCenter;
