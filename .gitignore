@@ -129,7 +129,6 @@ nuget.config
 # Packed assets
 *.unitypackage
 
-Assets/TutorialInfo
 
 # 개인 학습/실행 상태 (git push 대상 아님)
 Docs/
