@@ -29,6 +29,9 @@ namespace Abyss.Runtime.Combat
         private Vector2 velocity;
         private int damage;
         private float explosionRadius;
+
+        /// <summary>착탄에 터지는가. false면 <b>맞은 대상만</b> 다친다 — 포물선 화살.</summary>
+        private bool explodesOnImpact = true;
         private float lifetime;
         private float aliveTimer;
         private ArcProjectile prefabRef;
@@ -45,10 +48,17 @@ namespace Abyss.Runtime.Combat
         /// 해가 항상 존재하고(<c>vx = dx/T</c>, <c>vy = dy/T - ½gT</c>), 덤으로 <b>예고 시간이
         /// 거리와 무관하게 일정</b>해져 플레이어가 회피 리듬을 익힐 수 있다.
         /// </summary>
-        public void Launch(Vector2 targetPos, int dmg, float flightTime, float radius, ArcProjectile prefab)
+        /// <param name="explodes">
+        /// 착탄에 터지는가. <b>끄면 맞은 대상만</b> 다치고 예고 링도 뜨지 않는다 —
+        /// 포물선으로 나는 화살(원거리 사수)이 그렇다. 화살은 궤적 자체가 예고라 링이 필요 없고,
+        /// 링을 띄우면 박격포처럼 읽힌다(사용자 결정 2026-09-18).
+        /// </param>
+        public void Launch(Vector2 targetPos, int dmg, float flightTime, float radius, ArcProjectile prefab,
+                           bool explodes = true)
         {
             damage = dmg;
             explosionRadius = Mathf.Max(0.1f, radius);
+            explodesOnImpact = explodes;
             prefabRef = prefab;
             consumed = false;
             aliveTimer = 0f;
@@ -58,11 +68,17 @@ namespace Abyss.Runtime.Combat
             velocity = new Vector2(delta.x / t, delta.y / t - 0.5f * ARC_GRAVITY * t);
 
             // 수명은 비행 시간보다 넉넉히 — 지형에 먼저 맞으면 그때 터지고, 아니면 예정 시각에 터진다.
-            lifetime = t;
+            //
+            // 🔴 터지지 않는 탄은 더 살려 둔다. 폭발 반경이 없어 <b>맞으려면 콜라이더가 겹쳐야</b> 하는데,
+            // 수명이 비행 시간과 같으면 목표에 닿는 그 프레임에 소멸 판정이 같이 와서 1프레임 차이로 빗나간다.
+            // 지나친 화살은 계속 떨어져 지형에 꽂히거나 조용히 사라진다.
+            lifetime = explodesOnImpact ? t : t * 1.6f;
 
             // 착탄 예고. 예고가 없으면 회피가 운이 된다(보스 패턴에서 얻은 규칙).
             // 폭발과 같은 반경으로 띄워야 "저기까지가 위험"이 정확해진다.
-            BossAreaEffect.Spawn(targetPos, explosionRadius, ExplosionColor, t, BossAreaEffect.Mode.Telegraph);
+            // 🔑 터지지 않는 탄은 띄우지 않는다 — 광역이 아니라 예고할 「반경」이 없고, 포물선 궤적이 곧 예고다.
+            if (explodesOnImpact)
+                BossAreaEffect.Spawn(targetPos, explosionRadius, ExplosionColor, t, BossAreaEffect.Mode.Telegraph);
         }
 
         private void Update()
@@ -78,7 +94,11 @@ namespace Abyss.Runtime.Combat
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
             aliveTimer += dt;
-            if (aliveTimer >= lifetime) Explode();
+            if (aliveTimer < lifetime) return;
+
+            // 예정 시각 도달. 터지는 탄은 그 자리에서 터지고, 화살은 그냥 사라진다.
+            if (explodesOnImpact) Explode();
+            else Consume();
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -88,8 +108,30 @@ namespace Abyss.Runtime.Combat
             // 발사 주체·아군 적은 통과 — 머리 위로 쏘는 구도라 아군을 스치는 일이 잦다.
             if (other.GetComponentInParent<EnemyBase>() != null) return;
 
-            // 플레이어 직격 또는 지형 착탄. 어느 쪽이든 터지는 건 같다(광역이라 직격 보너스가 없다).
-            if (other.GetComponentInParent<PlayerCharacter>() != null || !other.isTrigger) Explode();
+            var player = other.GetComponentInParent<PlayerCharacter>();
+
+            // 플레이어도 지형도 아닌 트리거(수집물·판정 영역)는 지나친다.
+            if (player == null && other.isTrigger) return;
+
+            // 터지는 탄: 플레이어 직격이든 지형 착탄이든 같다(광역이라 직격 보너스가 없다).
+            if (explodesOnImpact)
+            {
+                Explode();
+                return;
+            }
+
+            // 화살: 맞은 대상만 다친다. 지형에 닿으면 조용히 사라진다(땅에 꽂힌 화살).
+            if (player != null && !player.IsDead)
+                player.TakeDamage(damage, transform.position); // 출처 = 화살 위치(16-shield-guard §5)
+            Consume();
+        }
+
+        /// <summary>터지지 않고 사라진다. 폭발·이펙트 없이 풀로 돌려보낸다.</summary>
+        private void Consume()
+        {
+            if (consumed) return;
+            consumed = true;
+            ReturnToPool();
         }
 
         /// <summary>

@@ -132,17 +132,17 @@ namespace Abyss.Runtime.Enemy
         {
             if (data.arcProjectilePrefab == null || target == null) return;
 
-            // 자기 콜라이더 위에서 출발 — 발밑에서 나오면 발사 즉시 지형에 닿아 터진다.
-            Vector2 spawnPos = (Vector2)transform.position + Vector2.up * 0.7f;
+            Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
+            Vector2 spawnPos = ResolveSpawnPos(toTarget, ArcFallbackOffset);
 
             var shell = PoolManager.Instance.Get(data.arcProjectilePrefab, (Vector3)spawnPos, Quaternion.identity);
             shell.Launch((Vector2)target.position, GetAttackDamage(),
-                         data.arcFlightTime, data.arcExplosionRadius, data.arcProjectilePrefab);
+                         data.arcFlightTime, data.arcExplosionRadius, data.arcProjectilePrefab,
+                         data.arcExplodes);
         }
 
         /// <summary>
         /// 지정 방향으로 발사체를 풀에서 꺼내 발사하는 공용 진입점(원거리 직격·보스 탄막 공유).
-        /// 자기 콜라이더와 겹치지 않도록 사거리의 일부만큼 앞에서 생성하고,
         /// Projectile 측에서도 EnemyBase를 통과 처리한다. projectilePrefab 미연결 시 무동작.
         /// 데미지는 GetAttackDamage()를 사용하므로 보스 페이즈 배율이 그대로 반영된다.
         /// </summary>
@@ -151,10 +151,42 @@ namespace Abyss.Runtime.Enemy
             if (data == null || data.projectilePrefab == null) return;
 
             Vector2 dir = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
-            Vector2 spawnPos = (Vector2)transform.position + dir * (data.attackRange * 0.3f);
+            Vector2 spawnPos = ResolveSpawnPos(dir, DirectFallbackOffset(dir));
 
             var proj = PoolManager.Instance.Get(data.projectilePrefab, (Vector3)spawnPos, Quaternion.identity);
             proj.Launch(dir, GetAttackDamage(), data.projectileSpeed, data.projectileLifetime, data.projectilePrefab);
+        }
+
+        /// <summary>
+        /// 곡사가 <see cref="EnemyData.projectileOrigin"/> 없이 쓰는 값. <b>자기 콜라이더 위</b>에서 출발해야 한다 —
+        /// 발밑에서 나오면 발사 즉시 지형에 닿아 터진다.
+        /// </summary>
+        private static readonly Vector2 ArcFallbackOffset = Vector2.up * 0.7f;
+
+        /// <summary>
+        /// 직진탄이 <see cref="EnemyData.projectileOrigin"/> 없이 쓰는 값 — 자기 콜라이더와 겹치지 않게
+        /// 사거리의 일부만큼 앞에서. <b>사거리에서 파생하므로 그림을 안 본다.</b>
+        /// </summary>
+        private Vector2 DirectFallbackOffset(Vector2 dir) => dir * (data.attackRange * 0.3f);
+
+        /// <summary>
+        /// 발사체가 나가는 지점. <see cref="EnemyData.projectileOrigin"/>이 채워져 있으면 <b>그림에서 잰 자리</b>를,
+        /// 비어 있으면 <paramref name="fallback"/>(발사 방식마다 다르다)을 쓴다.
+        ///
+        /// 🔴 <b>「0이면 옛 동작」의 뜻이 직진탄과 곡사에서 다르다.</b> 곡사의 폴백은 안전장치(발밑 폭발 방지)라
+        /// 직진탄의 폴백으로 대신할 수 없다. 둘을 한 값으로 합치면 값을 안 채운 곡사병이 발밑에서 쏜다.
+        ///
+        /// 📌 x는 <b>바라보는 쪽</b>으로 뒤집는다 — 그림이 <c>flipX</c>로 뒤집히므로(<see cref="EnemyVisuals.Face"/>)
+        /// 그러지 않으면 왼쪽을 볼 때 발사체가 등 뒤에서 나온다. 기준은 <paramref name="aim"/>의 x 부호로,
+        /// 적이 그쪽을 보게 만드는 값과 같다. 사방으로 쏘는 보스 탄막은 이 값을 비워 두므로 영향이 없다.
+        /// </summary>
+        private Vector2 ResolveSpawnPos(Vector2 aim, Vector2 fallback)
+        {
+            Vector2 origin = data.projectileOrigin;
+            if (origin == Vector2.zero) return (Vector2)transform.position + fallback;
+
+            float facing = aim.x < 0f ? -1f : 1f;
+            return (Vector2)transform.position + new Vector2(origin.x * facing, origin.y);
         }
     }
 }

@@ -60,8 +60,17 @@ namespace Abyss.EditorTools
                 so.expReward = 20;
                 so.goldReward = 4;
                 so.isRanged = true;
-                so.projectileSpeed = 9f;       // 발사체 속도(근접 즉발 대신 직진 탄)
-                so.projectileLifetime = 3f;    // 미명중 시 소멸 시간
+                so.projectileSpeed = 9f;       // 곡사 배선이 빠졌을 때의 폴백(직진 탄)
+                so.projectileLifetime = 3f;
+
+                // 🔑 위를 향해 쏘던 자세가 굳은 적이라 화살이 포물선으로 떨어진다(사용자 결정 2026-09-18).
+                // 조준점이 「발사 시점의 플레이어 자리」가 되므로 서 있으면 맞고 움직이면 피한다 —
+                // 「표적을 보지 않고 쏘는 것」이라는 정체와 맞는다.
+                so.usesArcProjectile = true;
+                so.arcExplodes = false;        // 화살은 터지지 않는다 — 맞은 대상만. 예고 링도 없다
+                so.arcFlightTime = 0.75f;      // 박격포(1.15)보다 빠르다. 사거리 5 에서 피할 수 있는 최소치
+                so.arcExplosionRadius = 0.1f;  // 안 터지므로 쓰이지 않는다(Min 하한)
+                so.projectileOrigin = new Vector2(0.9f, 0.6f); // 활이 머리 위다 — 공격 f4 화살촉 실측
             });
 
             // ── 원거리 3종 (M2-Q1 잔여) ──
