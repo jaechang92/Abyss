@@ -253,8 +253,13 @@ def buildState(meta, sheet, state, spec, recipe):
     else:
         shifts = [0] * len(frames)
 
-    if max(abs(s) for s in shifts) > MAX_SHIFT:
-        raise SystemExit(f"🔴 {state}: 이동량 {shifts} 가 {MAX_SHIFT}px 를 넘는다 — 그림이 다른 문제일 수 있다")
+    # 🔑 잡으려는 것은 **프레임마다 발밑이 다른 것**이지 전체가 한쪽으로 치우친 것이 아니다.
+    #    캔버스에서 낮게 앉은 그림(적 원거리 사수 — 밑여백 4)은 전 프레임이 나란히 12~13px 이동한다.
+    #    그래서 절대 이동량이 아니라 **산포**를 본다. 치우침은 레시피의 footY 가 흡수한다.
+    spread = max(shifts) - min(shifts)
+    limit = recipe.get("maxShift", MAX_SHIFT)
+    if spread > limit:
+        raise SystemExit(f"🔴 {state}: 이동량 {shifts} 의 산포 {spread}px 가 {limit}px 를 넘는다 — 그림이 다른 문제일 수 있다")
 
     frames = [shift(f, s) for f, s in zip(frames, shifts)]
 
