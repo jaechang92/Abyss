@@ -1,0 +1,42 @@
+{
+  "_note": "적 원거리 사수 4상태. 선택 근거는 animation_prompts.md. 칸 124 · footY 92 는 적 규약(SpriteSheetSlicer.EnemyPivot 0.258). 🔴 recolor 색 B — R2 몸이 붉은 갑옷이라 플레이어 축 색과 겹친다(근접 병사와 같은 경로). 🔴 v3 는 땅에 박힌 화살을 지운 시작 프레임(_r2_southeast_noarrows.png)으로 다시 뽑은 것이다 — v2 는 화살이 프레임마다 깜빡였고(사용자 지적) 후처리로는 몸과 안 갈렸다.",
+  "prefix": "ranged_archer",
+  "characterId": "11999797-4f13-4808-8228-294407898e7b",
+  "stripShadow": false,
+  "direction": "southeast",
+  "cell": 124,
+  "footY": 92,
+  "outDir": "Assets/Art/Sprites/Enemies/ranged_archer/southeast",
+  "recolor": {
+    "hueBelow": 0.12,
+    "hueAbove": 0.92,
+    "keepSatBelow": 0.25,
+    "keepValAbove": 0.6,
+    "keepValBelow": 0.12,
+    "hue": 28,
+    "satScale": 0.4,
+    "valScale": 0.95
+  },
+  "states": {
+    "move": {
+      "animation": "move_southeast_v3",
+      "frames": "all",
+      "align": "each"
+    },
+    "attack": {
+      "animation": "attack_southeast_v3",
+      "frames": "all",
+      "align": "each"
+    },
+    "hit": {
+      "animation": "hit_southeast_v3",
+      "frames": "all",
+      "align": "each"
+    },
+    "dead": {
+      "animation": "dead_southeast_v3",
+      "frames": "all",
+      "align": "first"
+    }
+  }
+}

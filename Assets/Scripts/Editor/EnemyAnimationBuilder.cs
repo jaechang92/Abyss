@@ -76,6 +76,12 @@ namespace Abyss.EditorTools
             // 2026-09-18 중장 강적(녹으로 붙은 갑옷 둘 R2). 그림 폭 78px 은 창 포함 — 몸만 약 43px(1.3 유닛) · 키 58px(1.8).
             // 창은 무기라 판정에서 뺀다. 시트: Art_Source/characters/melee_brute/sheet_recipe.json
             new Entry("melee_brute", "melee_brute", new Vector2(1.5f, 1.6f)),
+
+            // 2026-09-18 원거리 사수(하늘을 겨눈 채 굳은 것 R2). 🔴 <b>애니메이션이 붙는 첫 원거리 적</b>.
+            // 그림 높이 83px 중 위쪽 절반은 머리 위로 뻗은 활이다 — 창과 같이 판정에서 뺀다.
+            // 몸(무릎 꿇은 몸통 + 머리)만 약 42x52px = 1.3x1.6 유닛.
+            // 시트: Art_Source/characters/ranged_archer/sheet_recipe.json
+            new Entry("ranged_archer", "ranged_archer", new Vector2(1.3f, 1.6f)),
         };
 
         /// <summary>시트 파일명의 상태 → 애니메이션 상태 이름. 파일은 레시피의 <c>states</c> 키를 따른다.</summary>
