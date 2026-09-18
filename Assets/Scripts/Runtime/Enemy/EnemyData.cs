@@ -75,6 +75,11 @@ namespace Abyss.Runtime.Enemy
         [Min(0f)] public float projectileSpeed = 8f;
         [Min(0.1f)] public float projectileLifetime = 3f;
 
+        [Tooltip("발사체가 나가는 지점(원점 기준 유닛). x는 바라보는 쪽으로 뒤집힌다. " +
+                 "0이면 발사 방식마다의 옛 위치를 쓴다 — 직진탄은 사거리에서 파생한 앞쪽, 곡사는 콜라이더 위. " +
+                 "그림에서 잰 값을 넣는다(원거리 사수는 활이 머리 위라 0.6유닛 높다).")]
+        public Vector2 projectileOrigin;
+
         [Tooltip("한 번의 공격에 쏘는 탄 수. 1이면 단발. 매 발 조준을 다시 하므로 연사 중 플레이어를 따라간다.")]
         [Min(1)] public int burstCount = 1;
         [Tooltip("연사 탄 사이 간격(초). burstCount가 1이면 무시된다.")]
@@ -88,6 +93,10 @@ namespace Abyss.Runtime.Enemy
         [Tooltip("발사에서 착탄까지의 시간(초). 거리와 무관하게 일정해 예고 리듬이 고정된다.")]
         [Min(0.1f)] public float arcFlightTime = 1.1f;
         [Min(0.1f)] public float arcExplosionRadius = 1.8f;
+
+        [Tooltip("곡사탄이 착탄에 터지는가. 끄면 맞은 대상만 피해를 입고 예고 링도 뜨지 않는다 — " +
+                 "포물선으로 나는 화살(원거리 사수)용. PrefabBuilder가 이 값으로 곡사 프리팹을 고른다.")]
+        public bool arcExplodes = true;
 
         [Header("스폰 프리팹 (StageDirector가 Instantiate)")]
         public GameObject spawnPrefab;

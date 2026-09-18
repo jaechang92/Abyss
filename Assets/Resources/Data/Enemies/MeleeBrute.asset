@@ -35,10 +35,12 @@ MonoBehaviour:
   projectilePrefab: {fileID: 0}
   projectileSpeed: 8
   projectileLifetime: 3
+  projectileOrigin: {x: 0, y: 0}
   burstCount: 1
   burstInterval: 0.12
   usesArcProjectile: 0
   arcProjectilePrefab: {fileID: 0}
   arcFlightTime: 1.1
   arcExplosionRadius: 1.8
+  arcExplodes: 1
   spawnPrefab: {fileID: 572693206907226678, guid: c0c5c50c254229a4389627b7b86208bf, type: 3}

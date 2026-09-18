@@ -119,14 +119,71 @@ namespace Abyss.EditorTools
         }
 
         /// <summary>
-        /// <c>usesArcProjectile</c>이 켜진 적에게만 곡사탄을 연결한다.
+        /// 포물선 <b>화살</b> 프리팹 생성. 터지지 않는 곡사탄이라 포탄과 그림·크기가 다르다 —
+        /// 길쭉하고 창백한 회백색(원거리 사수 몸의 강조색과 같은 재료)이며, 진행 방향으로 회전하므로
+        /// 떨어질 때 촉이 아래를 향한다.
+        /// </summary>
+        private static ArcProjectile BuildArcArrowPrefab(Sprite sprite, bool forceRebuild)
+        {
+            string path = $"{AbyssPaths.CombatPrefabs}/EnemyArcArrow.prefab";
+
+            if (File.Exists(path))
+            {
+                if (forceRebuild)
+                {
+                    AssetDatabase.DeleteAsset(path);
+                }
+                else
+                {
+                    var existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                    Debug.Log($"[PrefabBuilder] 건너뜀 (존재): {path}");
+                    return existing != null ? existing.GetComponent<ArcProjectile>() : null;
+                }
+            }
+
+            var root = new GameObject("EnemyArcArrow");
+            try
+            {
+                var rb = root.AddComponent<Rigidbody2D>();
+                rb.bodyType = RigidbodyType2D.Kinematic;
+                rb.gravityScale = 0f;
+
+                var col = root.AddComponent<CircleCollider2D>();
+                // 폭발 반경이 없어 맞으려면 겹쳐야 한다 — 포탄(0.5)보다 조금 넉넉히 잡는다.
+                col.isTrigger = true;
+                col.radius = 0.45f;
+
+                var sr = root.AddComponent<SpriteRenderer>();
+                sr.sprite = sprite;
+                sr.color = new Color(0.82f, 0.82f, 0.78f); // 창백한 회백 — "나무도 쇠도 아닌" 화살(1권 18장)
+                sr.sortingOrder = 3;
+
+                root.AddComponent<ArcProjectile>();
+                root.transform.localScale = new Vector3(0.5f, 0.16f, 1f); // 직진탄보다 길고 가늘게
+
+                var prefab = PrefabUtility.SaveAsPrefabAsset(root, path);
+                Debug.Log($"[PrefabBuilder] 생성: {path}");
+                return prefab != null ? prefab.GetComponent<ArcProjectile>() : null;
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        /// <summary>
+        /// <c>usesArcProjectile</c>이 켜진 적에게 곡사탄을 연결한다.
         /// 직진탄(<see cref="LinkProjectileToRangedEnemies"/>)은 원거리 전체에 연결되므로,
         /// 곡사병도 직진탄 참조를 함께 갖는다 — 이건 낭비가 아니라 <b>폴백</b>이다.
         /// 곡사 배선이 실패해도 그 적이 무해해지지 않는다.
+        ///
+        /// 🔴 <b>곡사탄은 두 종류다.</b> 터지는 포탄(화염 박격포)과 터지지 않는 화살(원거리 사수)은
+        /// 그림도 거동도 달라 한 프리팹으로 못 쓴다 — <see cref="EnemyData.arcExplodes"/>가 어느 쪽인지 정하고,
+        /// 여기서 그 값으로 고른다. 예전에는 켜진 적 전부에 같은 프리팹을 물렸다.
         /// </summary>
-        private static int LinkArcProjectileToMortars(ArcProjectile arcShell)
+        private static int LinkArcProjectileToMortars(ArcProjectile arcShell, ArcProjectile arcArrow)
         {
-            if (arcShell == null) return 0;
+            if (arcShell == null && arcArrow == null) return 0;
 
             string[] guids = AssetDatabase.FindAssets("t:EnemyData");
             int linked = 0;
@@ -136,10 +193,13 @@ namespace Abyss.EditorTools
                 var data = AssetDatabase.LoadAssetAtPath<EnemyData>(path);
                 if (data == null || !data.usesArcProjectile) continue;
 
+                ArcProjectile shot = data.arcExplodes ? arcShell : arcArrow;
+                if (shot == null) continue;
+
                 var so = new SerializedObject(data);
                 var prop = so.FindProperty("arcProjectilePrefab");
                 if (prop == null) continue;
-                prop.objectReferenceValue = arcShell;
+                prop.objectReferenceValue = shot;
                 so.ApplyModifiedProperties();
                 EditorUtility.SetDirty(data);
                 linked++;

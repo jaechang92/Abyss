@@ -74,8 +74,11 @@ namespace Abyss.EditorTools
             var projectile = BuildProjectilePrefab(sprite, forceRebuildEnemies);
             int rangedLinked = LinkProjectileToRangedEnemies(projectile);
 
+            // 곡사탄은 둘이다 — 터지는 포탄(화염 박격포)과 터지지 않는 화살(원거리 사수).
+            // 어느 쪽을 물릴지는 EnemyData.arcExplodes 가 정한다.
             var arcShell = BuildArcProjectilePrefab(sprite, forceRebuildEnemies);
-            int mortarLinked = LinkArcProjectileToMortars(arcShell);
+            var arcArrow = BuildArcArrowPrefab(sprite, forceRebuildEnemies);
+            int mortarLinked = LinkArcProjectileToMortars(arcShell, arcArrow);
 
             // 플레이어 원거리 발사체. 폼 에셋 연결은 ContentBuilder(WireFormRangedAttacks)가 한다.
             int playerProjectiles = BuildPlayerProjectilePrefabs(sprite, forceRebuildPlayer);
