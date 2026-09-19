@@ -94,6 +94,21 @@ namespace Abyss.EditorTools
                 so.isRanged = true;
                 so.projectileSpeed = 13f;      // 빠른 탄 — 멀어서 느리면 걸어서 피해진다
                 so.projectileLifetime = 3.5f;
+
+                // 🔑 애니메이션이 붙은 네 번째 적(2026-09-19). 동작 시간은 그림에서 뽑았다 —
+                // 공격 9프레임 중 f5 가 시위를 놓는 프레임이고(f3~f5 는 활이 수직으로 선다),
+                // 5/9 지점이 windup 과 맞으려면 windup = 1.25 x recovery 여야 한다.
+                // 0.75 + 0.6 = 1.35초로 f5 가 정확히 0.75초다.
+                so.attackWindup = 0.75f;
+                so.attackRecovery = 0.6f;      // 합 1.35 — 쿨다운 2.4 안에 넉넉히 들어간다
+                so.staggerDuration = 0.3f;     // 앞 3종과 같다
+                so.deathLingerDuration = 1f;   // 0.3 으로는 「위에서부터 풀려 내린다」가 안 담긴다
+
+                // 🔴 사거리에서 파생시키지 않는다(Bug-048). 🔴 그리고 **쏘는 프레임에서** 재야 한다 —
+                // 이 적은 평소 활을 45° 아래로 내리고 있다가 공격 때만 수직으로 세운다(attack v3).
+                // 내린 자세에서 재면 (0.95, 0.15)가 나오는데 그건 화살이 안 나가는 자세다.
+                // 값은 공격 f5 의 화살촉(칸 좌표 104, 54)을 피벗(62, 92)·PPU 32·콜라이더 높이 1.9 로 환산했다.
+                so.projectileOrigin = new Vector2(1.3f, 0.24f);
             });
 
             CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/VoidCaster.asset", so =>

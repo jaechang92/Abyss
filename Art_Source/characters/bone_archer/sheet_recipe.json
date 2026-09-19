@@ -1,0 +1,32 @@
+{
+  "_note": "적 뼈 궁수(재로 된 사수) 4상태. 선택 근거는 animation_prompts.md. 칸 124 · footY 92 는 적 규약(SpriteSheetSlicer.EnemyPivot 0.258). 🔴 recolor 를 쓰지 않는다 — R2 몸은 명도 >=99A6AC 6.2% 로 캐릭터 대역(08-silhouette §2)에 이미 들어가 있고, 한 단만 어둡게 해도 0.3% 로 무너진다(_r2_color_test.png). 앞 두 종과 달리 색이 플레이어 축 색과 겹치지도 않는다.",
+  "prefix": "bone_archer",
+  "characterId": "1780e4c8-3e0a-4dc9-a6ef-ef430f3fb27c",
+  "stripShadow": false,
+  "direction": "southeast",
+  "cell": 124,
+  "footY": 92,
+  "outDir": "Assets/Art/Sprites/Enemies/bone_archer/southeast",
+  "states": {
+    "move": {
+      "animation": "move_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "attack": {
+      "animation": "attack_southeast_v3",
+      "frames": "all",
+      "align": "each"
+    },
+    "hit": {
+      "animation": "hit_southeast_v2",
+      "frames": "all",
+      "align": "each"
+    },
+    "dead": {
+      "animation": "dead_southeast_v1",
+      "frames": "all",
+      "align": "first"
+    }
+  }
+}

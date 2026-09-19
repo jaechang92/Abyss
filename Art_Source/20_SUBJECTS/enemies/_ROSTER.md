@@ -69,6 +69,8 @@
 | 🔑 **화풍 문구 (맨 앞 · 모든 적 공통)** | `chunky stylized pixel art with an oversized head/upper body and short limbs, clean cel shading with 3 to 4 flat tones per material, strong light and dark contrast, smooth surfaces without scratches or speckles;` + 종별 정체 문구 | 근접 병사 R3 — **사용자 「화풍 만족」**. 스컬 화풍 분석(과장 비례 · 면 3~4단 · 강한 대비 · 강조점 하나)에서 뽑았다 |
 | 강조점 | 종마다 **밝은 강조점 하나**(눈 · 틈) — 플레이어 축 색(붉음 · 보라 · 금 · 주황)과 안 겹치게. 근접 병사는 흐린 뼈색 | 스컬 레퍼런스 |
 | ⚠️ 화풍 문구의 대가 | 앞에 둔 화풍 어휘가 **정체 · 결손 문구를 밀어낸다**(R3 에서 어깨 결손이 사라짐) — 결손은 문구 앞쪽 · 형태어로 | 근접 병사 R2 → R3 |
+| 🔴 **예외 — 머리가 없거나 작은 적은 `an oversized head` 를 뺀다** | 이 문구는 **「큰 머리를 그려라」**다. 뼈 궁수는 정체가 **「머리가 없다」**라 정면 충돌했고, R1 은 그 자리를 **후드로 채웠다**(25 gen 폐기). `an oversized upper body` 로 줄이자 R2 에서 바로 결손이 나왔다. 🔴 **공허 술사(얼굴 자리가 빈 것) · 보스(그려지다 만 것)에도 같은 판단이 온다** | 뼈 궁수 R1 → R2 (2026-09-19) |
+| 🔴 **재료색 「재 검정」은 색상이지 명도가 아니다** | 검게 뽑으면 몸 전체가 **환경 7단**(`0B0E11`~`5E6B72`)에 들어가 **실루엣을 만들 밝은 면이 없어진다**(`08-silhouette §2`). 뼈 궁수 R1 은 밝은 면 1.1% 로 배경에 먹혔고, R2(6.2%)를 **한 단만 어둡게 해도 0.3% 로 무너졌다.** 재는 **위에서부터 식어 회백으로 바랜다** — 그 면이 캐릭터 대역을 맡는다 | 뼈 궁수 R1·R2 실측 (2026-09-19) |
 | 애니메이션 | **이동 · 공격 · 피격 · 사망 4개**(FSM Patrol·Chase·Attack·Stagger·Dead) | `EnemyStateIds` |
 | 문구 | 긍정문 · 멈춘 자세 · 정체성 어휘를 앞에 매번 · `slash`/`arc` 금지 | `characters/knight_red/animation_prompts.md` |
 

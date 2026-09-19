@@ -82,6 +82,13 @@ namespace Abyss.EditorTools
             // 몸(무릎 꿇은 몸통 + 머리)만 약 42x52px = 1.3x1.6 유닛.
             // 시트: Art_Source/characters/ranged_archer/sheet_recipe.json
             new Entry("ranged_archer", "ranged_archer", new Vector2(1.3f, 1.6f)),
+
+            // 2026-09-19 뼈 궁수(재로 된 사수 R2). 그림 74x64px 중 가로는 몸 앞으로 뻗은 활이,
+            // 세로 아래 약 12px 은 바닥에 넓게 퍼진 재 더미가 차지한다 — 둘 다 판정에서 뺀다.
+            // 몸(머리 그루터기 + 상체 + 어깨 크러스트)만 약 42x61px = 1.3x1.9 유닛.
+            // 🔴 재 더미를 판정에 넣으면 사거리 7.5 의 원거리 적이 근접에서 지나치게 잘 맞는다.
+            // 시트: Art_Source/characters/bone_archer/sheet_recipe.json
+            new Entry("bone_archer", "bone_archer", new Vector2(1.3f, 1.9f)),
         };
 
         /// <summary>시트 파일명의 상태 → 애니메이션 상태 이름. 파일은 레시피의 <c>states</c> 키를 따른다.</summary>
