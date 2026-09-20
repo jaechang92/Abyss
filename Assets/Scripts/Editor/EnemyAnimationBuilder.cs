@@ -89,6 +89,14 @@ namespace Abyss.EditorTools
             // 🔴 재 더미를 판정에 넣으면 사거리 7.5 의 원거리 적이 근접에서 지나치게 잘 맞는다.
             // 시트: Art_Source/characters/bone_archer/sheet_recipe.json
             new Entry("bone_archer", "bone_archer", new Vector2(1.3f, 1.9f)),
+
+            // 2026-09-20 공허 술사(선이 하나도 없는 것 R1 · 색은 desaturate 후보 C). 그림 50x60px 인데
+            // 가로 x56~76(21px)은 앞으로 뻗어 가리키는 팔이다 — 창·활과 같이 판정에서 뺀다. 몸만 약 29x60px.
+            // 🔴 <b>일반 적 중 유일하게 바닥에 안 닿는다</b> — 레시피 footY 84 로 그림이 피벗보다 8px(0.25 유닛) 위에 뜬다.
+            // 그래서 콜라이더 아래 0.25 유닛은 그림이 없고, 높이를 1.9 가 아니라 2.0 으로 둬 머리 위까지 덮는다.
+            // 플레이에서 「발밑을 때렸는데 맞는다」가 거슬리면 레시피 footY 를 92 쪽으로 되돌린다.
+            // 시트: Art_Source/characters/void_caster/sheet_recipe.json
+            new Entry("void_caster", "void_caster", new Vector2(0.9f, 2.0f)),
         };
 
         /// <summary>시트 파일명의 상태 → 애니메이션 상태 이름. 파일은 레시피의 <c>states</c> 키를 따른다.</summary>

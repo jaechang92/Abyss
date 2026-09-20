@@ -50,7 +50,16 @@ namespace Abyss.EditorTools
         /// </summary>
         private const int EnemyCell = 124;
 
-        /// <summary>🔴 <c>Art_Source/characters/{적}/sheet_recipe.json</c> 의 <c>footY</c> 와 같아야 한다.</summary>
+        /// <summary>
+        /// 적 피벗이 놓이는 줄 — <b>「바닥이 어디인가」</b>다. 땅에 닿는 적은
+        /// <c>Art_Source/characters/{적}/sheet_recipe.json</c> 의 <c>footY</c> 를 이 값과 같게 둔다.
+        /// <para>
+        /// 🔴 <b>레시피의 <c>footY</c> 는 「그림의 어디가 바닥인가」라서 뜻이 다르다.</b> 둘은 보통 같지만
+        /// <b>떠 있는 적에서는 일부러 어긋난다</b> — 공허 술사는 <c>footY 84</c> 로 그림 아래끝을 피벗보다
+        /// 8px 위에 두어 바닥에 발이 안 닿게 한다(<c>20_SUBJECTS/enemies/void_caster.md</c> ③·⑤-ⓒ).
+        /// 그러니 값이 다르다고 해서 되돌리지 말 것.
+        /// </para>
+        /// </summary>
         private const int EnemyFootY = 92;
 
         private static readonly Vector2 EnemyPivot = new(0.5f, (EnemyCell - EnemyFootY) / (float)EnemyCell);

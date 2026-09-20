@@ -6,14 +6,14 @@ AnimatorOverrideController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MeleeBrute
+  m_Name: VoidCaster
   m_Controller: {fileID: 9100000, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
   m_Clips:
   - m_OriginalClip: {fileID: -8421305309609162829, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: 7437bdef1f40ebf4cbe0ad29e254b7fb, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: d7f1ceee15dc39d4685e536b98bc94a5, type: 2}
   - m_OriginalClip: {fileID: 1951912014306257641, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: 78988d79c90ab4c47b21fc89502b59bc, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: dab42b3ce509072419542056cb3e6714, type: 2}
   - m_OriginalClip: {fileID: -8408017304605070522, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: dfbca5dee54a14749b9d51f04b5e564a, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 981af6cf256e7ce428891eeec0891fbf, type: 2}
   - m_OriginalClip: {fileID: 7593005135381459077, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: 1493f6539a7901e41993c02fc8eb8c66, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: eb4eb4d16c7460f499879d37c092cbb1, type: 2}
