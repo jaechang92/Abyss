@@ -6,14 +6,14 @@ AnimatorOverrideController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MeleeBrute
+  m_Name: EliteHunter
   m_Controller: {fileID: 9100000, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
   m_Clips:
   - m_OriginalClip: {fileID: 8058665983056200908, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: 7437bdef1f40ebf4cbe0ad29e254b7fb, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: f95f2457555329f419dcb092866dffc9, type: 2}
   - m_OriginalClip: {fileID: -5640487863767604161, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: 78988d79c90ab4c47b21fc89502b59bc, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: cb4ac11efe6adfb4db14381756cda542, type: 2}
   - m_OriginalClip: {fileID: -4335972531925672455, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: dfbca5dee54a14749b9d51f04b5e564a, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: ab0bb8051dd745c4b995c00039775130, type: 2}
   - m_OriginalClip: {fileID: -4499530641165612462, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: 1493f6539a7901e41993c02fc8eb8c66, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 5585535f97a067c42a9fe2401b201dd8, type: 2}
