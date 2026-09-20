@@ -9,11 +9,11 @@ AnimatorOverrideController:
   m_Name: MeleeGrunt
   m_Controller: {fileID: 9100000, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
   m_Clips:
-  - m_OriginalClip: {fileID: -8421305309609162829, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  - m_OriginalClip: {fileID: 4145157049376388432, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
     m_OverrideClip: {fileID: 7400000, guid: ca4ec9e2b697e484bbcdaaed8d8b5d2c, type: 2}
-  - m_OriginalClip: {fileID: 1951912014306257641, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  - m_OriginalClip: {fileID: 1399282836996802956, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
     m_OverrideClip: {fileID: 7400000, guid: bcbbe775786ef724d9640de12f248419, type: 2}
-  - m_OriginalClip: {fileID: -8408017304605070522, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  - m_OriginalClip: {fileID: 4067270199764090739, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
     m_OverrideClip: {fileID: 7400000, guid: 761b4a552d378dc43858a64aa387af22, type: 2}
-  - m_OriginalClip: {fileID: 7593005135381459077, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  - m_OriginalClip: {fileID: -8622821956808751497, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
     m_OverrideClip: {fileID: 7400000, guid: f1cecf9cf13499946991bc34e4fb0aa1, type: 2}

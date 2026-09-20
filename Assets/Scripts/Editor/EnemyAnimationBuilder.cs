@@ -97,6 +97,13 @@ namespace Abyss.EditorTools
             // 플레이에서 「발밑을 때렸는데 맞는다」가 거슬리면 레시피 footY 를 92 쪽으로 되돌린다.
             // 시트: Art_Source/characters/void_caster/sheet_recipe.json
             new Entry("void_caster", "void_caster", new Vector2(0.9f, 2.0f)),
+
+            // 2026-09-20 화염 박격포(아직 내려오는 중인 것 R2 · 색 변환 없음). 그림 81x56px 로 <b>12종 중 가장 넓다</b>.
+            // 좌우 끝은 얇게 퍼진 조각이라(열 높이 3~11px) 뺐다 — 열 높이 30px 이상인 구간만 62px = 1.9 유닛.
+            // 높이는 꼭대기의 굴뚝·지붕 끝을 뺀 49px = 1.5 유닛. 창·활·재 더미를 뺀 것과 같은 판단이다.
+            // 🔴 짐까지 다 넣으면 사거리 9 의 곡사 적이 근접에서 지나치게 잘 맞는다.
+            // 시트: Art_Source/characters/flame_mortar/sheet_recipe.json
+            new Entry("flame_mortar", "flame_mortar", new Vector2(1.9f, 1.5f)),
         };
 
         /// <summary>시트 파일명의 상태 → 애니메이션 상태 이름. 파일은 레시피의 <c>states</c> 키를 따른다.</summary>

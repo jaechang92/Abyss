@@ -166,6 +166,23 @@ namespace Abyss.EditorTools
                 so.usesArcProjectile = true;
                 so.arcFlightTime = 1.15f;      // 예고 링이 떠 있는 시간 = 회피 창
                 so.arcExplosionRadius = 2f;
+
+                // 🔑 애니메이션이 붙은 여섯 번째 적(2026-09-20). 동작 시간은 그림에서 뽑았다 —
+                // 공격 9프레임 중 f5 에서 기와 한 장이 더미 꼭대기를 떠난다(32프레임 중 유일하게 분리된 프레임).
+                // 5/9 지점이 windup 과 맞으려면 windup = 1.25 x recovery 여야 한다(뼈 궁수와 같은 식).
+                // 🔴 12종 중 가장 느린 적이라 합을 크게 잡았다 — 예비동작이 길어야 「피할 수 있는 적」이 된다.
+                so.attackWindup = 1f;          // 앞 5종(0.5~0.8) 중 가장 길다
+                so.attackRecovery = 0.8f;      // 합 1.8 — 쿨다운 3.2 안에 1.4 가 남는다
+                so.staggerDuration = 0.3f;     // 앞 5종과 같다
+                so.deathLingerDuration = 1.2f; // 「쏟아져 쌓인다」라 중장 강적과 같은 1.2 쪽
+
+                // 🔴 사거리에서 파생시키지 않는다(Bug-048) · 🔴 쏘는 프레임에서 잰다(뼈 궁수 ⓚ).
+                // 값은 공격 f5 에서 떠난 조각의 중심(칸 좌표 67, 31)을 피벗(62, 92)·PPU 32·콜라이더 높이 1.5 로 환산했다.
+                // 🔑 원거리 4종이 전부 다르다 — 사수 (0.9, 0.6) 활이 머리 위 · 뼈 궁수 (1.3, 0.24) 몸 앞 아래 ·
+                // 공허 술사 (0.94, 0.28) 가리키는 손끝 · 이 적 (0.16, 1.16) **몸 한가운데 바로 위**.
+                // x 가 거의 0 이고 y 가 가장 높은 것이 「위로 올려 던지는 것」이라는 정체 그대로다.
+                // 🔴 곡사의 옛 폴백(ArcFallbackOffset = up x 0.7)보다 훨씬 높다 — 발밑 폭발 안전장치가 필요 없어진다.
+                so.projectileOrigin = new Vector2(0.16f, 1.16f);
             });
 
             CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/EliteHunter.asset", so =>
