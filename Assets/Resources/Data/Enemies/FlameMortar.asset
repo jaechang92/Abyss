@@ -20,10 +20,10 @@ MonoBehaviour:
   detectionRange: 12
   attackRange: 9
   attackCooldown: 3.2
-  attackWindup: 0
-  attackRecovery: 0
-  staggerDuration: 0
-  deathLingerDuration: 0.3
+  attackWindup: 1
+  attackRecovery: 0.8
+  staggerDuration: 0.3
+  deathLingerDuration: 1.2
   patrolRadius: 2
   patrolSpeedMultiplier: 0.5
   expReward: 28
@@ -35,7 +35,7 @@ MonoBehaviour:
   projectilePrefab: {fileID: 6236116468714331731, guid: 54f992f062144484da995449f824a74c, type: 3}
   projectileSpeed: 8
   projectileLifetime: 3
-  projectileOrigin: {x: 0, y: 0}
+  projectileOrigin: {x: 0.16, y: 1.16}
   burstCount: 1
   burstInterval: 0.12
   usesArcProjectile: 1
