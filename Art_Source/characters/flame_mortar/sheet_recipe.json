@@ -1,0 +1,32 @@
+{
+  "_note": "적 화염 박격포(아직 내려오는 중인 것) 4상태. 선택 근거는 animation_prompts.md. 칸 124 · footY 92 는 적 규약(SpriteSheetSlicer.EnemyPivot 0.258) — 이 적은 땅에 닿으므로 공허 술사(footY 84)와 달리 기본값이다. 🔴 색 변환을 하지 않는다 — recolor 도 desaturate 도 없다. 채도를 내리면 원거리 사수(실게임 recolor hue 28 → 흙빛 hue 48)로 수렴하는데 사수는 S1·2·3 전부에 나와 S3 에서 같은 방에 난다. R2 원본(hue 33 · 채도 0.66 테라코타)이 앞 5종과 가장 잘 갈린다(_r2_color_vs_archer.png · flame_mortar.md 「지표 5 를 폐기한다」).",
+  "prefix": "flame_mortar",
+  "characterId": "b5c6be41-9701-4ebf-b458-9db464d5f6d5",
+  "stripShadow": false,
+  "direction": "southeast",
+  "cell": 124,
+  "footY": 92,
+  "outDir": "Assets/Art/Sprites/Enemies/flame_mortar/southeast",
+  "states": {
+    "move": {
+      "animation": "move_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "attack": {
+      "animation": "attack_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "hit": {
+      "animation": "hit_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "dead": {
+      "animation": "dead_southeast_v1",
+      "frames": "all",
+      "align": "first"
+    }
+  }
+}
