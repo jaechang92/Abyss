@@ -45,10 +45,18 @@ namespace Abyss.EditorTools
         private const string EnemyFolder = AbyssPaths.EnemySprites;
 
         /// <summary>
-        /// 적은 <b>번들 칸(124)을 그대로</b> 쓴다 — 무기 앵커가 없어 92 규약을 따를 이유가 없고,
-        /// 기어 가는 몸이 92 밖으로 나간다(근접 병사 공격 f2 22px 잘림).
+        /// 적 칸. 무기 앵커가 없어 92 규약을 따를 이유가 없고, 기어 가는 몸이 92 밖으로 나간다
+        /// (근접 병사 공격 f2 22px 잘림) — 그래서 원래는 번들 칸 124 를 그대로 썼다.
+        /// <para>
+        /// 🔴 <b>2026-09-21 에 124 -> 148 로 키웠다</b> — 첫 중간보스(감시자 거인)가 안 들어갔다.
+        /// 4상태 32프레임의 최대 내용이 <b>129x105</b> 라 ① 피격 f2(129px)가 칸에서 떼다 22px 잘리고
+        /// ② 이동·공격은 가드를 통과했지만 <b>발밑 정렬 중 위가 6~10px 조용히 잘렸다</b>
+        /// (조립 로그의 「키 92~92」가 그 증거 — 가드는 「칸에서 뗄 때」만 보고 정렬 중 잘림은 안 본다).
+        /// 🔑 <b>피벗을 지키려고 footY 도 같은 비율로 올렸다</b>(0.2581 -> 0.2568) — 기존 적의 발 위치가 안 변한다.
+        /// 👉 <b>보스 3종은 이보다 더 크다.</b> 착수 전에 같은 계산을 다시 할 것.
+        /// </para>
         /// </summary>
-        private const int EnemyCell = 124;
+        private const int EnemyCell = 148;
 
         /// <summary>
         /// 적 피벗이 놓이는 줄 — <b>「바닥이 어디인가」</b>다. 땅에 닿는 적은
@@ -60,7 +68,9 @@ namespace Abyss.EditorTools
         /// 그러니 값이 다르다고 해서 되돌리지 말 것.
         /// </para>
         /// </summary>
-        private const int EnemyFootY = 92;
+        /// <para>🔴 <b>2026-09-21: 92 -> 110</b> (칸 124 -> 148 과 같은 비율). 레시피 쪽도 같이 올린다 —
+        /// 일반 6종 92 -> 110 · <b>공허 술사만 84 -> 100</b>(떠 있는 적이라 비례를 지킨다).</para>
+        private const int EnemyFootY = 110;
 
         private static readonly Vector2 EnemyPivot = new(0.5f, (EnemyCell - EnemyFootY) / (float)EnemyCell);
 

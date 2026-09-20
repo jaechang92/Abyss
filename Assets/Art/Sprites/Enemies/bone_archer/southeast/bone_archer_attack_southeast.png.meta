@@ -107,10 +107,10 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 124
-        height: 124
+        width: 148
+        height: 148
       alignment: 9
-      pivot: {x: 0.5, y: 0.2580645}
+      pivot: {x: 0.5, y: 0.25675675}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -127,12 +127,12 @@ TextureImporter:
       name: bone_archer_attack_southeast_1
       rect:
         serializedVersion: 2
-        x: 124
+        x: 148
         y: 0
-        width: 124
-        height: 124
+        width: 148
+        height: 148
       alignment: 9
-      pivot: {x: 0.5, y: 0.2580645}
+      pivot: {x: 0.5, y: 0.25675675}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -149,12 +149,12 @@ TextureImporter:
       name: bone_archer_attack_southeast_2
       rect:
         serializedVersion: 2
-        x: 248
+        x: 296
         y: 0
-        width: 124
-        height: 124
+        width: 148
+        height: 148
       alignment: 9
-      pivot: {x: 0.5, y: 0.2580645}
+      pivot: {x: 0.5, y: 0.25675675}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -171,12 +171,12 @@ TextureImporter:
       name: bone_archer_attack_southeast_3
       rect:
         serializedVersion: 2
-        x: 372
+        x: 444
         y: 0
-        width: 124
-        height: 124
+        width: 148
+        height: 148
       alignment: 9
-      pivot: {x: 0.5, y: 0.2580645}
+      pivot: {x: 0.5, y: 0.25675675}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -193,12 +193,12 @@ TextureImporter:
       name: bone_archer_attack_southeast_4
       rect:
         serializedVersion: 2
-        x: 496
+        x: 592
         y: 0
-        width: 124
-        height: 124
+        width: 148
+        height: 148
       alignment: 9
-      pivot: {x: 0.5, y: 0.2580645}
+      pivot: {x: 0.5, y: 0.25675675}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -215,12 +215,12 @@ TextureImporter:
       name: bone_archer_attack_southeast_5
       rect:
         serializedVersion: 2
-        x: 620
+        x: 740
         y: 0
-        width: 124
-        height: 124
+        width: 148
+        height: 148
       alignment: 9
-      pivot: {x: 0.5, y: 0.2580645}
+      pivot: {x: 0.5, y: 0.25675675}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -237,12 +237,12 @@ TextureImporter:
       name: bone_archer_attack_southeast_6
       rect:
         serializedVersion: 2
-        x: 744
+        x: 888
         y: 0
-        width: 124
-        height: 124
+        width: 148
+        height: 148
       alignment: 9
-      pivot: {x: 0.5, y: 0.2580645}
+      pivot: {x: 0.5, y: 0.25675675}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -259,12 +259,12 @@ TextureImporter:
       name: bone_archer_attack_southeast_7
       rect:
         serializedVersion: 2
-        x: 868
+        x: 1036
         y: 0
-        width: 124
-        height: 124
+        width: 148
+        height: 148
       alignment: 9
-      pivot: {x: 0.5, y: 0.2580645}
+      pivot: {x: 0.5, y: 0.25675675}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -281,12 +281,12 @@ TextureImporter:
       name: bone_archer_attack_southeast_8
       rect:
         serializedVersion: 2
-        x: 992
+        x: 1184
         y: 0
-        width: 124
-        height: 124
+        width: 148
+        height: 148
       alignment: 9
-      pivot: {x: 0.5, y: 0.2580645}
+      pivot: {x: 0.5, y: 0.25675675}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []

@@ -69,9 +69,20 @@ namespace Abyss.EditorTools
                 EnemyBase enemy = AddEnemyComponent(root, data);
                 SetPrivateField(enemy, "data", data);
 
+                // 🔴 <b>등급 확대는 「그림이 아직 임시일 때」의 임시방편이다.</b> 그림이 붙은 등급은 확대를 뺀다 —
+                // 크기를 그림이 정해야 <c>08-silhouette §1</c> 의 세로 px 규격이 화면 크기와 같은 뜻이 되고,
+                // 비정수 배율(1.25·1.45·1.6)이 픽셀을 뭉개지 않는다(<c>PixelScale</c> 는 FHD 3배 정수 배율이다).
+                // ✅ <b>정예는 뺐다</b>(2026-09-21) — 엘리트 사냥꾼 그림 84px 이 1.25배로 3.28유닛이 되어
+                // 규격 2.5유닛을 31% 넘었고, <b>중간보스 규격 3.0유닛보다 커졌다.</b>
+                // 84px = 2.63유닛으로 규격에 맞는다. 🔴 <b>남은 둘은 그림을 붙일 때 같이 뺀다</b> —
+                // 그때 그림 목표는 중간보스 96px · 보스 128~160px 이다(pro 의 size 상한 128 에 보스가 걸린다).
+                // ✅ <b>감시자 거인도 뺐다</b>(2026-09-21) — 그림 99x98px 이 이미 3.06유닛이라 1.45배면 4.4유닛으로
+                // 규격(중간보스 3.0)을 47% 넘고, 🔴 <b>콜라이더까지 1.89x4.35 로 불어 `attackRange 2.0` 이 안 닿았다</b>
+                // (최소 중심 거리 1.86 — 정면으로 완전히 붙어야 겨우 0.14 여유라 Attack 상태로 전이가 안 됐다.
+                //  대신 반경 3.1 짜리 회전베기만 계속 돌았다 — 사용자 지적).
+                // 🔴 <b>왕좌의 파수관은 그림이 아직 없어 1.45 를 남긴다</b> — 그림을 붙일 때 같이 뺀다.
                 if (data.IsBoss) root.transform.localScale = new Vector3(1.6f, 1.6f, 1f);
-                else if (data.enemyId is "midboss_sentinel" or "midboss_throne_warden") root.transform.localScale = new Vector3(1.45f, 1.45f, 1f);
-                else if (data.IsElite) root.transform.localScale = new Vector3(1.25f, 1.25f, 1f);
+                else if (data.enemyId is "midboss_throne_warden") root.transform.localScale = new Vector3(1.45f, 1.45f, 1f);
 
                 AttachNametag(root.transform, data);
 

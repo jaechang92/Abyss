@@ -4,8 +4,8 @@
   "characterId": "f42907de-1c54-43d5-83b4-2341b4346ecc",
   "stripShadow": false,
   "direction": "southeast",
-  "cell": 124,
-  "footY": 92,
+  "cell": 148,
+  "footY": 110,
   "outDir": "Assets/Art/Sprites/Enemies/elite_hunter/southeast",
   "states": {
     "move": {
