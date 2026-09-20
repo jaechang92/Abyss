@@ -1,0 +1,36 @@
+{
+  "_note": "적 공허 술사(선이 하나도 없는 것) 4상태. 선택 근거는 animation_prompts.md. 칸 124 는 적 규약. 🔴 footY 가 앞 4종(92)과 다르다 — 이 적은 바닥에 발이 안 닿는다(기획서 ③·⑤-ⓒ). 슬라이서의 적 피벗은 0.258(= 124 칸의 92 줄)로 고정이므로, 그림의 아래끝을 84 줄에 두면 피벗보다 8px 위에 떠서 Unity 에서 그대로 8px(0.25 유닛) 떠 보인다. 🔴 recolor 가 아니라 desaturate 를 쓴다 — R1 은 명도 분리(머리 80.4% vs 옷 8.8%)가 이미 돼 있고 색상만 따뜻했다. recolor 는 붉음~주황 색상만 고르는 식이라 거의 무채색인 이 그림에는 hue 가 불안정해 못 쓴다(색 후보 C · 사용자 결정).",
+  "prefix": "void_caster",
+  "characterId": "b29e29c2-ae42-42ee-98f9-862e1d69d338",
+  "stripShadow": false,
+  "direction": "southeast",
+  "cell": 124,
+  "footY": 84,
+  "desaturate": {
+    "satScale": 0.25,
+    "hue": 195
+  },
+  "outDir": "Assets/Art/Sprites/Enemies/void_caster/southeast",
+  "states": {
+    "move": {
+      "animation": "move_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "attack": {
+      "animation": "attack_southeast_v2",
+      "frames": "all",
+      "align": "each"
+    },
+    "hit": {
+      "animation": "hit_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "dead": {
+      "animation": "dead_southeast_v1",
+      "frames": "all",
+      "align": "first"
+    }
+  }
+}
