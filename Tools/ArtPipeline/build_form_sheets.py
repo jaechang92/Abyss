@@ -34,10 +34,15 @@
 📌 `removeStrays true` — 1px 어두운 잔여선(그림자 테두리 호)을 걷는다.
 📌 `lowerRegion {x0,x1,top,bottom,by,fillFromRow,fillFromFrame}` — 한쪽 발(부츠 줄)만 내려 바닥에 붙인다.
    틈은 fillFromFrame(기본 0) 프레임의 정강이 줄로 잇는다 — 프레임마다 자기 줄을 쓰면 밑단 외곽선이 섞인다.
-   순서: (recolor) → 떼기 → 그림자 → 발밑 → freezeBelow → overlay → removeStrays → lowerRegion.
+   순서: (recolor · desaturate) → 떼기 → 그림자 → 발밑 → freezeBelow → overlay → removeStrays → lowerRegion.
 📌 `recolor {hueBelow,hueAbove,keepSatBelow,keepValAbove,keepValBelow,hue,satScale,valScale}` — **레시피 최상위**.
    번들 시트 전체에 한 번 적용해 모든 프레임이 같은 값을 받는다(2026-09-18 적 근접 병사 색 B 건메탈).
    생성 캐릭터의 재료색이 플레이어 축 색과 겹칠 때 생성을 다시 돌리지 않고 색만 옮긴다.
+📌 `desaturate {satScale, hue, valScale}` — **레시피 최상위**. `recolor` 와 **고르는 방식이 반대다** —
+   그쪽은 색상으로 골라 일부만 옮기고, 이쪽은 **알파가 있는 픽셀 전부**의 채도를 줄인다.
+   🔴 무채색에 가까운 그림에는 `recolor` 를 못 쓴다: 그 식(`h < hueBelow | h > hueAbove`)은 hue 로 고르는데
+   채도가 낮으면 hue 가 불안정해 픽셀을 제멋대로 집는다. 공허 술사는 *"낡은 옷. 색이 없었다"* 가 정체라
+   **몸 전체의 채도**를 낮춰야 했다 — `20_SUBJECTS/enemies/void_caster.md` R1 색 판정(후보 C).
 📌 적 시트는 `cell` 을 번들 칸(124) 그대로 쓴다 — 무기 앵커가 없어 92 규약을 따를 이유가 없고,
    기어 가는 몸이 92 밖으로 나간다(근접 병사 공격 f2 22px). 피벗은 `(cell - footY) / cell`.
 """
@@ -133,6 +138,32 @@ def recolor(image, r):
     moved = np.stack([np.full_like(h, r["hue"] / 360.0),
                       np.clip(s * r["satScale"], 0, 1),
                       np.clip(v * r["valScale"], 0, 1)], axis=-1)
+    rgb = np.round(hsvToRgb(moved) * 255.0)
+    a[..., :3] = np.where(change[..., None], rgb, a[..., :3])
+    return Image.fromarray(a.astype(np.uint8), "RGBA")
+
+
+def desaturate(image, r):
+    """알파가 있는 픽셀 **전부**의 채도를 줄이고 색상을 한 값으로 모은다.
+
+    🔴 **`recolor` 와 반대로 고른다.** 그쪽은 `h < hueBelow | h > hueAbove` 로 붉음~주황만 집는데,
+    무채색에 가까운 그림은 hue 가 불안정해 그 식이 못 쓴다. 여기서 바꿀 것은 「어느 색을 옮기나」가
+    아니라 **「색이 있는가」** 자체다.
+
+    🔑 공허 술사 R1 은 명도 분리(머리 80.4% ↔ 옷 8.8%)가 이미 돼 있고 **색상만 따뜻했다.**
+    그래서 채도를 죽이는 것만으로 원문의 「색이 없는 낡은 옷 + 종이색 빈 얼굴」이 된다 — 재생성 25 gen 을 아낀다.
+    (`20_SUBJECTS/enemies/void_caster.md` 「색은 후처리로 해결된다」)
+
+    채도가 0 에 가까운 픽셀(외곽선 · 검정)은 hue 를 줘도 그대로 어둡게 남는다.
+    """
+    a = np.array(image).astype(np.float64)
+    hsv = rgbToHsv(a[..., :3] / 255.0)
+    h, s, v = hsv[..., 0], hsv[..., 1], hsv[..., 2]
+
+    change = a[..., 3] > ALPHA_CUT
+    moved = np.stack([np.full_like(h, r.get("hue", 0.0) / 360.0),
+                      np.clip(s * r["satScale"], 0, 1),
+                      np.clip(v * r.get("valScale", 1.0), 0, 1)], axis=-1)
     rgb = np.round(hsvToRgb(moved) * 255.0)
     a[..., :3] = np.where(change[..., None], rgb, a[..., :3])
     return Image.fromarray(a.astype(np.uint8), "RGBA")
@@ -310,6 +341,10 @@ def main():
     if "recolor" in recipe:
         sheet = recolor(sheet, recipe["recolor"])
         print(f"  색 변환 — hue {recipe['recolor']['hue']}° · 채도 ×{recipe['recolor']['satScale']} · 명도 ×{recipe['recolor']['valScale']}")
+    if "desaturate" in recipe:
+        d = recipe["desaturate"]
+        sheet = desaturate(sheet, d)
+        print(f"  채도 변환 — 채도 ×{d['satScale']} · hue {d.get('hue', 0.0)}° · 명도 ×{d.get('valScale', 1.0)}")
 
     outDir = recipe["outDir"]
     heightsByState = {}
