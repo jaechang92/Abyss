@@ -242,7 +242,22 @@ namespace Abyss.EditorTools
                 so.expReward = 90;
                 so.goldReward = 20;
                 so.tier = EnemyTier.MidBoss;   // 보상은 엘리트와 같고(같은 트리거) 표시는 보스 탭
-            });
+            
+                // 🔑 애니메이션이 붙은 여덟 번째 적이자 **첫 중간보스**(2026-09-21).
+                // 🔴 회전베기(MidBossSentinelBoss)는 자체 telegraphTime 0.4 를 쓰고 attackWindup 을 보지 않는다 —
+                // 아래 값은 **일반 근접 공격**(사거리 2)의 것이다. 둘은 겹치지 않는다.
+                // 🔴 공격은 **v3 다** — v1 은 날이 땅에 붙어 진폭 19px, v2 는 35px 로 늘렸으나 사용자 「매우 별로」.
+                // 레퍼런스(2D 슬래시는 anticipation -> slash -> recovery · 원은 이펙트가 그린다)를 보고
+                // **날로 원을 그리는 것을 포기하고 「웅크림 ↔ 펼침」의 대비**로 바꿨다.
+                // 11프레임 중 **f2 가 가장 웅크리고(폭 69px) f6 이 가장 펼친다(120px)** — 타격은 f6 이고
+                // 6/11 지점이 windup 과 맞으려면 w = 1.2r 이다. 쿨다운 1.4 안에 여유를 두어 합을 1.0 으로 잡았다.
+                // 🔑 원은 `MidBossSentinelBoss.SpawnAreaEffect` 가 그린다 — 그림은 몸만 맡는다.
+                so.attackWindup = 0.55f;
+                so.attackRecovery = 0.45f;     // 합 1.0 — 쿨다운 1.4 안에 0.4 가 남는다
+                so.staggerDuration = 0.3f;     // 앞 7종과 같다
+                // 사망 9프레임이 축이 부러져 옆으로 쓰러지는 것이라 길다(키 99 -> 50px). 화염 박격포와 같은 1.2.
+                so.deathLingerDuration = 1.2f;
+});
 
             CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/BossFlameSerpent.asset", so =>
             {

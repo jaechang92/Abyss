@@ -116,6 +116,15 @@ namespace Abyss.EditorTools
             // 「발밑을 때렸는데 맞는다」가 거슬리면 폭을 1.1 쪽으로 내린다.
             // 시트: Art_Source/characters/elite_hunter/sheet_recipe.json
             new Entry("elite_hunter", "elite_hunter", new Vector2(1.5f, 2.6f)),
+
+            // 2026-09-21 감시자 거인(원을 쓴 것 R2 · 색 변환 없음). 🔴 <b>첫 중간보스다</b> — 그림 99x98px 로
+            // 12종 중 가장 크고(1.3 x 3.0 유닛) 정예(2.6)·일반(1.5~2.0)과 높이로 갈린다.
+            // 🔴 <b>폭 1.3 은 날을 뺀 축(몸통)이다</b> — 열 높이 실측이 날 끝 3~16px · 몸통 50~97px 이라
+            // 50 이상인 47px = 1.5 유닛만 잡았다(창·활을 뺀 것과 같은 판단 · 떠 있는 몸으로 다시 재서 42 -> 47).
+            // 🔑 날까지 넣으면 폭 3.1 유닛이 되어 <b>회전베기 반경(spinRadius 2.5)보다 넓은 몸</b>이 된다.
+            // 🔴 <b>이 적 때문에 적 칸이 124 -> 148 로 커졌다</b> — SpriteSheetSlicer 주석 참조.
+            // 시트: Art_Source/characters/midboss_sentinel/sheet_recipe.json
+            new Entry("midboss_sentinel", "midboss_sentinel", new Vector2(1.5f, 3f)),
         };
 
         /// <summary>시트 파일명의 상태 → 애니메이션 상태 이름. 파일은 레시피의 <c>states</c> 키를 따른다.</summary>
