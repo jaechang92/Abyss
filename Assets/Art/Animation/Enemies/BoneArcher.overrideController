@@ -9,11 +9,11 @@ AnimatorOverrideController:
   m_Name: BoneArcher
   m_Controller: {fileID: 9100000, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
   m_Clips:
-  - m_OriginalClip: {fileID: -5125157552317722858, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  - m_OriginalClip: {fileID: -8421305309609162829, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
     m_OverrideClip: {fileID: 7400000, guid: da0c45ed10373b84192c0896b36b43d6, type: 2}
-  - m_OriginalClip: {fileID: -7112406677267263138, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  - m_OriginalClip: {fileID: 1951912014306257641, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
     m_OverrideClip: {fileID: 7400000, guid: ed61200cabf9e544389e56a89570d3fd, type: 2}
-  - m_OriginalClip: {fileID: -2579578561741658710, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  - m_OriginalClip: {fileID: -8408017304605070522, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
     m_OverrideClip: {fileID: 7400000, guid: f2514c49054428949917efab48b76350, type: 2}
-  - m_OriginalClip: {fileID: -1288791490860010843, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  - m_OriginalClip: {fileID: 7593005135381459077, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
     m_OverrideClip: {fileID: 7400000, guid: 56b2ebaf5409cf345a5ef29cae08770b, type: 2}

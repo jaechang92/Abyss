@@ -128,6 +128,24 @@ namespace Abyss.EditorTools
                 so.projectileLifetime = 3f;
                 so.burstCount = 3;
                 so.burstInterval = 0.18f;
+
+                // 🔑 애니메이션이 붙은 다섯 번째 적(2026-09-20). 동작 시간은 그림에서 뽑았다 —
+                // 공격 v2 9프레임에서 가리키는 팔이 뻗었다 접기를 되풀이하는데, 최대로 뻗는 칸이 f0·f4·f8 이다.
+                // 접었다가 다시 뻗는 **첫 내지르기가 f4** 이므로 4/9 지점이 windup 과 맞아야 한다 —
+                // windup = 0.8 x recovery 를 풀면 0.6 + 0.75 = 1.35초로 f4 가 정확히 0.6초다.
+                so.attackWindup = 0.6f;
+                so.attackRecovery = 0.75f;     // 합 1.35 — 쿨다운 2.6 안에 넉넉하다
+                so.staggerDuration = 0.3f;     // 앞 4종과 같다
+                so.deathLingerDuration = 1f;   // 0.3 으로는 「위에서부터 지워진다」가 안 담긴다
+
+                // 🔴 연사 0.36초(3 x 0.18)가 windup 뒤에 시작해 0.96초에 끝난다 — 팔이 뻗어 있는
+                // f4~f8 구간 안이다. 앞 4종에 없던 제약이라 windup 을 바꾸면 이것부터 다시 본다.
+
+                // 🔴 사거리에서 파생시키지 않는다(Bug-048) · 🔴 쏘는 프레임에서 잰다(뼈 궁수 ⓚ).
+                // 값은 공격 v2 f4 의 손끝(칸 좌표 92, 51)을 피벗(62, 92)·PPU 32·콜라이더 높이 2.0 으로 환산했다.
+                // 🔑 원거리 3종이 전부 다르다 — 사수 (0.9, 0.6) 활이 머리 위 · 뼈 궁수 (1.3, 0.24) 활이 몸 앞 아래 ·
+                // 이 적 (0.94, 0.28) 가리키는 손끝. 한 값을 돌려쓸 수 없다.
+                so.projectileOrigin = new Vector2(0.94f, 0.28f);
             });
 
             CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/FlameMortar.asset", so =>
