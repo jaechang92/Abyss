@@ -104,6 +104,18 @@ namespace Abyss.EditorTools
             // 🔴 짐까지 다 넣으면 사거리 9 의 곡사 적이 근접에서 지나치게 잘 맞는다.
             // 시트: Art_Source/characters/flame_mortar/sheet_recipe.json
             new Entry("flame_mortar", "flame_mortar", new Vector2(1.9f, 1.5f)),
+
+            // 2026-09-20 엘리트 사냥꾼(흉내를 내다 만 것 R4 · 색 변환 없음). 🔴 <b>첫 정예다</b> — 그림 49x84px 로
+            // 12종 중 가장 크고(1.5 x 2.6 유닛) 일반 적(1.5~2.0 유닛 높이)과 한눈에 갈린다.
+            // 🔴 <b>생성 캔버스만 120 이다</b>(앞 6종 92) — 정예 80px 은 size 120 에서만 나온다.
+            // 92→64px · 112→62px · 120→84px 로 계단이 112 와 120 사이에 있다(Art_Source/20_SUBJECTS/enemies/elite_hunter.md).
+            // 슬라이스 격자는 그대로다 — EnemyCell 124 · EnemyFootY 92 는 코드 상수라 적 전체에 똑같이 걸리고,
+            // 84px 그림은 그 안에 들어간다(조립 실측: 발밑 103~105 · 산포 2px).
+            // 🔴 폭 1.5 는 <b>머리 기준</b>이다 — 이 적은 머리가 몸통보다 넓다(머리 49px · 몸통 24~32px).
+            // 창·활을 뺀 것과 달리 머리는 부속물이 아니라 몸의 절반이라 뺄 수 없다. 대신 다리 쪽이 과하게 넓어지므로
+            // 「발밑을 때렸는데 맞는다」가 거슬리면 폭을 1.1 쪽으로 내린다.
+            // 시트: Art_Source/characters/elite_hunter/sheet_recipe.json
+            new Entry("elite_hunter", "elite_hunter", new Vector2(1.5f, 2.6f)),
         };
 
         /// <summary>시트 파일명의 상태 → 애니메이션 상태 이름. 파일은 레시피의 <c>states</c> 키를 따른다.</summary>

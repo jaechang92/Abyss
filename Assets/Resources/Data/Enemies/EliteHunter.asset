@@ -20,10 +20,10 @@ MonoBehaviour:
   detectionRange: 8
   attackRange: 1.8
   attackCooldown: 1.3
-  attackWindup: 0
-  attackRecovery: 0
-  staggerDuration: 0
-  deathLingerDuration: 0.3
+  attackWindup: 0.4
+  attackRecovery: 0.5
+  staggerDuration: 0.3
+  deathLingerDuration: 1
   patrolRadius: 2
   patrolSpeedMultiplier: 0.5
   expReward: 60

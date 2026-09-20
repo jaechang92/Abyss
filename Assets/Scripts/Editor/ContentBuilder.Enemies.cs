@@ -198,6 +198,17 @@ namespace Abyss.EditorTools
                 so.expReward = 60;
                 so.goldReward = 15;
                 so.tier = EnemyTier.Elite;
+
+                // 🔑 애니메이션이 붙은 일곱 번째 적이자 **첫 정예**(2026-09-20). 동작 시간은 그림에서 뽑았다 —
+                // 공격 9프레임 중 **f4 에서 뻗은 팔이 최대**가 된다(가로 폭 49 → 61px · f4·f5 가 같은 값이라 먼저 닿는 f4).
+                // 4/9 지점이 windup 과 맞으려면 windup = 0.8 x recovery 여야 한다.
+                // 🔴 쿨다운 1.3 은 12종 중 가장 짧다 — 합이 1.0 을 넘으면 쉴 틈이 없으므로 0.9 로 묶었다.
+                so.attackWindup = 0.4f;        // 앞 6종(0.5~1.0) 중 가장 짧다 — 속도 3.5 로 붙는 적이라 맞다
+                so.attackRecovery = 0.5f;      // 합 0.9 — 쿨다운 1.3 안에 0.4 가 남는다
+                so.staggerDuration = 0.3f;     // 앞 6종과 같다
+                // 🔑 사망 9프레임이 「몸이 먼저 무너지고 얼굴판이 마지막에 더미 위에 내려앉는」 것이라
+                // 기본값 0.3 으로는 얼굴판이 놓이기 전에 잘린다. 키가 84 → 48px 로 줄어드는 데 전 프레임을 쓴다.
+                so.deathLingerDuration = 1f;
             });
 
             CreateOrSkip<EnemyData>($"{AbyssPaths.Enemies}/BossAbyssKeeper.asset", so =>
