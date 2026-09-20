@@ -4,8 +4,8 @@
   "characterId": "b29e29c2-ae42-42ee-98f9-862e1d69d338",
   "stripShadow": false,
   "direction": "southeast",
-  "cell": 124,
-  "footY": 84,
+  "cell": 148,
+  "footY": 100,
   "desaturate": {
     "satScale": 0.25,
     "hue": 195

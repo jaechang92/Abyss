@@ -4,8 +4,8 @@
   "characterId": "bbdbcfd4-d587-40f4-8eaf-3c9b701f3ba3",
   "stripShadow": false,
   "direction": "southeast",
-  "cell": 124,
-  "footY": 92,
+  "cell": 148,
+  "footY": 110,
   "outDir": "Assets/Art/Sprites/Enemies/melee_grunt/southeast",
   "recolor": {
     "hueBelow": 0.12,

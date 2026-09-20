@@ -49,6 +49,7 @@
 
 import argparse
 import json
+from collections import Counter
 import os
 import subprocess
 import sys
@@ -143,6 +144,54 @@ def recolor(image, r):
     return Image.fromarray(a.astype(np.uint8), "RGBA")
 
 
+def snapAchromatic(image, r):
+    """밝은 **무채** 픽셀을 팔레트에서 명도가 가장 가까운 **유채** 색으로 옮긴다.
+
+    🔴 감시자 거인 R2 에서 사용자가 지적한 결함이다. 몸이 검붉은데 날 위에 **무채 회색 42px**
+       (`#AFAFB1` 23 · `#747676` 19)이 섞여 손잡이와 날 끝이 푸르게 떴다.
+
+    🔑 **생성기가 같은 명도 단을 만들면서 채도만 잃은 것**이라 짝이 정확히 있다:
+       `#AFAFB1`(v 0.69 · sat 0.01) ↔ `#B18F7F`(v 0.69 · sat 0.28) ·
+       `#747676`(v 0.46 · sat 0.02) ↔ `#765343`(v 0.46 · sat 0.43).
+       그래서 **명도로 짝을 찾으면 색이 안 바뀌고 채도만 돌아온다.**
+
+    🔴 **시트 전체(번들)에 한 번 건다** — `recolor`·`desaturate` 와 같은 자리다.
+       프레임마다 팔레트를 새로 뽑으면 같은 회색이 프레임마다 다른 색으로 가서 깜빡인다.
+
+    레시피 예: "snapGray": {"valueMin": 0.25, "satMax": 0.10}
+    """
+    a = np.array(image)
+    alpha = a[..., 3] > ALPHA_CUT
+    if not alpha.any():
+        return image
+
+    hsv = rgbToHsv(a[..., :3].astype(np.float64) / 255.0)
+    s, v = hsv[..., 1], hsv[..., 2]
+    valueMin = r.get("valueMin", 0.25)
+    satMax = r.get("satMax", 0.10)
+    satMin = r.get("targetSatMin", 0.15)
+
+    gray = alpha & (v >= valueMin) & (s < satMax)
+    if not gray.any():
+        return image
+
+    # 짝 후보 = 같은 시트의 유채색 팔레트
+    colourful = alpha & (s >= satMin)
+    if not colourful.any():
+        raise SystemExit("🔴 snapGray: 짝지을 유채색이 시트에 없다 — valueMin/satMax 를 다시 볼 것")
+    palette = {}
+    for pixel, value in zip(a[colourful][:, :3], v[colourful]):
+        palette.setdefault(tuple(int(q) for q in pixel), float(value))
+
+    moved = 0
+    for y, x in zip(*np.where(gray)):
+        target = min(palette.items(), key=lambda kv: abs(kv[1] - v[y, x]))[0]
+        a[y, x, :3] = target
+        moved += 1
+    print(f"  무채 스냅 — {moved}px (명도 {valueMin} 이상 · 채도 {satMax} 미만)")
+    return Image.fromarray(a, "RGBA")
+
+
 def desaturate(image, r):
     """알파가 있는 픽셀 **전부**의 채도를 줄이고 색상을 한 값으로 모은다.
 
@@ -216,6 +265,435 @@ def freezeLowerBody(frames, row, baseIndex):
         g.paste(lower, (0, row))
         frozen.append(g)
     return frozen
+
+
+def outlineMask(alpha):
+    """불투명 픽셀 중 4-이웃에 투명(또는 캔버스 밖)이 있는 것 = 외곽선 한 겹."""
+    edge = np.zeros_like(alpha)
+    for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+        shifted = np.roll(alpha, (dy, dx), (0, 1))
+        if dy == 1:
+            shifted[0, :] = False
+        if dy == -1:
+            shifted[-1, :] = False
+        if dx == 1:
+            shifted[:, 0] = False
+        if dx == -1:
+            shifted[:, -1] = False
+        edge |= alpha & ~shifted
+    return edge
+
+
+def normalizeOutline(image, spec):
+    """외곽선을 한 색으로 통일한다 — 생성물의 외곽에 몸 색이 섞여 나오는 것을 걷는다.
+
+    🔴 감시자 거인 R2 에서 사용자가 지적한 결함이다. 외곽 461px 중 검정 계열이 79.7% 이고
+       나머지 20.3%(94px)가 갈색·회색이라 **실루엣이 흐려졌다.**
+       튄 픽셀은 **투구 꼭대기(세로 1%)와 밑동(세로 90~100%)에 몰린다.**
+
+    🔑 **밝은 강조점이 외곽에 노출된 것은 남긴다.** 이 적은 날 가장자리의 회백 한 줄이
+       종당 하나의 강조점이라 같이 지우면 정체가 사라진다 — `keepBright` 의 세로 구간
+       안에 있고 `brightMin` 이상으로 밝은 외곽 픽셀만 통과시킨다.
+
+    레시피 예: "outline": {"ink": "#060405", "keepBright": [0.06, 0.88], "brightMin": 116}
+    """
+    a = np.array(image)
+    alpha = a[:, :, 3] > ALPHA_CUT
+    if not alpha.any():
+        return image
+
+    edge = outlineMask(alpha)
+    ink = spec.get("ink", "#060405").lstrip("#")
+    ink = (int(ink[0:2], 16), int(ink[2:4], 16), int(ink[4:6], 16))
+    lo, hi = spec.get("keepBright", [0.0, 0.0])
+    brightMin = spec.get("brightMin", 116)
+
+    ys = np.where(alpha.any(axis=1))[0]
+    top, bottom = int(ys.min()), int(ys.max())
+    span = max(bottom - top, 1)
+
+    for y, x in zip(*np.where(edge)):
+        pixel = tuple(int(v) for v in a[y, x, :3])
+        if pixel == ink:
+            continue
+        rel = (y - top) / span
+        if max(pixel) >= brightMin and lo <= rel <= hi:
+            continue            # 강조점이 외곽에 드러난 자리 — 남긴다
+        a[y, x, :3] = ink
+    return Image.fromarray(a, "RGBA")
+
+
+def collapseBand(image, r):
+    """명도 대역 하나를 통째로 위 또는 **아래**로 흡수한다 — 얼룩처럼 흩어진 중간 단을 없앤다.
+
+    🔴 **처음에 「밝은 단을 위로 모으는」 것만 만들었다가 그림을 더 나쁘게 했다**(감시자 거인 R2).
+       임계 0.40 이 하이라이트가 아니라 **날의 중간 면(C단 0.46)**까지 삼켰고, 그것을 최고 밝기로
+       올리자 **얼룩이 훨씬 두드러졌다** — 사용자가 「가로줄이 매우 어색하다」고 지적한 자리다:
+
+           y82  원본 68 45 45 45 45 45 45 45   ->  잘못된 결과 83 83 83 83 83 83 83 83
+
+    🔑 **대역마다 방향이 다르다.** 하이라이트(B)는 위로 모아 줄을 잇고,
+       얼룩진 중간 단(C)은 **아래로** 내려 몸통에 흡수시킨다.
+
+    레시피 예: "collapse": [{"from": [0.60, 0.78], "to": "#D8C3BF"},
+                            {"from": [0.40, 0.60], "to": "down"}]
+      to = "#RRGGBB" 그 색으로 · "down" 대역 아래에서 가장 흔한 색으로 · "up" 대역 위에서 가장 흔한 색으로
+    """
+    a = np.array(image)
+    alpha = a[..., 3] > ALPHA_CUT
+    if not alpha.any():
+        return image
+
+    for band in r:
+        hsv = rgbToHsv(a[..., :3].astype(np.float64) / 255.0)
+        value = hsv[..., 2]
+        lo, hi = band["from"]
+        target = alpha & (value >= lo) & (value < hi)
+        if not target.any():
+            continue
+        spec = band["to"]
+        if spec in ("down", "up"):
+            side = alpha & (value < lo) if spec == "down" else alpha & (value >= hi)
+            if not side.any():
+                continue
+            ink = Counter(tuple(int(q) for q in px) for px in a[side][:, :3]).most_common(1)[0][0]
+        else:
+            t = spec.lstrip("#")
+            ink = (int(t[0:2], 16), int(t[2:4], 16), int(t[4:6], 16))
+        moved = int(target.sum())
+        a[..., :3] = np.where(target[..., None], np.array(ink, dtype=a.dtype), a[..., :3])
+        print(f"  대역 흡수 — {lo}~{hi} {moved}px -> #{ink[0]:02X}{ink[1]:02X}{ink[2]:02X} ({spec})")
+    return Image.fromarray(a, "RGBA")
+
+
+def eraseRect(image, r):
+    """bbox 기준 **사각 영역 안의 픽셀을 지운다** — 생성물이 발밑에 깔아 놓은 바닥 그림자를 걷는다.
+
+    🔴 감시자 거인 R2 에서 사용자가 직접 지운 **149px**(`x17~49 · y92~99`)이 그것이다.
+       몸통 축보다 넓게 퍼진 납작한 판이라 **고립도 작은 덩어리도 아니라** 자동 처리가 못 잡았다.
+
+    🔴 **두 번 틀렸다.**
+      ① 「행 폭이 국소 최소를 지나 다시 넓어지는 지점 아래」라는 **자동 규칙**은
+         기존 7종에 걸어 보니 **엘리트 사냥꾼의 벌어진 다리를 오탐**했다(배율 1.86 대 1.70 — 못 가른다).
+      ② 그래서 **행 단위**(`eraseBelow row`)로 바꿨더니 **261px** 를 지웠다 — 사용자의 149px 보다 훨씬 많고,
+         같은 행에 걸친 **오른쪽 날 끝까지 날아갔다.**
+      👉 **가로 범위까지 받아야 한다.** 그림자는 몸통 아래에만 있고 날은 옆으로 뻗는다.
+
+    레시피 예: "eraseRect": [{"x": [17, 49], "y": [92, 99]}]
+    """
+    a = np.array(image)
+    alpha = a[..., 3] > ALPHA_CUT
+    if not alpha.any():
+        return image
+    ys = np.where(alpha.any(axis=1))[0]
+    xs = np.where(alpha.any(axis=0))[0]
+    top, left = int(ys.min()), int(xs.min())
+    wiped = 0
+    for box in r:
+        x0, x1 = box["x"]
+        y0, y1 = box["y"]
+        region = a[top + y0:top + y1 + 1, left + x0:left + x1 + 1]
+        wiped += int((region[..., 3] > ALPHA_CUT).sum())
+        region[..., 3] = 0
+    print(f"  영역 지우기 — {len(r)}개 사각 · {wiped}px")
+    return Image.fromarray(a, "RGBA")
+
+
+def dropLooseParts(image, r):
+    """몸에서 **떨어져 나온 조각**을 지운다 — 알파 연결 덩어리 중 가장 큰 것만 남긴다.
+
+    🔴 감시자 거인 이동 v1 f4~f6 에 **몸과 안 닿은 작은 흰 조각**이 떠 있었다.
+       `despeckle` 은 **밝은 픽셀의** 덩어리만 보므로 이런 것을 못 잡는다 —
+       **알파(실루엣) 자체의 연결**을 봐야 한다.
+
+    🔑 화염 박격포 R1 이 같은 결함으로 기각됐고(공중에 뜬 기와 한 장) 그때 얻은 규칙이
+       **「연결 덩어리 수(flood fill)는 싼 검사다」**였다. 그 검사를 조립 단계에 넣은 것이다.
+
+    ⚠️ **조각이 흩어지는 것이 의도인 상태에는 걸지 말 것**(재가 부스러지는 뼈 궁수 등).
+       레시피에 넣는 순간 4상태 전부에 걸린다.
+
+    🔴 **절대 픽셀 수로는 못 가른다** — 감시자 거인 이동 f4~f6 의 조각이 **45~85px** 이라
+       `minPart 12` 에 안 걸렸다. 몸이 3000px 이므로 그 조각은 **2~3%** 다.
+       👉 **가장 큰 덩어리 대비 비율**로 본다.
+
+    레시피 예: "dropLoose": {"maxRatio": 0.05}    # 본체의 이 비율 미만인 별도 덩어리를 지운다
+    """
+    a = np.array(image)
+    alpha = a[..., 3] > ALPHA_CUT
+    if not alpha.any():
+        return image
+    height, width = alpha.shape
+    maxRatio = r.get("maxRatio", 0.05)
+    minPart = r.get("minPart", 0)
+    neighbours = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+
+    seen = np.zeros_like(alpha)
+    parts = []
+    for sy, sx in zip(*np.where(alpha)):
+        if seen[sy, sx]:
+            continue
+        stack, group = [(sy, sx)], []
+        seen[sy, sx] = True
+        while stack:
+            y, x = stack.pop()
+            group.append((y, x))
+            for dy, dx in neighbours:
+                ny, nx = y + dy, x + dx
+                if 0 <= ny < height and 0 <= nx < width and alpha[ny, nx] and not seen[ny, nx]:
+                    seen[ny, nx] = True
+                    stack.append((ny, nx))
+        parts.append(group)
+    if len(parts) <= 1:
+        return image
+    parts.sort(key=len, reverse=True)
+    body = len(parts[0])
+    dropped = 0
+    for group in parts[1:]:
+        if len(group) >= body * maxRatio and len(group) >= minPart:
+            continue                      # 본체에 견줄 만큼 크면 의도된 것일 수 있어 남긴다
+        for y, x in group:
+            a[y, x, 3] = 0
+            dropped += 1
+    print(f"  떨어진 조각 지우기 — 덩어리 {len(parts)}개 · {dropped}px")
+    return Image.fromarray(a, "RGBA")
+
+
+def bridgeHighlight(image, r):
+    """끊긴 하이라이트 줄을 **이어 붙인다** — 성분 수가 목표보다 많으면 가장 가까운 쌍을 잇는다.
+
+    🔴 사용자가 직접 고친 것과 대조해서 나온 기능이다(감시자 거인 R2 · 2026-09-21).
+       사용자가 바꾼 110px 중 **94px 가 「최고 밝기로 올린 것」**이었고, 그중에는
+       **어두운 몸통색 25px 과 외곽선 6px** 까지 있었다 — **줄을 잇기 위해서였다.**
+
+    🔑 **나는 반대로 했다.** 중간톤을 몸통색으로 내려(`collapse down`) 줄을 **얇게** 만들었고,
+       그 결과 하이라이트 성분이 **3개로 끊긴 채**였다(사용자 2개 = 날마다 하나).
+       👉 **하이라이트는 내려서 없애는 것이 아니라 올려서 잇는다.**
+
+    📌 **판정 지표도 여기서 나온다** — 「날 영역 색 전환율」은 **뭉개도 낮아져서** 내 쪽이 더 낮았는데
+       그림은 내 쪽이 더 나빴다. **성분 수(= 날 개수)**가 옳은 지표다.
+
+    레시피 예: "bridgeHighlight": {"value": 0.60, "expect": 2, "minSeed": 8, "maxGap": 10}
+    """
+    a = np.array(image)
+    alpha = a[..., 3] > ALPHA_CUT
+    if not alpha.any():
+        return image
+    height, width = alpha.shape
+    value = rgbToHsv(a[..., :3].astype(np.float64) / 255.0)[..., 2]
+    threshold = r.get("value", 0.60)
+    expect = r.get("expect", 2)
+    minSeed = r.get("minSeed", 8)
+    maxGap = r.get("maxGap", 10)
+    neighbours = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+
+    def components():
+        mask = alpha & (value >= threshold)
+        seen = np.zeros_like(mask)
+        found = []
+        for sy, sx in zip(*np.where(mask)):
+            if seen[sy, sx]:
+                continue
+            stack, group = [(sy, sx)], []
+            seen[sy, sx] = True
+            while stack:
+                y, x = stack.pop()
+                group.append((y, x))
+                for dy, dx in neighbours:
+                    ny, nx = y + dy, x + dx
+                    if 0 <= ny < height and 0 <= nx < width and mask[ny, nx] and not seen[ny, nx]:
+                        seen[ny, nx] = True
+                        stack.append((ny, nx))
+            if len(group) >= minSeed:
+                found.append(group)
+        return sorted(found, key=len, reverse=True)
+
+    groups = components()
+    ink = Counter(tuple(int(q) for q in a[y, x, :3])
+                  for g in groups for y, x in g).most_common(1)[0][0] if groups else None
+    joined = 0
+    # 🔴 <b>루프 가드</b> — 잇고 나서도 성분 수가 안 줄면 무한히 돈다.
+    #    감시자 거인에서 `freezeBelow` 가 하단을 덮어 하이라이트가 끊기자 실제로 20분 넘게 멈췄다.
+    #    성분 수가 줄지 않으면 즉시 포기한다(잇는 것이 목적이지 반드시 이뤄야 하는 것은 아니다).
+    rounds = 0
+    while ink is not None and len(groups) > expect and rounds < 16:
+        rounds += 1
+        before = len(groups)
+        best = None
+        for i in range(len(groups)):
+            for j in range(i + 1, len(groups)):
+                for p in groups[i]:
+                    for q in groups[j]:
+                        d = abs(p[0] - q[0]) + abs(p[1] - q[1])
+                        if best is None or d < best[0]:
+                            best = (d, p, q)
+        if best is None or best[0] > maxGap:
+            break
+        _, (ay, ax), (by, bx) = best
+        steps = max(abs(by - ay), abs(bx - ax))
+        for t in range(steps + 1):                      # 두 성분 사이를 직선으로 채운다
+            y = int(round(ay + (by - ay) * t / max(steps, 1)))
+            x = int(round(ax + (bx - ax) * t / max(steps, 1)))
+            if alpha[y, x] and tuple(int(q) for q in a[y, x, :3]) != ink:
+                a[y, x, :3] = ink
+                joined += 1
+        value = rgbToHsv(a[..., :3].astype(np.float64) / 255.0)[..., 2]
+        groups = components()
+        if len(groups) >= before:
+            break                      # 이었는데도 안 줄었다 — 더 돌아도 소용없다
+    print(f"  하이라이트 잇기 — 성분 {len(groups)}개(목표 {expect}) · 채운 {joined}px")
+    return Image.fromarray(a, "RGBA")
+
+
+def smoothAlongAxis(image, r):
+    """긴 날 같은 **띠 모양 부위**를 제 축 방향으로 고른다 — 「지글거림」을 없앤다.
+
+    🔴 감시자 거인 R2 에서 **점을 지우는 것만으로는 끝나지 않았다.** 날의 명암이
+       **띠(band)가 아니라 점묘(dither)로 찍혀** 있어, 고립 픽셀을 지우고 대역을 흡수해도
+       남은 것들이 계속 지글거렸다(사용자 6회 지적).
+
+    🔑 픽셀 아트에서 대각선 칼날은 **축을 따라 평행한 밴드**여야 한다.
+       그래서 **축 방향으로 최빈색을 고르면** 축을 따라 색이 이어지고 축에 수직인 노이즈가 사라진다.
+
+    공정: ① 하이라이트(`seedValue` 이상)의 연결 성분을 날의 **씨앗**으로 잡고
+          ② 성분의 주축을 PCA 로 구한 뒤 ③ 축 수직으로 `span` 만큼 넓혀 **날 영역**을 만들고
+          ④ 그 안의 픽셀을 **축 방향 ±`reach` 이웃의 최빈색**으로 바꾼다.
+
+    🔴 **프레임 단위다** — 이 적은 회전베기라 **프레임마다 날 각도가 바뀐다.** 축을 프레임마다 다시 구해야 한다.
+    ✅ **몸통은 안 걸린다** — 몸통에는 20px 넘는 긴 하이라이트 줄이 없다.
+    ✅ **외곽선은 건드리지 않는다**(`outlineBelow` 아래는 표본에서도 빼고 대상에서도 뺀다).
+
+    레시피 예: "bladeSmooth": {"seedValue": 0.60, "minSeed": 20, "span": 6, "reach": 2}
+    """
+    a = np.array(image)
+    alpha = a[..., 3] > ALPHA_CUT
+    if not alpha.any():
+        return image
+    height, width = alpha.shape
+    value = rgbToHsv(a[..., :3].astype(np.float64) / 255.0)[..., 2]
+    seedValue = r.get("seedValue", 0.60)
+    minSeed = r.get("minSeed", 20)
+    span = r.get("span", 6)
+    reach = r.get("reach", 2)
+    outlineBelow = r.get("outlineBelow", 0.10)
+    neighbours = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+
+    seedMask = alpha & (value >= seedValue)
+    seen = np.zeros_like(seedMask)
+    seeds = []
+    for sy, sx in zip(*np.where(seedMask)):
+        if seen[sy, sx]:
+            continue
+        stack, group = [(sy, sx)], []
+        seen[sy, sx] = True
+        while stack:
+            y, x = stack.pop()
+            group.append((y, x))
+            for dy, dx in neighbours:
+                ny, nx = y + dy, x + dx
+                if 0 <= ny < height and 0 <= nx < width and seedMask[ny, nx] and not seen[ny, nx]:
+                    seen[ny, nx] = True
+                    stack.append((ny, nx))
+        if len(group) >= minSeed:
+            seeds.append(group)
+
+    touched = 0
+    for group in seeds:
+        points = np.array(group, dtype=float)
+        centred = points - points.mean(axis=0)
+        weights, vectors = np.linalg.eigh(np.cov(centred.T))
+        axis = vectors[:, int(np.argmax(weights))]
+        axis = axis / np.linalg.norm(axis)
+        perp = np.array([-axis[1], axis[0]])
+
+        band = np.zeros_like(alpha)
+        for py, px in group:
+            for t in range(-span, span + 1):
+                y = int(round(py + perp[0] * t))
+                x = int(round(px + perp[1] * t))
+                if 0 <= y < height and 0 <= x < width and alpha[y, x] and value[y, x] >= outlineBelow:
+                    band[y, x] = True
+
+        for y, x in zip(*np.where(band)):
+            samples = []
+            for t in range(-reach, reach + 1):
+                sy = int(round(y + axis[0] * t))
+                sx = int(round(x + axis[1] * t))
+                if 0 <= sy < height and 0 <= sx < width and alpha[sy, sx] and value[sy, sx] >= outlineBelow:
+                    samples.append(tuple(int(q) for q in a[sy, sx, :3]))
+            if len(samples) < 3:
+                continue
+            best = Counter(samples).most_common(1)[0][0]
+            if best != tuple(int(q) for q in a[y, x, :3]):
+                a[y, x, :3] = best
+                touched += 1
+    print(f"  축 방향 고르기 — 띠 {len(seeds)}개 · {touched}px")
+    return Image.fromarray(a, "RGBA")
+
+
+def despeckle(image, r):
+    """튀는 픽셀을 걷는다 — ① 비슷한 명도의 이웃이 하나도 없는 것 ② 너무 작은 연결 덩어리.
+
+    🔴 감시자 거인 R2 에서 사용자가 **네 번** 지적한 끝에 자리 잡은 기준이다. 내가 틀린 것들:
+      - 「무채인가」를 봤는데 봐야 할 것은 **「주변보다 밝은가」**였다(무채 스냅은 색만 바꾸고 밝기는 뒀다)
+      - 고립을 **8이웃이 다 찬 것**으로 좁혀, 가장자리의 `0/3`·`0/5`·`0/6` 을 놓쳤다 →
+        🔑 **비슷한 이웃이 0 이면 이웃 수와 무관하게 고립이다**
+      - 같은 행의 **가로 거리**로 묶었더니 **두 날을 서로 「튄 것」으로 오인**해 줄을 조각냈다 →
+        🔑 **연결 성분으로 묶어야 각 날이 자기 덩어리로 남는다**
+
+    레시피 예: "despeckle": {"valueMin": 0.30, "minComponent": 5, "sameBand": 0.12}
+    """
+    a = np.array(image)
+    alpha = a[..., 3] > ALPHA_CUT
+    if not alpha.any():
+        return image
+    hsv = rgbToHsv(a[..., :3].astype(np.float64) / 255.0)
+    value = hsv[..., 2]
+    valueMin = r.get("valueMin", 0.30)
+    sameBand = r.get("sameBand", 0.12)
+    minComponent = r.get("minComponent", 5)
+    neighbours = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+    height, width = alpha.shape
+
+    def around(y, x):
+        return [(y + dy, x + dx) for dy, dx in neighbours
+                if 0 <= y + dy < height and 0 <= x + dx < width and alpha[y + dy, x + dx]]
+
+    # ① 고립 — 비슷한 명도의 이웃이 0 개
+    isolated = 0
+    for y, x in zip(*np.where(alpha & (value >= valueMin))):
+        nb = around(y, x)
+        if nb and not any(abs(value[p] - value[y, x]) < sameBand for p in nb):
+            a[y, x, :3] = Counter(tuple(int(q) for q in a[p][:3]) for p in nb).most_common(1)[0][0]
+            isolated += 1
+
+    # ② 작은 연결 덩어리 — 큰 덩어리(각 날의 줄 · 몸통 명암)는 남는다
+    hsv = rgbToHsv(a[..., :3].astype(np.float64) / 255.0)
+    value = hsv[..., 2]
+    mask = alpha & (value >= valueMin)
+    seen = np.zeros_like(mask)
+    small = 0
+    for sy, sx in zip(*np.where(mask)):
+        if seen[sy, sx]:
+            continue
+        stack, group = [(sy, sx)], []
+        seen[sy, sx] = True
+        while stack:
+            y, x = stack.pop()
+            group.append((y, x))
+            for dy, dx in neighbours:
+                ny, nx = y + dy, x + dx
+                if 0 <= ny < height and 0 <= nx < width and mask[ny, nx] and not seen[ny, nx]:
+                    seen[ny, nx] = True
+                    stack.append((ny, nx))
+        if len(group) >= minComponent:
+            continue
+        for y, x in group:
+            dark = [p for p in around(y, x) if value[p] < valueMin]
+            if dark:
+                a[y, x, :3] = Counter(tuple(int(q) for q in a[p][:3]) for p in dark).most_common(1)[0][0]
+                small += 1
+    print(f"  튀는 픽셀 정리 — 고립 {isolated}px · {minComponent}px 미만 덩어리 {small}px")
+    return Image.fromarray(a, "RGBA")
 
 
 def removeStrayLines(image, fromRow=60, darkMax=12):
@@ -308,6 +786,30 @@ def buildState(meta, sheet, state, spec, recipe):
     if spec.get("removeStrays"):
         frames = [removeStrayLines(f) for f in frames]
 
+    # 🔴 **프레임 단위 정리는 순서가 중요하다** — 사용자가 직접 고친 것과 대조해 정한 차례다(2026-09-21).
+    #    ① 지우고 → ② 튀는 점을 걷고 → ③ 하이라이트를 잇고 → ④ 축으로 고르고 → ⑤ **마지막에 외곽선**.
+    #    🔑 외곽선이 맨 뒤인 이유: ①~④ 가 실루엣을 바꾸므로 **그 뒤에 외곽을 다시 꿰매야** 한다.
+    #    (사용자가 지운 185px 자리에 **외곽선 20px 을 다시 그었다** — 내 1차 처리엔 그 단계가 없었다.)
+    if "eraseRect" in recipe:
+        frames = [eraseRect(f, recipe["eraseRect"]) for f in frames]
+
+    if "despeckle" in recipe:
+        frames = [despeckle(f, recipe["despeckle"]) for f in frames]
+
+    # 🔴 알파 연결은 **밝은 픽셀 연결과 다른 검사**다 — despeckle 이 못 잡는 「떠 있는 조각」을 본다.
+    if "dropLoose" in recipe:
+        frames = [dropLooseParts(f, recipe["dropLoose"]) for f in frames]
+
+    if "bridgeHighlight" in recipe:
+        frames = [bridgeHighlight(f, recipe["bridgeHighlight"]) for f in frames]
+
+    # 🔴 축은 **프레임마다** 다시 구한다 — 회전베기는 프레임마다 날 각도가 바뀐다.
+    if "bladeSmooth" in recipe:
+        frames = [smoothAlongAxis(f, recipe["bladeSmooth"]) for f in frames]
+
+    if "outline" in recipe:
+        frames = [normalizeOutline(f, recipe["outline"]) for f in frames]
+
     # 🔑 한쪽 발만 떠 있을 때 — 그 발(부츠 줄)을 내리고 생긴 틈을 정강이 줄로 잇는다.
     #    전체 발밑 정렬(each)은 가장 아래 픽셀 하나만 보므로 **다른 발이 떠 있는 것**을 못 잡는다(투척사 Idle 앞발 3px).
     if "lowerRegion" in spec:
@@ -345,6 +847,12 @@ def main():
         d = recipe["desaturate"]
         sheet = desaturate(sheet, d)
         print(f"  채도 변환 — 채도 ×{d['satScale']} · hue {d.get('hue', 0.0)}° · 명도 ×{d.get('valScale', 1.0)}")
+    # 🔴 색 변환 **뒤**에 건다 — recolor/desaturate 가 채도를 건드리므로 그 결과에서 무채를 판정해야 한다.
+    if "snapGray" in recipe:
+        sheet = snapAchromatic(sheet, recipe["snapGray"])
+    # 🔴 하이라이트 단 통일도 시트 단위다 — 프레임마다 단을 새로 고르면 깜빡인다.
+    if "collapse" in recipe:
+        sheet = collapseBand(sheet, recipe["collapse"])
 
     outDir = recipe["outDir"]
     heightsByState = {}
