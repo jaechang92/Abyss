@@ -1,0 +1,32 @@
+{
+  "_note": "적 엘리트 사냥꾼(흉내를 내다 만 것) 4상태. 선택 근거는 animation_prompts.md. 🔴 이 적만 생성 캔버스가 120 이다(앞 6종 92) — 정예 80px 은 size 120 에서만 나온다(elite_hunter.md R3 절: 92→64px · 112→62px · 120→84px). 칸 124 · footY 92 는 적 규약(SpriteSheetSlicer.EnemyCell/EnemyFootY 는 코드 상수라 적 전체에 똑같이 걸린다) — 이 적은 땅에 닿으므로 공허 술사(footY 84)와 달리 기본값이다. 🔴 색 변환을 하지 않는다 — 몸이 이미 무채 재 검정(R4 평균채도 0.05)이고, 같은 방에 나는 적은 S1 근접 병사(건메탈 B) · S3 원거리 사수(흙빛 hue 48)라 겹치지 않는다. 뼈 궁수와 색이 가깝지만 방이 다르다(S1 Room4_Bonefield vs Room4_Elite).",
+  "prefix": "elite_hunter",
+  "characterId": "f42907de-1c54-43d5-83b4-2341b4346ecc",
+  "stripShadow": false,
+  "direction": "southeast",
+  "cell": 124,
+  "footY": 92,
+  "outDir": "Assets/Art/Sprites/Enemies/elite_hunter/southeast",
+  "states": {
+    "move": {
+      "animation": "move_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "attack": {
+      "animation": "attack_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "hit": {
+      "animation": "hit_southeast_v1",
+      "frames": "all",
+      "align": "each"
+    },
+    "dead": {
+      "animation": "dead_southeast_v1",
+      "frames": "all",
+      "align": "first"
+    }
+  }
+}
