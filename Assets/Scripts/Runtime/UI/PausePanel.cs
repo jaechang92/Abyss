@@ -1,5 +1,6 @@
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Flow;
+using Abyss.Runtime.Run;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -88,6 +89,12 @@ namespace Abyss.Runtime.UI
                 Disarm(ref quitArmed, quitLabel, QUIT_DEFAULT);
                 return;
             }
+
+            // 🔴 런을 먼저 버린다. 안 버리면 isRunActive가 true로 남고, RunManager는 DontDestroyOnLoad라
+            //    씬을 넘어 살아 재입장 시 StartNewRun이 초기화를 건너뛴다(레벨·골드·무기·통계 이월).
+            //    EndRun이 아니라 AbandonRun인 이유: EndRun의 OnRunEnded가 결과 패널을 띄우고
+            //    흐름 FSM을 Result로 보내 타이틀 전환과 부딪힌다.
+            RunManager.Instance?.AbandonRun();
 
             // 정지를 먼저 풀어 timeScale을 되돌린다 — 정지된 채 씬을 넘기면 다음 씬이 멈춘 상태로 시작한다.
             GameEvents.RaiseResumeRequested();

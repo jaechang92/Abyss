@@ -16,5 +16,14 @@ namespace Abyss.Runtime.Run
 
         /// <summary>시퀀스의 마지막 스테이지까지 클리어 — 엔딩 대상.</summary>
         Cleared = 1,
+
+        /// <summary>
+        /// 일시정지 메뉴에서 타이틀로 나가며 런을 버림.
+        ///
+        /// <b>정산하지 않는다</b> — 포기하면 심연 조각을 버린다(사용자 결정 2026-09-22).
+        /// 그래서 이 사유는 <see cref="RunManager.EndRun"/>이 아니라
+        /// <see cref="RunManager.AbandonRun"/>만 남긴다.
+        /// </summary>
+        Abandoned = 2,
     }
 }

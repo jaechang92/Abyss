@@ -195,6 +195,41 @@ namespace Abyss.Runtime.Run
         }
 
         /// <summary>
+        /// 런 포기 — 일시정지 메뉴에서 타이틀로 나갈 때.
+        ///
+        /// 🔴 <b><see cref="EndRun"/>을 재사용하지 않는다.</b> 그쪽은 "런이 끝났다"는 <b>사실</b>을
+        /// <see cref="GameEvents.OnRunEnded"/>로 알리고, 그 이벤트가 흐름 FSM을 Result로 보내고
+        /// 결과 패널을 띄운다(GameFlowController·ResultPanelPresenter). 포기는 그 화면을 거치지 않고
+        /// 타이틀로 나가는 길이라 <b>계약이 다르다</b> — 그래서 용도별로 나눈다.
+        ///
+        /// 🔴 <b>정산하지 않는다.</b> 포기하면 심연 조각을 버린다(사용자 결정 2026-09-22).
+        /// <see cref="SettleMetaProgress"/>를 건너뛰므로 <see cref="LastRunSummary"/>도 갱신되지 않는다 —
+        /// 포기한 런은 "직전에 끝난 런"의 기록이 아니다.
+        ///
+        /// 🔑 <b>이 메서드가 없으면 생기는 일</b>(2026-09-22 확인): 타이틀로 나가도 isRunActive가 true로
+        /// 남고, RunManager는 DontDestroyOnLoad라 씬을 넘어 산다. 던전에 재입장하면
+        /// <see cref="StartNewRun"/>의 첫 줄 가드에 걸려 <b>초기화가 통째로 건너뛰어지고</b>
+        /// 레벨·골드·무기·통계가 이월된다. 게다가 <see cref="Update"/>가 isRunActive만 보므로
+        /// <b>타이틀 화면에서도 플레이타임이 계속 쌓인다.</b>
+        /// </summary>
+        public void AbandonRun()
+        {
+            // 이중 호출 가드 — EndRun과 같은 모양.
+            if (!isRunActive) return;
+
+            isRunActive = false;
+            lastRunEndReason = RunEndReason.Abandoned;
+            lastRunAbyssShardsEarned = 0;   // 버렸다는 것을 값으로도 남긴다
+
+            // 🔴 다음 런의 정산에 섞이지 않게 여기서 0으로 만든다. StartNewRun도 초기화하지만,
+            //    그 사이(타이틀·로비)에 골드를 읽는 곳이 지난 런의 값을 보면 안 된다.
+            goldShards = 0;
+            GameEvents.RaiseGoldShardsChanged(goldShards);
+
+            Debug.Log("[RunManager] 런 포기 — 심연 조각을 버리고 isRunActive = false");
+        }
+
+        /// <summary>
         /// 런 종료 시 메타 진행 정산. MetaSaveService는 코어 저장 싱글톤이므로 Instance로 접근해
         /// Bootstrap 미경유(로비 단독 플레이 등)에서도 정산 결과가 유실되지 않게 한다(싱글턴 접근 정책).
         /// 환산: goldShards * abyssShardsConversionRate (반올림, 음수 가드).
