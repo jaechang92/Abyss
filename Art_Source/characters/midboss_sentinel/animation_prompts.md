@@ -4,6 +4,84 @@
 > 기획 · 몸 판정은 `Art_Source/20_SUBJECTS/enemies/midboss_sentinel.md`. 조립·재생 규약은 `melee_grunt/animation_prompts.md` 끝 절과 같다.
 > 🔴 **생성하면 여기에 먼저 적는다** — 문구가 휘발되면 재현이 안 된다.
 
+---
+
+# 🔵 현행 — R4 「제 아래를 갈아 없앤 것」 (2026-09-22 · 새 컨셉)
+
+> 🔴 **R2 컨셉(땅에 박힌 축)은 폐기됐다.** 다리를 못 없애 네 번 실패했고(문구 3회 · 몸 R3 · `freezeBelow` ·
+> 지표 신설), 사용자 결정으로 **컨셉 자체를 바꿨다.** 아래 「이전 컨셉」 절은 근거 보존용이다.
+
+## 공통 (R4)
+
+```
+character_id   ff42f0d6-80f3-4ecd-8061-6a766783a9a8   (Sentinel R4 upper-half · pro · style 2fbf625f-f755-4d1d-a113-adadfdf97ce0)
+캔버스          128x128 (pro 상한) · south-east 한 방향 + flipX
+mode           v3 · 실비용 이동 4 · 공격 5 · 피격 2 · 사망 4 = 15 gen
+보간            end_frame_url = R4 south-east 회전 (사망만 제외 — 돌아올 자세가 없다)
+정체성 어휘      only the top half of a heavy suit of armour hovering in mid air with clear empty space
+                beneath it, its body ending at the waist in a single rough uneven broken edge, two very
+                long straight blades reaching far out to the left and to the right and angled a little
+                downward, an empty open helmet
+```
+
+### 🔴 정체성 어휘에서 무엇을 지웠고 왜 지웠나 — 이 절이 이 파일에서 가장 중요하다
+
+| 지운 말 | 왜 |
+|---|---|
+| `rooted in one place` · `buried to a point in the ground` · `planted` | **이것들이 다리를 만든 장본인이다.** 세션 13 교훈 5 — 부정문 하나로는 다른 어휘가 만든 전제를 못 이긴다 |
+| `with no legs and no feet` | 🔴 **부정문조차 안 쓴다.** `legs`·`feet` 라는 낱말이 앵커를 자극한다. 하반신은 **말하지 않음으로써** 없앤다 |
+
+🔑 **몸에서 다리를 없애도 애니메이션 문구에 `buried` 가 남아 있으면 프레임에 하반신이 다시 생긴다.**
+`create_character` 앵커와 `animate_character` 앵커가 같은 전제를 공유하기 때문이다.
+
+🔴 **`slash`·`spin`·`rotate`·`arc` 를 쓰지 않는다**(문구 규칙 — 멈춘 자세로 쓴다). 회전은 **날이 어디를 가리키는가**로 그린다.
+🔴 **원(바닥의 빈 자리)을 그리게 하지 않는다** — 배경이 가질 것이다.
+
+## 상태 (R4) — FSM Patrol · Chase → 이동 / Attack / Stagger → 피격 / Dead
+
+| 상태 | frames | animation_name | 문구(정체성 어휘 뒤) | group | 보간 | 판정 |
+|---|---|---|---|---|---|---|
+| 이동 | 9 (1+8) | `move_southeast_v1` | drifting forward through the air with the whole body leaning over in the direction of travel and **rising and sinking a little as it goes**, the blades staying level, everything staying one connected body | `ddd9c927-0ca6-48bf-8246-8185617724fc` | end=R4 | ✅ **채택** · 다리 없음 전 프레임 유지 · 폭 103→125px 흔들림 |
+| 공격 | 11 (1+10) | `attack_southeast_v1` | the whole body first **drawing in tight and small** with both blades folded back and upward behind it, then **opening out wide all at once** so the blades rise to point **straight up overhead** and come down pointing **far forward and low** in front, the shoulders and the helmet turning all the way around with them | `2f840eb9-175c-457f-9040-39db696ca148` | end=R4 | ✅ **채택** · 「뒤위→**똑바로 위 f5~f7**→앞아래」 · 웅크림↔펼침 실픽셀 3493→4105 · 진폭 34px |
+| 피격 | 5 (1+4) | `hit_southeast_v1` | the shoulders and helmet rocking hard backward as it takes a blow and **the whole body drifting back a little through the air**, then settling forward into the same shape | `4eb0c54d-8297-4a5f-bb52-525d251a8ebe` | end=R4 | ✅ **채택** · 🔑 **R2 의 「축이 몸을 붙잡아 진폭 없음」이 해결됐다** — f2 에서 키 +12 · 폭 −19 |
+| 사망 | 9 (1+8) | `dead_southeast_v1` | **sinking down out of the air for the first time**, tilting over as it falls until the blades strike the ground and it comes to rest leaning on them, no longer held up by anything | `ebad4b16-5644-4f88-84cc-484709d45d51` | 없음 | ❌ f5 에 **날 한 자루 소실** · f6~f7 날이 위로 섬 · 하이라이트 0% 프레임 둘 |
+
+| 사망 v2 | 9 (1+8) | `dead_southeast_v2` | first sinking down out of the air, then **toppling over sideways and coming to rest flat on the ground** with the blades lying flat beside it | `24252e66-7458-4f8d-b7a5-7a6ec3273546` | 없음 | ❌ f3~f5 에 **투구가 몸에서 떨어져 위로 떠오른다** · 🔴 f5 150px · f8 **153px 로 칸 148 초과** |
+| 사망 v3 | 9 (1+8) | `dead_southeast_v3` | the armour body **quietly thinning and wearing away into nothing where it is**, while the empty helmet and the two blades **drop straight down and come to rest close together** | `2e3ecb1d-e8f0-4167-8078-67a54bfff177` | 없음 | ❌ f0~f4 거의 변화 없음 · **끝 두 프레임이 갈색 무더기로 뭉개져** 칼·투구가 구별 안 됨 |
+| **사망 (채택)** | 9 | **손 조립** `dead_composed/` | — `Tools/ArtPipeline/compose_shed_death.py` | — | 없음 | ✅ **채택** · 몸이 갈려 없어지고 **칼 둘 + 투구가 바닥에** · bbox 103x27 |
+
+### 🔴 사망을 **세 번 생성해 세 번 다 실패했다** — 12 gen · 방식이 틀렸다
+
+| 회차 | 무엇이 틀렸나 |
+|---|---|
+| v1 | 날 한 자루가 사라지고, 날이 위로 섰다. 「날에 기대어 멈춘다」가 안 나왔다 |
+| v2 | 🔴 **투구가 몸에서 떨어져 위로 떠올랐다.** 게다가 누우면서 **폭 153px** 로 칸 148 을 넘었다 |
+| v3 | 사용자 요청(「몸은 사라지고 칼·투구만」)대로 문구를 썼으나 **끝 두 프레임이 무더기로 뭉갰다** |
+
+🔑 **PixelLab v3 는 「몸이 사라지고 부품만 남는 것」을 못 그린다.** 캐릭터를 유지하도록 학습된 모델이라
+   사라짐을 요구하면 뭉갠다. **방식이 틀렸으므로 프레임을 늘려도 안 된다**(메모리 `feedback_reference_before_motion`).
+👉 **조립으로 바꿨다**(gen 0) — `compose_shed_death.py` 가 ① 얇은 부위 = 날, 상자+씨앗 = 투구를 떼고
+   ② 나머지 몸을 프레임마다 한 겹씩 **침식**해 없애고 ③ 날을 **끝을 축으로 세로 압축**해 눕히고
+   ④ **투구를 마지막에 얹는다**(엘리트 사냥꾼 사망과 같은 차례).
+
+🔴 **「연기처럼 사라진다」로 하지 않았다** — `10_BIBLE/03-light.md` **L6(공중 파티클 금지)**.
+   대신 **「제자리에서 갈려 없어진다」**로 했고, 그것이 이 적의 정체 그 자체다
+   (**제 아래를 갈아 없앤 것**이 마지막에 제 전부를 갈아 없앤다. 갈려도 안 없어지는 것이 쇠다).
+
+**앞 컨셉의 교훈을 어디서 쓰고 있나**
+
+| 교훈 | 어디에 |
+|---|---|
+| 🔑 **공격 v3 의 웅크림↔펼침**(진폭 19 → 51px) — 날로 원을 그리려던 것이 잘못이었다 | 공격 `drawing in tight and small` → `opening out wide all at once` |
+| 🔑 **v2 의 방향 단계 못박기**(뒤위 → 똑바로 위 → 앞아래) | 공격 문구 뒷단 그대로 |
+| 🔑 **떠 있는 적은 정렬이 `first`**(세션 13 교훈 4) — `each` 는 위아래 흔들림을 지운다 | 이동 `rising and sinking a little` 을 **일부러 넣었다** |
+| 🔑 **피격은 축이 없어져 진폭을 얻는다** — R2 는 `the buried lower point stays completely still` 이 몸을 붙잡았다 | 피격 `drifting back a little through the air` |
+| 🔑 **기획 ④ 가 더 강해졌다** — 「백 년 만에 처음 자리를 뜬다」 = **「처음으로 땅에 닿는다」** | 사망 `sinking down out of the air for the first time` |
+
+---
+
+# ⬛ 이전 컨셉 — R2 「땅에 박힌 축」 (폐기 · 근거 보존)
+
 ## 공통
 
 ```

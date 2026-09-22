@@ -299,6 +299,50 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: midboss_sentinel_attack_southeast_9
+      rect:
+        serializedVersion: 2
+        x: 1332
+        y: 0
+        width: 148
+        height: 148
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25675675}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dd571f4d9415603409d0c4aed509c18c
+      internalID: 1757453181
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: midboss_sentinel_attack_southeast_10
+      rect:
+        serializedVersion: 2
+        x: 1480
+        y: 0
+        width: 148
+        height: 148
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25675675}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1e7af709bf373a646b3993bbb8a8519d
+      internalID: -639488253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -315,6 +359,7 @@ TextureImporter:
     nameFileIdTable:
       midboss_sentinel_attack_southeast_0: 6555358755833306270
       midboss_sentinel_attack_southeast_1: 568926548
+      midboss_sentinel_attack_southeast_10: -639488253
       midboss_sentinel_attack_southeast_2: 1825037330
       midboss_sentinel_attack_southeast_3: -12808987
       midboss_sentinel_attack_southeast_4: -306975348
@@ -322,6 +367,7 @@ TextureImporter:
       midboss_sentinel_attack_southeast_6: 2079519483
       midboss_sentinel_attack_southeast_7: -1133073490
       midboss_sentinel_attack_southeast_8: 1245043293
+      midboss_sentinel_attack_southeast_9: 1757453181
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

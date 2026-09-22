@@ -48,6 +48,7 @@
 """
 
 import argparse
+import glob
 import json
 from collections import Counter
 import os
@@ -544,6 +545,121 @@ def bridgeHighlight(image, r):
     return Image.fromarray(a, "RGBA")
 
 
+def wearBladeEdge(image, r):
+    """마모 자국(회백 한 줄)이 **한쪽 날에만** 난 것을 반대쪽 날에도 낸다.
+
+    🔴 감시자 거인 R4 에서 나온 기능이다(2026-09-22). 몸 생성물의 **오른쪽 날에 밝은 픽셀이 0개**(최대 L 30 ·
+       왼쪽은 78)라 32프레임 중 27개에서 하이라이트 성분이 **1개**였다(목표 2 = 날 개수).
+       🔑 `bridgeHighlight` 는 **씨앗이 있어야 잇는** 도구라 무에서는 못 만든다 — 그래서 이것이 따로 있다.
+
+    🔑 **왜 후처리가 정당한가** — `10_BIBLE/03-light.md` **L1(광원을 그리지 않는다) · L2(방향 그림자를
+       그리지 않는다)** 가 이 세계에 **빛의 방향이 없다**고 정한다. 「한쪽 날만 빛을 받는다」는 성립하지 않는다.
+       게다가 이 줄은 반사광이 아니라 **마모 자국**이다(`midboss_sentinel.md` ③ *"백 년 땅을 쓸어 거기만 갈렸다"*)
+       — **마모는 양쪽 날에 똑같이 난다.** 한쪽만 있는 것은 결함이지 빛이 아니다.
+
+    공정: ① **열림 연산**(침식 후 팽창)으로 두꺼운 부위 = **몸통**을 떼고, 나머지를 얇은 부위 = **날**로 본다
+          ② 날 성분마다 이미 밝은 픽셀이 `minSeed` 이상이면 **건너뛴다** — 있는 줄은 안 건드린다
+          ③ 없으면 그 날의 **주축(PCA)** 을 구하고, 주축에 수직인 두 가장자리 중
+             **몸통 반대쪽** 경계만 기존 하이라이트 색으로 칠한다
+
+    🔴 **경계 한 줄만 칠한다.** 면을 칠하면 날이 납작해진다 — `collapseBand` 의 `to:"down"` 이 저지른 실패와 같다.
+    🔴 **자세가 비대칭이라 「거울상」으로는 못 찾는다.** 공격 프레임에서 날이 머리 위로 서므로 좌우 대칭이 깨진다.
+
+    레시피 예: "bladeWear": {"value": 0.60, "erode": 3, "minBlade": 60, "minSeed": 8}
+    """
+    a = np.array(image)
+    alpha = a[..., 3] > ALPHA_CUT
+    if not alpha.any():
+        return image
+    height, width = alpha.shape
+    value = rgbToHsv(a[..., :3].astype(np.float64) / 255.0)[..., 2]
+    threshold = r.get("value", 0.60)
+    erode = r.get("erode", 3)
+    minBlade = r.get("minBlade", 60)
+    minSeed = r.get("minSeed", 8)
+
+    bright = alpha & (value >= threshold)
+    if not bright.any():
+        print("  날 마모 — 기준이 될 하이라이트가 한 줄도 없다, 건너뛴다")
+        return image
+    ink = Counter(tuple(int(q) for q in a[y, x, :3])
+                  for y, x in zip(*np.where(bright))).most_common(1)[0][0]
+
+    def step(mask, keep):
+        """4-이웃 침식(keep=True) 또는 팽창(keep=False). 캔버스 밖은 투명으로 본다."""
+        out = mask.copy()
+        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            shifted = np.roll(mask, (dy, dx), (0, 1))
+            if dy == 1:
+                shifted[0, :] = False
+            if dy == -1:
+                shifted[-1, :] = False
+            if dx == 1:
+                shifted[:, 0] = False
+            if dx == -1:
+                shifted[:, -1] = False
+            out = (out & shifted) if keep else (out | shifted)
+        return out
+
+    thick = alpha
+    for _ in range(erode):
+        thick = step(thick, True)
+    for _ in range(erode):
+        thick = step(thick, False)
+    thick &= alpha
+    thin = alpha & ~thick
+    if not thick.any() or not thin.any():
+        print("  날 마모 — 몸통과 날이 안 갈린다(erode 를 다시 볼 것), 건너뛴다")
+        return image
+
+    neighbours = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+    seen = np.zeros_like(thin)
+    blades = []
+    for sy, sx in zip(*np.where(thin)):
+        if seen[sy, sx]:
+            continue
+        stack, group = [(sy, sx)], []
+        seen[sy, sx] = True
+        while stack:
+            y, x = stack.pop()
+            group.append((y, x))
+            for dy, dx in neighbours:
+                ny, nx = y + dy, x + dx
+                if 0 <= ny < height and 0 <= nx < width and thin[ny, nx] and not seen[ny, nx]:
+                    seen[ny, nx] = True
+                    stack.append((ny, nx))
+        if len(group) >= minBlade:
+            blades.append(group)
+
+    edge = outlineMask(alpha)
+    body = np.array(np.where(thick), dtype=float).mean(axis=1)
+    painted = skipped = 0
+    for group in blades:
+        if sum(1 for y, x in group if bright[y, x]) >= minSeed:
+            skipped += 1
+            continue                                  # 이미 줄이 있는 날 — 안 건드린다
+        pts = np.array(group, dtype=float)
+        centre = pts.mean(axis=0)
+        spread = pts - centre
+        if len(pts) < 3:
+            continue
+        _, vectors = np.linalg.eigh(np.cov(spread.T))
+        axis = vectors[:, -1]                          # 가장 긴 축 = 날이 뻗은 방향
+        perp = np.array([-axis[1], axis[0]])           # 그에 수직 = 날의 두께 방향
+        toBody = float((body - centre) @ perp)
+        side = 1.0 if toBody >= 0 else -1.0            # 몸통이 있는 쪽
+        for y, x in group:
+            if not edge[y, x]:
+                continue
+            if (np.array([y, x], dtype=float) - centre) @ perp * side >= 0:
+                continue                               # 몸통 쪽 가장자리 — 바깥이 아니다
+            if tuple(int(q) for q in a[y, x, :3]) != ink:
+                a[y, x, :3] = ink
+                painted += 1
+    print(f"  날 마모 — 날 {len(blades)}개 중 {skipped}개는 이미 줄이 있다 · 칠한 {painted}px")
+    return Image.fromarray(a, "RGBA")
+
+
 def smoothAlongAxis(image, r):
     """긴 날 같은 **띠 모양 부위**를 제 축 방향으로 고른다 — 「지글거림」을 없앤다.
 
@@ -745,9 +861,41 @@ def pickFrames(frames, spec):
     return picked
 
 
+def loadFrameDir(folder, cell):
+    """**손으로 조립한 프레임**을 폴더에서 읽는다 — 생성기가 끝내 못 그리는 상태를 끼워 넣는 자리.
+
+    🔴 감시자 거인 R4 사망에서 생겼다(2026-09-22). 「몸은 갈려 없어지고 **칼과 투구만 바닥에 남는다**」를
+       **세 번 생성해 세 번 다 실패했고**(12 gen), 방식이 틀렸다고 판단해 `compose_shed_death.py` 로 조립했다.
+       그 결과를 시트에 넣으려면 조립기가 **번들 말고 폴더**에서도 읽을 수 있어야 한다.
+
+    🔑 **칸 떼기 규약은 `cutFrames` 와 같다** — 가운데에서 `cell` 을 떼고, **잘리면 거부한다.**
+       조용히 자르면 날 끝이 사라진다.
+
+    레시피 예: "dead": { "framesDir": "dead_composed", "align": "first", "skipPost": ["dropLoose"] }
+    """
+    paths = sorted(glob.glob(os.path.join(folder, "*.png")),
+                   key=lambda q: int(os.path.splitext(os.path.basename(q))[0]))
+    if not paths:
+        raise SystemExit(f"🔴 {folder} 에 프레임 PNG 가 없다")
+    frames = []
+    for path in paths:
+        full = Image.open(path).convert("RGBA")
+        ox, oy = (full.width - cell) // 2, (full.height - cell) // 2
+        crop = full.crop((ox, oy, ox + cell, oy + cell))
+        lost = countAlpha(full) - countAlpha(crop)
+        if lost > 0:
+            raise SystemExit(f"🔴 {os.path.basename(path)}: {cell} 칸으로 떼면 {lost}px 이 잘린다")
+        frames.append(crop)
+    print(f"  손 조립 프레임 {len(frames)}장 — {folder}")
+    return frames
+
+
 def buildState(meta, sheet, state, spec, recipe):
     cell = recipe["cell"]
-    frames = pickFrames(cutFrames(meta, sheet, spec["animation"], cell), spec.get("frames", "all"))
+    # 🔑 `framesDir` 이 있으면 번들 대신 **폴더의 손 조립 프레임**을 쓴다.
+    source = (loadFrameDir(os.path.join(recipe["_dir"], spec["framesDir"]), cell)
+              if "framesDir" in spec else cutFrames(meta, sheet, spec["animation"], cell))
+    frames = pickFrames(source, spec.get("frames", "all"))
 
     if recipe.get("stripShadow"):
         frames = [cleanFrame(f, tuple(DEFAULT_COLOR), DEFAULT_TOL, DEFAULT_MIN_ISLAND)[0] for f in frames]
@@ -790,25 +938,42 @@ def buildState(meta, sheet, state, spec, recipe):
     #    ① 지우고 → ② 튀는 점을 걷고 → ③ 하이라이트를 잇고 → ④ 축으로 고르고 → ⑤ **마지막에 외곽선**.
     #    🔑 외곽선이 맨 뒤인 이유: ①~④ 가 실루엣을 바꾸므로 **그 뒤에 외곽을 다시 꿰매야** 한다.
     #    (사용자가 지운 185px 자리에 **외곽선 20px 을 다시 그었다** — 내 1차 처리엔 그 단계가 없었다.)
+    # 🔑 <b>상태별로 후처리를 끌 수 있다</b> — `"skipPost": ["dropLoose"]` 를 그 상태에 적는다.
+    #    🔴 `dropLooseParts` 의 주석이 이미 경고한 자리다: **「조각이 흩어지는 것이 의도인 상태에는 걸지 말 것」**
+    #       — 그런데 레시피가 최상위라 **4상태 전부에 걸렸다.** 감시자 거인 R4 사망이
+    #       「몸이 옅어져 없어지고 **투구와 날만 바닥에 떨어진다**」라 그 조각들이 지워질 판이었다(2026-09-22).
+    #    📌 뼈 궁수의 「재가 부스러지는」 사망도 같은 자리다 — 그때는 레시피에서 통째로 뺐다.
+    skip = set(spec.get("skipPost", []))
+
+    def apply(key, fn, frames):
+        if key in skip:
+            print(f"  {key} — 이 상태에서는 건너뛴다(skipPost)")
+            return frames
+        return [fn(f, recipe[key]) for f in frames]
+
     if "eraseRect" in recipe:
-        frames = [eraseRect(f, recipe["eraseRect"]) for f in frames]
+        frames = apply("eraseRect", eraseRect, frames)
 
     if "despeckle" in recipe:
-        frames = [despeckle(f, recipe["despeckle"]) for f in frames]
+        frames = apply("despeckle", despeckle, frames)
 
     # 🔴 알파 연결은 **밝은 픽셀 연결과 다른 검사**다 — despeckle 이 못 잡는 「떠 있는 조각」을 본다.
     if "dropLoose" in recipe:
-        frames = [dropLooseParts(f, recipe["dropLoose"]) for f in frames]
+        frames = apply("dropLoose", dropLooseParts, frames)
+
+    # 🔴 <b>씨앗을 먼저 심는다</b> — `bridgeHighlight` 는 있는 줄을 잇고, `bladeWear` 는 없는 줄을 낸다.
+    if "bladeWear" in recipe:
+        frames = apply("bladeWear", wearBladeEdge, frames)
 
     if "bridgeHighlight" in recipe:
-        frames = [bridgeHighlight(f, recipe["bridgeHighlight"]) for f in frames]
+        frames = apply("bridgeHighlight", bridgeHighlight, frames)
 
     # 🔴 축은 **프레임마다** 다시 구한다 — 회전베기는 프레임마다 날 각도가 바뀐다.
     if "bladeSmooth" in recipe:
-        frames = [smoothAlongAxis(f, recipe["bladeSmooth"]) for f in frames]
+        frames = apply("bladeSmooth", smoothAlongAxis, frames)
 
     if "outline" in recipe:
-        frames = [normalizeOutline(f, recipe["outline"]) for f in frames]
+        frames = apply("outline", normalizeOutline, frames)
 
     # 🔑 한쪽 발만 떠 있을 때 — 그 발(부츠 줄)을 내리고 생긴 틈을 정강이 줄로 잇는다.
     #    전체 발밑 정렬(each)은 가장 아래 픽셀 하나만 보므로 **다른 발이 떠 있는 것**을 못 잡는다(투척사 Idle 앞발 3px).
@@ -860,7 +1025,8 @@ def main():
         frames, feet, shifts, heights = buildState(meta, sheet, state, spec, recipe)
         heightsByState[state] = heights
         outPath = f"{outDir}/{recipe['prefix']}_{state}_{recipe['direction']}.png"
-        print(f"  {state:<12} {spec['animation']:<26} {len(frames)}장 · 발밑 {feet} -> {recipe['footY']} "
+        source = spec.get("animation") or f"dir:{spec['framesDir']}"
+        print(f"  {state:<12} {source:<26} {len(frames)}장 · 발밑 {feet} -> {recipe['footY']} "
               f"({spec.get('align', 'each')}) · 키 {min(heights)}~{max(heights)}")
         if args.dry_run:
             continue

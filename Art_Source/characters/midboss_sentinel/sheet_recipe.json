@@ -1,7 +1,7 @@
 {
-  "_note": "적 감시자 거인(원을 쓴 것) 4상태 · 첫 중간보스. 🔴 떠 있는 적이라 정렬이 4상태 전부 first 다 — each 는 「프레임마다 발밑을 같은 줄에」 맞추는 것이라 위아래로 흔들리는 동작(bobbing·웅크렸다 떠오름)을 지운다. 공격 v3 를 each 로 조립하려다 발밑 산포 11px 로 가드에 걸려 알았다. 선택 근거는 animation_prompts.md. 🔴 생성 캔버스가 128(pro 상한)이라 앞 종들(92·120)보다 크다 — v3 가 날 때문에 캔버스를 176x148 까지 키웠는데, 내용 bbox 는 대부분 124 안에 들어간다. 🔴 **이 적 때문에 적 칸 규약이 바뀌었다** — 4상태 32프레임의 최대 내용이 129x105 라 옛 cell 124 에 안 들어갔다(피격 f2 가 칸에서 22px 잘리고, 이동·공격은 발밑 정렬 중 위가 6~10px 조용히 잘렸다). 2026-09-21 에 EnemyCell 124→148 · EnemyFootY 92→110 으로 올렸고(피벗 0.2581→0.2568 로 거의 같아 기존 적의 발 위치가 안 변한다) 기존 7종 레시피도 같이 올려 재조립했다. 후처리 파이프라인은 사용자가 몸을 직접 고친 R2Custom_southeast.png 와 대조해 정했다(midboss_sentinel.md 「사용자 수정본 대조」) — 🔴 collapse 의 to:down 은 쓰지 않는다(중간톤이 날의 면이라 몸통색으로 내리면 날이 납작해진다). 🔴 이동·공격·피격에 freezeBelow row 92 frame 0 을 건다 — 몸 R2 는 「땅에 박힌 기사」로 뽑혀 아랫부분 원뿔이 좌우로 갈라진 형태이고, v3 가 그것을 움직이면 다리로 읽힌다. 문구로 세 번 실패했고(no legs and no feet · floating · hangs clear above the ground) 몸 R3(122x65)는 갈라짐은 없앴으나 키가 무너져 폐기했다. → 조립 단계에서 하단을 f0 으로 고정한다(네 상태 모두 f0 은 갈라짐이 없다). 🔴 사망에는 걸 수 없다 — 쓰러지는 것이 내용이라 하단이 움직여야 한다(미결).",
+  "_note": "적 감시자 거인(원을 쓴 것) 4상태 · 첫 중간보스. 🔵 2026-09-22 에 컨셉을 바꿨다 — R2「땅에 박힌 축」은 다리를 네 번 못 없애 폐기했고(문구 3회 · 몸 R3 · freezeBelow · 지표 신설), R4「제 아래를 갈아 없앤 것」은 상반신만 남아 떠 있어 다리가 구조적으로 불가능하다(하단이 허리의 톱니 단면 한 줄). 🔴 freezeBelow 를 전부 뺐다 — 고정할 하단이 없다. 🔴 떠 있는 적이라 정렬이 4상태 전부 first 다 — each 는 「프레임마다 발밑을 같은 줄에」라 위아래로 흔들리는 동작(이동의 rising and sinking)을 지운다. 🔴 사망은 생성물이 아니라 손 조립이다(framesDir) — 「몸은 갈려 없어지고 칼과 투구만 바닥에 남는다」를 세 번 생성해 세 번 다 실패했다(v1 날 한 자루 소실 · v2 투구가 위로 떠오르고 폭 153px 로 칸 초과 · v3 끝 두 프레임이 무더기로 뭉갬 · 12 gen). PixelLab v3 는 「몸이 사라지고 부품만 남는 것」을 못 그린다. compose_shed_death.py 로 조립했고 gen 0 이다. 🔴 사망에는 dropLoose 를 걸지 않는다(skipPost) — 떨어진 칼과 투구가 별도 덩어리라 지워진다. 🔧 bladeWear 신설 — 몸 R4 의 오른쪽 날에 밝은 픽셀이 0개라(최대 L 30 · 왼쪽은 78) 하이라이트 성분이 1개였다. bridgeHighlight 는 씨앗이 있어야 잇는 도구라 무에서 못 만든다. 광원 규약 L1·L2 가 빛의 방향을 금지하고 이 줄은 반사광이 아니라 마모 자국이므로 양쪽 날에 똑같이 나야 한다. 걸고 나니 밝은 면 2.3~3.3% → 3.0~4.7%, 성분 1 → 2 가 됐다. 🔴 outline 의 brightMin 을 116 → 150 으로 올리고 keepBright 의 세로 제한을 없앴다 — 사망 마지막 프레임은 내용이 전부 세로 88% 아래라 옛 범위로는 누운 날의 마모 줄이 검게 덮였다. R4 팔레트는 마모 줄(#CDBCB8 205 · #BB988A 187)과 몸통색(대부분 ≤103) 사이가 벌어져 있어 세로 제한 없이도 안전하다. 🔴 칸 148 · footY 110 은 그대로다 — R4 의 32프레임 최대 내용이 133x101 이라 들어간다(재슬라이스 두 번 안 함). 선택 근거는 animation_prompts.md, 몸 판정은 midboss_sentinel.md. 🔴 사망에는 bladeWear 도 안 건다 — 투구를 「날」로 오인해 흰 줄을 그었다. 대신 조립 입력을 _r4_worn.png(마모 줄을 미리 박은 몸)으로 두어 눌린 칼이 제 줄을 갖고 내려온다.",
   "prefix": "midboss_sentinel",
-  "characterId": "39f5e125-f5fd-4ca0-968a-4559e0b2637f",
+  "characterId": "ff42f0d6-80f3-4ecd-8061-6a766783a9a8",
   "stripShadow": false,
   "direction": "southeast",
   "cell": 148,
@@ -19,6 +19,12 @@
   "dropLoose": {
     "maxRatio": 0.05
   },
+  "bladeWear": {
+    "value": 0.6,
+    "erode": 7,
+    "minBlade": 60,
+    "minSeed": 8
+  },
   "bridgeHighlight": {
     "value": 0.6,
     "expect": 2,
@@ -34,43 +40,35 @@
   "outline": {
     "ink": "#060405",
     "keepBright": [
-      0.06,
-      0.88
+      0.0,
+      1.0
     ],
-    "brightMin": 116
+    "brightMin": 150
   },
   "states": {
     "move": {
-      "animation": "move_southeast_v2",
+      "animation": "move_southeast_v1",
       "frames": "all",
-      "align": "first",
-      "freezeBelow": {
-        "row": 92,
-        "frame": 0
-      }
+      "align": "first"
     },
     "attack": {
-      "animation": "attack_southeast_v3",
+      "animation": "attack_southeast_v1",
       "frames": "all",
-      "align": "first",
-      "freezeBelow": {
-        "row": 92,
-        "frame": 0
-      }
+      "align": "first"
     },
     "hit": {
       "animation": "hit_southeast_v1",
       "frames": "all",
-      "align": "first",
-      "freezeBelow": {
-        "row": 92,
-        "frame": 0
-      }
+      "align": "first"
     },
     "dead": {
-      "animation": "dead_southeast_v2",
+      "framesDir": "dead_composed",
       "frames": "all",
-      "align": "first"
+      "align": "first",
+      "skipPost": [
+        "dropLoose",
+        "bladeWear"
+      ]
     }
   }
 }

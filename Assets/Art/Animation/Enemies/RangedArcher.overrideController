@@ -9,11 +9,11 @@ AnimatorOverrideController:
   m_Name: RangedArcher
   m_Controller: {fileID: 9100000, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
   m_Clips:
-  - m_OriginalClip: {fileID: -5730127990451827815, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: 838874b3a7771a647884b7daf8de41f7, type: 2}
-  - m_OriginalClip: {fileID: 7782060910535026643, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: 4fec67d4a848fcc43a334b522e3eee1c, type: 2}
-  - m_OriginalClip: {fileID: -4044520401011321677, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  - m_OriginalClip: {fileID: 1329605253608835262, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
     m_OverrideClip: {fileID: 7400000, guid: 8d8b29e02d187ee4a97803dc25609051, type: 2}
-  - m_OriginalClip: {fileID: 6955755039751009682, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  - m_OriginalClip: {fileID: -4313872047150031651, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 838874b3a7771a647884b7daf8de41f7, type: 2}
+  - m_OriginalClip: {fileID: -6889711921651985245, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
     m_OverrideClip: {fileID: 7400000, guid: 8b9453c47477c0844a1745a0f5d519b1, type: 2}
+  - m_OriginalClip: {fileID: 5337666509454547051, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 4fec67d4a848fcc43a334b522e3eee1c, type: 2}
