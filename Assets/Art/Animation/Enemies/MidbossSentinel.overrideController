@@ -9,11 +9,11 @@ AnimatorOverrideController:
   m_Name: MidbossSentinel
   m_Controller: {fileID: 9100000, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
   m_Clips:
-  - m_OriginalClip: {fileID: -5730127990451827815, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: bc627dbc0e8fe38449c7c0585e58bffa, type: 2}
-  - m_OriginalClip: {fileID: 7782060910535026643, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: 0d0724d09aa04a3448815a653f11c5be, type: 2}
-  - m_OriginalClip: {fileID: -4044520401011321677, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  - m_OriginalClip: {fileID: 1329605253608835262, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
     m_OverrideClip: {fileID: 7400000, guid: e530ccb15c9798d4ea3f28a91ff52e23, type: 2}
-  - m_OriginalClip: {fileID: 6955755039751009682, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  - m_OriginalClip: {fileID: -4313872047150031651, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: bc627dbc0e8fe38449c7c0585e58bffa, type: 2}
+  - m_OriginalClip: {fileID: -6889711921651985245, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
     m_OverrideClip: {fileID: 7400000, guid: 54bc8a2770b6add4e9ff18a519e2270a, type: 2}
+  - m_OriginalClip: {fileID: 5337666509454547051, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 0d0724d09aa04a3448815a653f11c5be, type: 2}
