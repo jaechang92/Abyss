@@ -47,7 +47,7 @@ namespace Abyss.EditorTools
 
             var cameraFollow = CreateCamera();
             CreateEventSystem();
-            CreateGround();
+            var ground = CreateGround();
 
             // 폼 목록과 기본 폼은 한 번만 정하고 여러 곳에 나눠 준다.
             // 각자 로드하면 "패널이 강조하는 폼"과 "서 있는 캐릭터"가 조용히 갈라질 수 있다.
@@ -72,6 +72,8 @@ namespace Abyss.EditorTools
 
             // 와이어링
             WireCamera(cameraFollow, player.transform);
+            // 배경 높이는 카메라 추적 offset 에서 파생하므로 카메라 배선 뒤에 입힌다.
+            ApplyEnvironmentArt(ground, cameraFollow);
             WireController(controller, groundCheck);
             WireInteractor(interactor, prompt);
             WirePortal(portal);
@@ -110,24 +112,7 @@ namespace Abyss.EditorTools
             return go.AddComponent<PlayerCameraFollow>();
         }
 
-        // 바닥 판의 중심과 두께 — 플레이어 스폰 높이를 여기서 파생시킨다.
-        // 값을 양쪽에 적어 두면 바닥을 옮길 때 캐릭터만 공중에 남는다.
-        private const float FloorCenterY = -3.5f;
-        private const float FloorThickness = 1f;
-        private static float FloorTopY => FloorCenterY + FloorThickness * 0.5f;
-
-        private static void CreateGround()
-        {
-            var root = new GameObject("Environment");
-            int groundLayer = EditorPlatformFactory.GetGroundLayer();
-            var sprite = EditorPlatformFactory.LoadWhiteSquare();
-            var mat = EditorPlatformFactory.GetOrCreateFrictionlessMaterial();
-            var color = EditorPlatformFactory.DefaultPlatformColor;
-
-            EditorPlatformFactory.CreatePlatform(root.transform, "Floor", new Vector2(0f, FloorCenterY), new Vector2(30f, FloorThickness), groundLayer, sprite, mat, color);
-            EditorPlatformFactory.CreatePlatform(root.transform, "WallLeft", new Vector2(-14f, 0f), new Vector2(1f, 8f), groundLayer, sprite, mat, color);
-            EditorPlatformFactory.CreatePlatform(root.transform, "WallRight", new Vector2(14f, 0f), new Vector2(1f, 8f), groundLayer, sprite, mat, color);
-        }
+        // 바닥·벽(CreateGround)과 환경 아트는 LobbySceneBuilder.Environment.cs.
 
         /// <summary>
         /// 로비 플레이어 생성. <b>원점 = 발밑</b>이며 이는 Run 의 <c>Player.prefab</c> 규약과 같다 —
