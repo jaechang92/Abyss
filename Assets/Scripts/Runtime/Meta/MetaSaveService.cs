@@ -32,8 +32,14 @@ namespace Abyss.Runtime.Meta
         /// <summary>변환 단계가 없어 변환하지 못했다. 원본 값 그대로 사용 중이다.</summary>
         MigrationFailed,
 
-        /// <summary>파싱에 실패해 새 세이브로 시작했다. 원본은 백업됐다.</summary>
-        Corrupted
+        /// <summary>본 파일·직전 정상본 모두 읽지 못해 새 세이브로 시작했다. 읽지 못한 원본은 백업됐다.</summary>
+        Corrupted,
+
+        /// <summary>본 파일이 없거나 깨져 직전 정상본(.prev)을 현재 버전 그대로 읽었다. 깨진 본 파일은 백업됐다.</summary>
+        RecoveredFromBackup,
+
+        /// <summary>세이브를 열지 못했다(잠금·권한). 메모리는 임시 빈 세이브이고 <b>저장이 보류된다</b> — MetaSaveService.IsSaveBlocked.</summary>
+        Inaccessible
     }
 
     /// <summary>
@@ -65,8 +71,11 @@ namespace Abyss.Runtime.Meta
         /// </summary>
         public MetaSaveLoadResult LastLoadResult { get; private set; } = MetaSaveLoadResult.NotLoaded;
 
+        // LastLoadUsedBackup·IsSaveBlocked·테스트 격리 API는 MetaSaveService.LoadState.cs — 500줄 규약으로 분리.
+
         /// <summary>
-        /// 강제 재로드. 옵션 초기화 등 예외 경로에서만 사용.
+        /// 강제 재로드. 옵션 초기화 등 예외 경로에서만 사용. 세이브를 열지 못해 저장이 보류된 상태에서는
+        /// 이것이 <b>유일한 재시도 경로</b>다(자동 재시도 없음) — 성공하면 보류가 풀린다.
         /// </summary>
         public MetaSave Reload()
         {
@@ -76,11 +85,17 @@ namespace Abyss.Runtime.Meta
         }
 
         /// <summary>
-        /// 디스크 기록. JsonUtility prettyPrint 유지(디버그 열람 편의).
+        /// 디스크 기록. JsonUtility prettyPrint 유지(디버그 열람 편의). 임시 파일 → 교체 방식이라
+        /// 실패(false)해도 디스크의 직전 진행도는 그대로다 — SaveSystem.Save 참조.
         /// </summary>
         public bool Save()
         {
             EnsureLoaded();
+            if (IsSaveBlocked)
+            {
+                Debug.LogWarning("[MetaSaveService] 세이브를 열지 못한 상태라 저장하지 않는다(메모리는 임시 빈 세이브 — 쓰면 최신 진행도를 덮는다). Reload() 성공 후 풀린다.");
+                return false;
+            }
             current.Touch();
             return SaveSystem.Instance.Save(current, MetaSave.FileName, prettyPrint: true);
         }
@@ -324,6 +339,8 @@ namespace Abyss.Runtime.Meta
             if (preservedSettings != null) current.settings = preservedSettings;
             isLoaded = true;
             LastLoadResult = MetaSaveLoadResult.NewFile;
+            LastLoadUsedBackup = false;
+            IsSaveBlocked = false;   // 초기화는 사용자의 명시적 선택이다. 파일이 여전히 잠겨 있으면 SaveSystem이 저장을 거부한다.
             if (autoSave) Save();
         }
 
@@ -341,35 +358,36 @@ namespace Abyss.Runtime.Meta
         {
             if (isLoaded && current != null) return;
 
-            string path = SaveSystem.Instance.GetFilePath(MetaSave.FileName);
-            bool loadedFromDisk = false;
+            var saveSystem = SaveSystem.Instance;
+            string path = saveSystem.GetFilePath(MetaSave.FileName);
+            string backupPath = saveSystem.GetBackupFilePath(MetaSave.FileName);
 
-            if (!File.Exists(path))
+            // 우선순위: 본 파일 → 직전 정상본(.prev). 임시 파일(.tmp)은 읽지 않는다(SaveSystem.LoadWithBackup).
+            var loaded = saveSystem.LoadWithBackup<MetaSave>(MetaSave.FileName, out var primary, out var backup);
+
+            // 읽지 못한 파일은 복구 여부와 무관하게 먼저 치워 둔다. 예전에는 파싱 실패 후 곧이어 일어나는
+            // 아무 저장(Discover*·UpdateSettings 등)이 원본을 덮어써 복구 가능성까지 지웠다.
+            // 파일이 깨진 것과 진행도가 사라지는 것은 별개여야 한다 — 사람이 손볼 수 있게 먼저 치워 둔다.
+            string stamp = $"{DateTime.Now:yyyyMMdd-HHmmss}";
+            if (primary == SaveFileStatus.Unreadable) BackupSaveFile(path, $"corrupt-{stamp}", overwrite: true);
+            if (backup == SaveFileStatus.Unreadable) BackupSaveFile(backupPath, $"corrupt-prev-{stamp}", overwrite: true);
+
+            LastLoadUsedBackup = loaded != null && primary != SaveFileStatus.Loaded;
+            // 열지 못한 파일이 하나라도 있으면 "없다/깨졌다"로 단정할 수 없다 — 새 세이브·옛 백업을 현재값으로 쓰지 않고 저장을 막는다.
+            IsSaveBlocked = loaded == null && (primary == SaveFileStatus.Inaccessible || backup == SaveFileStatus.Inaccessible);
+            if (loaded != null)
             {
-                current = MetaSave.CreateNew();
-                LastLoadResult = MetaSaveLoadResult.NewFile;
-                Debug.Log("[MetaSaveService] 신규 MetaSave 생성");
+                current = loaded;
             }
             else
             {
-                var loaded = SaveSystem.Instance.Load<MetaSave>(MetaSave.FileName);
-                if (loaded == null)
-                {
-                    // 파싱 실패. 예전에는 여기서 빈 인스턴스로 넘어갔는데, 그러면 곧이어 일어나는
-                    // 아무 저장(Discover*·UpdateSettings 등)이 원본을 덮어써 복구 가능성까지 지웠다.
-                    // 파일이 깨진 것과 진행도가 사라지는 것은 별개여야 한다 — 사람이 손볼 수 있게 먼저 치워 둔다.
-                    string backup = BackupSaveFile(path, $"corrupt-{DateTime.Now:yyyyMMdd-HHmmss}", overwrite: true);
-                    current = MetaSave.CreateNew();
-                    LastLoadResult = MetaSaveLoadResult.Corrupted;
-                    Debug.LogError(
-                        $"[MetaSaveService] 메타 세이브 파싱 실패 → 새 세이브로 시작한다. " +
-                        $"원본 백업: {backup ?? "실패"}");
-                }
-                else
-                {
-                    current = loaded;
-                    loadedFromDisk = true;
-                }
+                bool isCorrupted = primary == SaveFileStatus.Unreadable || backup == SaveFileStatus.Unreadable;
+                current = MetaSave.CreateNew();
+                LastLoadResult = IsSaveBlocked ? MetaSaveLoadResult.Inaccessible
+                    : isCorrupted ? MetaSaveLoadResult.Corrupted : MetaSaveLoadResult.NewFile;
+                if (IsSaveBlocked) Debug.LogError("[MetaSaveService] 세이브를 열지 못했다(잠금·권한) → 임시 빈 세이브로 두고 저장을 보류한다. Reload()로 다시 시도.");
+                else if (isCorrupted) Debug.LogError("[MetaSaveService] 본 파일·직전 정상본 모두 읽지 못해 새 세이브로 시작한다. 원본은 corrupt-*.bak 으로 백업했다.");
+                else Debug.Log("[MetaSaveService] 신규 MetaSave 생성");
             }
 
             // 마이그레이션 단계가 하위 컬렉션을 만질 수 있으므로 변환보다 먼저 채운다.
@@ -377,7 +395,8 @@ namespace Abyss.Runtime.Meta
             // 아래 Save()가 EnsureLoaded를 재귀 호출하지 않도록 먼저 세운다.
             isLoaded = true;
 
-            if (loadedFromDisk) ApplyMigration(path);
+            // 직전 정상본에서 읽었으면 버전 백업의 원본도 그 파일이다.
+            if (loaded != null) ApplyMigration(LastLoadUsedBackup ? backupPath : path);
         }
 
         /// <summary>
@@ -394,7 +413,7 @@ namespace Abyss.Runtime.Meta
             switch (outcome)
             {
                 case MetaSaveMigrationOutcome.UpToDate:
-                    LastLoadResult = MetaSaveLoadResult.UpToDate;
+                    LastLoadResult = LastLoadUsedBackup ? MetaSaveLoadResult.RecoveredFromBackup : MetaSaveLoadResult.UpToDate;
                     break;
 
                 case MetaSaveMigrationOutcome.Migrated:
@@ -428,7 +447,7 @@ namespace Abyss.Runtime.Meta
 
         /// <summary>
         /// 세이브 파일을 <c>abyss_meta.{tag}.bak</c>으로 복사한다. 실패해도 로드를 막지 않는다
-        /// (백업은 안전망이지 진행 조건이 아니다).
+        /// (백업은 안전망이지 진행 조건이 아니다). 원본이 직전 정상본(.prev)이어도 이름은 같은 규약을 쓴다.
         /// </summary>
         /// <param name="overwrite">
         /// false면 같은 이름의 백업이 이미 있을 때 건너뛴다 — 버전 태그 백업은 <b>먼저 남긴 것이
@@ -440,7 +459,7 @@ namespace Abyss.Runtime.Meta
             try
             {
                 string dir = Path.GetDirectoryName(sourcePath);
-                string stem = Path.GetFileNameWithoutExtension(sourcePath);
+                string stem = Path.GetFileNameWithoutExtension(MetaSave.FileName);
                 string backupPath = Path.Combine(dir ?? string.Empty, $"{stem}.{tag}.bak");
 
                 if (!overwrite && File.Exists(backupPath)) return backupPath;

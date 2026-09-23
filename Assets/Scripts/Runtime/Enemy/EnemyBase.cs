@@ -299,12 +299,16 @@ namespace Abyss.Runtime.Enemy
             if (current == EnemyStateIds.Dead) return;
 
             // 경직은 시간제 게이트보다 먼저 본다 — 예비동작 중에 맞으면 공격이 끊긴다(타격 안 나감).
+            // 예외는 ResistsStaggerWhileAttacking 을 켠 적(첫 보스)뿐이다 — 기본값 false 라 나머지는 옛 동작.
             if (staggerQueued)
             {
                 staggerQueued = false;
-                timedStateExitTime = Time.time + data.staggerDuration;
-                fsm.ForceTransitionTo(EnemyStateIds.Stagger);
-                return;
+                if (!EnemyTimedState.IsStaggerIgnored(ResistsStaggerWhileAttacking, current, Time.time, timedStateExitTime))
+                {
+                    timedStateExitTime = Time.time + data.staggerDuration;
+                    fsm.ForceTransitionTo(EnemyStateIds.Stagger);
+                    return;
+                }
             }
 
             if (current == EnemyStateIds.Attack && EnemyTimedState.IsStrikeDue(hasStruck, Time.time, strikeTime))
@@ -324,7 +328,8 @@ namespace Abyss.Runtime.Enemy
 
             if (distance <= data.attackRange)
             {
-                bool canAttack = Time.time >= lastAttackTime + data.attackCooldown;
+                // CanBeginAttack 이 막으면 쿨다운 중과 똑같이 다룬다 — 쿨다운을 소비하지 않고 추적에서 기다린다.
+                bool canAttack = Time.time >= lastAttackTime + data.attackCooldown && CanBeginAttack();
                 // 🔑 여기까지 왔으면 공격 상태라도 붙잡힌 시간이 끝났다 — 쿨다운이 공격 동작보다 짧으면
                 //    Attack 에 멈춘 채 다시 못 들어가던 경로를 막는다(시간 0 인 적은 쿨다운 ≥ 0.1 이라 영향 없음).
                 if (canAttack)

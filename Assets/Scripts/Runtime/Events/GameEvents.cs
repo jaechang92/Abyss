@@ -33,6 +33,14 @@ namespace Abyss.Runtime.Events
     {
         public static event Action OnRunStarted;
         public static event Action OnRunEnded;
+
+        // 런 포기(일시정지 메뉴 「타이틀로」). 발행자는 RunManager.AbandonRun 하나, 포기 1회당 1번.
+        // 🔴 OnRunEnded 를 재사용하지 않는다 — 그쪽은 흐름 FSM을 Result로 보내고 결과 패널을 띄운다.
+        // 발행 시점: isRunActive=false·사유(Abandoned) 확정 직후, 골드 0 초기화 전 — 구독자는 핸들러 안에서
+        // 포기 직전 골드·통계를 조회할 수 있다. 계약: Docs/production/results/A2-event-contract.md.
+        // AnalyticsLogger의 "계측용 채널을 늘리지 않는다" 원칙의 한정된 예외다(2026-09-23 총괄 결정 — 이 한
+        // 채널만 허용). 런 생명주기(시작·종료·포기) 중 포기만 채널이 없었다. 이것을 근거로 채널을 더 만들지 않는다.
+        public static event Action OnRunAbandoned;
         public static event Action OnPlayerDead;
         public static event Action<int, string> OnExpGained;
         public static event Action<int, DraftTriggerReason> OnPlayerLevelUp;
@@ -81,6 +89,7 @@ namespace Abyss.Runtime.Events
 
         public static void RaiseRunStarted() => OnRunStarted?.Invoke();
         public static void RaiseRunEnded() => OnRunEnded?.Invoke();
+        public static void RaiseRunAbandoned() => OnRunAbandoned?.Invoke();
         public static void RaisePlayerDead() => OnPlayerDead?.Invoke();
         public static void RaiseExpGained(int amount, string source) => OnExpGained?.Invoke(amount, source);
         public static void RaisePlayerLevelUp(int newLevel, DraftTriggerReason reason) => OnPlayerLevelUp?.Invoke(newLevel, reason);

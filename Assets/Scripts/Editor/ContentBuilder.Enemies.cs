@@ -221,6 +221,10 @@ namespace Abyss.EditorTools
                 so.detectionRange = 12f;
                 so.attackRange = 2.5f;
                 so.attackCooldown = 1.8f;
+                // C2 검증용(총괄 결정 2): 예고 0.7 → 발동 → 회복 0.5. 합 1.2 < 쿨다운 1.8.
+                // 표현(틴트·링·소리)은 AbyssKeeperBoss 가 붙인다 — 값만 넣으면 「안 보이는 늦은 공격」이 된다.
+                so.attackWindup = 0.7f;
+                so.attackRecovery = 0.5f;
                 so.expReward = 200;
                 so.goldReward = 50;
                 so.tier = EnemyTier.Boss;

@@ -206,6 +206,8 @@ namespace Abyss.Runtime.Run
         /// <see cref="SettleMetaProgress"/>를 건너뛰므로 <see cref="LastRunSummary"/>도 갱신되지 않는다 —
         /// 포기한 런은 "직전에 끝난 런"의 기록이 아니다.
         ///
+        /// 포기 사실은 <see cref="GameEvents.OnRunAbandoned"/>로 한 번 알린다(OnRunEnded 아님).
+        ///
         /// 🔑 <b>이 메서드가 없으면 생기는 일</b>(2026-09-22 확인): 타이틀로 나가도 isRunActive가 true로
         /// 남고, RunManager는 DontDestroyOnLoad라 씬을 넘어 산다. 던전에 재입장하면
         /// <see cref="StartNewRun"/>의 첫 줄 가드에 걸려 <b>초기화가 통째로 건너뛰어지고</b>
@@ -221,12 +223,27 @@ namespace Abyss.Runtime.Run
             lastRunEndReason = RunEndReason.Abandoned;
             lastRunAbyssShardsEarned = 0;   // 버렸다는 것을 값으로도 남긴다
 
-            // 🔴 다음 런의 정산에 섞이지 않게 여기서 0으로 만든다. StartNewRun도 초기화하지만,
-            //    그 사이(타이틀·로비)에 골드를 읽는 곳이 지난 런의 값을 보면 안 된다.
-            goldShards = 0;
-            GameEvents.RaiseGoldShardsChanged(goldShards);
+            // 포기 사실은 골드를 0으로 만들기 전에 알린다 — 구독자(애널리틱스)가 포기 직전 잔액·통계를
+            // 핸들러 안에서 조회할 수 있어야 한다. 사유·획득량은 위에서 이미 확정됐다(값은 조회, 이벤트는 신호).
+            // 순서가 계약이다: Docs/production/results/A2-event-contract.md
+            //
+            // 🔴 try/finally인 이유: 구독자가 예외를 던져도 골드 초기화는 반드시 해야 한다. "구독자는 예외를
+            //    던지지 말 것"이라는 문서상의 약속에 기존 불변식(포기한 런의 골드는 남지 않는다)을 걸지 않는다.
+            //    예외 자체는 삼키지 않는다 — 구독자 결함을 조용히 묻으면 다음에 또 같은 일이 난다.
+            try
+            {
+                GameEvents.RaiseRunAbandoned();
+            }
+            finally
+            {
+                // 🔴 다음 런의 정산에 섞이지 않게 여기서 0으로 만든다. StartNewRun도 초기화하지만,
+                //    그 사이(타이틀·로비)에 골드를 읽는 곳이 지난 런의 값을 보면 안 된다.
+                //    필드 대입을 먼저 해 둔다 — 알림(RaiseGoldShardsChanged) 쪽 구독자가 또 던져도 값은 이미 0이다.
+                goldShards = 0;
+                GameEvents.RaiseGoldShardsChanged(goldShards);
 
-            Debug.Log("[RunManager] 런 포기 — 심연 조각을 버리고 isRunActive = false");
+                Debug.Log("[RunManager] 런 포기 — 심연 조각을 버리고 isRunActive = false");
+            }
         }
 
         /// <summary>

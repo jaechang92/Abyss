@@ -193,6 +193,14 @@ namespace Abyss.EditorTools
                     SetPrivateField(warden, "slashSfx", LoadSfx("sentinel_slash"));
                     return warden;
                 }
+                case "boss_abyss_keeper":
+                {
+                    // Stage1 첫 보스 — 기본 볼리에 예고를 붙인 전용 클래스(C2). 볼리 직렬값은 BossEnemy 기본값 그대로.
+                    var keeper = root.AddComponent<AbyssKeeperBoss>();
+                    SetPrivateField(keeper, "phaseChangeSfx", LoadSfx("boss_phase"));
+                    SetPrivateField(keeper, "telegraphSfx", LoadSfx("boss_telegraph"));
+                    return keeper;
+                }
                 case "boss_thronebound":
                 {
                     var thronebound = root.AddComponent<ThroneboundBoss>();

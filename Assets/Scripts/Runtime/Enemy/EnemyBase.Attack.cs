@@ -35,8 +35,37 @@ namespace Abyss.Runtime.Enemy
             {
                 hasStruck = true;
                 PerformAttack();
+                return;
             }
+
+            OnAttackWindupStarted(windup);
         }
+
+        // ───────────────────────────── 파생 훅 — 기본값은 전부 옛 동작이다(C2 · 첫 보스 전용으로 추가)
+
+        /// <summary>
+        /// 공격 동작(예비동작 + 회복) 중 들어온 경직을 버릴지. 기본 false = 「예비동작 중에 맞으면 끊긴다」.
+        /// 켜는 곳은 첫 보스(<see cref="AbyssKeeperBoss"/>)뿐이다 — 판정식은 <see cref="EnemyTimedState.IsStaggerIgnored"/>.
+        /// </summary>
+        protected virtual bool ResistsStaggerWhileAttacking => false;
+
+        /// <summary>
+        /// 지금 공격 상태에 들어가도 되는가. 기본 true. false 면 쿨다운 중과 똑같이 추적에서 기다린다
+        /// (쿨다운은 소비하지 않는다). 첫 보스가 탄막 예고 중 근접 예고를 막는 데 쓴다.
+        /// </summary>
+        protected virtual bool CanBeginAttack() => true;
+
+        /// <summary>예비동작이 0 보다 클 때 공격 상태 진입 직후 1회. 기본 무동작 — 예고 표현을 붙이는 자리.</summary>
+        protected virtual void OnAttackWindupStarted(float windup) { }
+
+        /// <summary>
+        /// 예비동작 끝의 타격 시각에 1회. <b>근접 사거리 재판정보다 먼저</b> 부른다 — 피한 경우에도
+        /// 「공격은 나갔다」가 보여야 한다. 기본 무동작. 예비동작 0 인 즉발 공격에서는 부르지 않는다.
+        /// </summary>
+        protected virtual void OnAttackStrike() { }
+
+        /// <summary>공격 상태에 들어왔고 아직 타격 전인가(= 예비동작 중). 두 예고가 겹치지 않게 하는 판정용.</summary>
+        protected bool IsAttackWindupActive => fsm != null && fsm.CurrentStateId == EnemyStateIds.Attack && !hasStruck;
 
         /// <summary>
         /// 예비동작 끝의 타격. 🔴 <b>근접은 사거리를 다시 본다</b> — 예비동작은 피하라고 보여 주는 것이라,
@@ -46,6 +75,8 @@ namespace Abyss.Runtime.Enemy
         {
             hasStruck = true;
             if (target == null || data == null) return;
+
+            OnAttackStrike();
 
             bool isMelee = !data.isRanged;
             if (isMelee && Vector2.Distance(transform.position, target.position) > data.attackRange) return;

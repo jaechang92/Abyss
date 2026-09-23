@@ -47,6 +47,12 @@ namespace Abyss.Runtime.Enemy
         public int CurrentPhase => currentPhase;
         public event Action<int> OnPhaseChanged;
 
+        // 볼리 직렬값 읽기 전용 창구 — 첫 보스(AbyssKeeperBoss)가 같은 값으로 예고 볼리를 돈다.
+        // 값을 파생에 복제하지 않으려는 것이다(프리팹 직렬값이 SoT). 기본 TryFireVolley 는 그대로다.
+        protected float VolleyInterval => volleyInterval;
+        protected int CurrentVolleyCount => baseVolleyCount + (currentPhase - 1);
+        protected float VolleySpreadAngle => spreadAngle;
+
         public float CurrentDamageMultiplier => currentPhase switch
         {
             1 => 1f,
@@ -87,7 +93,7 @@ namespace Abyss.Runtime.Enemy
             if (Time.time < lastVolleyTime + interval) return;
             lastVolleyTime = Time.time;
 
-            FireFan(baseVolleyCount + (currentPhase - 1), spreadAngle);
+            FireFan(CurrentVolleyCount, spreadAngle);
         }
 
         /// <summary>
