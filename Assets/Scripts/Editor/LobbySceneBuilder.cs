@@ -164,7 +164,15 @@ namespace Abyss.EditorTools
             var input = go.AddComponent<PlayerInput>();
             ConfigurePlayerInput(input);
 
-            CreatePlayerVisual(go.transform, defaultForm);
+            var driver = CreatePlayerVisual(go.transform, defaultForm);
+
+            // 폼 애니메이션(대기·달리기·점프·낙하) — 로비에는 FSM 이 없어 물리 상태에서 자세를 고른다.
+            var binder = go.AddComponent<LobbyAnimationBinder>();
+            var binderSo = new SerializedObject(binder);
+            SetObject(binderSo, "controller", controller);
+            SetObject(binderSo, "body", body);
+            SetObject(binderSo, "animatorDriver", driver);
+            binderSo.ApplyModifiedProperties();
 
             // 지면 체크 자식. 원점이 이미 발이라 살짝만 내린다(Run 의 Player.prefab 과 같은 -0.06).
             var gc = new GameObject("GroundCheck");
@@ -182,7 +190,7 @@ namespace Abyss.EditorTools
         /// 루트의 <c>localScale.x</c>를 쓰는데, 스프라이트가 루트에 있으면 그림과 콜라이더가
         /// 한 덩어리로 묶여 앞으로 폼별 크기·오프셋을 따로 줄 자리가 없다.
         /// </summary>
-        private static void CreatePlayerVisual(Transform parent, FormData defaultForm)
+        private static Anim.Core.AnimatorDriver CreatePlayerVisual(Transform parent, FormData defaultForm)
         {
             var go = new GameObject("Visual");
             go.transform.SetParent(parent, false);
@@ -193,16 +201,27 @@ namespace Abyss.EditorTools
             sr.sprite = EditorPlatformFactory.LoadWhiteSquare();
             sr.color = new Color(0.4f, 0.7f, 1f);
 
+            // 재생기는 Run 의 Player.prefab Visual 과 같은 구성. 컨트롤러는 비워 둔다 —
+            // 폼의 오버라이드 컨트롤러는 LobbyFormVisual 이 폼을 적용할 때 AnimatorDriver.SetController 로 꽂는다.
+            var animator = go.AddComponent<Animator>();
+            animator.applyRootMotion = false;
+            var driver = go.AddComponent<Anim.Core.AnimatorDriver>();
+            var driverSo = new SerializedObject(driver);
+            SetObject(driverSo, "animator", animator);
+            driverSo.ApplyModifiedProperties();
+
             var visual = go.AddComponent<LobbyFormVisual>();
             var so = new SerializedObject(visual);
             SetObject(so, "target", sr);
             SetObject(so, "defaultForm", defaultForm);
+            SetObject(so, "animatorDriver", driver);
             so.ApplyModifiedProperties();
 
             if (defaultForm == null)
             {
                 Debug.LogWarning("[LobbySceneBuilder] 기본 폼 미해석 — 시작 폼을 고르기 전까지 로비 캐릭터가 흰 사각형으로 남는다.");
             }
+            return driver;
         }
 
         /// <summary>

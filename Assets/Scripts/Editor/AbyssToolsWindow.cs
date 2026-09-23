@@ -200,7 +200,10 @@ namespace Abyss.EditorTools
                     string label = tool.IsDestructive ? "⚠ 실행" : "실행";
                     if (GUILayout.Button(label, GUILayout.Height(24f), GUILayout.Width(RunButtonWidth)))
                     {
-                        Run(tool);
+                        // 🔴 OnGUI 밖에서 실행한다. 씬을 열고 저장하는 도구(Build * Scene)가 레이아웃 그룹 한가운데서
+                        //    돌면 창의 GUI 상태가 끊겨 스코프를 닫을 때 "EndLayoutGroup: BeginLayoutGroup must be
+                        //    called first." 가 3건 뜬다. 도구 자체는 끝까지 돌지만 오류가 실제 실패를 가린다.
+                        EditorApplication.delayCall += () => Run(tool);
                     }
 
                     GUI.backgroundColor = previous;

@@ -1,5 +1,6 @@
 using Abyss.Runtime.Flow;
 using Abyss.Runtime.Form;
+using Anim.Core;
 using UnityEngine;
 
 namespace Abyss.Runtime.Lobby
@@ -32,12 +33,16 @@ namespace Abyss.Runtime.Lobby
         [Tooltip("bodySprite 가 없는 폼에서 쓸 폴백 스프라이트(흰 사각형).")]
         [SerializeField] private Sprite fallbackSprite;
 
+        [Tooltip("폼의 애니메이션 한 벌을 틀 재생기. 비우면 자기 자신에서 찾는다. 없으면 정지 그림만 나온다.")]
+        [SerializeField] private AnimatorDriver animatorDriver;
+
         private FormData applied;
         private bool hasApplied;
 
         private void Awake()
         {
             if (target == null) target = GetComponent<SpriteRenderer>();
+            if (animatorDriver == null) animatorDriver = GetComponent<AnimatorDriver>();
             // 빌더가 깔아 둔 초기 스프라이트를 폴백으로 삼는다 — 별도 배선 없이 예전 모습이 남는다.
             if (fallbackSprite == null && target != null) fallbackSprite = target.sprite;
         }
@@ -49,7 +54,9 @@ namespace Abyss.Runtime.Lobby
 
             applied = current;
             hasApplied = true;
-            FormVisualApplier.Apply(target, current, fallbackSprite);
+            // 그림과 애니메이션을 한 진입점으로 — 따로 부르면 정지 그림과 움직이는 그림이 다른 폼이 된다(FormVisualApplier).
+            // 무기 소켓·전투 배율은 로비에 없으므로 비운다.
+            FormVisualApplier.Apply(target, current, fallbackSprite, animatorDriver);
         }
     }
 }

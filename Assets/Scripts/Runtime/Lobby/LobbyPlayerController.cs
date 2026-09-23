@@ -40,6 +40,9 @@ namespace Abyss.Runtime.Lobby
         private static readonly List<Collider2D> groundProbe = new(8);
 
         /// <summary>패널 표시 등으로 이동을 잠글 때 사용.</summary>
+        /// <summary>발밑이 지면에 닿아 있는가. 로비 애니메이션(<see cref="LobbyAnimationBinder"/>)이 공중 자세를 고를 때 읽는다.</summary>
+        public bool IsGrounded => isGrounded;
+
         public bool InputLocked
         {
             get => inputLocked;
