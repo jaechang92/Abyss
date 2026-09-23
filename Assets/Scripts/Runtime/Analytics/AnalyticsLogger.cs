@@ -23,6 +23,9 @@ namespace Abyss.Runtime.Analytics
     /// 획득 로그(<c>skill_drafted</c>)만으로는 <b>인기 있는 카드와 자주 나오는 카드가
     /// 구분되지 않아</b> 풀 분포를 볼 수 없었다. 이것도 기존 채널
     /// (<c>OnDraftOptionsReady</c>)만 쓴다 — 아래 규칙 그대로다.
+    /// <b>2판</b>(2026-09-23): 종료 사유(<c>end_reason</c>) · 포기 마감(<c>run_abandoned</c>) · 빌드 식별 ·
+    /// 금액 필드 의미 교정 · 같은 시간축 폼 점유율. 포기 채널(<c>OnRunAbandoned</c>)은 A2가 소유한
+    /// 계약 채널이고 여기는 소비자일 뿐이다 — 계측을 위해 만든 채널이 아니다.
     ///
     /// <b>새 GameEvents 채널을 만들지 않는다.</b> 계측은 관찰자이고, 관찰하려고 채널을 늘리면
     /// EventBus 리팩터 임계(30채널)를 <b>기능이 아니라 계측이</b> 앞당긴다. P1 3종은 전부
@@ -33,6 +36,17 @@ namespace Abyss.Runtime.Analytics
     /// </summary>
     public sealed partial class AnalyticsLogger : SingletonManager<AnalyticsLogger>
     {
+        /// <summary>
+        /// 로그 스키마 판. 모든 줄의 최상위 <c>schema_version</c>에 실린다.
+        ///
+        /// 🔑 <b>옛 표본과 새 표본을 가르는 기준이다.</b> 이 필드가 없는 줄은 1판(2026-09-23 이전)이고,
+        /// 1판에는 종료 사유가 없어 <c>run_end</c>가 사망인지 완주인지 로그만으로 알 수 없다.
+        /// 분석기는 1판의 종료 유형을 <b>추정하지 않고</b> "미상"으로 둔다.
+        ///
+        /// 2판(2026-09-23): <c>end_reason</c> · <c>run_abandoned</c> · 빌드 식별 · 금액 필드 교정 · 같은 시간축 폼 점유율.
+        /// </summary>
+        private const int LOG_SCHEMA_VERSION = 2;
+
         private string sessionId;
         private string runId;
 
@@ -100,6 +114,7 @@ namespace Abyss.Runtime.Analytics
         {
             GameEvents.OnRunStarted += HandleRunStarted;
             GameEvents.OnRunEnded += HandleRunEnded;
+            GameEvents.OnRunAbandoned += HandleRunAbandoned;
             GameEvents.OnPlayerDead += HandlePlayerDead;
             GameEvents.OnDraftOptionsReady += HandleDraftOptionsReady;
             GameEvents.OnSkillDrafted += HandleSkillDrafted;
@@ -113,6 +128,7 @@ namespace Abyss.Runtime.Analytics
         {
             GameEvents.OnRunStarted -= HandleRunStarted;
             GameEvents.OnRunEnded -= HandleRunEnded;
+            GameEvents.OnRunAbandoned -= HandleRunAbandoned;
             GameEvents.OnPlayerDead -= HandlePlayerDead;
             GameEvents.OnDraftOptionsReady -= HandleDraftOptionsReady;
             GameEvents.OnSkillDrafted -= HandleSkillDrafted;
@@ -175,7 +191,8 @@ namespace Abyss.Runtime.Analytics
                 timestamp = DateTime.UtcNow.ToString("o"),
                 session_id = sessionId,
                 run_id = effectiveRunId,
-                payload
+                payload,
+                schema_version = LOG_SCHEMA_VERSION
             };
 
             try
@@ -202,39 +219,136 @@ namespace Abyss.Runtime.Analytics
             HookAbilitySystem();
             Log("run_start", new
             {
-                starting_form = GetCurrentFormId()
+                starting_form = GetCurrentFormId(),
+                build = BuildInfo()
             });
         }
 
+        /// <summary>
+        /// 사망·완주 마감. <c>end_reason</c>은 <see cref="RunManager.LastRunEndReason"/>를 읽는다 —
+        /// RunManager가 이벤트 발행 <b>전에</b> 확정하는 값이다("이벤트는 신호, 값은 조회").
+        /// </summary>
         private void HandleRunEnded()
         {
             // 마지막 방을 먼저 마감한다 — run_end 뒤에 오면 분석기가 런 밖 이벤트로 본다.
             FlushRoom();
 
-            var stats = RunManager.HasInstance ? RunManager.Instance.Stats : null;
-            if (stats == null)
-            {
-                Log("run_end", new { note = "stats unavailable" });
-                CloseRun();
-                return;
-            }
-
-            string dominantFormId = stats.GetDominantFormId();
-            Log("run_end", new
-            {
-                kills = stats.enemiesKilled,
-                duration_sec = stats.totalElapsedSeconds,
-                gold_shards_earned = RunManager.HasInstance ? RunManager.Instance.GoldShards : 0,
-                abyss_shards_earned = 0,
-                stage_reached = stats.stageReached,
-                dominant_form = dominantFormId,
-                dominant_form_ratio = stats.GetFormRatio(dominantFormId),
-                form_exclusive_draft_ratio = stats.FormExclusiveDraftRatio,
-                total_drafts = stats.totalDraftCount
-            });
+            // 정산은 이벤트 발행 전에 끝나 있다(RunManager.EndRun → SettleMetaProgress → RaiseRunEnded).
+            int abyssEarned = RunManager.HasInstance ? RunManager.Instance.LastRunAbyssShardsEarned : 0;
+            Log("run_end", BuildRunTerminalPayload(ResolveEndReason(), abyssEarned));
 
             CloseRun();
         }
+
+        /// <summary>
+        /// 포기 마감(A2 확정 계약 <c>A2-event-contract.md</c>: <c>GameEvents.OnRunAbandoned</c> — 런 비활성화·
+        /// 사유 확정 직후, 골드 초기화 전 1회. 핸들러 안에서 <c>GoldShards</c>는 포기 직전 잔액이다).
+        ///
+        /// 🔴 <b><c>run_end</c>가 아니라 <c>run_abandoned</c>로 남긴다.</b> 옛 분석기와 다른 도구는
+        /// <c>run_end</c>를 "끝까지 간 런"으로 세어 왔다. 같은 이름을 쓰면 그 도구들이 포기 런을
+        /// 조용히 완주·사망 표본에 섞는다. 이름이 다르면 옛 도구에서는 "미종료"로 보일 뿐 오집계되지 않는다.
+        /// 페이로드 모양은 <c>run_end</c>와 같다 — 새 분석기는 둘을 같은 표로 읽고 <c>end_reason</c>으로 가른다.
+        ///
+        /// 마지막 방은 <see cref="FlushRoom"/>이 <b>클리어된 경우에만</b> 기록한다 —
+        /// 싸우다 나간 방은 <c>room_cleared</c>가 되지 않는다.
+        /// </summary>
+        private void HandleRunAbandoned()
+        {
+            // 열린 런이 없으면 남기지 않는다 — 이미 run_end로 닫힌 런에 두 번째 종료를 붙이지 않기 위해서다.
+            if (runId == null) return;
+
+            // 🔴 발행부는 예외를 잡지 않는다 — 여기서 던지면 AbandonRun의 골드 초기화가 건너뛰어진다(계약 §5).
+            try
+            {
+                FlushRoom();
+
+                // 사유와 심연 조각은 이벤트 자체가 말한다 — 포기이고, 포기는 정산하지 않는다.
+                // (계약상 RunManager의 두 값도 발행 전에 Abandoned·0으로 확정되지만, 조회에 기대지 않는다.)
+                Log("run_abandoned", BuildRunTerminalPayload(nameof(RunEndReason.Abandoned), 0));
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Analytics] 포기 마감 기록 실패: {e.Message}");
+            }
+
+            CloseRun();
+
+            // 🔴 사망처럼 "끝난 런에 되살려 붙이는" 경로를 막는다. 포기 뒤 다음 런 시작 전까지 오는
+            //    OnPlayerDead는 포기한 런의 것이 아니다(계약 §5) — run_id 없이 남아 분석기가 버린다.
+            lastRunId = null;
+        }
+
+        /// <summary>
+        /// <c>run_end</c>의 종료 사유. 모르면 <b>모른다고 쓴다</b> — 사망으로 채우지 않는다.
+        ///
+        /// 런이 아직 활성인데 <c>OnRunEnded</c>가 왔다면 <see cref="RunManager.EndRun"/>을 거치지 않은
+        /// 발행(테스트·직접 호출)이라 <see cref="RunManager.LastRunEndReason"/>는 이 런의 값이 아니다.
+        /// </summary>
+        private static string ResolveEndReason()
+        {
+            if (!RunManager.HasInstance || RunManager.Instance.IsRunActive) return "Unknown";
+            return RunManager.Instance.LastRunEndReason.ToString();
+        }
+
+        /// <summary>
+        /// 종료 줄(<c>run_end</c> · <c>run_abandoned</c>)의 공통 페이로드.
+        ///
+        /// <b>금액 필드의 의미</b>(2판에서 교정):
+        /// <list type="bullet">
+        /// <item><c>gold_shards_balance</c> — 종료 시점 <b>보유 잔액</b>. 시작 특전 포함, 소비 차감 후.
+        /// 사망·완주에서는 심연 조각 환산의 입력값이다.</item>
+        /// <item><c>gold_shards_earned</c> — <b>1판 호환 필드. 이름과 달리 획득 총량이 아니라 잔액이다</b>
+        /// (1판도 같은 값을 썼다). 새 분석은 <c>gold_shards_balance</c>를 읽는다.</item>
+        /// <item><c>abyss_shards_earned</c> — 이번 런에 실제로 적립된 심연 조각. 1판은 늘 0을 박아 두었으므로
+        /// 1판 값 0은 "0개"가 아니라 "미상"이다. 포기는 정산하지 않아 0이다.</item>
+        /// </list>
+        ///
+        /// <b>폼 비율</b>: <c>dominant_form_share</c>는 분자·분모가 같은 시간축(폼 플레이타임 합)이라
+        /// 전 폼 합이 1이다. <c>dominant_form_ratio</c>는 1판 호환 필드로, 폼 시간(scaled)을
+        /// 런 시간(unscaled, 정지·모달 포함)으로 나눈 <b>혼합 축</b>이라 정지가 길면 작아진다.
+        /// </summary>
+        private object BuildRunTerminalPayload(string endReason, int abyssEarned)
+        {
+            var stats = RunManager.HasInstance ? RunManager.Instance.Stats : null;
+            if (stats == null)
+            {
+                return new { end_reason = endReason, note = "stats unavailable" };
+            }
+
+            int goldBalance = RunManager.Instance.GoldShards;
+            string dominantFormId = stats.GetDominantFormId();
+            return new
+            {
+                end_reason = endReason,
+                kills = stats.enemiesKilled,
+                duration_sec = stats.totalElapsedSeconds,
+                gold_shards_earned = goldBalance,
+                gold_shards_balance = goldBalance,
+                abyss_shards_earned = abyssEarned,
+                stage_reached = stats.stageReached,
+                dominant_form = dominantFormId,
+                dominant_form_ratio = stats.GetFormRatio(dominantFormId),
+                dominant_form_share = stats.GetFormPlaytimeRatio(dominantFormId),
+                form_playtime_sec = new System.Collections.Generic.Dictionary<string, float>(stats.formPlaytimeSeconds),
+                form_playtime_total_sec = stats.FormPlaytimeTotalSeconds,
+                form_exclusive_draft_ratio = stats.FormExclusiveDraftRatio,
+                total_drafts = stats.totalDraftCount
+            };
+        }
+
+        /// <summary>
+        /// 이 런을 돌린 실행 환경. 에디터 플레이와 빌드 플레이를 한 폴더에서 섞어 읽어도 가를 수 있게 한다.
+        /// <c>build_guid</c>는 플레이어 빌드마다 달라 "어느 빌드였나"를 특정한다(에디터에서는 빈 문자열이다).
+        /// </summary>
+        private static object BuildInfo() => new
+        {
+            is_editor = Application.isEditor,
+            is_debug_build = Debug.isDebugBuild,
+            app_version = Application.version,
+            build_guid = Application.buildGUID,
+            unity_version = Application.unityVersion,
+            platform = Application.platform.ToString()
+        };
 
         /// <summary>
         /// 런 귀속을 닫는다. ID를 버리지 않고 <see cref="lastRunId"/>로 옮기는 이유는,

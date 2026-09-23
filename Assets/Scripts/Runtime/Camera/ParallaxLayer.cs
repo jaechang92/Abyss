@@ -45,15 +45,19 @@ namespace Abyss.Runtime.Camera
 
         private void Start()
         {
-            var main = UnityEngine.Camera.main;
-            if (main == null)
+            // 미리 받은 카메라(BindCamera)가 있으면 그것을 쓴다 — Run 카메라는 MainCamera 태그가 없다.
+            if (cam == null)
             {
-                Debug.LogWarning($"[ParallaxLayer] MainCamera 없음 — '{name}' 시차 정지.");
-                enabled = false;
-                return;
+                var main = UnityEngine.Camera.main;
+                if (main == null)
+                {
+                    Debug.LogWarning($"[ParallaxLayer] MainCamera 없음 — '{name}' 시차 정지.");
+                    enabled = false;
+                    return;
+                }
+                cam = main.transform;
             }
 
-            cam = main.transform;
             origin = transform.position;
             baseX = origin.x;
             baseY = origin.y;
@@ -85,6 +89,16 @@ namespace Abyss.Runtime.Camera
                 transform.position += new Vector3(step, 0f, 0f);
                 gap -= step;
             }
+        }
+
+        /// <summary>
+        /// 따라갈 카메라를 미리 넘긴다(<see cref="Start"/> 전에). 넘기지 않으면 옛 동작대로 <c>Camera.main</c> 을 찾는다.
+        /// 📌 Run 씬은 카메라에 MainCamera 태그가 없어 <c>Camera.main</c> 이 null 이다 — 태그를 바꾸면
+        /// 그 값을 읽는 다른 코드(플레이어 흔들림 조회)까지 경로가 바뀌므로, 표현 쪽이 카메라를 직접 받는다.
+        /// </summary>
+        public void BindCamera(Transform cameraTransform)
+        {
+            if (cameraTransform != null) cam = cameraTransform;
         }
 
         /// <summary>빌더가 배치 직후 값을 넣는다. 에디터에서 손으로 만질 일이 없게 한다.</summary>

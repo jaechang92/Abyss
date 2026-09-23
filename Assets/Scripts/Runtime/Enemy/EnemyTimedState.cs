@@ -25,5 +25,18 @@ namespace Abyss.Runtime.Enemy
         {
             return !hasStruck && now >= strikeTime;
         }
+
+        /// <summary>
+        /// 들어온 경직을 버려야 하는가. 🔑 <paramref name="resistsWhileAttacking"/> 가 false 인 적(첫 보스 외 전부)은
+        /// <b>언제나 false</b> — 옛 규칙 「예비동작 중에 맞으면 공격이 끊긴다」 그대로다.
+        /// 켠 적은 공격 동작(예비동작 + 회복)이 붙잡혀 있는 동안만 버린다 — 예고 중 연타로 근접이
+        /// 영원히 안 나가는 경로(D2 §1-3)를 막는다. 공격 밖의 경직은 그대로 받는다.
+        /// </summary>
+        public static bool IsStaggerIgnored(bool resistsWhileAttacking, string currentStateId, float now, float exitTime)
+        {
+            return resistsWhileAttacking
+                && currentStateId == EnemyStateIds.Attack
+                && now < exitTime;
+        }
     }
 }

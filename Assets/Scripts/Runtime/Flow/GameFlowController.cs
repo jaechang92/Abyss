@@ -63,11 +63,21 @@ namespace Abyss.Runtime.Flow
         private void HandleRunEnded() => fsm.ForceTransitionTo(GameFlowStateIds.Result);
 
         /// <summary>
+        /// 씬 전환 중에는 정지·해제 요청을 받지 않는다. 「타이틀로」는 정지된 채 페이드·로드하는데, 그 사이
+        /// ESC(UI 맵 Cancel)로 정지가 풀리면 검은 화면 뒤에서 게임이 돌고, 다시 ESC로 정지하면 그 상태가
+        /// 다음 씬까지 따라간다. 경계의 정지 회수는 SceneFlowController가 맡는다.
+        /// 드래프트·런 종료 전이는 막지 않는다 — 전환 중에 올 수 있는 사실이 아니고, 막으면 정지 소유가 어긋난다.
+        /// </summary>
+        private static bool IsSceneTransitioning =>
+            SceneFlowController.HasInstance && SceneFlowController.Instance.IsLoading;
+
+        /// <summary>
         /// 정지는 RunActive에서만 받는다. 드래프트·결과 화면은 이미 정지 상태이므로 여기서 정지를 겹치면
         /// 해제할 때 RunActive로 복귀해 그쪽 정지가 풀려버린다(드래프트 창이 열린 채 게임이 돌아감).
         /// </summary>
         private void HandlePauseRequested()
         {
+            if (IsSceneTransitioning) return;
             if (fsm.CurrentStateId != GameFlowStateIds.RunActive) return;
             fsm.ForceTransitionTo(GameFlowStateIds.Paused);
             GameEvents.RaiseGamePaused(); // 수락된 뒤에만 '사실'을 알린다
@@ -76,6 +86,7 @@ namespace Abyss.Runtime.Flow
         /// <summary>해제도 Paused에서만 받는다 — 다른 상태에서 들어온 해제 요청이 정지를 풀지 않게.</summary>
         private void HandleResumeRequested()
         {
+            if (IsSceneTransitioning) return;
             if (fsm.CurrentStateId != GameFlowStateIds.Paused) return;
             fsm.ForceTransitionTo(GameFlowStateIds.RunActive);
             GameEvents.RaiseGameResumed();

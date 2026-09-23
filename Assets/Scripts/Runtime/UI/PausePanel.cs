@@ -90,23 +90,30 @@ namespace Abyss.Runtime.UI
                 return;
             }
 
-            // 🔴 런을 먼저 버린다. 안 버리면 isRunActive가 true로 남고, RunManager는 DontDestroyOnLoad라
-            //    씬을 넘어 살아 재입장 시 StartNewRun이 초기화를 건너뛴다(레벨·골드·무기·통계 이월).
+            if (!SceneFlowController.HasInstance)
+            {
+                // 나갈 수 없으면 버리지도 않는다 — 버린 런 위에 남으면 사망해도 결과 창이 안 뜬다.
+                Debug.LogWarning("[PausePanel] SceneFlowController 미가동 — 타이틀 전환 불가. 런을 유지한다.");
+                return;
+            }
+            if (SceneFlowController.Instance.IsLoading) return;   // 이미 나가는 중(키보드 Submit 재입력 등)
+
+            // 🔴 정지를 풀지 않는다(2026-09-23). 예전에는 여기서 해제를 요청해, 페이드·로드 동안 게임이 다시 돌고
+            //    그 사이 ESC로 다시 정지하면 정지 상태가 타이틀·로비까지 따라갈 수 있었다. 정지된 채 나가고,
+            //    씬 경계의 회수는 SceneFlowController가 맡는다(페이드·로드는 unscaled라 timeScale 0에서도 돈다).
+            //
+            // 🔴 런 포기는 전환이 확정된 순간에 한다. 로드가 실패하면 포기하지 않아야 정지 메뉴로 돌아온
+            //    플레이어가 살아 있는 런을 이어갈 수 있다. 포기를 빼먹으면 isRunActive가 true로 남아
+            //    재입장 시 StartNewRun이 초기화를 건너뛴다(레벨·골드·무기·통계 이월).
             //    EndRun이 아니라 AbandonRun인 이유: EndRun의 OnRunEnded가 결과 패널을 띄우고
             //    흐름 FSM을 Result로 보내 타이틀 전환과 부딪힌다.
-            RunManager.Instance?.AbandonRun();
+            //    콜백은 정적 메서드다 — 옛 씬이 파괴된 뒤에 이 패널을 건드리는 경로를 만들지 않는다.
+            _ = SceneFlowController.Instance.LoadTitleAsync(AbandonCurrentRun);
+        }
 
-            // 정지를 먼저 풀어 timeScale을 되돌린다 — 정지된 채 씬을 넘기면 다음 씬이 멈춘 상태로 시작한다.
-            GameEvents.RaiseResumeRequested();
-
-            if (SceneFlowController.HasInstance)
-            {
-                _ = SceneFlowController.Instance.LoadTitleAsync();
-            }
-            else
-            {
-                Debug.LogWarning("[PausePanel] SceneFlowController 미가동 — 타이틀 전환 불가.");
-            }
+        private static void AbandonCurrentRun()
+        {
+            if (RunManager.HasInstance) RunManager.Instance.AbandonRun();
         }
 
         private void OnQuitClicked()
