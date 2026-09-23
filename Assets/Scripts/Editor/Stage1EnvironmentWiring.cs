@@ -44,17 +44,17 @@ namespace Abyss.EditorTools
 
         // 깊이(ParallaxLayer 규약 — 0이 가장 멀다). 🔑 bg_near 는 ArtTest 에서 전경(1.15)이었지만 여기서는
         // 캐릭터 뒤(0.6)로 둔다 — 전투 가독성이 우선이다(총괄 결정 6 · D 명세 R2 「적이 종유석 앞에서」).
-        private const float DepthSky = 0f;
-        private const float DepthFar = 0.25f;
-        private const float DepthNear = 0.6f;
+        internal const float DepthSky = 0f;
+        internal const float DepthFar = 0.25f;
+        internal const float DepthNear = 0.6f;
         private const float DepthArena = 0.1f;
 
         // 정렬 — 전부 캐릭터(0 이상)·그레이박스 발판(-1)보다 뒤.
-        private const int OrderSky = -40;
-        private const int OrderFar = -30;
+        internal const int OrderSky = -40;
+        internal const int OrderFar = -30;
         private const int OrderArena = -30;
-        private const int OrderNear = -20;
-        private const int OrderTerrain = -5;
+        internal const int OrderNear = -20;
+        internal const int OrderTerrain = -5;
 
         // 타일 그리기(Tiled)가 제대로 반복되려면 Full Rect 메시여야 한다. 이 다섯 장만 바꾼다.
         internal static readonly string[] TiledTexturePaths =
@@ -205,7 +205,7 @@ namespace Abyss.EditorTools
         }
 
         /// <summary>Tiled 그리기 대상 다섯 장만 Full Rect 로. 이미 그러면 재임포트하지 않는다.</summary>
-        private static void EnsureFullRect()
+        internal static void EnsureFullRect()
         {
             foreach (string path in TiledTexturePaths)
             {
@@ -267,7 +267,7 @@ namespace Abyss.EditorTools
         /// 이므로 base = depth·기준y. 그리고 <b>아래 가장자리를 맞춘다</b> — bg_near 만 96px(나머지 95px)이라
         /// 중앙 피벗이면 반 픽셀씩 위아래로 튀어나온다. 원본은 자르지 않는다(manifest 결정).
         /// </summary>
-        private static void AddBackground(Transform parent, Sprite sprite, float depth, int order, float z,
+        internal static void AddBackground(Transform parent, Sprite sprite, float depth, int order, float z,
                                           float restCameraY, float referenceHeight)
         {
             var layer = new GameObject(sprite.name);
@@ -342,7 +342,7 @@ namespace Abyss.EditorTools
             return skin;
         }
 
-        private static void CreateTiled(Transform parent, string name, Sprite sprite, Vector2 size, Vector2 worldPosition, int order)
+        internal static void CreateTiled(Transform parent, string name, Sprite sprite, Vector2 size, Vector2 worldPosition, int order)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
