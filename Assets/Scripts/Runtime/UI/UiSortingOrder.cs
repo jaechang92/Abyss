@@ -51,6 +51,12 @@ namespace Abyss.Runtime.UI
         /// <summary>설정 패널. 일시정지·로비 메뉴 <b>양쪽에서 열리므로</b> 그 위여야 한다.</summary>
         public const int Settings = 500;
 
+        /// <summary>
+        /// 저장 알림(세이브 접근 실패 모달 · 「저장 안 됨」 표시 · 저장 실패 토스트). 설정 패널보다도 위다 —
+        /// 어느 패널이 열려 있든 「진행이 저장되지 않는다」는 가려지면 안 된다. 페이드보다는 아래.
+        /// </summary>
+        public const int SaveStatus = 600;
+
         /// <summary>씬 전환 페이드. 최상단 — 전환 중에는 그 무엇도 페이드 위로 새어 나오면 안 된다.</summary>
         public const int ScreenFade = 32000;
     }

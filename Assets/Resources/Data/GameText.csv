@@ -112,3 +112,12 @@ Relic_DeepVein_Desc,메타,유물 설명,,,레벨당 최대 HP +20,Max HP +20 pe
 Relic_SeersEye_Name,메타,유물 이름,,,먼저 본 자의 눈,Eye of the One Who Saw First,先に見た者の目
 Relic_SeersEye_Desc,메타,유물 설명,,,레벨당 무료 리롤 +1회,Free reroll +1 per level,レベルごとに無料リロール +1
 Relic_SlotsFull,메타,장착 슬롯 가득참,,,장착 칸이 없다 — 하나를 빼야 한다,No free slot — remove one first,装備枠がない — 一つ外すこと
+SaveStatus_BlockedTitle,저장 알림,보류 모달 제목,,,세이브를 열 수 없다,Cannot open the save file,セーブデータを開けない
+SaveStatus_BlockedBody,저장 알림,보류 모달 본문,,,다른 프로그램이 세이브 파일을 쓰고 있거나 접근 권한이 없다.\n이대로 계속하면 이번 플레이의 진행은 저장되지 않는다.\n다시 시도에 성공하면 기존 세이브로 돌아간다 — 그 사이의 진행은 사라진다.,Another program is using the save file or access was denied.\nIf you continue now your progress will not be saved.\nA successful retry restores your existing save — progress made in the meantime is lost.,別のプログラムがセーブデータを使用中か、アクセス権がない。\nこのまま続けると今回の進行は保存されない。\n再試行に成功すると既存のセーブに戻る — その間の進行は失われる。
+SaveStatus_PathFormat,저장 알림,보류 모달 저장 위치,,{0}=저장 폴더 경로,저장 위치: {0},Save location: {0},保存場所: {0}
+SaveStatus_Retry,저장 알림,보류 모달 버튼,,,다시 시도,Retry,再試行
+SaveStatus_ContinueWithoutSave,저장 알림,보류 모달 버튼,,,저장 없이 계속,Continue without saving,保存せずに続ける
+SaveStatus_RetryFailed,저장 알림,재시도 실패 안내,,,여전히 열 수 없다 — 파일을 쓰는 프로그램을 닫고 다시 시도할 것,Still cannot open it — close the program using the file and retry,まだ開けない — ファイルを使用中のプログラムを閉じて再試行すること
+SaveStatus_Badge,저장 알림,보류 상시 표시,,,저장 안 됨 — 눌러서 다시 시도,Not saving — click to retry,保存されていない — クリックで再試行
+SaveStatus_Restored,저장 알림,재시도 성공 토스트,,,세이브에 다시 연결됐다 — 이제부터 저장된다,Save file reconnected — progress will be saved again,セーブデータに再接続した — これから保存される
+SaveStatus_WriteFailed,저장 알림,쓰기 실패 토스트,,,저장하지 못했다 — 직전 저장은 그대로 남아 있다,Could not save — your previous save is intact,保存できなかった — 直前のセーブはそのまま残っている
