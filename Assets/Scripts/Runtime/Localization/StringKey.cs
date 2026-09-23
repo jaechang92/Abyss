@@ -102,6 +102,18 @@
         public const string Upgrade_FreeReroll_Name = "Upgrade_FreeReroll_Name";
         public const string Upgrade_FreeReroll_Desc = "Upgrade_FreeReroll_Desc";
 
+        // ---- 저장 알림 (세이브 접근 실패 · 쓰기 실패 — SaveStatusOverlay) ----
+        // 언어를 바꾼 사용자도 「진행이 저장되지 않는다」를 읽어야 하므로 세 언어를 모두 채운다(SaveStatusTextTests).
+        public const string SaveStatus_BlockedTitle = "SaveStatus_BlockedTitle";
+        public const string SaveStatus_BlockedBody = "SaveStatus_BlockedBody";
+        public const string SaveStatus_PathFormat = "SaveStatus_PathFormat";
+        public const string SaveStatus_Retry = "SaveStatus_Retry";
+        public const string SaveStatus_ContinueWithoutSave = "SaveStatus_ContinueWithoutSave";
+        public const string SaveStatus_RetryFailed = "SaveStatus_RetryFailed";
+        public const string SaveStatus_Badge = "SaveStatus_Badge";
+        public const string SaveStatus_Restored = "SaveStatus_Restored";
+        public const string SaveStatus_WriteFailed = "SaveStatus_WriteFailed";
+
         // ---- 서사 (기록자 NPC) ----
         public const string Npc_Chronicler_Name = "Npc_Chronicler_Name";
         public const string Npc_Chronicler_Prompt = "Npc_Chronicler_Prompt";

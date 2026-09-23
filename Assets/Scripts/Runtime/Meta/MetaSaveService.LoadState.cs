@@ -1,3 +1,5 @@
+using System;
+
 namespace Abyss.Runtime.Meta
 {
     /// <summary>
@@ -22,6 +24,56 @@ namespace Abyss.Runtime.Meta
 
         /// <summary>세이브를 열지 못해 저장을 보류 중인가. 위 계약 참조.</summary>
         public bool IsSaveBlocked { get; private set; }
+
+        /// <summary>
+        /// <see cref="IsSaveBlocked"/>가 바뀌었다(보류 시작 · 재시도 성공 · 초기화). 재시도 성공 때는
+        /// <see cref="MetaSaveService.Current"/>도 디스크 값으로 바뀌었으므로 화면은 이때 다시 그린다.
+        /// 로드가 끝난 뒤에 발생한다 — 구독자가 Current를 읽어도 안전하다.
+        /// 테스트 격리 API(Restore·Unload)는 실제 상태 변화가 아니라서 발생시키지 않는다.
+        /// </summary>
+        public event Action OnSaveStatusChanged;
+
+        /// <summary>
+        /// 보류가 아닌 상태에서 디스크 쓰기가 실패했다. 디스크의 직전 진행은 그대로다(SaveSystem.Save).
+        /// 보류 중의 저장 거부는 여기로 오지 않는다 — 매 autoSave마다 같은 알림이 쏟아지기 때문이다.
+        /// </summary>
+        public event Action OnSaveWriteFailed;
+
+        /// <summary>
+        /// 강제 재로드. 옵션 초기화 등 예외 경로에서만 사용. 세이브를 열지 못해 저장이 보류된 상태에서는
+        /// 이것이 <b>유일한 재시도 경로</b>다(자동 재시도 없음) — 성공하면 보류가 풀린다.
+        /// UI의 재시도는 <see cref="RetrySaveAccess"/>를 쓴다.
+        /// </summary>
+        public MetaSave Reload()
+        {
+            isLoaded = false;
+            EnsureLoaded();
+            return current;
+        }
+
+        /// <summary>
+        /// 사용자의 명시적 재시도(저장 알림의 [다시 시도]). 성공하면 true — 보류가 풀리고
+        /// 보류 중 메모리에 쌓인 진행은 디스크 값으로 바뀌며 버려진다(계약 3번).
+        /// 보류가 아니면 아무것도 하지 않고 true다 — 여기서 Reload하면 저장 전 메모리 진행을 디스크 값으로 덮는다.
+        /// </summary>
+        public bool RetrySaveAccess()
+        {
+            if (!IsSaveBlocked) return true;
+            Reload();
+            return !IsSaveBlocked;
+        }
+
+        private void SetSaveBlocked(bool isBlocked)
+        {
+            bool wasBlocked = IsSaveBlocked;
+            IsSaveBlocked = isBlocked;
+            NotifySaveStatusIfChanged(wasBlocked);
+        }
+
+        private void NotifySaveStatusIfChanged(bool wasBlocked)
+        {
+            if (wasBlocked != IsSaveBlocked) OnSaveStatusChanged?.Invoke();
+        }
 
         // ───────────────────────── 테스트 격리 ─────────────────────────
         //

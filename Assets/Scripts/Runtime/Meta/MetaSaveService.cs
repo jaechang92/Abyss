@@ -71,18 +71,8 @@ namespace Abyss.Runtime.Meta
         /// </summary>
         public MetaSaveLoadResult LastLoadResult { get; private set; } = MetaSaveLoadResult.NotLoaded;
 
-        // LastLoadUsedBackup·IsSaveBlocked·테스트 격리 API는 MetaSaveService.LoadState.cs — 500줄 규약으로 분리.
-
-        /// <summary>
-        /// 강제 재로드. 옵션 초기화 등 예외 경로에서만 사용. 세이브를 열지 못해 저장이 보류된 상태에서는
-        /// 이것이 <b>유일한 재시도 경로</b>다(자동 재시도 없음) — 성공하면 보류가 풀린다.
-        /// </summary>
-        public MetaSave Reload()
-        {
-            isLoaded = false;
-            EnsureLoaded();
-            return current;
-        }
+        // Reload·LastLoadUsedBackup·IsSaveBlocked·저장 상태 이벤트·테스트 격리 API는
+        // MetaSaveService.LoadState.cs — 500줄 규약으로 분리.
 
         /// <summary>
         /// 디스크 기록. JsonUtility prettyPrint 유지(디버그 열람 편의). 임시 파일 → 교체 방식이라
@@ -97,7 +87,9 @@ namespace Abyss.Runtime.Meta
                 return false;
             }
             current.Touch();
-            return SaveSystem.Instance.Save(current, MetaSave.FileName, prettyPrint: true);
+            bool isSaved = SaveSystem.Instance.Save(current, MetaSave.FileName, prettyPrint: true);
+            if (!isSaved) OnSaveWriteFailed?.Invoke();   // 보류 중 거부는 알리지 않는다 — 그건 OnSaveStatusChanged의 몫이다
+            return isSaved;
         }
 
         /// <summary>
@@ -340,7 +332,7 @@ namespace Abyss.Runtime.Meta
             isLoaded = true;
             LastLoadResult = MetaSaveLoadResult.NewFile;
             LastLoadUsedBackup = false;
-            IsSaveBlocked = false;   // 초기화는 사용자의 명시적 선택이다. 파일이 여전히 잠겨 있으면 SaveSystem이 저장을 거부한다.
+            SetSaveBlocked(false);   // 초기화는 사용자의 명시적 선택이다. 파일이 여전히 잠겨 있으면 SaveSystem이 저장을 거부한다.
             if (autoSave) Save();
         }
 
@@ -373,6 +365,7 @@ namespace Abyss.Runtime.Meta
             if (backup == SaveFileStatus.Unreadable) BackupSaveFile(backupPath, $"corrupt-prev-{stamp}", overwrite: true);
 
             LastLoadUsedBackup = loaded != null && primary != SaveFileStatus.Loaded;
+            bool wasBlocked = IsSaveBlocked;
             // 열지 못한 파일이 하나라도 있으면 "없다/깨졌다"로 단정할 수 없다 — 새 세이브·옛 백업을 현재값으로 쓰지 않고 저장을 막는다.
             IsSaveBlocked = loaded == null && (primary == SaveFileStatus.Inaccessible || backup == SaveFileStatus.Inaccessible);
             if (loaded != null)
@@ -397,6 +390,7 @@ namespace Abyss.Runtime.Meta
 
             // 직전 정상본에서 읽었으면 버전 백업의 원본도 그 파일이다.
             if (loaded != null) ApplyMigration(LastLoadUsedBackup ? backupPath : path);
+            NotifySaveStatusIfChanged(wasBlocked);   // 로드가 끝난 뒤 — 구독자가 Current를 읽어도 재귀하지 않는다
         }
 
         /// <summary>

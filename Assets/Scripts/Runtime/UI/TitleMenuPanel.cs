@@ -56,6 +56,18 @@ namespace Abyss.Runtime.UI
         private void Start()
         {
             RefreshFromSave();
+
+            // 저장 알림의 진입점 — 부팅 중에 난 세이브 접근 실패도 여기서 처음 사용자에게 보인다.
+            SaveStatusOverlay.Ensure();
+            // 재시도에 성공하면 임시 빈 세이브가 디스크 값으로 바뀌므로 누적 기록 줄을 다시 그린다.
+            var service = MetaSaveService.GetInstanceSafe();
+            if (service != null) service.OnSaveStatusChanged += RefreshFromSave;
+        }
+
+        private void OnDestroy()
+        {
+            var service = MetaSaveService.GetInstanceSafe();
+            if (service != null) service.OnSaveStatusChanged -= RefreshFromSave;
         }
 
         /// <summary>세이브 기록에 따라 시작 버튼 라벨과 누적 기록 줄을 갱신한다.</summary>
