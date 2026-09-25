@@ -2,6 +2,8 @@ using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using SaveSystem_Core;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using static Abyss.Runtime.UI.UiFactory;
 
@@ -23,6 +25,10 @@ namespace Abyss.Runtime.UI
     /// </list>
     /// 재시도는 <b>사용자가 누를 때만</b> 한다 — 저장 보류 계약의 「자동·무제한 재시도 없음」을 그대로 따른다.
     ///
+    /// 키보드·패드: 모달이 뜨면 [다시 시도]에 포커스를 주고 방향키·패드로 두 버튼을 오간다.
+    /// ESC·패드 B는 [저장 없이 계속]이다. 모달이 떠 있는 동안 다른 화면의 키 처리는
+    /// <see cref="IsCapturingInput"/>를 보고 양보한다.
+    ///
     /// 설정 패널처럼 런타임 동적 생성 + <c>DontDestroyOnLoad</c>. 진입점은 타이틀(<see cref="TitleMenuPanel"/>)의
     /// <see cref="Ensure"/> 한 곳이다 — 정상 흐름은 반드시 타이틀을 지나고, 그 전(부트스트랩)에 난 보류도
     /// 생성 시점에 현재 상태를 읽어 띄운다.
@@ -42,8 +48,13 @@ namespace Abyss.Runtime.UI
 
         private static SaveStatusOverlay instance;
 
+        // 모달이 ESC·패드 B를 이번 프레임에 소비했다는 표식(SettingsPanel.closedFrame 선례).
+        private static int dismissedFrame = -1;
+
         private MetaSaveService service;
         private GameObject modalBody;
+        private Button retryButton;
+        private GameObject previousSelection;
         private Text pathLabel;
         private Text retryResultLabel;
         private GameObject badge;
@@ -55,6 +66,14 @@ namespace Abyss.Runtime.UI
 
         public static bool IsModalOpen => instance != null && instance.modalBody != null && instance.modalBody.activeSelf;
         public static bool IsBadgeVisible => instance != null && instance.badge != null && instance.badge.activeSelf;
+
+        /// <summary>
+        /// 이번 프레임의 키 입력은 저장 모달 몫이다 — 열려 있거나, 이번 프레임에 ESC·패드 B로 닫혔다.
+        /// 모달은 모든 화면 위에 뜨므로 ESC·Enter·Space를 직접 읽는 다른 처리기(일시정지·로비 메뉴·설정·도감·
+        /// 결과·드래프트·프롤로그·엔딩)는 이게 참이면 넘어간다. 입력 콜백과 Update 중 어느 쪽이 먼저 돌아도
+        /// 한 번의 키가 모달과 뒤 화면을 함께 움직이지 않는다.
+        /// </summary>
+        public static bool IsCapturingInput => IsModalOpen || dismissedFrame == Time.frameCount;
 
         /// <summary>오버레이를 한 번만 만든다. MetaSaveService가 없으면(에디터 단독 실행 등) 아무것도 하지 않는다.</summary>
         public static void Ensure()
@@ -74,7 +93,11 @@ namespace Abyss.Runtime.UI
 
         /// <summary>도메인 리로드 비활성화 대비 정적 상태 리셋(AbyssBootstrap 선례).</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStatics() => instance = null;
+        private static void ResetStatics()
+        {
+            instance = null;
+            dismissedFrame = -1;
+        }
 
         private void Bind(MetaSaveService meta)
         {
@@ -98,6 +121,57 @@ namespace Abyss.Runtime.UI
         private void Update()
         {
             if (toast != null && toast.activeSelf && Time.unscaledTime >= toastHideTime) toast.SetActive(false);
+            if (IsModalOpen) UpdateModalInput();
+        }
+
+        /// <summary>
+        /// 키보드·패드 조작. 버튼 이동·결정은 EventSystem(InputSystemUIInputModule)이 선택된 버튼으로 처리하므로
+        /// 여기서는 포커스만 지키고, 닫기(ESC·패드 B = [저장 없이 계속])를 직접 받는다 —
+        /// 타이틀에는 ESC 수신자가 없고 Run·로비는 경로가 달라 씬 입력에 기댈 수 없다(SettingsPanel과 같은 이유).
+        /// </summary>
+        private void UpdateModalInput()
+        {
+            var keyboard = Keyboard.current;
+            var gamepad = Gamepad.current;
+            if ((keyboard != null && keyboard.escapeKey.wasPressedThisFrame) ||
+                (gamepad != null && gamepad.buttonEast.wasPressedThisFrame))
+            {
+                OnContinueClicked();
+                return;
+            }
+
+            // 마우스로 빈 곳을 누르면 선택이 풀린다 — 그 뒤 키보드·패드 입력이 갈 곳이 없어진다.
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null) return;
+            var selected = eventSystem.currentSelectedGameObject;
+            if (selected == null || !selected.transform.IsChildOf(modalBody.transform)) FocusModal();
+        }
+
+        private void FocusModal()
+        {
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null || retryButton == null) return;
+            // 모달이 가로채기 전 뒤 화면의 선택(결과 화면 재시작 버튼 등)을 기억해 닫을 때 돌려준다.
+            var selected = eventSystem.currentSelectedGameObject;
+            if (selected != null && !selected.transform.IsChildOf(modalBody.transform)) previousSelection = selected;
+            eventSystem.SetSelectedGameObject(retryButton.gameObject);
+        }
+
+        /// <summary>
+        /// 닫힌 모달의 버튼에 남은 선택을 푼다 — 꺼진 버튼을 쥔 채면 뒤 화면의 키보드·패드 조작이 막힌다.
+        /// 다른 화면의 선택은 건드리지 않는다.
+        /// </summary>
+        private void ReleaseModalFocus()
+        {
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null) return;
+            var selected = eventSystem.currentSelectedGameObject;
+            if (selected != null && selected.transform.IsChildOf(modalBody.transform))
+            {
+                bool canRestore = previousSelection != null && previousSelection.activeInHierarchy;
+                eventSystem.SetSelectedGameObject(canRestore ? previousSelection : null);
+            }
+            previousSelection = null;
         }
 
         // ───────────────────────── 상태 반영 ─────────────────────────
@@ -124,6 +198,7 @@ namespace Abyss.Runtime.UI
 
             modalBody.SetActive(isBlocked && !isModalDismissed);
             badge.SetActive(isBlocked && isModalDismissed);
+            if (!modalBody.activeSelf) ReleaseModalFocus();
 
             if (!isBlocked) return;
             retryResultLabel.text = string.Empty;
@@ -148,6 +223,7 @@ namespace Abyss.Runtime.UI
         private void OnContinueClicked()
         {
             isModalDismissed = true;
+            dismissedFrame = Time.frameCount;
             ApplyBlockedState();
         }
 
@@ -196,6 +272,7 @@ namespace Abyss.Runtime.UI
 
             var retry = CreateLocalizedButton(panel.transform, "RetryButton", new Vector2(-150, -140), new Vector2(260, 52), StringKey.SaveStatus_Retry, 19);
             retry.onClick.AddListener(OnModalRetryClicked);
+            retryButton = retry;
 
             var cont = CreateLocalizedButton(panel.transform, "ContinueButton", new Vector2(150, -140), new Vector2(260, 52), StringKey.SaveStatus_ContinueWithoutSave, 19);
             cont.onClick.AddListener(OnContinueClicked);

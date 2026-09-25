@@ -80,6 +80,8 @@ namespace Abyss.Runtime.Lobby
         private void OnPause(InputValue value)
         {
             if (!value.isPressed) return;
+            // 저장 모달이 떠 있으면 그 키는 모달 몫이다(SaveStatusOverlay.IsCapturingInput).
+            if (SaveStatusOverlay.IsCapturingInput) return;
 
             if (SettingsPanel.IsOpen)
             {
