@@ -161,15 +161,15 @@ namespace Abyss.Runtime.Lobby
                 if (row.LevelLabel != null) row.LevelLabel.text = Loc.GetFormat(StringKey.Altar_LevelFormat, level, row.Data.MaxLevel);
 
                 int cost = row.Data.CostForNextLevel(level);
-                bool maxed = cost < 0;
+                bool isMaxed = cost < 0;
                 if (row.CostLabel != null)
                 {
-                    row.CostLabel.text = maxed
+                    row.CostLabel.text = isMaxed
                         ? Loc.Get(StringKey.Altar_Maxed)
                         : Loc.GetFormat(StringKey.Altar_CostFormat, cost);
                 }
 
-                bool canBuy = !maxed && shards >= cost;
+                bool canBuy = !isMaxed && shards >= cost;
                 if (row.Button != null) row.Button.interactable = canBuy;
                 if (row.ButtonImage != null) row.ButtonImage.color = canBuy ? PurchaseBase : PurchaseDisabled;
             }

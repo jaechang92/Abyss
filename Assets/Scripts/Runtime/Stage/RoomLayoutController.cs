@@ -50,9 +50,9 @@ namespace Abyss.Runtime.Stage
                 var binding = bindings[i];
                 if (binding == null || binding.layoutRoot == null) continue;
 
-                bool match = binding.room == room;
-                if (binding.layoutRoot.activeSelf != match)
-                    binding.layoutRoot.SetActive(match);
+                bool isMatch = binding.room == room;
+                if (binding.layoutRoot.activeSelf != isMatch)
+                    binding.layoutRoot.SetActive(isMatch);
             }
         }
 

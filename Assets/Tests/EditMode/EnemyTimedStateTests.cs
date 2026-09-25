@@ -51,10 +51,10 @@ namespace Abyss.Tests.EditMode
         [Test]
         public void 타격은_예비동작이_끝나야_한_번만_나간다()
         {
-            const float strikeTime = 5.5f;
-            Assert.IsFalse(EnemyTimedState.IsStrikeDue(false, strikeTime - 0.25f, strikeTime));
-            Assert.IsTrue(EnemyTimedState.IsStrikeDue(false, strikeTime, strikeTime));
-            Assert.IsFalse(EnemyTimedState.IsStrikeDue(true, strikeTime + 0.5f, strikeTime));
+            const float STRIKE_TIME = 5.5f;
+            Assert.IsFalse(EnemyTimedState.IsStrikeDue(false, STRIKE_TIME - 0.25f, STRIKE_TIME));
+            Assert.IsTrue(EnemyTimedState.IsStrikeDue(false, STRIKE_TIME, STRIKE_TIME));
+            Assert.IsFalse(EnemyTimedState.IsStrikeDue(true, STRIKE_TIME + 0.5f, STRIKE_TIME));
         }
 
         [Test]

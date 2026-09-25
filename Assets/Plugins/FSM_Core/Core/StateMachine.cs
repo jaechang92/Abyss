@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -18,7 +18,7 @@ namespace FSM.Core
     public partial class StateMachine : MonoBehaviour, IStateMachine
     {
         [Header("디버그 설정")]
-        [SerializeField] private bool enableDebugLog = true;
+        [SerializeField] private bool isEnableDebugLog = true;
         [SerializeField] private string initialStateId;
 
         [Header("상태 정보 (읽기 전용)")]
@@ -145,7 +145,7 @@ namespace FSM.Core
 
             states[stateId] = state;
 
-            if (enableDebugLog)
+            if (isEnableDebugLog)
                 Debug.Log($"[FSM] 상태 추가됨: {stateId}");
         }
 
@@ -171,7 +171,7 @@ namespace FSM.Core
 
                 states.Remove(stateId);
 
-                if (enableDebugLog)
+                if (isEnableDebugLog)
                     Debug.Log($"[FSM] 상태 제거됨: {stateId}");
             }
         }
@@ -256,7 +256,7 @@ namespace FSM.Core
             _ = EnterInitialStateAsync(targetStateId);
             OnStarted?.Invoke();
 
-            if (enableDebugLog)
+            if (isEnableDebugLog)
                 Debug.Log($"[FSM] 초기 상태로 시작됨: {targetStateId}");
         }
 
@@ -294,7 +294,7 @@ namespace FSM.Core
             // 중지 시 이전 상태도 리셋
             previousStateId = string.Empty;
 
-            if (enableDebugLog)
+            if (isEnableDebugLog)
                 Debug.Log("[FSM] 중지됨");
         }
 
@@ -329,7 +329,7 @@ namespace FSM.Core
                 // 상태 변경 시간 기록
                 stateChangeTime = Time.time;
 
-                if (enableDebugLog)
+                if (isEnableDebugLog)
                     Debug.Log($"[FSM] 상태 변경됨(동기): {oldStateId} -> {newStateId}");
             }
             catch (Exception e)
@@ -368,7 +368,7 @@ namespace FSM.Core
                 // 상태 변경 시간 기록
                 stateChangeTime = Time.time;
 
-                if (enableDebugLog)
+                if (isEnableDebugLog)
                     Debug.Log($"[FSM] 상태 변경됨(비동기): {oldStateId} -> {newStateId}");
             }
             catch (System.OperationCanceledException)

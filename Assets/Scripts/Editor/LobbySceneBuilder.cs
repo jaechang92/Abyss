@@ -280,10 +280,10 @@ namespace Abyss.EditorTools
             bg.color = new Color(0f, 0f, 0f, 0.85f);
 
             // N개 폼을 중앙 정렬(폼 수가 늘어도 자동 대응). 간격 285 + 버튼폭 260 → 25px 여백.
-            const float formSpacing = 285f;
-            const float formButtonWidth = 260f;
+            const float FORM_SPACING = 285f;
+            const float FORM_BUTTON_WIDTH = 260f;
             // 버튼 전체 span + 좌우 여백(각 50)이 박스 안에 들어오도록 폭을 확장(최소 940).
-            float boxWidth = Mathf.Max(940f, (forms.Length - 1) * formSpacing + formButtonWidth + 100f);
+            float boxWidth = Mathf.Max(940f, (forms.Length - 1) * FORM_SPACING + FORM_BUTTON_WIDTH + 100f);
 
             var box = CreateRect(root.transform, "Box", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(boxWidth, 460));
             var boxImg = box.AddComponent<Image>();
@@ -293,11 +293,11 @@ namespace Abyss.EditorTools
 
             // 폼 버튼
             var formButtons = new List<Object>();
-            float fx = -(forms.Length - 1) * formSpacing / 2f;
+            float fx = -(forms.Length - 1) * FORM_SPACING / 2f;
             foreach (var f in forms)
             {
                 formButtons.Add(CreateFormButton(box.transform, f, new Vector2(fx, 30)));
-                fx += formSpacing;
+                fx += FORM_SPACING;
             }
 
             var (confirm, _) = CreateButton(box.transform, "ConfirmButton", new Vector2(-130, -160), new Vector2(220, 64), new Color(0.25f, 0.4f, 0.25f), "선택 (Enter)");

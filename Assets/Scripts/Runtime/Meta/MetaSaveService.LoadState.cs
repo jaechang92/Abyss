@@ -65,9 +65,9 @@ namespace Abyss.Runtime.Meta
 
         private void SetSaveBlocked(bool isBlocked)
         {
-            bool wasBlocked = IsSaveBlocked;
+            bool isWasBlocked = IsSaveBlocked;
             IsSaveBlocked = isBlocked;
-            NotifySaveStatusIfChanged(wasBlocked);
+            NotifySaveStatusIfChanged(isWasBlocked);
         }
 
         private void NotifySaveStatusIfChanged(bool wasBlocked)

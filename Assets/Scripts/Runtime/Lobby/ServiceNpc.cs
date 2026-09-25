@@ -1,4 +1,4 @@
-using Abyss.Runtime.Dialogue;
+﻿using Abyss.Runtime.Dialogue;
 using Abyss.Runtime.Interaction;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
@@ -17,7 +17,7 @@ namespace Abyss.Runtime.Lobby
     ///
     /// <b>이 패널은 <see cref="StoryData.idleLines"/>를 쓰지 않는다.</b> 각인사의 닫는 말
     /// (아크 씨앗 "자기 것은 못 새겼다")은 idle이 아니라 <b>챕터</b>다 —
-    /// <see cref="StoryChapter.minViewedChapters"/>로 "넷을 다 본 뒤"에 한 번만 열린다.
+    /// <see cref="StoryChapter.MinViewedChapters"/>로 "넷을 다 본 뒤"에 한 번만 열린다.
     /// 그래서 이 클래스에는 그 처리를 위한 코드가 없다(챕터 재생 경로가 그대로 쓰인다).
     /// </summary>
     public sealed class ServiceNpc : MonoBehaviour, IInteractable
@@ -56,8 +56,8 @@ namespace Abyss.Runtime.Lobby
             if (dialogueUI != null
                 && StoryChapterSelector.TryPickNext(story, MetaSaveService.Instance, SpeakerId, out var chapter))
             {
-                pendingStage = chapter.chapterStage;
-                dialogueUI.Play(chapter.lines, OnLoreComplete);
+                pendingStage = chapter.ChapterStage;
+                dialogueUI.Play(chapter.Lines, OnLoreComplete);
                 return;
             }
 

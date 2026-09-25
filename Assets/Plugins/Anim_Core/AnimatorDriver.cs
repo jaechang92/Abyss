@@ -84,14 +84,14 @@ namespace Anim.Core
                 return;
             }
 
-            bool wasDisabled = !animator.enabled;
-            if (!wasDisabled && ReferenceEquals(animator.runtimeAnimatorController, controller)) return;
+            bool isWasDisabled = !animator.enabled;
+            if (!isWasDisabled && ReferenceEquals(animator.runtimeAnimatorController, controller)) return;
 
             animator.enabled = true;
             animator.runtimeAnimatorController = controller;
 
             // 꺼져 있던 동안 상태가 흘렀을 수 있다. 재생 중이던 이름을 지워 같은 상태로 돌아와도 다시 틀게 한다.
-            if (wasDisabled) currentAnimationId = string.Empty;
+            if (isWasDisabled) currentAnimationId = string.Empty;
 
             RefreshClipTable();
             OnClipsChanged?.Invoke();

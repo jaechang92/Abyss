@@ -84,9 +84,9 @@ namespace Abyss.Runtime.Interaction
         {
             if (promptLabel == null) return;
 
-            bool show = current != null;
-            if (promptLabel.gameObject.activeSelf != show) promptLabel.gameObject.SetActive(show);
-            if (show) promptLabel.text = current.InteractionPrompt;
+            bool isShow = current != null;
+            if (promptLabel.gameObject.activeSelf != isShow) promptLabel.gameObject.SetActive(isShow);
+            if (isShow) promptLabel.text = current.InteractionPrompt;
         }
 
         // PlayerInput SendMessages

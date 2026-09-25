@@ -120,8 +120,8 @@ namespace Abyss.Tests.EditMode
         public void 이스케이프가_없는_텍스트는_그대로_지나간다()
         {
             // 기존 행(백슬래시 없음)의 뜻이 바뀌지 않는다는 것 — 이 규약을 나중에 넣을 수 있었던 근거다.
-            const string plain = "또 하나의 낙오자인가.";
-            Assert.AreEqual(plain, CsvParser.UnescapeNewlines(plain));
+            const string PLAIN = "또 하나의 낙오자인가.";
+            Assert.AreEqual(PLAIN, CsvParser.UnescapeNewlines(PLAIN));
             Assert.AreEqual(string.Empty, CsvParser.UnescapeNewlines(string.Empty));
             Assert.IsNull(CsvParser.UnescapeNewlines(null));
         }

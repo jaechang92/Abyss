@@ -1,4 +1,4 @@
-using Abyss.Runtime.Meta;
+﻿using Abyss.Runtime.Meta;
 using Abyss.Runtime.Story;
 using NUnit.Framework;
 using UnityEngine;
@@ -57,14 +57,14 @@ namespace Abyss.Tests.EditMode
         }
 
         private static StoryChapter Chapter(int stage, int minRunCount, int minBossKills) =>
-            new() { chapterStage = stage, minRunCount = minRunCount, minBossKills = minBossKills };
+            new() { ChapterStage = stage, MinRunCount = minRunCount, MinBossKills = minBossKills };
 
         private static StoryChapter FormChapter(int stage, string formId) =>
-            new() { chapterStage = stage, requiredFormId = formId };
+            new() { ChapterStage = stage, RequiredFormId = formId };
 
         /// <summary>폼 조건 없이 "이 화자의 것을 이만큼 본 뒤"로만 열리는 챕터(각인사 닫는 말).</summary>
         private static StoryChapter ClosingChapter(int stage, int minViewedChapters) =>
-            new() { chapterStage = stage, minViewedChapters = minViewedChapters };
+            new() { ChapterStage = stage, MinViewedChapters = minViewedChapters };
 
         private void SetTotals(int runCount, int bossKills)
         {
@@ -85,7 +85,7 @@ namespace Abyss.Tests.EditMode
         public void Chronicler_FreshSave_OffersFirstChapter()
         {
             Assert.IsTrue(TryPickChronicler(out var picked));
-            Assert.AreEqual(1, picked.chapterStage);
+            Assert.AreEqual(1, picked.ChapterStage);
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Abyss.Tests.EditMode
             SetTotals(runCount: 1, bossKills: 0);
 
             Assert.IsTrue(TryPickChronicler(out var picked));
-            Assert.AreEqual(2, picked.chapterStage);
+            Assert.AreEqual(2, picked.ChapterStage);
         }
 
         [Test]
@@ -141,7 +141,7 @@ namespace Abyss.Tests.EditMode
             service.DiscoverForm("ancient_shield", autoSave: false);
 
             Assert.IsTrue(TryPickEngraver(out var picked));
-            Assert.AreEqual(3, picked.chapterStage);
+            Assert.AreEqual(3, picked.ChapterStage);
         }
 
         [Test]
@@ -155,7 +155,7 @@ namespace Abyss.Tests.EditMode
             service.DiscoverForm("dark_blade", autoSave: false);
 
             Assert.IsTrue(TryPickEngraver(out var picked));
-            Assert.AreEqual(1, picked.chapterStage);
+            Assert.AreEqual(1, picked.ChapterStage);
         }
 
         [Test]
@@ -174,7 +174,7 @@ namespace Abyss.Tests.EditMode
             service.DiscoverForm("void_archer", autoSave: false);
 
             Assert.IsTrue(TryPickEngraver(out var picked));
-            Assert.AreEqual(2, picked.chapterStage);
+            Assert.AreEqual(2, picked.ChapterStage);
         }
 
         // ───────────────────────── 화자 격리 ─────────────────────────
@@ -186,7 +186,7 @@ namespace Abyss.Tests.EditMode
             service.MarkChapterViewed(StorySpeakerIds.Chronicler, 1, 0, 0, autoSave: false);
 
             Assert.IsTrue(TryPickEngraver(out var picked), "기록자 시청이 각인사 내력을 소진하면 안 된다.");
-            Assert.AreEqual(1, picked.chapterStage);
+            Assert.AreEqual(1, picked.ChapterStage);
         }
 
         [Test]
@@ -237,7 +237,7 @@ namespace Abyss.Tests.EditMode
             service.DiscoverForm("void_thrower", autoSave: false);
 
             Assert.IsTrue(TryPickEngraver(out var picked));
-            Assert.AreEqual(4, picked.chapterStage, "셋만 본 상태에서 닫는 말이 넷째를 가로채면 안 된다.");
+            Assert.AreEqual(4, picked.ChapterStage, "셋만 본 상태에서 닫는 말이 넷째를 가로채면 안 된다.");
         }
 
         [Test]
@@ -249,7 +249,7 @@ namespace Abyss.Tests.EditMode
             }
 
             Assert.IsTrue(TryPickEngraver(out var picked), "넷을 다 본 뒤에는 닫는 말이 열려야 한다.");
-            Assert.AreEqual(99, picked.chapterStage);
+            Assert.AreEqual(99, picked.ChapterStage);
         }
 
         /// <summary>닫는 말은 <b>한 번뿐</b>이다 — 반복되면 아크 씨앗의 무게가 사라진다.</summary>
@@ -261,7 +261,7 @@ namespace Abyss.Tests.EditMode
                 service.MarkChapterViewed(StorySpeakerIds.Engraver, stage, 0, 0, autoSave: false);
             }
             Assert.IsTrue(TryPickEngraver(out var picked));
-            service.MarkChapterViewed(StorySpeakerIds.Engraver, picked.chapterStage, 0, 0, autoSave: false);
+            service.MarkChapterViewed(StorySpeakerIds.Engraver, picked.ChapterStage, 0, 0, autoSave: false);
 
             Assert.IsFalse(TryPickEngraver(out _), "닫는 말이 두 번 나오면 안 된다.");
         }
@@ -271,13 +271,13 @@ namespace Abyss.Tests.EditMode
         public void Chronicler_Unaffected_ByViewedCountCondition()
         {
             Assert.IsTrue(TryPickChronicler(out var first));
-            Assert.AreEqual(1, first.chapterStage);
+            Assert.AreEqual(1, first.ChapterStage);
 
             service.MarkChapterViewed(StorySpeakerIds.Chronicler, 1, 0, 0, autoSave: false);
             SetTotals(runCount: 1, bossKills: 0);
 
             Assert.IsTrue(TryPickChronicler(out var second));
-            Assert.AreEqual(2, second.chapterStage);
+            Assert.AreEqual(2, second.ChapterStage);
         }
     }
 }

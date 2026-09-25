@@ -142,8 +142,8 @@ namespace Abyss.Tests.PlayMode
             // SaveSystem의 파싱 실패 로그 + MetaSaveService의 폴백 로그가 함께 뜬다.
             LogAssert.ignoreFailingMessages = true;
 
-            const string garbage = "{ 이건 JSON이 아니다";
-            var loaded = WriteRawAndReload(garbage);
+            const string GARBAGE = "{ 이건 JSON이 아니다";
+            var loaded = WriteRawAndReload(GARBAGE);
             yield return null;
 
             Assert.AreEqual(MetaSaveLoadResult.Corrupted, MetaSaveService.Instance.LastLoadResult);
@@ -154,7 +154,7 @@ namespace Abyss.Tests.PlayMode
             var backups = EnumerateGeneratedBackups();
             Assert.AreEqual(1, backups.Length, "손상 원본 백업이 정확히 1개 생겨야 한다.");
             StringAssert.Contains("corrupt-", backups[0]);
-            Assert.AreEqual(garbage, File.ReadAllText(backups[0]), "백업은 손대지 않은 원본이어야 한다.");
+            Assert.AreEqual(GARBAGE, File.ReadAllText(backups[0]), "백업은 손대지 않은 원본이어야 한다.");
         }
 
         [UnityTest]
@@ -255,9 +255,9 @@ namespace Abyss.Tests.PlayMode
         [UnityTest]
         public IEnumerator CorruptPrimary_WithGoodPrevious_RecoversPrevious_AndKeepsEvidence()
         {
-            const string garbage = "{ \"abyssShardsTotal\": 60";   // 쓰다 끊긴 본 파일
+            const string GARBAGE = "{ \"abyssShardsTotal\": 60";   // 쓰다 끊긴 본 파일
             File.WriteAllText(prevPath, CurrentVersionJson(55));
-            var loaded = WriteRawAndReload(garbage);
+            var loaded = WriteRawAndReload(GARBAGE);
             yield return null;
 
             var svc = MetaSaveService.Instance;
@@ -268,7 +268,7 @@ namespace Abyss.Tests.PlayMode
             var backups = EnumerateGeneratedBackups();
             Assert.AreEqual(1, backups.Length, "깨진 본 파일 증거가 정확히 1개 남아야 한다.");
             StringAssert.Contains("corrupt-", backups[0]);
-            Assert.AreEqual(garbage, File.ReadAllText(backups[0]));
+            Assert.AreEqual(GARBAGE, File.ReadAllText(backups[0]));
 
             // 복구 후 첫 저장: 깨진 본 파일이 직전 정상본 자리를 차지하면 안 된다.
             svc.AddAbyssShards(5, autoSave: true);
@@ -348,8 +348,8 @@ namespace Abyss.Tests.PlayMode
         [UnityTest]
         public IEnumerator MigrationSave_KeepsLegacyOriginalAsPrevious()
         {
-            const string legacy = "{\"abyssShardsTotal\":77}";   // version 키 없음 = v1
-            var loaded = WriteRawAndReload(legacy);
+            const string LEGACY = "{\"abyssShardsTotal\":77}";   // version 키 없음 = v1
+            var loaded = WriteRawAndReload(LEGACY);
             yield return null;
 
             Assert.AreEqual(MetaSaveLoadResult.Migrated, MetaSaveService.Instance.LastLoadResult);
@@ -357,7 +357,7 @@ namespace Abyss.Tests.PlayMode
 
             // 변환 직후 저장이 본 파일을 현재 버전으로 바꾸고, 변환 전 원문은 직전 정상본에 남는다.
             Assert.AreEqual(MetaSave.CurrentVersion, JsonUtility.FromJson<MetaSave>(File.ReadAllText(savePath)).version);
-            Assert.AreEqual(legacy, File.ReadAllText(prevPath));
+            Assert.AreEqual(LEGACY, File.ReadAllText(prevPath));
             Assert.IsTrue(File.Exists(Path.Combine(testDirectory, "abyss_meta.v1.bak")));
         }
     }
