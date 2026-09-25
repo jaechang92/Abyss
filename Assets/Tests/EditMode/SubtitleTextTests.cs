@@ -78,7 +78,7 @@ namespace Abyss.Tests.EditMode
             {
                 Assert.IsTrue(rawKorean.ContainsKey(key), $"CSV에 없는 자막 키: {key}");
                 Assert.IsFalse(string.IsNullOrWhiteSpace(rawKorean[key]),
-                    $"한국어 칸이 비어 있다: {key} — 서사 텍스트는 한국어만 채운다(10-narrative-plan §1-1).");
+                    $"한국어 칸이 비어 있다: {key} — 서사 텍스트는 한국어가 원문이다(10-narrative-plan §1-1).");
             }
         }
 

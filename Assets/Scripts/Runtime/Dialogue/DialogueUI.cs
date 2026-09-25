@@ -55,7 +55,7 @@ namespace Abyss.Runtime.Dialogue
             onComplete = complete;
             index = 0;
             if (root != null) root.SetActive(true);
-            if (hintLabel != null) hintLabel.text = "Space: 다음";
+            if (hintLabel != null) hintLabel.text = Loc.Get(StringKey.Dialogue_NextHint);
             ShowLine();
         }
 

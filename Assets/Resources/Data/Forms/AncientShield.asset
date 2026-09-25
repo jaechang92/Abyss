@@ -15,6 +15,7 @@ MonoBehaviour:
   formId: ancient_shield
   requiresMetaUnlock: 0
   displayName: "\uACE0\uB300 \uBC29\uD328\uBCD1"
+  nameKey: Form_AncientShield
   bodySprite: {fileID: 21300000, guid: 5bdb4b033a07bf84cbfe999fa012ac5c, type: 3}
   animatorController: {fileID: 22100000, guid: 2719c598f5ec31647bb6b131c688255b, type: 2}
   weaponAnchors: {fileID: 11400000, guid: 3fd8976516bbfd249b02e70a712b93e1, type: 2}

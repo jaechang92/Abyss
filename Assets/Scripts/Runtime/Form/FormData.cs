@@ -20,6 +20,9 @@ namespace Abyss.Runtime.Form
         [Header("표시 정보")]
         public string displayName;
 
+        [Tooltip("이름 StringKey (GameText.csv). 비우면 displayName을 그대로 쓴다.")]
+        public string nameKey;
+
         [Tooltip("게임 화면에 그려질 몸통 스프라이트. 비우면 기존 흰 사각형 + castColor 틴트로 폴백.")]
         public Sprite bodySprite;
 

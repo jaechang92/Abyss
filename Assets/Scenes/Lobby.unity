@@ -813,6 +813,7 @@ MonoBehaviour:
   root: {fileID: 1389990520}
   confirmButton: {fileID: 1544849506}
   cancelButton: {fileID: 932979162}
+  titleLabel: {fileID: 75012423}
   selectableForms:
   - {fileID: 11400000, guid: 2f593b3e8d7561446a311bf86817c215, type: 2}
   - {fileID: 11400000, guid: 0ab4bdc3dce14984aa084f522d774b1d, type: 2}
@@ -1345,7 +1346,7 @@ MonoBehaviour:
   story: {fileID: 11400000, guid: 0eee3bf35ff3fd94baf37aef899e94dc, type: 2}
   dialogueUI: {fileID: 159477994}
   player: {fileID: 1287785904}
-  promptKey: Npc_Chronicler_Prompt
+  promptKey: Npc_Recordkeeper_Prompt
   speakerId: chronicler
 --- !u!61 &396949823
 BoxCollider2D:

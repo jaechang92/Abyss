@@ -1,5 +1,6 @@
 using System;
 using Abyss.Runtime.Flow;
+using Abyss.Runtime.Localization;
 using UnityEngine;
 using UnityEngine.UI;
 using static Abyss.Runtime.UI.UiFactory;
@@ -19,9 +20,6 @@ namespace Abyss.Runtime.UI
     /// </summary>
     public sealed class LobbyMenuPanel : MonoBehaviour
     {
-        private const string QUIT_DEFAULT = "게임 종료";
-        private const string QUIT_ARMED = "게임 종료 — 확정? (다시 클릭)";
-
         private static LobbyMenuPanel instance;
 
         private GameObject body;
@@ -63,6 +61,14 @@ namespace Abyss.Runtime.UI
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() => instance = null;
 
+        // 종료 라벨은 확인 단계에 따라 키가 바뀌어 LocalizedText 대상이 아니다.
+        // 이 메뉴 위에서 설정 패널을 열어 언어를 바꿀 수 있으므로 열린 채로 다시 그려야 한다.
+        private void OnEnable() => Loc.AddLanguageChangedListener(OnLanguageChanged);
+
+        private void OnDisable() => Loc.RemoveLanguageChangedListener(OnLanguageChanged);
+
+        private void OnLanguageChanged(LocalizationLanguage language) => RefreshQuitLabel();
+
         private static void EnsureInstance()
         {
             // 씬 전환으로 파괴된 인스턴스는 Unity의 == 오버로드 덕에 여기서 null로 판정되어 다시 만들어진다.
@@ -97,7 +103,7 @@ namespace Abyss.Runtime.UI
             if (!quitArmed)
             {
                 quitArmed = true;
-                if (quitLabel != null) quitLabel.text = QUIT_ARMED;
+                RefreshQuitLabel();
                 return;
             }
             QuitGame();
@@ -106,7 +112,12 @@ namespace Abyss.Runtime.UI
         private void DisarmQuit()
         {
             quitArmed = false;
-            if (quitLabel != null) quitLabel.text = QUIT_DEFAULT;
+            RefreshQuitLabel();
+        }
+
+        private void RefreshQuitLabel()
+        {
+            if (quitLabel != null) quitLabel.text = Loc.Get(quitArmed ? StringKey.Menu_QuitConfirm : StringKey.Menu_QuitGame);
         }
 
         /// <summary>에디터에서는 Application.Quit이 아무 일도 하지 않으므로 플레이 모드를 끈다.</summary>
@@ -129,26 +140,27 @@ namespace Abyss.Runtime.UI
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = new Color(0.10f, 0.10f, 0.15f, 0.98f);
 
-            CreateLabel(panel.transform, "TitleText", new Vector2(0, 184), new Vector2(360, 40), "메뉴", 24, new Color(0.92f, 0.92f, 1f), TextAnchor.MiddleCenter);
+            CreateLocalizedLabel(panel.transform, "TitleText", new Vector2(0, 184), new Vector2(360, 40), StringKey.Menu_LobbyTitle, 24, new Color(0.92f, 0.92f, 1f), TextAnchor.MiddleCenter);
 
-            var resume = CreateButton(panel.transform, "ResumeButton", new Vector2(0, 104), new Vector2(300, 54), "돌아가기", 20);
+            var resume = CreateLocalizedButton(panel.transform, "ResumeButton", new Vector2(0, 104), new Vector2(300, 54), StringKey.Menu_Resume, 20);
             resume.onClick.AddListener(Close);
 
             // 도감은 메뉴를 닫지 않고 그 위에 덮는다(sortingOrder 300 > 200) — 닫으면 이 메뉴로 돌아온다.
-            var codex = CreateButton(panel.transform, "CodexButton", new Vector2(0, 40), new Vector2(300, 54), "도감", 20);
+            var codex = CreateLocalizedButton(panel.transform, "CodexButton", new Vector2(0, 40), new Vector2(300, 54), StringKey.Menu_Codex, 20);
             codex.onClick.AddListener(CodexPanel.Open);
 
-            var settings = CreateButton(panel.transform, "SettingsButton", new Vector2(0, -24), new Vector2(300, 54), "설정", 20);
+            var settings = CreateLocalizedButton(panel.transform, "SettingsButton", new Vector2(0, -24), new Vector2(300, 54), StringKey.Menu_Settings, 20);
             settings.onClick.AddListener(SettingsPanel.Open);
 
-            var toTitle = CreateButton(panel.transform, "ToTitleButton", new Vector2(0, -88), new Vector2(300, 54), "타이틀로", 20);
+            var toTitle = CreateLocalizedButton(panel.transform, "ToTitleButton", new Vector2(0, -88), new Vector2(300, 54), StringKey.Menu_ToTitle, 20);
             toTitle.onClick.AddListener(OnToTitleClicked);
 
-            var quit = CreateButton(panel.transform, "QuitButton", new Vector2(0, -152), new Vector2(300, 54), QUIT_DEFAULT, 20);
+            var quit = CreateButton(panel.transform, "QuitButton", new Vector2(0, -152), new Vector2(300, 54), string.Empty, 20);
             quit.onClick.AddListener(OnQuitClicked);
             quitLabel = quit.GetComponentInChildren<Text>();
+            RefreshQuitLabel();
 
-            CreateLabel(panel.transform, "HintText", new Vector2(0, -204), new Vector2(360, 30), "ESC로 닫기", 14, new Color(0.55f, 0.55f, 0.66f), TextAnchor.MiddleCenter);
+            CreateLocalizedLabel(panel.transform, "HintText", new Vector2(0, -204), new Vector2(360, 30), StringKey.Common_EscToClose, 14, new Color(0.55f, 0.55f, 0.66f), TextAnchor.MiddleCenter);
         }
     }
 }

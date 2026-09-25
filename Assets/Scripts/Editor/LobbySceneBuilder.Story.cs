@@ -34,7 +34,7 @@ namespace Abyss.EditorTools
             SetObject(so, "dialogueUI", dialogueUI);
             SetObject(so, "player", player);
             SetString(so, "speakerId", StorySpeakerIds.Chronicler);
-            ApplyNpcPrompt(so, StringKey.Npc_Chronicler_Prompt);
+            ApplyNpcPrompt(so, StringKey.Npc_Recordkeeper_Prompt);
         }
 
         /// <summary>
@@ -175,7 +175,7 @@ namespace Abyss.EditorTools
         }
 
         private static DialogueLine Line(string textKey)
-            => new DialogueLine { speakerKey = StringKey.Npc_Chronicler_Name, textKey = textKey };
+            => new DialogueLine { speakerKey = StringKey.Npc_Recordkeeper_Name, textKey = textKey };
 
         private static DialogueLine EngraverLine(string textKey)
             => new DialogueLine { speakerKey = StringKey.Npc_Engraver_Name, textKey = textKey };

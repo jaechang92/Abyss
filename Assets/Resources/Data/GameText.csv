@@ -29,8 +29,10 @@ Settings_Fullscreen,설정,전체 화면 토글 라벨,,,전체 화면,Fullscree
 Settings_Resolution,설정,해상도 셀렉터 라벨,,,해상도,Resolution,解像度
 Settings_Language,설정,언어 선택 라벨,,,언어,Language,言語
 Settings_KeyGuide,설정,설정 패널 하단 조작 안내,,,← → 이동   C 점프   D 대시   Z 공격   X 강공격\nA 스킬1   S 스킬2   LCtrl 폼 교체   G 상호작용   ESC 일시정지,← → Move   C Jump   D Dash   Z Attack   X Heavy\nA Skill 1   S Skill 2   LCtrl Swap Form   G Interact   ESC Pause,← → 移動   C ジャンプ   D ダッシュ   Z 攻撃   X 強攻撃\nA スキル1   S スキル2   LCtrl フォーム交代   G 調べる   ESC ポーズ
-Form_DarkBlade,폼,폼 이름,,,다크 블레이드,Dark Blade,ダークブレード
-Form_VoidArcher,폼,폼 이름,,,보이드 아처,Void Archer,ボイドアーチャー
+Form_DarkBlade,폼,폼 이름,,,암흑 검사,Dark Blade,暗黒剣士
+Form_VoidArcher,폼,폼 이름,,,공허 궁수,Void Archer,虚空の弓手
+Form_AncientShield,폼,폼 이름,,,고대 방패병,Ancient Shieldbearer,古代の盾兵
+Form_VoidThrower,폼,폼 이름,,,심연 투척사,Abyss Thrower,深淵の投擲士
 Npc_Guide_Name,대화,로비-안내자,,,안내자,Guide,案内人
 Npc_Guide_Prompt,대화,로비-안내자 프롬프트,,,안내자와 대화 (G),Talk to Guide (G),案内人と話す (G)
 Npc_Guide_Line1,대화,로비-안내자,,,심연의 입구다. 여기서 눈을 뜬 이가 자네가 처음은 아닐세.,This is the threshold of the abyss. You are not the first to wake here.,深淵の入り口だ。ここで目を覚ました者は君が最初ではない。
@@ -53,38 +55,38 @@ Upgrade_StartingGold_Name,메타,업그레이드 이름,,,시작 자금,Seed Fun
 Upgrade_StartingGold_Desc,메타,업그레이드 설명,,,레벨당 런 시작 골드 +25,+25 starting gold per level,レベルごとに開始ゴールド +25
 Upgrade_FreeReroll_Name,메타,업그레이드 이름,,,무료 리롤,Free Reroll,無料リロール
 Upgrade_FreeReroll_Desc,메타,업그레이드 설명,,,레벨당 드래프트 리롤 1회 무료,1 free draft reroll per level,レベルごとにドラフトのリロール1回無料
-Npc_Chronicler_Name,대화,로비-기록자 이름,,,기록자,Chronicler,記録者
-Npc_Chronicler_Prompt,대화,로비-기록자 프롬프트,,,이야기 듣기 (G),Listen (G),話を聞く (G)
-Story_Ch1_Line1,서사,챕터1-1,,,또 하나의 낙오자인가. 물에 닿는 소리를 들었다. 종이 소리와 달랐지.,,
-Story_Ch1_Line2,서사,챕터1-2,,,낙오자라는 말은 내가 지은 게 아니다. 열한째가 그렇게 말했지. 옮긴 건 옮겼다고 하면 쓸 수 있다.,,
-Story_Ch2_Line1,서사,챕터2-1,,,돌아왔군. 앞서 온 이들 중 둘째는 안 살아 있었다. 셋째는 오래 있었지.,,
-Story_Ch2_Line2,서사,챕터2-2,,,심연이 무엇인지는 나도 못 잰다. 못 재는 건 안 찍는다. 그렇게 적어 두었지.,,
-Story_Ch3_Line1,서사,챕터3-1,,,수호자를 넘었다고. 나는 그 아래를 안 봤다. 내려간 이들이 안 돌아와서 못 물었지.,,
-Story_Ch3_Line2,서사,챕터3-2,,,자네가 무엇을 찾는지는 안 물었다. 나는 잰 것만 적는다. 그건 자네가 잴 몫이지.,,
-Story_Idle_Line1,서사,기록자 대기,,,새로 적은 것이 없다. 자네가 더 가면 적을 것이 생기지.,,
-Npc_Engraver_Name,대화,로비-각인사 이름,,,각인사,,
-Story_Engraver_DarkBlade_Line1,서사,각인사-암흑 검사,,,이 날에 새긴 이름은 이레브다. 삼백 해 이어진 전쟁을 끝냈다고 적혀 있지. 몇 해였는지는 말이 갈린다.,,
-Story_Engraver_DarkBlade_Line2,서사,각인사-암흑 검사,,,끝내는 법은 배웠고 그만두는 법은 못 배웠다. 이 줄만은 적은 이가 지었다고 밝혀 뒀지. 그이가 한 말이 아니다.,,
-Story_Engraver_DarkBlade_Line3,서사,각인사-암흑 검사,,,앉아 있었고 손잡이는 바깥을 향했다. 본 사람이 그렇게 적었지. 놓아 줄 사람은 밖에서 온다 — 그건 내 셈이다.,,
-Story_Engraver_VoidArcher_Line1,서사,각인사-공허 궁수,,,카야다. 하늘에서 화살이 떨어지는 세계에서 왔다지. 그건 노래로 전해진 것이라고 적혀 있다.,,
-Story_Engraver_VoidArcher_Line2,서사,각인사-공허 궁수,,,하루에 삼백을 맞혔고 만이 넘게 떨어졌다. 전부 들은 것으로 적혀 있지. 셈을 해 보고 활을 내렸다고 한다.,,
-Story_Engraver_VoidArcher_Line3,서사,각인사-공허 궁수,,,형체를 봤다는 줄은 없다. 남은 건 시위뿐이지. 지금 걸린 시위는 자네 것이니 셈도 자네 몫이다.,,
-Story_Engraver_AncientShield_Line1,서사,각인사-고대 방패병,,,오르곤. 성이 아홉이던 땅의 남문을 열한 대째 지킨 집안의 마지막이라 적혀 있다. 대수는 들은 것이지.,,
-Story_Engraver_AncientShield_Line2,서사,각인사-고대 방패병,,,성이 다 빈 뒤에도 문밖에 섰다지. 지킬 것이 있고 없고는 자기가 정할 일이 아니라고 — 그이 말로 전해진 것이다.,,
-Story_Engraver_AncientShield_Line3,서사,각인사-고대 방패병,,,이 방패에는 흠집이 없다. 그건 내가 봤다. 못 막은 건지 그가 서 있어서 안 온 건지는 아무 데도 안 적혀 있지.,,
-Story_Engraver_VoidThrower_Line1,서사,각인사-심연 투척사,,,무이. 이름을 짓지 않기로 한 세계에서 왔다고 적혀 있다. 그게 이름인지 순서인지는 안 적혀 있지.,,
-Story_Engraver_VoidThrower_Line2,서사,각인사-심연 투척사,,,던지는 법은 배웠고 부르는 법은 못 배웠다. 다가오는 것을 이름 없이 던졌다고 한다. 들은 것이다.,,
-Story_Engraver_VoidThrower_Line3,서사,각인사-심연 투척사,,,던지기 전에 한 번 불러 보게. 부르면 손이 늦어져. 늦어진 그만큼이 사람일세 — 그이 말이라 전해지는 것을 그대로 옮겼다.,,
-Story_Engraver_Closing_Line1,서사,각인사-닫는 말(내력 4종 완료 후 1회),,,새로 들어온 파편이 없군. 가져오면 적힌 것 중에서 찾아 주지.,,
-Story_Engraver_Closing_Line2,서사,각인사-닫는 말(아크 씨앗),,,…내 것은 아직 못 새겼다. 새기려면 끝이 있어야 하는데.,,
-Story_Prologue_Line1,서사,프롤로그-1,,,떨어지는 동안에도\n나는 아직 나였다.,,
-Story_Prologue_Line2,서사,프롤로그-2,,,물소리가 먼저 왔고\n그다음에 바닥이 왔다.,,
-Story_Prologue_Line3,서사,프롤로그-3,,,바닥에 닿았을 때\n무엇이 남을지는 몰랐다.,,
-Story_Prologue_Line4,서사,프롤로그-4,,,그리고 무엇인가가\n나를 내려다보고 있었다.,,
-Story_Ending_Line1,서사,엔딩-1,,,내 앞에서 마지막 불꽃이 꺼졌다.,,
-Story_Ending_Line2,서사,엔딩-2,,,내가 걸어 내려온 길은 닫혔다.\n올라가는 길만 남았다.,,
-Story_Ending_Line3,서사,엔딩-3,,,무너진 왕좌 너머로\n오래 잊혔던 빛이 들어왔다.,,
-Story_Ending_Line4,서사,엔딩-4,,,나는 심연을 벗어났다.\n나를 내려다보던 것은 아래에 남았다.,,
+Npc_Recordkeeper_Name,대화,로비-기록자 이름,,,기록자,Recordkeeper,記録者
+Npc_Recordkeeper_Prompt,대화,로비-기록자 프롬프트,,,이야기 듣기 (G),Listen (G),話を聞く (G)
+Story_Ch1_Line1,서사,챕터1-1,,,또 하나의 낙오자인가. 물에 닿는 소리를 들었다. 종이 소리와 달랐지.,"Another straggler, then. I heard you hit the water. It didn't sound like paper.",また一人、落伍者か。水に落ちる音を聞いた。紙の音とは違ったな。
+Story_Ch1_Line2,서사,챕터1-2,,,낙오자라는 말은 내가 지은 게 아니다. 열한째가 그렇게 말했지. 옮긴 건 옮겼다고 하면 쓸 수 있다.,"""Straggler"" isn't my word. The eleventh one said it. A borrowed word can be used, so long as you say it was borrowed.",落伍者という言葉は私が作ったのではない。十一番目がそう言った。借りた言葉は、借りたと断れば使える。
+Story_Ch2_Line1,서사,챕터2-1,,,돌아왔군. 앞서 온 이들 중 둘째는 안 살아 있었다. 셋째는 오래 있었지.,"You came back. Of those who came before you, the second was not alive. The third stayed a long while.",戻ったか。先に来た者のうち、二番目は生きていなかった。三番目は長くいたな。
+Story_Ch2_Line2,서사,챕터2-2,,,심연이 무엇인지는 나도 못 잰다. 못 재는 건 안 찍는다. 그렇게 적어 두었지.,"What the Abyss is, even I can't measure. What I can't measure, I don't mark down. I wrote that much.",深淵が何なのかは私にも測れぬ。測れぬものは記さない。そう書き留めておいた。
+Story_Ch3_Line1,서사,챕터3-1,,,수호자를 넘었다고. 나는 그 아래를 안 봤다. 내려간 이들이 안 돌아와서 못 물었지.,"You got past the Guardian, you say. I never saw what lies below. Those who went down never came back, so I couldn't ask.",守護者を越えたと。私はその下を見ていない。降りた者が戻らなかったから、聞けなかった。
+Story_Ch3_Line2,서사,챕터3-2,,,자네가 무엇을 찾는지는 안 물었다. 나는 잰 것만 적는다. 그건 자네가 잴 몫이지.,I never asked what you're looking for. I only write down what I've measured. That one is yours to measure.,お主が何を探しているかは聞かなかった。私は測ったものだけを記す。それはお主が測る分だ。
+Story_Idle_Line1,서사,기록자 대기,,,새로 적은 것이 없다. 자네가 더 가면 적을 것이 생기지.,"Nothing new written. Go further, and there will be something to write.",新しく記したことはない。お主がさらに進めば、記すことができよう。
+Npc_Engraver_Name,대화,로비-각인사 이름,,,각인사,Engraver,刻印師
+Story_Engraver_DarkBlade_Line1,서사,각인사-암흑 검사,,,이 날에 새긴 이름은 이레브다. 삼백 해 이어진 전쟁을 끝냈다고 적혀 있지. 몇 해였는지는 말이 갈린다.,The name cut into this blade is Irev. It's written that he ended a war that ran three hundred years. Accounts differ on how many years it was.,この刃に刻まれた名はイレヴ。三百年続いた戦を終わらせたと記されている。何年だったかは話が分かれる。
+Story_Engraver_DarkBlade_Line2,서사,각인사-암흑 검사,,,끝내는 법은 배웠고 그만두는 법은 못 배웠다. 이 줄만은 적은 이가 지었다고 밝혀 뒀지. 그이가 한 말이 아니다.,"He learned how to end things, but never how to stop. The writer admits this line alone is his own. They are not the man's words.",終わらせ方は学んだが、やめ方は学べなかった。この一行だけは書き手が作ったと断ってある。あの者の言葉ではない。
+Story_Engraver_DarkBlade_Line3,서사,각인사-암흑 검사,,,앉아 있었고 손잡이는 바깥을 향했다. 본 사람이 그렇게 적었지. 놓아 줄 사람은 밖에서 온다 — 그건 내 셈이다.,"He was seated, the hilt turned outward. So wrote the one who saw it. The one to release him comes from outside — that part is my own reckoning.",座っていて、柄は外を向いていた。見た者がそう記した。解き放つ者は外から来る——それは私の見立てだ。
+Story_Engraver_VoidArcher_Line1,서사,각인사-공허 궁수,,,카야다. 하늘에서 화살이 떨어지는 세계에서 왔다지. 그건 노래로 전해진 것이라고 적혀 있다.,"Kaya. Came from a world where arrows fall from the sky, so they say. It's written that this was handed down in song.",カヤだ。空から矢が降る世界から来たという。それは歌で伝わったものだと記されている。
+Story_Engraver_VoidArcher_Line2,서사,각인사-공허 궁수,,,하루에 삼백을 맞혔고 만이 넘게 떨어졌다. 전부 들은 것으로 적혀 있지. 셈을 해 보고 활을 내렸다고 한다.,"Three hundred struck in a day, and over ten thousand fell. All of it is written as hearsay. Did the count, they say, and lowered the bow.",一日に三百を射抜き、一万を超えるものが落ちた。すべて聞いた話として記されている。勘定をして、弓を下ろしたという。
+Story_Engraver_VoidArcher_Line3,서사,각인사-공허 궁수,,,형체를 봤다는 줄은 없다. 남은 건 시위뿐이지. 지금 걸린 시위는 자네 것이니 셈도 자네 몫이다.,"No line says anyone saw their shape. Only the bowstring remains. The string drawn now is yours, so the count is yours too.",姿を見たという一行はない。残ったのは弦だけだ。いま張られている弦はお主のものだから、勘定もお主の分だ。
+Story_Engraver_AncientShield_Line1,서사,각인사-고대 방패병,,,오르곤. 성이 아홉이던 땅의 남문을 열한 대째 지킨 집안의 마지막이라 적혀 있다. 대수는 들은 것이지.,Orgon. Written as the last of a house that kept the south gate of a land of nine castles for eleven generations. The count of generations is hearsay.,オルゴン。九つの城があった地の南門を、十一代にわたり守った家の最後の者と記されている。代の数は聞いた話だ。
+Story_Engraver_AncientShield_Line2,서사,각인사-고대 방패병,,,성이 다 빈 뒤에도 문밖에 섰다지. 지킬 것이 있고 없고는 자기가 정할 일이 아니라고 — 그이 말로 전해진 것이다.,"Even after every castle stood empty, he stood outside the gate, they say. Whether anything was left to guard was not his to decide — or so his words come down to us.",城がすべて空になった後も、門の外に立っていたという。守るものがあるかないかは自分が決めることではない——あの者の言葉として伝わっている。
+Story_Engraver_AncientShield_Line3,서사,각인사-고대 방패병,,,이 방패에는 흠집이 없다. 그건 내가 봤다. 못 막은 건지 그가 서 있어서 안 온 건지는 아무 데도 안 적혀 있지.,"This shield has no scratch on it. That much I've seen myself. Whether it failed to block, or nothing came because he stood there — that is written nowhere.",この盾には傷がない。それは私が見た。防げなかったのか、彼が立っていたから何も来なかったのかは、どこにも記されていない。
+Story_Engraver_VoidThrower_Line1,서사,각인사-심연 투척사,,,무이. 이름을 짓지 않기로 한 세계에서 왔다고 적혀 있다. 그게 이름인지 순서인지는 안 적혀 있지.,Mui. Written as coming from a world that chose not to give names. Whether that is a name or a place in line isn't written.,ムイ。名を付けぬと決めた世界から来たと記されている。それが名なのか順番なのかは記されていない。
+Story_Engraver_VoidThrower_Line2,서사,각인사-심연 투척사,,,던지는 법은 배웠고 부르는 법은 못 배웠다. 다가오는 것을 이름 없이 던졌다고 한다. 들은 것이다.,"Learned how to throw, but never how to call out. Threw at whatever came near without naming it, they say. Hearsay.",投げ方は学んだが、呼び方は学べなかった。近づくものを、名も呼ばずに投げたという。聞いた話だ。
+Story_Engraver_VoidThrower_Line3,서사,각인사-심연 투척사,,,던지기 전에 한 번 불러 보게. 부르면 손이 늦어져. 늦어진 그만큼이 사람일세 — 그이 말이라 전해지는 것을 그대로 옮겼다.,"Call out once before you throw. Calling slows the hand. That delay is what makes you human — words said to be Mui's, copied as they came.",投げる前に一度呼んでみろ。呼べば手が遅れる。その遅れた分が人なのだ——あの者の言葉と伝わるものをそのまま写した。
+Story_Engraver_Closing_Line1,서사,각인사-닫는 말(내력 4종 완료 후 1회),,,새로 들어온 파편이 없군. 가져오면 적힌 것 중에서 찾아 주지.,"No new fragments have come in. Bring one, and I'll find it among what's written.",新しく入った欠片はないな。持ってくれば、記されたものの中から探してやろう。
+Story_Engraver_Closing_Line2,서사,각인사-닫는 말(아크 씨앗),,,…내 것은 아직 못 새겼다. 새기려면 끝이 있어야 하는데.,"…My own, I haven't engraved yet. To engrave it, there has to be an end.",…私のものは、まだ刻めていない。刻むには終わりがなければならないのだが。
+Story_Prologue_Line1,서사,프롤로그-1,,,떨어지는 동안에도\n나는 아직 나였다.,"Even as I fell,\nI was still myself.","落ちていく間も\n私はまだ私だった。"
+Story_Prologue_Line2,서사,프롤로그-2,,,물소리가 먼저 왔고\n그다음에 바닥이 왔다.,"The sound of water came first,\nand then the bottom.","水の音が先に来て\nそれから底が来た。"
+Story_Prologue_Line3,서사,프롤로그-3,,,바닥에 닿았을 때\n무엇이 남을지는 몰랐다.,"When I reached the bottom,\nI did not know what would be left.","底に触れたとき\n何が残るのかは分からなかった。"
+Story_Prologue_Line4,서사,프롤로그-4,,,그리고 무엇인가가\n나를 내려다보고 있었다.,"And something\nwas looking down at me.","そして何かが\n私を見下ろしていた。"
+Story_Ending_Line1,서사,엔딩-1,,,내 앞에서 마지막 불꽃이 꺼졌다.,"Before me, the last flame went out.",私の前で、最後の炎が消えた。
+Story_Ending_Line2,서사,엔딩-2,,,내가 걸어 내려온 길은 닫혔다.\n올라가는 길만 남았다.,"The path I had walked down was closed.\nOnly the way up remained.","私が歩いて降りてきた道は閉じた。\n上る道だけが残った。"
+Story_Ending_Line3,서사,엔딩-3,,,무너진 왕좌 너머로\n오래 잊혔던 빛이 들어왔다.,"Beyond the fallen throne,\nlong-forgotten light came in.","崩れた玉座の向こうから\n長く忘れられていた光が差し込んだ。"
+Story_Ending_Line4,서사,엔딩-4,,,나는 심연을 벗어났다.\n나를 내려다보던 것은 아래에 남았다.,"I left the Abyss behind.\nWhat had been looking down at me stayed below.","私は深淵を抜け出した。\n私を見下ろしていたものは下に残った。"
 Npc_RelicShop_Prompt,대화,로비-유물 상점 프롬프트,,,유물 감정 (G),Appraise Relics (G),遺物鑑定 (G)
 Relic_Title,메타,유물 상점 제목,,,잊힌 것들의 좌판,Stall of Forgotten Things,忘れられた物の露店
 Relic_DrawFormat,메타,유물 뽑기 버튼,,{0}: 비용,감정 ({0}),Appraise ({0}),鑑定 ({0})
@@ -121,3 +123,26 @@ SaveStatus_RetryFailed,저장 알림,재시도 실패 안내,,,여전히 열 수
 SaveStatus_Badge,저장 알림,보류 상시 표시,,,저장 안 됨 — 눌러서 다시 시도,Not saving — click to retry,保存されていない — クリックで再試行
 SaveStatus_Restored,저장 알림,재시도 성공 토스트,,,세이브에 다시 연결됐다 — 이제부터 저장된다,Save file reconnected — progress will be saved again,セーブデータに再接続した — これから保存される
 SaveStatus_WriteFailed,저장 알림,쓰기 실패 토스트,,,저장하지 못했다 — 직전 저장은 그대로 남아 있다,Could not save — your previous save is intact,保存できなかった — 直前のセーブはそのまま残っている
+Title_StartGame,메뉴,타이틀 시작 버튼,플레이 기록 없을 때,,게임 시작,Start Game,ゲームスタート
+Title_Subtitle,메뉴,타이틀 부제,,,심연으로 추락한 자,The One Who Fell into the Abyss,深淵に堕ちた者
+Title_RecordFormat,메뉴,타이틀 누적 기록 줄,플레이 기록 있을 때,{0}=누적 런 {1}=보스 격파 {2}=심연 조각,누적 {0}런 · 보스 격파 {1} · 심연 조각 {2},Runs {0} · Bosses Defeated {1} · Abyss Shards {2},累計{0}ラン · ボス撃破 {1} · 深淵の欠片 {2}
+Title_ClearedTag,메뉴,타이틀 누적 기록 꼬리표,엔딩 본 뒤,,✦ 심연 탈출,✦ Escaped the Abyss,✦ 深淵脱出
+Menu_Codex,메뉴,타이틀·로비 메뉴 버튼,,,도감,Codex,図鑑
+Menu_QuitGame,메뉴,타이틀·로비 메뉴 버튼,,,게임 종료,Quit Game,ゲーム終了
+Menu_QuitConfirm,메뉴,종료 버튼 2단계 확인,첫 클릭 후,,게임 종료 — 확정? (다시 클릭),Quit Game — Sure? (Click again),ゲーム終了 — 本当に？(もう一度クリック)
+Menu_LobbyTitle,메뉴,로비 메뉴 제목,,,메뉴,Menu,メニュー
+Menu_Resume,메뉴,로비 메뉴 버튼,,,돌아가기,Return,戻る
+Menu_ToTitle,메뉴,로비 메뉴 버튼,,,타이틀로,To Title,タイトルへ
+Common_EscToClose,공통,패널 닫기 안내,,,ESC로 닫기,ESC to close,ESCで閉じる
+Codex_DiscoveredFormat,도감,탭 줄 발견 수,,{0}=발견/전체,발견 {0},Found {0},発見 {0}
+Codex_Undiscovered,도감,미발견 항목 설명,,,아직 만나지 못했다.,Not yet encountered.,まだ出会っていない。
+Codex_Tab_Form,도감,탭,,,폼,Forms,フォーム
+Codex_Tab_Skill,도감,탭,,,스킬,Skills,スキル
+Codex_Tab_Enemy,도감,탭,,,적,Enemies,敵
+Codex_Tab_Boss,도감,탭,,,보스,Bosses,ボス
+Codex_Tab_Relic,도감,탭,,,유물,Relics,遺物
+Codex_Tab_Records,도감,탭,,,기록,Records,記録
+FormSelect_Title,로비,시작 폼 선택 패널 제목,,,시작 폼 선택,Choose Starting Form,開始フォーム選択
+FormSelect_Confirm,로비,시작 폼 선택 확정 버튼,,,선택 (Enter),Select (Enter),選択 (Enter)
+FormSelect_Cancel,로비,시작 폼 선택 취소 버튼,,,취소 (Esc),Cancel (Esc),キャンセル (Esc)
+Dialogue_NextHint,대화,대화창 하단 안내,,,Space: 다음,Space: Next,Space: 次へ

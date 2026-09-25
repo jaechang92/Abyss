@@ -287,7 +287,7 @@ namespace Abyss.EditorTools
             var boxImg = box.AddComponent<Image>();
             boxImg.color = new Color(0.1f, 0.1f, 0.14f, 0.98f);
 
-            CreateText(box.transform, "Title", "시작 폼 선택", 30, new Vector2(0, -50), new Vector2(700, 48), TextAnchor.MiddleCenter, new Color(1f, 0.9f, 0.7f));
+            var title = CreateText(box.transform, "Title", "시작 폼 선택", 30, new Vector2(0, -50), new Vector2(700, 48), TextAnchor.MiddleCenter, new Color(1f, 0.9f, 0.7f));
 
             // 폼 버튼
             var formButtons = new List<Object>();
@@ -308,6 +308,7 @@ namespace Abyss.EditorTools
             SetObject(so, "root", root);
             SetObject(so, "confirmButton", confirm);
             SetObject(so, "cancelButton", cancel);
+            SetObject(so, "titleLabel", title);
             SetObjectArray(so, "selectableForms", new List<Object>(forms));
             SetObjectArray(so, "formButtons", formButtons);
             // 로비 캐릭터와 같은 기본 폼 — 강조된 버튼과 서 있는 그림이 어긋나지 않게.

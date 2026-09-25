@@ -1,3 +1,4 @@
+using Abyss.Runtime.Localization;
 using UnityEngine;
 using UnityEngine.UI;
 using static Abyss.Runtime.UI.UiFactory;
@@ -58,13 +59,13 @@ namespace Abyss.Runtime.UI
 
         private void BuildHeader(Transform panel)
         {
-            CreateLabel(panel, "TitleText", new Vector2(CONTENT_LEFT + 150f, 372f), new Vector2(300, 48),
-                "도감", 32, AccentColor, TextAnchor.MiddleLeft);
+            CreateLocalizedLabel(panel, "TitleText", new Vector2(CONTENT_LEFT + 150f, 372f), new Vector2(300, 48),
+                StringKey.Menu_Codex, 32, AccentColor, TextAnchor.MiddleLeft);
 
-            CreateLabel(panel, "HintText", new Vector2(400f, 372f), new Vector2(300, 32),
-                "ESC로 닫기", 15, MutedColor, TextAnchor.MiddleRight);
+            CreateLocalizedLabel(panel, "HintText", new Vector2(400f, 372f), new Vector2(300, 32),
+                StringKey.Common_EscToClose, 15, MutedColor, TextAnchor.MiddleRight);
 
-            var close = CreateButton(panel, "CloseButton", new Vector2(CONTENT_RIGHT - 70f, 372f), new Vector2(140, 44), "닫기", 18);
+            var close = CreateLocalizedButton(panel, "CloseButton", new Vector2(CONTENT_RIGHT - 70f, 372f), new Vector2(140, 44), StringKey.Common_Close, 18);
             close.onClick.AddListener(Close);
 
             // 구분선. 헤더·탭과 본문을 시각적으로 끊는다.
@@ -88,7 +89,12 @@ namespace Abyss.Runtime.UI
 
         private void BuildTabs(Transform panel)
         {
-            string[] labels = { "폼", "스킬", "적", "보스", "유물", "기록" };
+            // CodexTab 순서와 1:1. 탭을 늘리면 여기도 늘린다.
+            string[] labels =
+            {
+                StringKey.Codex_Tab_Form, StringKey.Codex_Tab_Skill, StringKey.Codex_Tab_Enemy,
+                StringKey.Codex_Tab_Boss, StringKey.Codex_Tab_Relic, StringKey.Codex_Tab_Records,
+            };
 
             float step = TAB_W + TAB_GAP;
             for (int i = 0; i < labels.Length; i++)
@@ -115,7 +121,7 @@ namespace Abyss.Runtime.UI
         /// Image에도 색을 넣으면 두 색이 곱해져 선택/비선택 대비가 사라진다.
         /// 실제 색은 <see cref="ApplyTabColors"/>가 ColorBlock으로 넣는다.
         /// </summary>
-        private static Button CreateTabButton(Transform parent, string name, Vector2 pos, Vector2 size, string label)
+        private static Button CreateTabButton(Transform parent, string name, Vector2 pos, Vector2 size, string labelKey)
         {
             var go = CreateRect(parent, name,
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), pos, size);
@@ -130,11 +136,11 @@ namespace Abyss.Runtime.UI
             Stretch((RectTransform)textGo.transform);
             var text = textGo.AddComponent<Text>();
             ApplyFont(text);
-            text.text = label;
             text.fontSize = 19;
             text.alignment = TextAnchor.MiddleCenter;
             text.color = Color.white;
             text.raycastTarget = false;
+            LocalizedText.Attach(text, labelKey);
 
             return button;
         }

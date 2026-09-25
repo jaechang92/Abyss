@@ -3167,6 +3167,7 @@ MonoBehaviour:
   quitButton: {fileID: 1005944970}
   startLabel: {fileID: 319998279}
   recordText: {fileID: 1721051871}
+  subtitleLabel: {fileID: 955789767}
 --- !u!114 &1814499572
 MonoBehaviour:
   m_ObjectHideFlags: 0
