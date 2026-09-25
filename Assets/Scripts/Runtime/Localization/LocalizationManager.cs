@@ -59,6 +59,13 @@ namespace Abyss.Runtime.Localization
         public int KeyCount => textTable?.Count ?? 0;
 
         /// <summary>
+        /// 키가 표에 있는가. 규칙으로 만든 키(보스 대사 등) 중 있는 것만 쓰려는 쪽이 부른다 —
+        /// <see cref="Get"/>은 없는 키에 경고를 남기므로 「있으면 쓴다」를 그걸로 판별하면 로그가 오염된다.
+        /// </summary>
+        public bool HasKey(string stringKey) =>
+            !string.IsNullOrEmpty(stringKey) && textTable != null && textTable.ContainsKey(stringKey);
+
+        /// <summary>
         /// 언어 변경 시 발행. UI 컴포넌트(LocalizedText 등)가 구독하여 자동 갱신한다.
         /// </summary>
         public event Action<LocalizationLanguage> OnLanguageChanged;

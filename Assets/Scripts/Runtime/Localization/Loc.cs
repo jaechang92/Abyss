@@ -22,6 +22,10 @@ namespace Abyss.Runtime.Localization
         public static string GetFormat(string stringKey, params object[] args)
             => LocalizationManager.Instance.GetFormat(stringKey, args);
 
+        /// <summary>키가 표에 있는가(없는 키에 경고를 남기지 않는다).</summary>
+        public static bool HasKey(string stringKey)
+            => LocalizationManager.Instance.HasKey(stringKey);
+
         /// <summary>현재 선택된 언어.</summary>
         public static LocalizationLanguage CurrentLanguage
             => LocalizationManager.Instance.CurrentLanguage;

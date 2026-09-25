@@ -47,6 +47,27 @@ namespace Abyss.Runtime.Enemy
         public int CurrentPhase => currentPhase;
         public event Action<int> OnPhaseChanged;
 
+        /// <summary>페이즈 전환 HP 비율 — 보스 체력바가 눈금을 이 자리에 긋는다(프리팹 직렬값이 SoT).</summary>
+        public float Phase2HpThreshold => phase2HpThreshold;
+        public float Phase3HpThreshold => phase3HpThreshold;
+
+        /// <summary>
+        /// 보스가 전투에 들어섰다(Start). 보스 연출(이름 카드·체력바·대사)이 이것 하나로 붙는다 —
+        /// 스폰 경로(StageDirector·치트)마다 연출 호출을 심지 않기 위해서다.
+        /// GameEvents 채널을 늘리지 않는 이유: 받는 쪽이 인스턴스(HP·페이즈 구독)를 필요로 한다.
+        /// </summary>
+        public static event Action<BossEnemy> Spawned;
+
+        /// <summary>도메인 리로드 비활성화 대비 — 이전 플레이의 구독이 남지 않게 한다.</summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() => Spawned = null;
+
+        protected override void Start()
+        {
+            base.Start();
+            Spawned?.Invoke(this);
+        }
+
         // 볼리 직렬값 읽기 전용 창구 — 첫 보스(AbyssKeeperBoss)가 같은 값으로 예고 볼리를 돈다.
         // 값을 파생에 복제하지 않으려는 것이다(프리팹 직렬값이 SoT). 기본 TryFireVolley 는 그대로다.
         protected float VolleyInterval => volleyInterval;
