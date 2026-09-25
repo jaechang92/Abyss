@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -8,27 +8,28 @@ namespace CodeConvention.Editor
     /// <summary>
     /// 코드 컨벤션 검사 결과 표시 윈도우
     /// </summary>
-    public class CodeConventionWindow : EditorWindow
+    public partial class CodeConventionWindow : EditorWindow
     {
         private List<ConventionViolation> violations = new List<ConventionViolation>();
         private Vector2 scrollPosition;
-        private string lastCheckedPath = string.Empty;
+        [SerializeField] private string lastCheckedPath = string.Empty;
+        [SerializeField] private List<string> checkedFiles = new List<string>();
 
         // 필터 옵션
-        private bool showErrors = true;
-        private bool showWarnings = true;
+        private bool isShowErrors = true;
+        private bool isShowWarnings = true;
         private string searchFilter = string.Empty;
 
         // 정렬 옵션
         private SortMode currentSortMode = SortMode.File;
-        private bool sortAscending = true;
+        private bool isSortAscending = true;
 
         // 스타일 캐시
         private GUIStyle errorStyle;
         private GUIStyle warningStyle;
         private GUIStyle headerStyle;
         private GUIStyle filePathStyle;
-        private bool stylesInitialized = false;
+        private bool isStylesInitialized = false;
 
         private enum SortMode
         {
@@ -53,12 +54,13 @@ namespace CodeConvention.Editor
             var window = GetWindow<CodeConventionWindow>("Code Convention");
             window.violations = results;
             window.lastCheckedPath = checkedPath;
+            window.RememberFiles();
             window.Repaint();
         }
 
         private void InitStyles()
         {
-            if (stylesInitialized) return;
+            if (isStylesInitialized) return;
 
             errorStyle = new GUIStyle(EditorStyles.label)
             {
@@ -82,7 +84,7 @@ namespace CodeConvention.Editor
                 normal = { textColor = new Color(0.6f, 0.6f, 0.6f) }
             };
 
-            stylesInitialized = true;
+            isStylesInitialized = true;
         }
 
         private void OnGUI()
@@ -90,6 +92,7 @@ namespace CodeConvention.Editor
             InitStyles();
 
             DrawToolbar();
+            DrawFixToolbar();
             DrawSummary();
             DrawViolationsList();
         }
@@ -112,8 +115,8 @@ namespace CodeConvention.Editor
             GUILayout.Space(20);
 
             // 필터 토글
-            showErrors = GUILayout.Toggle(showErrors, "Errors", EditorStyles.toolbarButton, GUILayout.Width(60));
-            showWarnings = GUILayout.Toggle(showWarnings, "Warnings", EditorStyles.toolbarButton, GUILayout.Width(70));
+            isShowErrors = GUILayout.Toggle(isShowErrors, "Errors", EditorStyles.toolbarButton, GUILayout.Width(60));
+            isShowWarnings = GUILayout.Toggle(isShowWarnings, "Warnings", EditorStyles.toolbarButton, GUILayout.Width(70));
 
             GUILayout.Space(20);
 
@@ -132,9 +135,9 @@ namespace CodeConvention.Editor
                 SortViolations();
             }
 
-            if (GUILayout.Button(sortAscending ? "▲" : "▼", EditorStyles.toolbarButton, GUILayout.Width(25)))
+            if (GUILayout.Button(isSortAscending ? "▲" : "▼", EditorStyles.toolbarButton, GUILayout.Width(25)))
             {
-                sortAscending = !sortAscending;
+                isSortAscending = !isSortAscending;
                 SortViolations();
             }
 
@@ -200,11 +203,12 @@ namespace CodeConvention.Editor
         private void DrawFileHeader(string filePath)
         {
             // 상대 경로로 표시
-            string relativePath = filePath.Replace(Application.dataPath, "Assets");
+            bool isAssetPath = TryGetAssetPath(filePath, out string relativePath);
 
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("📄 " + relativePath, headerStyle);
+            EditorGUILayout.LabelField("📄 " + (isAssetPath ? relativePath : filePath), headerStyle);
 
+            using (new EditorGUI.DisabledScope(!isAssetPath))
             if (GUILayout.Button("Open", GUILayout.Width(50)))
             {
                 var asset = AssetDatabase.LoadAssetAtPath<MonoScript>(relativePath);
@@ -253,6 +257,7 @@ namespace CodeConvention.Editor
                 EditorGUILayout.LabelField(violation.LineContent, filePathStyle);
                 EditorGUI.indentLevel--;
             }
+            DrawSuggestion(violation);
         }
 
         private List<ConventionViolation> GetFilteredViolations()
@@ -260,11 +265,11 @@ namespace CodeConvention.Editor
             var filtered = violations.AsEnumerable();
 
             // 심각도 필터
-            if (!showErrors)
+            if (!isShowErrors)
             {
                 filtered = filtered.Where(v => v.Severity != ViolationSeverity.Error);
             }
-            if (!showWarnings)
+            if (!isShowWarnings)
             {
                 filtered = filtered.Where(v => v.Severity != ViolationSeverity.Warning);
             }
@@ -287,22 +292,22 @@ namespace CodeConvention.Editor
             switch (currentSortMode)
             {
                 case SortMode.File:
-                    violations = sortAscending
+                    violations = isSortAscending
                         ? violations.OrderBy(v => v.FilePath).ThenBy(v => v.LineNumber).ToList()
                         : violations.OrderByDescending(v => v.FilePath).ThenByDescending(v => v.LineNumber).ToList();
                     break;
                 case SortMode.Line:
-                    violations = sortAscending
+                    violations = isSortAscending
                         ? violations.OrderBy(v => v.LineNumber).ToList()
                         : violations.OrderByDescending(v => v.LineNumber).ToList();
                     break;
                 case SortMode.Rule:
-                    violations = sortAscending
+                    violations = isSortAscending
                         ? violations.OrderBy(v => v.RuleName).ToList()
                         : violations.OrderByDescending(v => v.RuleName).ToList();
                     break;
                 case SortMode.Severity:
-                    violations = sortAscending
+                    violations = isSortAscending
                         ? violations.OrderBy(v => v.Severity).ToList()
                         : violations.OrderByDescending(v => v.Severity).ToList();
                     break;
@@ -311,7 +316,11 @@ namespace CodeConvention.Editor
 
         private void GoToViolation(ConventionViolation violation)
         {
-            string relativePath = violation.FilePath.Replace(Application.dataPath, "Assets");
+            if (!TryGetAssetPath(violation.FilePath, out string relativePath))
+            {
+                Debug.LogWarning($"[CodeConvention] 프로젝트 Assets 안의 경로가 아닙니다: {violation.FilePath}");
+                return;
+            }
             var asset = AssetDatabase.LoadAssetAtPath<MonoScript>(relativePath);
 
             if (asset != null)
@@ -331,6 +340,7 @@ namespace CodeConvention.Editor
 
             violations = CodeConventionChecker.CheckAssets(selectedObjects);
             lastCheckedPath = "Selection";
+            RememberFiles();
             SortViolations();
             Repaint();
         }
@@ -340,6 +350,7 @@ namespace CodeConvention.Editor
             string scriptsPath = Application.dataPath;
             violations = CodeConventionChecker.CheckFolder(scriptsPath);
             lastCheckedPath = "All Scripts";
+            RememberFiles();
             SortViolations();
             Repaint();
         }
