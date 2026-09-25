@@ -257,21 +257,21 @@ namespace Abyss.Runtime.Lobby
                 var slot = slots[i];
                 string relicId = i < equipped.Count ? equipped[i] : string.Empty;
                 var relic = RelicCatalog.GetById(relicId);
-                bool filled = relic != null;
+                bool isFilled = relic != null;
 
-                if (slot.Background != null) slot.Background.color = filled ? RelicDisplay.RarityColor(relic.rarity) : SlotEmpty;
+                if (slot.Background != null) slot.Background.color = isFilled ? RelicDisplay.RarityColor(relic.rarity) : SlotEmpty;
                 if (slot.NameLabel != null)
                 {
-                    slot.NameLabel.text = filled ? Loc.Get(relic.nameKey) : Loc.Get(StringKey.Relic_EmptySlot);
-                    slot.NameLabel.color = filled ? Color.white : MutedText;
+                    slot.NameLabel.text = isFilled ? Loc.Get(relic.nameKey) : Loc.Get(StringKey.Relic_EmptySlot);
+                    slot.NameLabel.color = isFilled ? Color.white : MutedText;
                 }
                 if (slot.LevelLabel != null)
                 {
-                    slot.LevelLabel.text = filled
+                    slot.LevelLabel.text = isFilled
                         ? Loc.GetFormat(StringKey.Relic_LevelFormat, meta.GetRelicLevel(relic.relicId), relic.maxLevel)
                         : string.Empty;
                 }
-                if (slot.Button != null) slot.Button.interactable = filled;
+                if (slot.Button != null) slot.Button.interactable = isFilled;
             }
         }
 
@@ -283,17 +283,17 @@ namespace Abyss.Runtime.Lobby
                 if (tile?.Data == null) continue;
 
                 int level = meta.GetRelicLevel(tile.Data.relicId);
-                bool owned = level > 0;
-                if (tile.Root != null) tile.Root.SetActive(owned);
-                if (!owned) continue;
+                bool isOwned = level > 0;
+                if (tile.Root != null) tile.Root.SetActive(isOwned);
+                if (!isOwned) continue;
 
                 ownedCount += 1;
-                bool equipped = meta.IsRelicEquipped(tile.Data.relicId);
+                bool isEquipped = meta.IsRelicEquipped(tile.Data.relicId);
                 if (tile.Background != null)
                 {
                     var baseColor = RelicDisplay.RarityColor(tile.Data.rarity);
                     // 장착된 것은 밝게 — 같은 그리드 안에서 "지금 쓰는 것"이 한눈에 갈려야 한다.
-                    tile.Background.color = equipped ? baseColor : Color.Lerp(baseColor, TileDim, 0.6f);
+                    tile.Background.color = isEquipped ? baseColor : Color.Lerp(baseColor, TileDim, 0.6f);
                 }
                 if (tile.NameLabel != null) tile.NameLabel.text = Loc.Get(tile.Data.nameKey);
                 if (tile.LevelLabel != null)

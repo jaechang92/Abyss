@@ -200,8 +200,8 @@ namespace Abyss.Runtime.Form
         [ContextMenu("Debug: Request Swap")]
         private void DebugRequestSwap()
         {
-            bool ok = RequestSwap();
-            Debug.Log($"[FormController] Debug Swap → {(ok ? "성공" : "차단됨")} (CD={currentCooldown:F2}s, state={state})");
+            bool isSwapSucceeded = RequestSwap();
+            Debug.Log($"[FormController] Debug Swap → {(isSwapSucceeded ? "성공" : "차단됨")} (CD={currentCooldown:F2}s, state={state})");
         }
     }
 }

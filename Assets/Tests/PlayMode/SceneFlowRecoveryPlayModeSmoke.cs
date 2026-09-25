@@ -31,9 +31,9 @@ namespace Abyss.Tests.PlayMode
         [UnityTest]
         public IEnumerator 등록되지_않은_씬_요청은_검은_화면을_남기지_않는다()
         {
-            bool hadFlow = SceneFlowController.HasInstance;
+            bool isHadFlow = SceneFlowController.HasInstance;
             var flow = SceneFlowController.Instance;
-            bool hadIgnoreFailingMessages = LogAssert.ignoreFailingMessages;
+            bool isHadIgnoreFailingMessages = LogAssert.ignoreFailingMessages;
 
             // 실패 경로라 에러 로그가 난다. 로그 문구 자체는 계약이 아니므로 테스트를 로그로 실패시키지 않는다.
             LogAssert.ignoreFailingMessages = true;
@@ -62,10 +62,10 @@ namespace Abyss.Tests.PlayMode
             }
             finally
             {
-                LogAssert.ignoreFailingMessages = hadIgnoreFailingMessages;
+                LogAssert.ignoreFailingMessages = isHadIgnoreFailingMessages;
 
                 // 이 테스트가 만든 영속 객체만 치운다. 이미 있던 것은 다른 테스트·씬의 것이다.
-                if (!hadFlow)
+                if (!isHadFlow)
                 {
                     var fader = GameObject.Find(FaderObjectName);
                     if (fader != null) Object.Destroy(fader);

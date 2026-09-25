@@ -64,14 +64,14 @@ namespace Abyss.Runtime.Enemy
         {
             // 타고 있지 않았으면 알릴 것이 없다. ClearBurn은 사망·방 전환에서 무조건 불리므로
             // 가드가 없으면 불 붙은 적이 하나도 없는 방을 지나가는 것만으로 이벤트가 쏟아진다.
-            bool wasBurning = burnStacks > 0;
+            bool isWasBurning = burnStacks > 0;
 
             burnStacks = 0;
             burnRemaining = 0f;
             burnDamagePerStackPerSecond = 0f;
             burnTickTimer = 0f;
 
-            if (wasBurning) GameEvents.RaiseBurnStacksChanged(this, 0);
+            if (isWasBurning) GameEvents.RaiseBurnStacksChanged(this, 0);
         }
 
         /// <summary>

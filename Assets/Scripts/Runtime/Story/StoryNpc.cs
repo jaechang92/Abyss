@@ -24,7 +24,7 @@ namespace Abyss.Runtime.Story
         [Tooltip("진행도를 기록할 화자 id(StorySpeakerIds). 비우면 기록자로 본다.")]
         [SerializeField] private string speakerId = StorySpeakerIds.Chronicler;
 
-        private bool busy;
+        private bool isBusy;
         private int pendingStage = -1;  // 재생 중인 챕터 단계(완료 시 시청 처리)
 
         // 옛 씬 인스턴스에는 speakerId가 직렬화돼 있지 않다 — 빈 값을 기록자로 보아
@@ -32,18 +32,18 @@ namespace Abyss.Runtime.Story
         private string SpeakerId => string.IsNullOrEmpty(speakerId) ? StorySpeakerIds.Chronicler : speakerId;
 
         public string InteractionPrompt => string.IsNullOrEmpty(promptKey) ? "이야기 듣기 (G)" : Loc.Get(promptKey);
-        public bool CanInteract => !busy && (dialogueUI == null || !dialogueUI.IsOpen);
+        public bool CanInteract => !isBusy && (dialogueUI == null || !dialogueUI.IsOpen);
 
         public void Interact(GameObject interactor)
         {
-            if (busy || dialogueUI == null || story == null) return;
-            busy = true;
+            if (isBusy || dialogueUI == null || story == null) return;
+            isBusy = true;
             if (player != null) player.InputLocked = true;
 
             if (StoryChapterSelector.TryPickNext(story, MetaSaveService.Instance, SpeakerId, out var chapter))
             {
-                pendingStage = chapter.chapterStage;
-                dialogueUI.Play(chapter.lines, OnComplete);
+                pendingStage = chapter.ChapterStage;
+                dialogueUI.Play(chapter.Lines, OnComplete);
             }
             else
             {
@@ -64,7 +64,7 @@ namespace Abyss.Runtime.Story
                 }
             }
             pendingStage = -1;
-            busy = false;
+            isBusy = false;
             if (player != null) player.InputLocked = false;
         }
     }

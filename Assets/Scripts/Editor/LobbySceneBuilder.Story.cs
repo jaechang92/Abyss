@@ -57,18 +57,18 @@ namespace Abyss.EditorTools
             {
                 new StoryChapter
                 {
-                    chapterStage = 1, minRunCount = 0, minBossKills = 0,
-                    lines = new[] { Line(StringKey.Story_Ch1_Line1), Line(StringKey.Story_Ch1_Line2) },
+                    ChapterStage = 1, MinRunCount = 0, MinBossKills = 0,
+                    Lines = new[] { Line(StringKey.Story_Ch1_Line1), Line(StringKey.Story_Ch1_Line2) },
                 },
                 new StoryChapter
                 {
-                    chapterStage = 2, minRunCount = 1, minBossKills = 0,
-                    lines = new[] { Line(StringKey.Story_Ch2_Line1), Line(StringKey.Story_Ch2_Line2) },
+                    ChapterStage = 2, MinRunCount = 1, MinBossKills = 0,
+                    Lines = new[] { Line(StringKey.Story_Ch2_Line1), Line(StringKey.Story_Ch2_Line2) },
                 },
                 new StoryChapter
                 {
-                    chapterStage = 3, minRunCount = 0, minBossKills = 1,
-                    lines = new[] { Line(StringKey.Story_Ch3_Line1), Line(StringKey.Story_Ch3_Line2) },
+                    ChapterStage = 3, MinRunCount = 0, MinBossKills = 1,
+                    Lines = new[] { Line(StringKey.Story_Ch3_Line1), Line(StringKey.Story_Ch3_Line2) },
                 },
             };
             data.idleLines = new[] { Line(StringKey.Story_Idle_Line1) };
@@ -150,12 +150,12 @@ namespace Abyss.EditorTools
 
             return new StoryChapter
             {
-                chapterStage = chapterStage,
-                minRunCount = 0,
-                minBossKills = 0,
-                requiredFormId = string.Empty,
-                minViewedChapters = minViewedChapters,
-                lines = lines,
+                ChapterStage = chapterStage,
+                MinRunCount = 0,
+                MinBossKills = 0,
+                RequiredFormId = string.Empty,
+                MinViewedChapters = minViewedChapters,
+                Lines = lines,
             };
         }
 
@@ -166,11 +166,11 @@ namespace Abyss.EditorTools
 
             return new StoryChapter
             {
-                chapterStage = chapterStage,
-                minRunCount = 0,
-                minBossKills = 0,
-                requiredFormId = formId,
-                lines = lines,
+                ChapterStage = chapterStage,
+                MinRunCount = 0,
+                MinBossKills = 0,
+                RequiredFormId = formId,
+                Lines = lines,
             };
         }
 

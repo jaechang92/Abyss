@@ -56,8 +56,8 @@ namespace Abyss.Runtime.Enemy
             {
                 var enemy = catalog[i];
                 if (enemy == null) continue;
-                bool belongsToBossTab = enemy.tier == EnemyTier.Boss || enemy.tier == EnemyTier.MidBoss;
-                if (belongsToBossTab != bossTab) continue;
+                bool isBelongsToBossTab = enemy.tier == EnemyTier.Boss || enemy.tier == EnemyTier.MidBoss;
+                if (isBelongsToBossTab != bossTab) continue;
                 result.Add(enemy);
             }
             return result;

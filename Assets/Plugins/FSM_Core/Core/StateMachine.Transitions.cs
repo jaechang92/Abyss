@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -131,7 +131,7 @@ namespace FSM.Core
 
                 OnTransitionCompleted?.Invoke(transition);
 
-                if (enableDebugLog)
+                if (isEnableDebugLog)
                     Debug.Log($"[FSM] 전환 완료: {fromStateId} -> {transition.ToStateId}");
             }
             catch (OperationCanceledException)
@@ -163,7 +163,7 @@ namespace FSM.Core
 
             transitions.Add(transition);
 
-            if (enableDebugLog)
+            if (isEnableDebugLog)
                 Debug.Log($"[FSM] 전환 추가됨: {transition.FromStateId} -> {transition.ToStateId} (우선순위 {transition.Priority})");
         }
 
@@ -180,7 +180,7 @@ namespace FSM.Core
         {
             if (transitions.Remove(transition))
             {
-                if (enableDebugLog)
+                if (isEnableDebugLog)
                     Debug.Log($"[FSM] 전환 제거됨: {transition.FromStateId} -> {transition.ToStateId}");
             }
         }

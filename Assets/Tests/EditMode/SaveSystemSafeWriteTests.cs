@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
@@ -330,14 +330,14 @@ namespace Abyss.Tests.EditMode
         public void 깨진_본파일은_직전정상본으로_복구하되_파일을_고치지_않는다()
         {
             SaveTwoGenerations();
-            const string garbage = "{ \"value\": 3";   // 쓰다 끊긴 JSON
-            File.WriteAllText(PrimaryPath, garbage);
+            const string GARBAGE = "{ \"value\": 3";   // 쓰다 끊긴 JSON
+            File.WriteAllText(PrimaryPath, GARBAGE);
 
             LogAssert.Expect(LogType.Warning, new Regex("직전 정상본을 불러왔다"));
             Assert.AreEqual(1, LoadValue(out var primary, out var backup));
             Assert.AreEqual(SaveFileStatus.Unreadable, primary);
             Assert.AreEqual(SaveFileStatus.Loaded, backup);
-            Assert.AreEqual(garbage, File.ReadAllText(PrimaryPath), "로드는 손상 증거를 지우거나 고치지 않는다.");
+            Assert.AreEqual(GARBAGE, File.ReadAllText(PrimaryPath), "로드는 손상 증거를 지우거나 고치지 않는다.");
         }
 
         [Test]
@@ -354,8 +354,8 @@ namespace Abyss.Tests.EditMode
         [Test]
         public void 깨진_본파일에_백업도_없으면_default를_돌려주고_파일은_그대로다()
         {
-            const string garbage = "이건 JSON이 아니다";
-            File.WriteAllText(PrimaryPath, garbage);
+            const string GARBAGE = "이건 JSON이 아니다";
+            File.WriteAllText(PrimaryPath, GARBAGE);
 
             LogAssert.Expect(LogType.Error, new Regex(@"\[SaveSystem\] 불러오기 실패"));
             var data = saveSystem.LoadWithBackup<TestSave>(FILE_NAME, out var primary, out var backup);
@@ -363,7 +363,7 @@ namespace Abyss.Tests.EditMode
             Assert.IsNull(data);
             Assert.AreEqual(SaveFileStatus.Unreadable, primary);
             Assert.AreEqual(SaveFileStatus.Missing, backup);
-            Assert.AreEqual(garbage, File.ReadAllText(PrimaryPath));
+            Assert.AreEqual(GARBAGE, File.ReadAllText(PrimaryPath));
         }
 
         [Test]

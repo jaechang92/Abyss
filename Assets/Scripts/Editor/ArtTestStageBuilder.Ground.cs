@@ -72,21 +72,21 @@ namespace Abyss.EditorTools
             var wall = new GameObject("VerticalWall").transform;
             wall.SetParent(parent, false);
 
-            const float wallX = WallMaxX + 1f;
-            const int height = 6;
+            const float WALL_X = WallMaxX + 1f;
+            const int HEIGHT = 6;
 
             for (int col = 0; col < 2; col++)
             {
-                for (int row = 0; row < height; row++)
+                for (int row = 0; row < HEIGHT; row++)
                     CreateSprite(wall, $"wall_{col}_{row}", interior,
-                                 new Vector3(wallX + col, SurfaceY + 0.5f + row, 0f), OrderTiles);
+                                 new Vector3(WALL_X + col, SurfaceY + 0.5f + row, 0f), OrderTiles);
 
                 CreateSprite(wall, $"wall_cap_{col}", top,
-                             new Vector3(wallX + col, SurfaceY + 0.5f + height, 0f), OrderTiles);
+                             new Vector3(WALL_X + col, SurfaceY + 0.5f + HEIGHT, 0f), OrderTiles);
             }
 
             CreateLabel("WallLabel", "세운 벽 — 무늬 방향이 맞는가",
-                        new Vector3(wallX + 1f, SurfaceY + height + 1.2f, -5f), 0.3f,
+                        new Vector3(WALL_X + 1f, SurfaceY + HEIGHT + 1.2f, -5f), 0.3f,
                         new Color32(0x99, 0xA6, 0xAC, 0xFF), TextAnchor.LowerCenter);
         }
 
@@ -109,19 +109,19 @@ namespace Abyss.EditorTools
                 ("ground_interior", 0.7f), ("wall_interior", 1.7f),
             };
 
-            const float y = 2.2f;
+            const float Y = 2.2f;
             foreach ((string tile, float offset) in pairs)
             {
                 var sprite = LoadTile(tile);
                 if (sprite == null) continue;
 
-                var go = CreateSprite(swatch, tile, sprite, new Vector3(SeamX + 4f + offset, y, 0f), OrderSheets);
+                var go = CreateSprite(swatch, tile, sprite, new Vector3(SeamX + 4f + offset, Y, 0f), OrderSheets);
                 go.transform.localScale = Vector3.one * 2f;   // 32px 타일은 그냥 보기엔 작다
             }
 
             CreateLabel("SwatchLabel",
                         "재질 견본 — 왼쪽이 지면, 오른쪽이 벽 (top / interior 짝)",
-                        new Vector3(SeamX + 5.5f, y + 1.4f, -5f), 0.3f,
+                        new Vector3(SeamX + 5.5f, Y + 1.4f, -5f), 0.3f,
                         new Color32(0x99, 0xA6, 0xAC, 0xFF), TextAnchor.LowerCenter);
         }
 

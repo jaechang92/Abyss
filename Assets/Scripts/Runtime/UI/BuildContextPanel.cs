@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using Abyss.Runtime.Draft;
 using UnityEngine;
@@ -35,15 +35,15 @@ namespace Abyss.Runtime.UI
 
             stringBuilder.Clear();
             stringBuilder.Append("시너지: ");
-            bool first = true;
+            bool isFirst = true;
             foreach (var kv in synergyCounts)
             {
-                if (!first) stringBuilder.Append(" | ");
+                if (!isFirst) stringBuilder.Append(" | ");
                 stringBuilder.Append($"[{SynergyAxis.GetDisplayName(kv.Key)}] {kv.Value}");
                 if (SynergyAxis.IsActivated(kv.Value)) stringBuilder.Append(" ✦");
-                first = false;
+                isFirst = false;
             }
-            if (first) stringBuilder.Append("—");
+            if (isFirst) stringBuilder.Append("—");
             if (synergyCountsText != null) synergyCountsText.text = stringBuilder.ToString();
 
             stringBuilder.Clear();

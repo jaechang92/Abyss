@@ -17,6 +17,7 @@ namespace CodeConvention.Editor
         public string Message { get; set; }
         public ViolationSeverity Severity { get; set; }
         public string LineContent { get; set; }
+        public string MatchedName { get; set; }
     }
 
     /// <summary>
@@ -30,7 +31,7 @@ namespace CodeConvention.Editor
 
     /// <summary>
     /// 코드 컨벤션 검사기
-    /// CLAUDE.md에 정의된 규칙들을 검사
+    /// CONVENTIONS.md에 정의된 규칙들을 검사
     /// </summary>
     public static class CodeConventionChecker
     {
@@ -60,14 +61,24 @@ namespace CodeConvention.Editor
                 ExcludePatterns = new[] { @"^(get|set|add|remove)_" }
             },
 
-            // 규칙 3: private 변수/필드가 PascalCase이면 오류 (camelCase 또는 _camelCase 허용)
+            // 규칙 3: 기존 private 필드 검사 범위를 유지하며 식 본문 프로퍼티(=>)는 제외
             new ConventionRule
             {
                 Name = "PrivateFieldCamelCase",
-                Description = "private 필드는 camelCase 또는 _camelCase로 작성",
-                Pattern = @"\bprivate\s+(?:readonly\s+)?(?:\w+(?:<[^>]+>)?)\s+([A-Z][a-zA-Z0-9]*)\s*[;=]",
+                Description = "private 필드는 camelCase로 작성 (static readonly 제외)",
+                Pattern = @"\bprivate\s+(?:readonly\s+)?(?:\w+(?:<[^>]+>)?)\s+([A-Z][a-zA-Z0-9]*)\s*(?:;|=(?!>))",
                 Severity = ViolationSeverity.Error,
-                MessageFormat = "private 필드는 camelCase 또는 _camelCase로 작성: '{0}'"
+                MessageFormat = "private 필드는 camelCase로 작성: '{0}'"
+            },
+
+            // _ 접두어는 static readonly를 포함해 별도로 검사
+            new ConventionRule
+            {
+                Name = "PrivateFieldNoUnderscorePrefix",
+                Description = "private 필드는 _ 접두어를 사용하지 않음",
+                Pattern = @"\bprivate\s+(?:(?:static|readonly|volatile)\s+)*(?:\w+(?:<[^>]+>)?(?:\[\])?)\s+(_[a-zA-Z0-9_]*)\s*(?:;|=(?!>))",
+                Severity = ViolationSeverity.Error,
+                MessageFormat = "private 필드는 _ 접두어를 사용하지 않음: '{0}'"
             },
 
             // 규칙 4: 상수는 UPPER_SNAKE_CASE
@@ -80,14 +91,14 @@ namespace CodeConvention.Editor
                 MessageFormat = "상수는 UPPER_SNAKE_CASE로 작성: '{0}'"
             },
 
-            // 규칙 5: bool 타입은 is/has/can 접두어 권장
+            // 규칙 5: 접두어가 없는 후보 중 실용 정책에서 의미가 명확한 이름은 제외
             new ConventionRule
             {
                 Name = "BoolNamingConvention",
-                Description = "bool 타입은 is/has/can 접두어 사용 권장",
+                Description = "bool은 명확한 상태·조건·옵션 이름 사용",
                 Pattern = @"\bbool\s+(?!is|has|can|Is|Has|Can)([a-zA-Z][a-zA-Z0-9]*)\s*[;=]",
                 Severity = ViolationSeverity.Warning,
-                MessageFormat = "bool 변수는 is/has/can 접두어 권장: '{0}'"
+                MessageFormat = "bool의 의미를 드러내는 이름을 권장 (예: isReady, hasTarget): '{0}'"
             },
 
             // 규칙 6: 인터페이스는 I 접두어
@@ -174,8 +185,10 @@ namespace CodeConvention.Editor
                 });
             }
 
+            var dataContext = new ConventionDataContext(string.Join("\n", lines));
+
             // 각 라인별 규칙 검사
-            bool inMultiLineComment = false;
+            bool isInMultiLineComment = false;
             //bool inString = false;
 
             for (int i = 0; i < lines.Length; i++)
@@ -186,14 +199,14 @@ namespace CodeConvention.Editor
                 // 멀티라인 주석 처리
                 if (line.Contains("/*"))
                 {
-                    inMultiLineComment = true;
+                    isInMultiLineComment = true;
                 }
                 if (line.Contains("*/"))
                 {
-                    inMultiLineComment = false;
+                    isInMultiLineComment = false;
                     continue;
                 }
-                if (inMultiLineComment)
+                if (isInMultiLineComment)
                 {
                     continue;
                 }
@@ -213,6 +226,9 @@ namespace CodeConvention.Editor
                 {
                     if (IsViolation(codeLine, rule, out string matchedContent))
                     {
+                        if (rule.Name == "BoolNamingConvention" &&
+                            (ConventionPracticalPolicy.IsDescriptiveBoolean(matchedContent) || dataContext.IsDataField(lineNumber, matchedContent))) continue;
+                        if (rule.Name == "PublicFieldPascalCase" && dataContext.IsDataField(lineNumber, matchedContent)) continue;
                         violations.Add(new ConventionViolation
                         {
                             FilePath = filePath,
@@ -220,7 +236,8 @@ namespace CodeConvention.Editor
                             RuleName = rule.Name,
                             Message = string.Format(rule.MessageFormat, matchedContent),
                             Severity = rule.Severity,
-                            LineContent = line.Trim()
+                            LineContent = line.Trim(),
+                            MatchedName = matchedContent
                         });
                     }
                 }
@@ -315,15 +332,15 @@ namespace CodeConvention.Editor
             if (commentIndex >= 0)
             {
                 // 문자열 내부의 // 는 제외
-                bool inString = false;
+                bool isInString = false;
                 for (int i = 0; i < commentIndex; i++)
                 {
                     if (line[i] == '"' && (i == 0 || line[i - 1] != '\\'))
                     {
-                        inString = !inString;
+                        isInString = !isInString;
                     }
                 }
-                if (!inString)
+                if (!isInString)
                 {
                     return line.Substring(0, commentIndex);
                 }

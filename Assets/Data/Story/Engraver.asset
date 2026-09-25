@@ -13,60 +13,60 @@ MonoBehaviour:
   m_Name: Engraver
   m_EditorClassIdentifier: 
   chapters:
-  - chapterStage: 1
-    minRunCount: 0
-    minBossKills: 0
-    requiredFormId: dark_blade
-    minViewedChapters: 0
-    lines:
+  - ChapterStage: 1
+    MinRunCount: 0
+    MinBossKills: 0
+    RequiredFormId: dark_blade
+    MinViewedChapters: 0
+    Lines:
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_DarkBlade_Line1
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_DarkBlade_Line2
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_DarkBlade_Line3
-  - chapterStage: 2
-    minRunCount: 0
-    minBossKills: 0
-    requiredFormId: void_archer
-    minViewedChapters: 0
-    lines:
+  - ChapterStage: 2
+    MinRunCount: 0
+    MinBossKills: 0
+    RequiredFormId: void_archer
+    MinViewedChapters: 0
+    Lines:
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_VoidArcher_Line1
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_VoidArcher_Line2
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_VoidArcher_Line3
-  - chapterStage: 3
-    minRunCount: 0
-    minBossKills: 0
-    requiredFormId: ancient_shield
-    minViewedChapters: 0
-    lines:
+  - ChapterStage: 3
+    MinRunCount: 0
+    MinBossKills: 0
+    RequiredFormId: ancient_shield
+    MinViewedChapters: 0
+    Lines:
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_AncientShield_Line1
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_AncientShield_Line2
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_AncientShield_Line3
-  - chapterStage: 4
-    minRunCount: 0
-    minBossKills: 0
-    requiredFormId: void_thrower
-    minViewedChapters: 0
-    lines:
+  - ChapterStage: 4
+    MinRunCount: 0
+    MinBossKills: 0
+    RequiredFormId: void_thrower
+    MinViewedChapters: 0
+    Lines:
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_VoidThrower_Line1
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_VoidThrower_Line2
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_VoidThrower_Line3
-  - chapterStage: 99
-    minRunCount: 0
-    minBossKills: 0
-    requiredFormId: 
-    minViewedChapters: 4
-    lines:
+  - ChapterStage: 99
+    MinRunCount: 0
+    MinBossKills: 0
+    RequiredFormId: 
+    MinViewedChapters: 4
+    Lines:
     - speakerKey: Npc_Engraver_Name
       textKey: Story_Engraver_Closing_Line1
     - speakerKey: Npc_Engraver_Name

@@ -81,7 +81,7 @@ namespace Abyss.Runtime.Player
                 return;
             }
 
-            bool wasGrounded = isGrounded;
+            bool isWasGrounded = isGrounded;
             isGrounded = false;
 
             int hitCount = GroundProbe.Overlap(
@@ -100,7 +100,7 @@ namespace Abyss.Runtime.Player
             }
 
             // 접지 진입 시 점프 카운터 리셋 — 현재 폼의 jumpCount 기반 (기획 02-form-change-system.md).
-            if (isGrounded && !wasGrounded)
+            if (isGrounded && !isWasGrounded)
             {
                 int maxJumps = (formController != null && formController.CurrentForm != null)
                     ? Mathf.Max(1, formController.CurrentForm.jumpCount)

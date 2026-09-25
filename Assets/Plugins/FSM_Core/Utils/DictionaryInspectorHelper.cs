@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,13 +19,13 @@ namespace FSM.Core.Utils
         [Serializable]
         public struct KeyValuePair<K, V>
         {
-            public K key;
-            public V value;
+            public K Key;
+            public V Value;
 
             public KeyValuePair(K k, V v)
             {
-                key = k;
-                value = v;
+                Key = k;
+                Value = v;
             }
         }
 
@@ -94,12 +94,12 @@ namespace FSM.Core.Utils
         /// </summary>
         public bool Remove(TKey key)
         {
-            bool removed = dictionary.Remove(key);
-            if (removed)
+            bool isRemoved = dictionary.Remove(key);
+            if (isRemoved)
             {
                 SyncToDictionary();
             }
-            return removed;
+            return isRemoved;
         }
 
         /// <summary>

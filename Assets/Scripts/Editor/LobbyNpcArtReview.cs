@@ -16,8 +16,8 @@ namespace Abyss.EditorTools
         // Review only. ApplyBatch saves the real scene before sampling any animation/UI here.
         internal static void Capture(Scene scene)
         {
-            const string output = "Art_Source/npc_cast_v1/review";
-            Directory.CreateDirectory(output);
+            const string OUTPUT = "Art_Source/npc_cast_v1/review";
+            Directory.CreateDirectory(OUTPUT);
             var camera = LobbyNpcArtBuilder.Find(scene, "Main Camera").GetComponent<Camera>();
             var art = LobbyNpcArtBuilder.Find(scene, "LobbyRefugePanorama")?.GetComponent<SpriteRenderer>();
             float y = art != null ? Mathf.Min(0f, art.bounds.max.y - camera.orthographicSize) : 0f;
@@ -94,7 +94,7 @@ namespace Abyss.EditorTools
                 RenderTexture.active = target;
                 pixels.ReadPixels(new Rect(0, 0, 1920, 1080), 0, 0);
                 pixels.Apply();
-                File.WriteAllBytes($"{output}/{name}.png", pixels.EncodeToPNG());
+                File.WriteAllBytes($"{OUTPUT}/{name}.png", pixels.EncodeToPNG());
             }
         }
     }

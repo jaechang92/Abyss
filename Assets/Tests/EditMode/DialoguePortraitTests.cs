@@ -50,14 +50,14 @@ namespace Abyss.Tests.EditMode
         [Test]
         public void AdvancingChangesSpeakerAndClosingClearsPortrait()
         {
-            bool completed = false;
-            dialogue.Play(new[] { new DialogueLine { speakerKey = "guide" }, new DialogueLine { speakerKey = "chronicler" } }, () => completed = true);
+            bool isCompleted = false;
+            dialogue.Play(new[] { new DialogueLine { speakerKey = "guide" }, new DialogueLine { speakerKey = "chronicler" } }, () => isCompleted = true);
             Assert.AreSame(guide, image.sprite);
             Assert.IsTrue(image.enabled);
             Advance();
             Assert.AreSame(chronicler, image.sprite);
             Advance();
-            Assert.IsTrue(completed);
+            Assert.IsTrue(isCompleted);
             Assert.IsFalse(dialogue.IsOpen);
             Assert.IsFalse(image.enabled);
             Assert.IsNull(image.sprite);
