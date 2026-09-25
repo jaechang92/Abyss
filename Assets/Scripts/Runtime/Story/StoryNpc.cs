@@ -31,7 +31,7 @@ namespace Abyss.Runtime.Story
         // 씬을 다시 만들지 않아도 기존 기록자가 그대로 동작하게 한다.
         private string SpeakerId => string.IsNullOrEmpty(speakerId) ? StorySpeakerIds.Chronicler : speakerId;
 
-        public string InteractionPrompt => string.IsNullOrEmpty(promptKey) ? "이야기 듣기 (G)" : Loc.Get(promptKey);
+        public string InteractionPrompt => Loc.Get(string.IsNullOrEmpty(promptKey) ? StringKey.Npc_Recordkeeper_Prompt : promptKey);
         public bool CanInteract => !isBusy && (dialogueUI == null || !dialogueUI.IsOpen);
 
         public void Interact(GameObject interactor)

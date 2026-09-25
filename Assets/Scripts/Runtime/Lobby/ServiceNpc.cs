@@ -40,7 +40,7 @@ namespace Abyss.Runtime.Lobby
         // 옛 씬 인스턴스에는 speakerId가 직렬화돼 있지 않다 — 빈 값을 각인사로 본다.
         private string SpeakerId => string.IsNullOrEmpty(speakerId) ? StorySpeakerIds.Engraver : speakerId;
 
-        public string InteractionPrompt => string.IsNullOrEmpty(promptKey) ? "장비 정비 (G)" : Loc.Get(promptKey);
+        public string InteractionPrompt => Loc.Get(string.IsNullOrEmpty(promptKey) ? StringKey.Npc_Service_Prompt : promptKey);
 
         public bool CanInteract =>
             !busy

@@ -1,5 +1,6 @@
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Form;
+using Abyss.Runtime.Localization;
 using Abyss.Runtime.Run;
 using Abyss.Runtime.Stage;
 using UnityEngine;
@@ -31,7 +32,6 @@ namespace Abyss.Runtime.UI
 
         // config·에셋 부재 시 폴백 임계값(RunConfig.formBiasThreshold 기본값과 동일)
         private const float DEFAULT_BIAS_THRESHOLD = 0.6f;
-        private const string WARNING_FORMAT = "폼 편향 경고 — {0} {1:P0} 사용 중\n폼 교체를 활용해 보세요";
 
         private float Threshold
         {
@@ -100,8 +100,8 @@ namespace Abyss.Runtime.UI
             if (label != null)
             {
                 var form = FormCatalog.GetById(dominantId);
-                string name = form != null && !string.IsNullOrEmpty(form.displayName) ? form.displayName : dominantId;
-                label.text = string.Format(WARNING_FORMAT, name, ratio);
+                string name = form != null ? form.LocalizedName : dominantId;
+                label.text = Loc.GetFormat(StringKey.FormBias_WarningFormat, name, ratio);
             }
             SetVisible(true);
         }

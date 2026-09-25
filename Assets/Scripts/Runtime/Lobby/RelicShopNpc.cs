@@ -25,7 +25,7 @@ namespace Abyss.Runtime.Lobby
 
         private bool busy;
 
-        public string InteractionPrompt => string.IsNullOrEmpty(promptKey) ? "유물 감정 (G)" : Loc.Get(promptKey);
+        public string InteractionPrompt => Loc.Get(string.IsNullOrEmpty(promptKey) ? StringKey.Npc_RelicShop_Prompt : promptKey);
 
         public bool CanInteract => !busy && (shopPanel == null || !shopPanel.IsOpen);
 

@@ -18,7 +18,7 @@ namespace Abyss.Runtime.Lobby
 
         private bool busy;
 
-        public string InteractionPrompt => string.IsNullOrEmpty(promptKey) ? "심연의 제단 (G)" : Loc.Get(promptKey);
+        public string InteractionPrompt => Loc.Get(string.IsNullOrEmpty(promptKey) ? StringKey.Npc_Altar_Prompt : promptKey);
         public bool CanInteract => !busy && (upgradePanel == null || !upgradePanel.IsOpen);
 
         public void Interact(GameObject interactor)

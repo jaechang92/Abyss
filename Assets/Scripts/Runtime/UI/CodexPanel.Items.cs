@@ -103,7 +103,7 @@ namespace Abyss.Runtime.UI
                 if (form == null) continue;
 
                 bool found = meta.IsFormDiscovered(form.formId);
-                string name = Resolve(form.displayName, form.formId);
+                string name = form.LocalizedName;
 
                 // 폼 에셋에는 아직 아이콘이 없다(4종 전부). 대신 폼별로 이미 지정된 castColor를
                 // 타일 색으로 쓴다 — 폼 스킬 개시 연출이 쓰는 것과 같은 색이라 화면 사이에서 폼 정체성이 이어진다.
@@ -224,21 +224,21 @@ namespace Abyss.Runtime.UI
         // ───────────────────────── 항목 → 표시 문구 ─────────────────────────
 
         private static string FormBadge(FormData form) =>
-            $"HP ×{form.hpMultiplier:0.##} · 이동 ×{form.moveSpeedMultiplier:0.##} · {form.jumpCount}단 점프";
+            Loc.GetFormat(StringKey.Codex_Form_BadgeFormat, form.hpMultiplier, form.moveSpeedMultiplier, form.jumpCount);
 
         private static string FormStats(FormData form)
         {
             var lines = new List<string> { $"ID: {form.formId}" };
-            AppendAbility(lines, "주 공격", form.primaryAction);
-            AppendAbility(lines, "보조", form.secondaryAction);
+            AppendAbility(lines, StringKey.Codex_Form_Primary, form.primaryAction);
+            AppendAbility(lines, StringKey.Codex_Form_Secondary, form.secondaryAction);
             return string.Join("\n", lines);
         }
 
-        private static void AppendAbility(List<string> lines, string label, GAS.Core.AbilityData ability)
+        private static void AppendAbility(List<string> lines, string labelKey, GAS.Core.AbilityData ability)
         {
             if (ability == null) return;
             string name = string.IsNullOrEmpty(ability.abilityName) ? ability.name : ability.abilityName;
-            lines.Add($"{label}: {name}  (쿨 {ability.cooldownDuration:0.##}s)");
+            lines.Add(Loc.GetFormat(StringKey.Codex_AbilityFormat, Loc.Get(labelKey), name, ability.cooldownDuration));
         }
 
         private static string SkillBadge(SkillData skill) => SkillDisplay.Headline(skill);
@@ -251,29 +251,31 @@ namespace Abyss.Runtime.UI
             if (!string.IsNullOrEmpty(skill.formBound))
             {
                 var form = FormCatalog.GetById(skill.formBound);
-                string formName = form != null ? Resolve(form.displayName, form.formId) : skill.formBound;
-                lines.Add($"전용 폼: {formName}");
+                string formName = form != null ? form.LocalizedName : skill.formBound;
+                lines.Add(Loc.GetFormat(StringKey.Codex_Skill_FormBoundFormat, formName));
             }
             else
             {
-                lines.Add("전용 폼: 없음 (전 폼 공용)");
+                lines.Add(Loc.Get(StringKey.Codex_Skill_FormShared));
             }
 
-            if (!string.IsNullOrEmpty(skill.formulaDescription)) lines.Add($"공식: {skill.formulaDescription}");
-            if (skill.relatedAbility != null) lines.Add($"쿨다운: {skill.relatedAbility.cooldownDuration:0.##}s");
+            if (!string.IsNullOrEmpty(skill.formulaDescription))
+                lines.Add(Loc.GetFormat(StringKey.Codex_Skill_FormulaFormat, skill.formulaDescription));
+            if (skill.relatedAbility != null)
+                lines.Add(Loc.GetFormat(StringKey.Codex_Skill_CooldownFormat, skill.relatedAbility.cooldownDuration));
             if (skill.category == SkillCategory.Synergy)
             {
-                lines.Add($"발동 조건: 같은 축 {SynergyAxis.ACTIVATION_THRESHOLD}개 이상 보유");
+                lines.Add(Loc.GetFormat(StringKey.Codex_Skill_SynergyConditionFormat, SynergyAxis.ACTIVATION_THRESHOLD));
             }
             return string.Join("\n", lines);
         }
 
         private static string EnemyBadge(EnemyData enemy)
         {
-            if (enemy.tier == EnemyTier.Boss) return "보스";
-            if (enemy.tier == EnemyTier.MidBoss) return "중간보스";
-            string tier = enemy.tier == EnemyTier.Elite ? "엘리트" : "일반";
-            string range = enemy.isRanged ? "원거리" : "근접";
+            if (enemy.tier == EnemyTier.Boss) return Loc.Get(StringKey.Codex_Enemy_Boss);
+            if (enemy.tier == EnemyTier.MidBoss) return Loc.Get(StringKey.Codex_Enemy_MidBoss);
+            string tier = Loc.Get(enemy.tier == EnemyTier.Elite ? StringKey.Codex_Enemy_Elite : StringKey.Codex_Enemy_Normal);
+            string range = Loc.Get(enemy.isRanged ? StringKey.Codex_Enemy_Ranged : StringKey.Codex_Enemy_Melee);
             return $"{tier} · {range}";
         }
 
@@ -281,14 +283,14 @@ namespace Abyss.Runtime.UI
         {
             var lines = new List<string>
             {
-                $"체력: {enemy.baseHp}",
-                $"공격력: {enemy.baseDamage}",
-                $"이동 속도: {enemy.moveSpeed:0.##}",
-                $"감지 거리: {enemy.detectionRange:0.##}",
-                $"공격 사거리: {enemy.attackRange:0.##}  (간격 {enemy.attackCooldown:0.##}s)",
-                $"보상: EXP {enemy.expReward} · 골드 {enemy.goldReward}"
+                Loc.GetFormat(StringKey.Codex_Enemy_HpFormat, enemy.baseHp),
+                Loc.GetFormat(StringKey.Codex_Enemy_DamageFormat, enemy.baseDamage),
+                Loc.GetFormat(StringKey.Codex_Enemy_MoveSpeedFormat, enemy.moveSpeed),
+                Loc.GetFormat(StringKey.Codex_Enemy_DetectionFormat, enemy.detectionRange),
+                Loc.GetFormat(StringKey.Codex_Enemy_AttackRangeFormat, enemy.attackRange, enemy.attackCooldown),
+                Loc.GetFormat(StringKey.Codex_Enemy_RewardFormat, enemy.expReward, enemy.goldReward)
             };
-            if (enemy.isRanged) lines.Add($"발사체 속도: {enemy.projectileSpeed:0.##}");
+            if (enemy.isRanged) lines.Add(Loc.GetFormat(StringKey.Codex_Enemy_ProjectileSpeedFormat, enemy.projectileSpeed));
             return string.Join("\n", lines);
         }
 
@@ -336,7 +338,7 @@ namespace Abyss.Runtime.UI
         {
             var summary = MetaSaveService.Instance.Current.lastRunSummary;
 
-            var lines = new List<string> { "■ 직전 런" };
+            var lines = new List<string> { Loc.Get(StringKey.Codex_Records_LastRunHeader) };
 
             if (summary != null && summary.hasRecord)
             {
@@ -345,7 +347,7 @@ namespace Abyss.Runtime.UI
             else
             {
                 // 아직 런을 끝낸 적이 없다. 8줄을 0으로 채워 보여주면 "0킬로 끝난 런"과 구분되지 않는다.
-                lines.Add("아직 기록이 없다. 한 번 내려가 보라.");
+                lines.Add(Loc.Get(StringKey.Codex_Records_NoRecord));
             }
 
             return string.Join("\n", lines);
@@ -363,28 +365,32 @@ namespace Abyss.Runtime.UI
 
             var lines = new List<string>
             {
-                "■ 런 기록",
-                $"누적 런: {r.totalRunCount}회",
-                $"보스 격파: {r.totalBossKillCount}회",
-                $"최고 도달: {r.bestReach.Describe(EMPTY_VALUE)}",
-                $"최장 런: {FormatDuration(r.bestRunDurationSeconds)}",
+                Loc.Get(StringKey.Codex_Records_RunHeader),
+                Loc.GetFormat(StringKey.Codex_Records_TotalRunsFormat, r.totalRunCount),
+                Loc.GetFormat(StringKey.Codex_Records_BossKillsFormat, r.totalBossKillCount),
+                Loc.GetFormat(StringKey.Codex_Records_BestReachFormat, RunSummaryText.Reach(r.bestReach, EMPTY_VALUE)),
+                Loc.GetFormat(StringKey.Codex_Records_LongestRunFormat, FormatDuration(r.bestRunDurationSeconds)),
                 // 런 화폐는 HUD·상점에서 "골드"다. 여기만 "골드 파편"이라 불렀는데,
                 // 「파편」은 형태(폼) 전용 어휘로 정리했다(13-novel-game-glossary B-2).
-                $"최고 골드: {r.bestGoldShards}",
-                $"엔딩: {(r.hasSeenEnding ? "도달 ✦ 심연 탈출" : "미도달")}",
+                Loc.GetFormat(StringKey.Codex_Records_BestGoldFormat, r.bestGoldShards),
+                Loc.GetFormat(StringKey.Codex_Records_EndingFormat, Loc.Get(r.hasSeenEnding
+                    ? StringKey.Codex_Records_EndingReached : StringKey.Codex_Records_EndingNotReached)),
                 string.Empty,
-                "■ 메타",
-                $"심연 조각 누적: {save.abyssShardsTotal}",
+                Loc.Get(StringKey.Codex_Records_MetaHeader),
+                Loc.GetFormat(StringKey.Codex_Records_ShardsTotalFormat, save.abyssShardsTotal),
                 string.Empty,
-                "■ 도감 발견",
-                $"폼: {DiscoveredCount(CodexTab.Form)}",
-                $"스킬: {DiscoveredCount(CodexTab.Skill)}",
-                $"적: {DiscoveredCount(CodexTab.Enemy)}",
-                $"보스: {DiscoveredCount(CodexTab.Boss)}",
-                $"유물: {DiscoveredCount(CodexTab.Relic)}"
+                Loc.Get(StringKey.Codex_Records_DiscoveryHeader),
+                // 탭 이름을 그대로 라벨로 쓴다 — 탭 버튼과 기록이 같은 말을 쓰게 한다.
+                DiscoveryLine(StringKey.Codex_Tab_Form, CodexTab.Form),
+                DiscoveryLine(StringKey.Codex_Tab_Skill, CodexTab.Skill),
+                DiscoveryLine(StringKey.Codex_Tab_Enemy, CodexTab.Enemy),
+                DiscoveryLine(StringKey.Codex_Tab_Boss, CodexTab.Boss),
+                DiscoveryLine(StringKey.Codex_Tab_Relic, CodexTab.Relic)
             };
             return string.Join("\n", lines);
         }
+
+        private static string DiscoveryLine(string tabKey, CodexTab tab) => $"{Loc.Get(tabKey)}: {DiscoveredCount(tab)}";
 
         /// <summary>
         /// "발견/전체" 표기. 탭 헤더와 기록 탭이 같은 문구를 쓴다.
