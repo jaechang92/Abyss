@@ -129,6 +129,7 @@ namespace Abyss.Runtime.UI
         private void Update()
         {
             if (body == null || !body.activeSelf) return;
+            if (SaveStatusOverlay.IsCapturingInput) return;
 
             var keyboard = Keyboard.current;
             if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame) return;

@@ -168,6 +168,7 @@ namespace Abyss.Runtime.UI
         /// </summary>
         private bool ConsumeSkipInput()
         {
+            if (SaveStatusOverlay.IsCapturingInput) return false;
             var kb = Keyboard.current;
             if (kb == null) return false;
             if (!kb.escapeKey.wasPressedThisFrame && !kb.enterKey.wasPressedThisFrame && !kb.spaceKey.wasPressedThisFrame) return false;

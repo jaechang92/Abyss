@@ -75,6 +75,7 @@ namespace Abyss.Runtime.UI
 
         private void HandleKeyboardSelection()
         {
+            if (SaveStatusOverlay.IsCapturingInput) return;
             var kb = Keyboard.current;
             if (kb == null) return;
 
