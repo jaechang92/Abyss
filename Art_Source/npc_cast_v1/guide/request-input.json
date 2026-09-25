@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "kind": "sprite-gen-request",
+  "engine": "component-row",
+  "character": {
+    "id": "guide",
+    "description": "an elderly lean male wayfinder, weathered kind face, short silver beard, deep ochre hood and layered dark blue-grey traveling cloak, bronze clasp, brown leather boots, right hand holding a crooked wooden staff with a small enclosed amber lantern attached to its top, left hand relaxed on belt, no backpack"
+  },
+  "cell": {
+    "shape": "square",
+    "size": 96,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ]
+  },
+  "states": {
+    "idle": {
+      "frames": 4,
+      "fps": 4,
+      "loop": true,
+      "action": "gentle breathing, slight eyelid blink in frame 3 and slight attached lantern tilt, both feet and staff base remain planted; sequence relaxed, inhale, exhale with blink, near relaxed. Very small motion, no changing clothing or anatomy."
+    }
+  },
+  "style": "Polished crisp pixel art matching the locked anchor. Preserve face, costume layers, silhouette and all props. Restrained mature proportions, readable at 72 pixels body height. No painterly blur."
+}

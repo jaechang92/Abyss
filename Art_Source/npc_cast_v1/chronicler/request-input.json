@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "kind": "sprite-gen-request",
+  "engine": "component-row",
+  "character": {
+    "id": "chronicler",
+    "description": "a weary middle-aged male human chronicler, shoulder-length charcoal hair with a single silver streak, clean-shaven narrow face, muted teal scarf over layered charcoal ink-stained long coat, leather satchel, holding an open worn ivory notebook close to his chest and a short charcoal pencil, practical brown boots, reserved expression, no wizard hat"
+  },
+  "cell": {
+    "shape": "square",
+    "size": 96,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ]
+  },
+  "states": {
+    "idle": {
+      "frames": 4,
+      "fps": 4,
+      "loop": true,
+      "action": "quiet breathing with a tiny downward glance at the notebook and back, pencil hand shifts slightly without detached marks, feet stay planted; sequence relaxed, inhale, exhale with blink, near relaxed. Very small motion, no changing clothing or anatomy."
+    }
+  },
+  "style": "Polished crisp pixel art matching the locked anchor. Preserve face, costume layers, silhouette and all props. Restrained mature proportions, readable at 72 pixels body height. No painterly blur."
+}

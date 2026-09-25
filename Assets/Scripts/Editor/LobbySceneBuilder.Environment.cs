@@ -10,10 +10,8 @@ namespace Abyss.EditorTools
     /// <summary>
     /// 로비 바닥·벽(충돌)과 그 위에 입히는 환경 아트.
     ///
-    /// 로비는 Stage1 「균열 입구」 세트를 그대로 입는다(사용자 결정 2026-09-23) — 안내자의 첫 대사가
-    /// 「심연의 입구다」이고, 로비만의 새 배경은 이미지 생성이 필요하다. 배경 층·타일 그리기 규칙은
-    /// <see cref="Stage1EnvironmentWiring"/>의 것을 그대로 불러 쓴다 — 같은 그림을 두 규칙으로 깔면
-    /// 확대 배율·정렬이 두 씬에서 조용히 갈라진다.
+    /// 로비 전용 석조 거점 파노라마를 먼저 사용한다. 바닥 윗면을 충돌면에 맞추고
+    /// 카메라는 그림 경계 안에서 추적한다. 전용 그림이 없을 때만 Stage1 세트로 폴백한다.
     ///
     /// 🔴 <b>표시만 한다.</b> 충돌은 <see cref="CreateGround"/>의 그레이박스 오브젝트가 그대로 갖고,
     /// 여기서는 그 렌더러를 끄고 자식이 아닌 별도 루트에 그림을 깐다. Run 과 달리 로비는 빌더가 씬 전체를
@@ -75,6 +73,8 @@ namespace Abyss.EditorTools
 
         private static void ApplyEnvironmentArt(GameObject ground, PlayerCameraFollow follow)
         {
+            if (ApplyRefugeArt(ground, follow)) return;
+
             // 재임포트가 먼저다 — 불러 둔 스프라이트 참조가 재임포트 뒤에 낡을 수 있다.
             Stage1EnvironmentWiring.EnsureFullRect();
             EnsureLobbyFullRect();

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "kind": "sprite-gen-request",
+  "engine": "component-row",
+  "character": {
+    "id": "altar_keeper",
+    "description": "an enigmatic slender altar keeper embodied as an ancient carved stone mask and hands under a heavy hooded indigo and muted violet layered ceremonial robe, face is a plain weathered ivory stone mask with two narrow dark eye slits, no visible mouth, understated bronze geometric trim, both hands holding one small dull pale cyan abyss shard at sternum, feet hidden under grounded heavy robe hem, no wings, no crown, solemn calm silhouette"
+  },
+  "cell": {
+    "shape": "square",
+    "size": 96,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ]
+  },
+  "states": {
+    "idle": {
+      "frames": 4,
+      "fps": 4,
+      "loop": true,
+      "action": "very restrained robe breathing and slow small tilt of masked head toward shard then back, hem and hands remain stable, no glow or floating effects; sequence relaxed, inhale, exhale with blink, near relaxed. Very small motion, no changing clothing or anatomy."
+    }
+  },
+  "style": "Polished crisp pixel art matching the locked anchor. Preserve face, costume layers, silhouette and all props. Restrained mature proportions, readable at 72 pixels body height. No painterly blur."
+}

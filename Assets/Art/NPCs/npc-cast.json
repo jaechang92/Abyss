@@ -1,0 +1,29 @@
+{
+  "entries": [
+    {
+      "id": "guide",
+      "sceneObject": "GuideNpc",
+      "speakerKey": "Npc_Guide_Name"
+    },
+    {
+      "id": "chronicler",
+      "sceneObject": "StoryNpc",
+      "speakerKey": "Npc_Recordkeeper_Name"
+    },
+    {
+      "id": "engraver",
+      "sceneObject": "ServiceNpc",
+      "speakerKey": "Npc_Engraver_Name"
+    },
+    {
+      "id": "altar_keeper",
+      "sceneObject": "AltarNpc",
+      "speakerKey": "Npc_AltarKeeper_Name"
+    },
+    {
+      "id": "relic_merchant",
+      "sceneObject": "RelicShopNpc",
+      "speakerKey": "Npc_RelicMerchant_Name"
+    }
+  ]
+}
