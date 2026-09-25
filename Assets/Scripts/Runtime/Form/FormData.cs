@@ -1,3 +1,4 @@
+using Abyss.Runtime.Localization;
 using GAS.Core;
 using UnityEngine;
 
@@ -22,6 +23,14 @@ namespace Abyss.Runtime.Form
 
         [Tooltip("이름 StringKey (GameText.csv). 비우면 displayName을 그대로 쓴다.")]
         public string nameKey;
+
+        /// <summary>
+        /// 화면에 찍을 폼 이름 — 폼 이름을 보여주는 모든 화면이 이것 하나를 쓴다.
+        /// nameKey가 있으면 현재 언어, 없으면 displayName, 그것도 없으면 formId로 물러난다.
+        /// </summary>
+        public string LocalizedName =>
+            !string.IsNullOrEmpty(nameKey) ? Loc.Get(nameKey)
+            : string.IsNullOrEmpty(displayName) ? formId : displayName;
 
         [Tooltip("게임 화면에 그려질 몸통 스프라이트. 비우면 기존 흰 사각형 + castColor 틴트로 폴백.")]
         public Sprite bodySprite;

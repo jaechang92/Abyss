@@ -29,7 +29,7 @@ namespace Abyss.Runtime.Form
         private bool consumed;
         private float baseAlpha = 1f;
 
-        public string InteractionPrompt => string.IsNullOrEmpty(promptKey) ? "폼 획득 (G)" : Loc.Get(promptKey);
+        public string InteractionPrompt => Loc.Get(string.IsNullOrEmpty(promptKey) ? StringKey.Prompt_FormAltar : promptKey);
 
         // 이미 소비했거나 보상이 비어 있으면 상호작용 불가 — PlayerInteractor의 후보 선정에서 자동 제외된다.
         public bool CanInteract => !consumed && rewardForm != null;

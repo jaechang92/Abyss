@@ -1,5 +1,6 @@
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Flow;
+using Abyss.Runtime.Localization;
 using Abyss.Runtime.Run;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,15 +25,12 @@ namespace Abyss.Runtime.UI
         [SerializeField] private Button toTitleButton;
         [SerializeField] private Button quitButton;
 
-        private const string TO_TITLE_DEFAULT = "타이틀로";
-        private const string QUIT_DEFAULT = "게임 종료";
-        private const string CONFIRM_SUFFIX = " — 확정? (다시 클릭)";
-
         // 2단계 확인 무장 상태. 한 쪽을 무장하면 다른 쪽은 해제해 오인 클릭을 막는다.
         private bool toTitleArmed;
         private bool quitArmed;
-        private Text toTitleLabel;
-        private Text quitLabel;
+        // 확인 단계에 따라 키만 갈아 끼운다 — 이 패널 위에서 설정을 열어 언어를 바꿔도 LocalizedText가 다시 그린다.
+        private LocalizedText toTitleLabel;
+        private LocalizedText quitLabel;
 
         private void Awake()
         {
@@ -42,20 +40,29 @@ namespace Abyss.Runtime.UI
             {
                 Debug.LogWarning($"[PausePanel] root 미배선 ({name}) — 자기 자신을 토글하면 구독이 끊긴다. Build HUD 재실행 필요.");
             }
-            if (resumeButton != null) resumeButton.onClick.AddListener(RequestResume);
+            // 라벨은 빌더가 한글로 구워 둔다. 런타임에 키를 물려 현재 언어로 바꾼다(HUD 재빌드 불필요).
+            var title = root != null ? root.transform.Find("Panel/TitleText") : null;
+            if (title != null) LocalizedText.Attach(title.GetComponent<Text>(), StringKey.Pause_Title);
+            if (resumeButton != null)
+            {
+                resumeButton.onClick.AddListener(RequestResume);
+                LocalizedText.Attach(resumeButton.GetComponentInChildren<Text>(true), StringKey.Menu_Resume);
+            }
             // 설정 패널은 씬에 배치하지 않고 SettingsPanel이 동적 생성해 공유한다(타이틀과 같은 인스턴스).
-            if (settingsButton != null) settingsButton.onClick.AddListener(SettingsPanel.Open);
+            if (settingsButton != null)
+            {
+                settingsButton.onClick.AddListener(SettingsPanel.Open);
+                LocalizedText.Attach(settingsButton.GetComponentInChildren<Text>(true), StringKey.Menu_Settings);
+            }
             if (toTitleButton != null)
             {
                 toTitleButton.onClick.AddListener(OnToTitleClicked);
-                toTitleLabel = toTitleButton.GetComponentInChildren<Text>();
-                if (toTitleLabel != null && !string.IsNullOrEmpty(toTitleLabel.text)) toTitleLabel.text = TO_TITLE_DEFAULT;
+                toTitleLabel = LocalizedText.Attach(toTitleButton.GetComponentInChildren<Text>(true), StringKey.Menu_ToTitle);
             }
             if (quitButton != null)
             {
                 quitButton.onClick.AddListener(OnQuitClicked);
-                quitLabel = quitButton.GetComponentInChildren<Text>();
-                if (quitLabel != null && !string.IsNullOrEmpty(quitLabel.text)) quitLabel.text = QUIT_DEFAULT;
+                quitLabel = LocalizedText.Attach(quitButton.GetComponentInChildren<Text>(true), StringKey.Menu_QuitGame);
             }
         }
 
@@ -85,8 +92,8 @@ namespace Abyss.Runtime.UI
         {
             if (!toTitleArmed)
             {
-                Arm(ref toTitleArmed, toTitleLabel, TO_TITLE_DEFAULT);
-                Disarm(ref quitArmed, quitLabel, QUIT_DEFAULT);
+                Arm(ref toTitleArmed, toTitleLabel, StringKey.Menu_ToTitleConfirm);
+                Disarm(ref quitArmed, quitLabel, StringKey.Menu_QuitGame);
                 return;
             }
 
@@ -120,8 +127,8 @@ namespace Abyss.Runtime.UI
         {
             if (!quitArmed)
             {
-                Arm(ref quitArmed, quitLabel, QUIT_DEFAULT);
-                Disarm(ref toTitleArmed, toTitleLabel, TO_TITLE_DEFAULT);
+                Arm(ref quitArmed, quitLabel, StringKey.Menu_QuitConfirm);
+                Disarm(ref toTitleArmed, toTitleLabel, StringKey.Menu_ToTitle);
                 return;
             }
             QuitGame();
@@ -137,22 +144,22 @@ namespace Abyss.Runtime.UI
 #endif
         }
 
-        private void Arm(ref bool armed, Text label, string defaultText)
+        private void Arm(ref bool armed, LocalizedText label, string confirmKey)
         {
             armed = true;
-            if (label != null) label.text = defaultText + CONFIRM_SUFFIX;
+            if (label != null) label.SetKey(confirmKey);
         }
 
-        private void Disarm(ref bool armed, Text label, string defaultText)
+        private void Disarm(ref bool armed, LocalizedText label, string defaultKey)
         {
             armed = false;
-            if (label != null) label.text = defaultText;
+            if (label != null) label.SetKey(defaultKey);
         }
 
         private void DisarmAll()
         {
-            Disarm(ref toTitleArmed, toTitleLabel, TO_TITLE_DEFAULT);
-            Disarm(ref quitArmed, quitLabel, QUIT_DEFAULT);
+            Disarm(ref toTitleArmed, toTitleLabel, StringKey.Menu_ToTitle);
+            Disarm(ref quitArmed, quitLabel, StringKey.Menu_QuitGame);
         }
 
         private void SetVisible(bool visible)

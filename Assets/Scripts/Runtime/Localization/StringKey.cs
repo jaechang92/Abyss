@@ -187,5 +187,64 @@
         public const string Story_Ending_Line2 = "Story_Ending_Line2";
         public const string Story_Ending_Line3 = "Story_Ending_Line3";
         public const string Story_Ending_Line4 = "Story_Ending_Line4";
+
+        // 일시정지·상호작용·폼 모달·도감 본문 (2026-09-26)
+        public const string Pause_Title = "Pause_Title";
+        public const string Menu_ToTitleConfirm = "Menu_ToTitleConfirm";
+        public const string Prompt_Talk = "Prompt_Talk";
+        public const string Prompt_FormAltar = "Prompt_FormAltar";
+        public const string Form_AcquiredFormat = "Form_AcquiredFormat";
+        public const string Form_ReplaceCancelConfirm = "Form_ReplaceCancelConfirm";
+        public const string FormBias_WarningFormat = "FormBias_WarningFormat";
+        public const string Codex_Form_BadgeFormat = "Codex_Form_BadgeFormat";
+        public const string Codex_Form_Primary = "Codex_Form_Primary";
+        public const string Codex_Form_Secondary = "Codex_Form_Secondary";
+        public const string Codex_AbilityFormat = "Codex_AbilityFormat";
+        public const string Codex_Skill_FormBoundFormat = "Codex_Skill_FormBoundFormat";
+        public const string Codex_Skill_FormShared = "Codex_Skill_FormShared";
+        public const string Codex_Skill_FormulaFormat = "Codex_Skill_FormulaFormat";
+        public const string Codex_Skill_CooldownFormat = "Codex_Skill_CooldownFormat";
+        public const string Codex_Skill_SynergyConditionFormat = "Codex_Skill_SynergyConditionFormat";
+        public const string Codex_Enemy_Boss = "Codex_Enemy_Boss";
+        public const string Codex_Enemy_MidBoss = "Codex_Enemy_MidBoss";
+        public const string Codex_Enemy_Elite = "Codex_Enemy_Elite";
+        public const string Codex_Enemy_Normal = "Codex_Enemy_Normal";
+        public const string Codex_Enemy_Ranged = "Codex_Enemy_Ranged";
+        public const string Codex_Enemy_Melee = "Codex_Enemy_Melee";
+        public const string Codex_Enemy_HpFormat = "Codex_Enemy_HpFormat";
+        public const string Codex_Enemy_DamageFormat = "Codex_Enemy_DamageFormat";
+        public const string Codex_Enemy_MoveSpeedFormat = "Codex_Enemy_MoveSpeedFormat";
+        public const string Codex_Enemy_DetectionFormat = "Codex_Enemy_DetectionFormat";
+        public const string Codex_Enemy_AttackRangeFormat = "Codex_Enemy_AttackRangeFormat";
+        public const string Codex_Enemy_RewardFormat = "Codex_Enemy_RewardFormat";
+        public const string Codex_Enemy_ProjectileSpeedFormat = "Codex_Enemy_ProjectileSpeedFormat";
+        public const string Codex_Records_LastRunHeader = "Codex_Records_LastRunHeader";
+        public const string Codex_Records_NoRecord = "Codex_Records_NoRecord";
+        public const string Codex_Records_RunHeader = "Codex_Records_RunHeader";
+        public const string Codex_Records_TotalRunsFormat = "Codex_Records_TotalRunsFormat";
+        public const string Codex_Records_BossKillsFormat = "Codex_Records_BossKillsFormat";
+        public const string Codex_Records_BestReachFormat = "Codex_Records_BestReachFormat";
+        public const string Codex_Records_LongestRunFormat = "Codex_Records_LongestRunFormat";
+        public const string Codex_Records_BestGoldFormat = "Codex_Records_BestGoldFormat";
+        public const string Codex_Records_EndingFormat = "Codex_Records_EndingFormat";
+        public const string Codex_Records_EndingReached = "Codex_Records_EndingReached";
+        public const string Codex_Records_EndingNotReached = "Codex_Records_EndingNotReached";
+        public const string Codex_Records_MetaHeader = "Codex_Records_MetaHeader";
+        public const string Codex_Records_ShardsTotalFormat = "Codex_Records_ShardsTotalFormat";
+        public const string Codex_Records_DiscoveryHeader = "Codex_Records_DiscoveryHeader";
+
+        // 런 요약 8줄·도달 표기 — 결과·엔딩·도감 공용 (2026-09-26)
+        public const string RunSummary_KillsFormat = "RunSummary_KillsFormat";
+        public const string RunSummary_ComboFormat = "RunSummary_ComboFormat";
+        public const string RunSummary_DominantFormFormat = "RunSummary_DominantFormFormat";
+        public const string RunSummary_DominantFormRatioFormat = "RunSummary_DominantFormRatioFormat";
+        public const string RunSummary_FormsUsedFormat = "RunSummary_FormsUsedFormat";
+        public const string RunSummary_SkillsNoneFormat = "RunSummary_SkillsNoneFormat";
+        public const string RunSummary_SkillsFormat = "RunSummary_SkillsFormat";
+        public const string RunSummary_StageFormat = "RunSummary_StageFormat";
+        public const string RunSummary_ElapsedFormat = "RunSummary_ElapsedFormat";
+        public const string RunSummary_AbyssEarnedFormat = "RunSummary_AbyssEarnedFormat";
+        public const string Run_StageNumberFormat = "Run_StageNumberFormat";
+        public const string Run_ReachStepFormat = "Run_ReachStepFormat";
     }
 }

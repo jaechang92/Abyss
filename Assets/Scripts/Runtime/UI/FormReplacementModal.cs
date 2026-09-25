@@ -1,5 +1,6 @@
 ﻿using Abyss.Runtime.Events;
 using Abyss.Runtime.Form;
+using Abyss.Runtime.Localization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,8 +31,6 @@ namespace Abyss.Runtime.UI
         // 2단계 취소 확인: 첫 클릭은 '무장'(경고 라벨)만, 재클릭에서 실제 포기. 오조작으로 보상을 날리는 걸 막는다.
         private bool cancelArmed;
         private Text cancelLabel;
-        private string cancelLabelDefault = "취소";
-        private const string CancelArmedText = "포기 확정? (다시 클릭)";
 
         private void Awake()
         {
@@ -51,7 +50,6 @@ namespace Abyss.Runtime.UI
                 cancelButton.onClick.AddListener(Cancel);
                 // 취소 버튼 자식 Text를 잡아 무장 시 라벨을 바꾼다(HudBuilder가 버튼 라벨을 자식 Text로 생성).
                 cancelLabel = cancelButton.GetComponentInChildren<Text>();
-                if (cancelLabel != null && !string.IsNullOrEmpty(cancelLabel.text)) cancelLabelDefault = cancelLabel.text;
             }
         }
 
@@ -64,7 +62,7 @@ namespace Abyss.Runtime.UI
 
             if (incomingText != null)
             {
-                incomingText.text = $"폼 획득: {incoming.displayName}";
+                incomingText.text = Loc.GetFormat(StringKey.Form_AcquiredFormat, incoming.LocalizedName);
             }
 
             for (int i = 0; i < currentSlotButtons.Length; i++)
@@ -72,7 +70,7 @@ namespace Abyss.Runtime.UI
                 var slotForm = i < controller.SlotCount ? controller.GetSlot(i) : null;
                 if (currentSlotLabels[i] != null)
                 {
-                    currentSlotLabels[i].text = slotForm != null ? slotForm.displayName : "—";
+                    currentSlotLabels[i].text = slotForm != null ? slotForm.LocalizedName : "—";
                 }
                 if (currentSlotButtons[i] != null)
                 {
@@ -99,7 +97,7 @@ namespace Abyss.Runtime.UI
             if (!cancelArmed)
             {
                 cancelArmed = true;
-                if (cancelLabel != null) cancelLabel.text = CancelArmedText;
+                if (cancelLabel != null) cancelLabel.text = Loc.Get(StringKey.Form_ReplaceCancelConfirm);
                 return;
             }
             // 무장 상태에서 재클릭 — 폼을 받지 않고 닫는다(획득 포기).
@@ -110,7 +108,7 @@ namespace Abyss.Runtime.UI
         private void ResetCancelArm()
         {
             cancelArmed = false;
-            if (cancelLabel != null) cancelLabel.text = cancelLabelDefault;
+            if (cancelLabel != null) cancelLabel.text = Loc.Get(StringKey.Common_Cancel);
         }
 
         private void Close()

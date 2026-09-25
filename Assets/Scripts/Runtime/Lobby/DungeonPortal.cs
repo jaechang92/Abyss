@@ -16,7 +16,7 @@ namespace Abyss.Runtime.Lobby
 
         private bool busy;
 
-        public string InteractionPrompt => string.IsNullOrEmpty(promptKey) ? "던전 입장 (G)" : Loc.Get(promptKey);
+        public string InteractionPrompt => Loc.Get(string.IsNullOrEmpty(promptKey) ? StringKey.Portal_Prompt : promptKey);
         public bool CanInteract => !busy;
 
         public void Interact(GameObject interactor)

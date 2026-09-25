@@ -58,12 +58,20 @@ namespace Abyss.Runtime.Run
         /// 화면 표기. 도감 기록 탭과 런 요약이 같은 문구를 쓴다 — 두 화면이 같은 기록을 다르게
         /// 부르면 어느 쪽이 맞는지 판단할 근거가 없다.
         /// </summary>
-        public string Describe(string emptyValue)
+        public string Describe(string emptyValue) => Describe(emptyValue, "스테이지 {0}", "{0} {1}단계");
+
+        /// <summary>
+        /// 형식을 받는 표기 — 화면은 현재 언어의 형식을 넘긴다(<c>RunSummaryText.Reach</c>).
+        /// 한글 기본 오버로드는 이것을 부른다. 판정 로직은 여기 한 곳이다.
+        /// </summary>
+        /// <param name="stageFormat">이름 없는 스테이지. {0}=스테이지 번호</param>
+        /// <param name="stepFormat">단계가 있을 때. {0}=스테이지 표기 · {1}=단계 번호</param>
+        public string Describe(string emptyValue, string stageFormat, string stepFormat)
         {
             if (!HasRecord) return emptyValue;
 
-            string stage = string.IsNullOrEmpty(stageName) ? $"스테이지 {stageNumber}" : stageName;
-            return stepNumber > 0 ? $"{stage} {stepNumber}단계" : stage;
+            string stage = string.IsNullOrEmpty(stageName) ? string.Format(stageFormat, stageNumber) : stageName;
+            return stepNumber > 0 ? string.Format(stepFormat, stage, stepNumber) : stage;
         }
     }
 }

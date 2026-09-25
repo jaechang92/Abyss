@@ -146,3 +146,58 @@ FormSelect_Title,로비,시작 폼 선택 패널 제목,,,시작 폼 선택,Choo
 FormSelect_Confirm,로비,시작 폼 선택 확정 버튼,,,선택 (Enter),Select (Enter),選択 (Enter)
 FormSelect_Cancel,로비,시작 폼 선택 취소 버튼,,,취소 (Esc),Cancel (Esc),キャンセル (Esc)
 Dialogue_NextHint,대화,대화창 하단 안내,,,Space: 다음,Space: Next,Space: 次へ
+Pause_Title,메뉴,일시정지 패널 제목,,,일시정지,Paused,ポーズ
+Menu_ToTitleConfirm,메뉴,타이틀로 버튼 2단계 확인,첫 클릭 후,,타이틀로 — 확정? (다시 클릭),To Title — Sure? (Click again),タイトルへ — 本当に？(もう一度クリック)
+Prompt_Talk,대화,대화 NPC 기본 프롬프트,promptKey 미지정 시,,대화 (G),Talk (G),話す (G)
+Prompt_FormAltar,대화,폼 제단 프롬프트,promptKey 미지정 시,,폼 획득 (G),Take Form (G),フォーム獲得 (G)
+Form_AcquiredFormat,폼,폼 교체 모달 획득 폼,,{0}: 폼 이름,폼 획득: {0},New Form: {0},フォーム獲得: {0}
+Form_ReplaceCancelConfirm,폼,폼 교체 모달 취소 2단계 확인,첫 클릭 후,,포기 확정? (다시 클릭),Give up? (Click again),諦める？(もう一度クリック)
+FormBias_WarningFormat,폼,폼 편향 경고,,{0}: 폼 이름 / {1}: 사용 비율,폼 편향 경고 — {0} {1:P0} 사용 중\n폼 교체를 활용해 보세요,Form Bias — {0} used {1:P0}\nTry swapping forms,フォーム偏り — {0} を {1:P0} 使用中\nフォーム交代を活用しよう
+Codex_Form_BadgeFormat,도감,폼 배지,,{0}: HP 배율 / {1}: 이동 배율 / {2}: 점프 수,HP ×{0:0.##} · 이동 ×{1:0.##} · {2}단 점프,HP ×{0:0.##} · Speed ×{1:0.##} · {2}x Jump,HP ×{0:0.##} · 移動 ×{1:0.##} · {2}段ジャンプ
+Codex_Form_Primary,도감,폼 능력 라벨,,,주 공격,Primary,主攻撃
+Codex_Form_Secondary,도감,폼 능력 라벨,,,보조,Secondary,補助
+Codex_AbilityFormat,도감,폼 능력 줄,,{0}: 라벨 / {1}: 능력 이름 / {2}: 쿨다운,{0}: {1}  (쿨 {2:0.##}s),{0}: {1}  (CD {2:0.##}s),{0}: {1}  (CT {2:0.##}s)
+Codex_Skill_FormBoundFormat,도감,스킬 전용 폼,,{0}: 폼 이름,전용 폼: {0},Form: {0},専用フォーム: {0}
+Codex_Skill_FormShared,도감,스킬 전용 폼 없음,,,전용 폼: 없음 (전 폼 공용),Form: Any (shared),専用フォーム: なし（全フォーム共通）
+Codex_Skill_FormulaFormat,도감,스킬 공식,,{0}: 공식 설명,공식: {0},Formula: {0},式: {0}
+Codex_Skill_CooldownFormat,도감,스킬 쿨다운,,{0}: 초,쿨다운: {0:0.##}s,Cooldown: {0:0.##}s,クールダウン: {0:0.##}s
+Codex_Skill_SynergyConditionFormat,도감,시너지 발동 조건,,{0}: 필요 개수,발동 조건: 같은 축 {0}개 이상 보유,Activates with {0}+ of the same axis,発動条件: 同じ軸を{0}個以上所持
+Codex_Enemy_Boss,도감,적 배지,,,보스,Boss,ボス
+Codex_Enemy_MidBoss,도감,적 배지,,,중간보스,Mid-Boss,中ボス
+Codex_Enemy_Elite,도감,적 배지,,,엘리트,Elite,エリート
+Codex_Enemy_Normal,도감,적 배지,,,일반,Normal,通常
+Codex_Enemy_Ranged,도감,적 배지,,,원거리,Ranged,遠距離
+Codex_Enemy_Melee,도감,적 배지,,,근접,Melee,近接
+Codex_Enemy_HpFormat,도감,적 수치,,{0}: 체력,체력: {0},HP: {0},体力: {0}
+Codex_Enemy_DamageFormat,도감,적 수치,,{0}: 공격력,공격력: {0},Attack: {0},攻撃力: {0}
+Codex_Enemy_MoveSpeedFormat,도감,적 수치,,{0}: 이동 속도,이동 속도: {0:0.##},Move Speed: {0:0.##},移動速度: {0:0.##}
+Codex_Enemy_DetectionFormat,도감,적 수치,,{0}: 감지 거리,감지 거리: {0:0.##},Detection: {0:0.##},感知距離: {0:0.##}
+Codex_Enemy_AttackRangeFormat,도감,적 수치,,{0}: 사거리 / {1}: 공격 간격,공격 사거리: {0:0.##}  (간격 {1:0.##}s),Attack Range: {0:0.##}  (every {1:0.##}s),攻撃射程: {0:0.##}  (間隔 {1:0.##}s)
+Codex_Enemy_RewardFormat,도감,적 수치,,{0}: EXP / {1}: 골드,보상: EXP {0} · 골드 {1},Reward: EXP {0} · Gold {1},報酬: EXP {0} · ゴールド {1}
+Codex_Enemy_ProjectileSpeedFormat,도감,적 수치,원거리만,{0}: 발사체 속도,발사체 속도: {0:0.##},Projectile Speed: {0:0.##},弾速: {0:0.##}
+Codex_Records_LastRunHeader,도감,기록 탭 제목,,,■ 직전 런,■ Last Run,■ 直前のラン
+Codex_Records_NoRecord,도감,기록 탭 직전 런 없음,런 기록 없을 때,,아직 기록이 없다. 한 번 내려가 보라.,No record yet. Descend once and see.,まだ記録はない。一度潜ってみよ。
+Codex_Records_RunHeader,도감,기록 탭 제목,,,■ 런 기록,■ Run Records,■ ラン記録
+Codex_Records_TotalRunsFormat,도감,기록 탭,,{0}: 횟수,누적 런: {0}회,Total Runs: {0},累計ラン: {0}回
+Codex_Records_BossKillsFormat,도감,기록 탭,,{0}: 횟수,보스 격파: {0}회,Bosses Defeated: {0},ボス撃破: {0}回
+Codex_Records_BestReachFormat,도감,기록 탭,,{0}: 도달 지점,최고 도달: {0},Deepest Reach: {0},最高到達: {0}
+Codex_Records_LongestRunFormat,도감,기록 탭,,{0}: mm:ss,최장 런: {0},Longest Run: {0},最長ラン: {0}
+Codex_Records_BestGoldFormat,도감,기록 탭,,{0}: 골드,최고 골드: {0},Most Gold: {0},最高ゴールド: {0}
+Codex_Records_EndingFormat,도감,기록 탭,,{0}: 도달 여부,엔딩: {0},Ending: {0},エンディング: {0}
+Codex_Records_EndingReached,도감,기록 탭 엔딩,엔딩 본 뒤,,도달 ✦ 심연 탈출,Reached ✦ Escaped the Abyss,到達 ✦ 深淵脱出
+Codex_Records_EndingNotReached,도감,기록 탭 엔딩,,,미도달,Not reached,未到達
+Codex_Records_MetaHeader,도감,기록 탭 제목,,,■ 메타,■ Meta,■ メタ
+Codex_Records_ShardsTotalFormat,도감,기록 탭,,{0}: 누적량,심연 조각 누적: {0},Total Abyss Shards: {0},深淵の欠片 累計: {0}
+Codex_Records_DiscoveryHeader,도감,기록 탭 제목,,,■ 도감 발견,■ Codex Discoveries,■ 図鑑発見
+RunSummary_KillsFormat,결과,런 요약 처치 수,,{0}: 처치 수,처치 수: {0},Kills: {0},撃破数: {0}
+RunSummary_ComboFormat,결과,런 요약 최장 콤보,,{0}: 콤보,최장 콤보: {0},Best Combo: {0},最長コンボ: {0}
+RunSummary_DominantFormFormat,결과,런 요약 주 사용 폼(기록 없음),,{0}: 빈 값 표기,주 사용 폼: {0},Main Form: {0},主な使用フォーム: {0}
+RunSummary_DominantFormRatioFormat,결과,런 요약 주 사용 폼,,{0}: 폼 이름 / {1}: 사용 비율,주 사용 폼: {0} ({1:P0}),Main Form: {0} ({1:P0}),主な使用フォーム: {0} ({1:P0})
+RunSummary_FormsUsedFormat,결과,런 요약 사용 폼,,{0}: 폼 이름 목록,사용 폼: {0},Forms Used: {0},使用フォーム: {0}
+RunSummary_SkillsNoneFormat,결과,런 요약 드래프트 스킬(없음),,{0}: 빈 값 표기,드래프트 스킬: {0},Drafted Skills: {0},ドラフトスキル: {0}
+RunSummary_SkillsFormat,결과,런 요약 드래프트 스킬,,{0}: 개수 / {1}: 스킬 목록,드래프트 스킬 {0}개: {1},Drafted Skills ({0}): {1},ドラフトスキル {0}個: {1}
+RunSummary_StageFormat,결과,런 요약 도달 지점,,{0}: 도달 표기,도달: {0},Reached: {0},到達: {0}
+RunSummary_ElapsedFormat,결과,런 요약 경과 시간,,{0}: mm:ss,경과: {0},Time: {0},経過: {0}
+RunSummary_AbyssEarnedFormat,결과,런 요약 심연 조각 정산,,{0}: 획득 / {1}: 누적,Abyss 획득: +{0}  (누적 {1}),Abyss Gained: +{0}  (Total {1}),Abyss獲得: +{0}  (累計 {1})
+Run_StageNumberFormat,결과,이름 없는 스테이지 표기,,{0}: 스테이지 번호,스테이지 {0},Stage {0},ステージ {0}
+Run_ReachStepFormat,결과,도달 단계 표기,,{0}: 스테이지 표기 / {1}: 단계 번호,{0} {1}단계,{0} Step {1},{0} 第{1}段階

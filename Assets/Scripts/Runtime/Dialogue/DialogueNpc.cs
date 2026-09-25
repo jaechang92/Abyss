@@ -20,7 +20,7 @@ namespace Abyss.Runtime.Dialogue
 
         private bool busy;
 
-        public string InteractionPrompt => string.IsNullOrEmpty(promptKey) ? "대화 (G)" : Loc.Get(promptKey);
+        public string InteractionPrompt => Loc.Get(string.IsNullOrEmpty(promptKey) ? StringKey.Prompt_Talk : promptKey);
         public bool CanInteract => !busy && (dialogueUI == null || !dialogueUI.IsOpen);
 
         public void Interact(GameObject interactor)
