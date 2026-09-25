@@ -19,3 +19,6 @@ MonoBehaviour:
   hasFormReward: 0
   formReward: {fileID: 0}
   eventData: {fileID: 11400000, guid: 47a15fbc75bd9754890598f6e67521fe, type: 2}
+  mapLength: 24
+  placements: []
+  reinforcements: []

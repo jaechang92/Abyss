@@ -22,3 +22,6 @@ MonoBehaviour:
   clearGoldReward: 12
   hasFormReward: 1
   formReward: {fileID: 0}
+  mapLength: 40
+  placements: []
+  reinforcements: []

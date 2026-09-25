@@ -20,3 +20,6 @@ MonoBehaviour:
   - data: {fileID: 11400000, guid: 03c0a0ca364f01848bbbac63dc134c4f, type: 2}
     count: 1
   clearGoldReward: 30
+  mapLength: 36
+  placements: []
+  reinforcements: []

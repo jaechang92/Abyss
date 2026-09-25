@@ -34,6 +34,7 @@ namespace Abyss.Runtime.Stage
                 if (reward != null)
                 {
                     formAltar.Configure(reward);
+                    PlaceRewardAltar(formAltar.transform);
                     isRoomGateHeld = true;
                     Debug.Log($"[StageDirector] 폼 보상 룸 — 제단 활성화({reward.formId}), 상호작용까지 진행 보류");
                     return true;
@@ -50,6 +51,7 @@ namespace Abyss.Runtime.Stage
                 if (weapon != null)
                 {
                     weaponAltar.Configure(weapon);
+                    PlaceRewardAltar(weaponAltar.transform);
                     isRoomGateHeld = true;
                     Debug.Log($"[StageDirector] 무기 보상 룸 — 제단 활성화({weapon.weaponId}), 상호작용까지 진행 보류");
                     return true;

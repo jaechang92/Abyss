@@ -72,6 +72,13 @@ namespace Abyss.Runtime.Camera
             smoothedInitialized = false;
         }
 
+        /// <summary>경계를 풀어 다시 제약 없이 따라간다(맵 방 → 옛 아레나 방). 다음 프레임에 대상 위치로 맞춘다.</summary>
+        public void ClearEnvironmentBounds()
+        {
+            constrainToEnvironment = false;
+            smoothedInitialized = false;
+        }
+
         private Vector3 ConstrainPosition(Vector3 position)
         {
             if (!constrainToEnvironment || !TryGetComponent<UnityEngine.Camera>(out var camera)) return position;
