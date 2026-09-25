@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "kind": "sprite-gen-request",
+  "engine": "component-row",
+  "character": {
+    "id": "relic_merchant",
+    "description": "a shrewd middle-aged female human relic merchant, warm brown skin, dark hair swept into a thick braid over one shoulder, muted burgundy head wrap, teal short traveling coat with ochre lining and many leather pouches, one small brass monocle on a chain, holding a palm-sized dull brass relic in right hand while left rests on leather belt, practical dark trousers and boots, slight knowing smile, no huge backpack"
+  },
+  "cell": {
+    "shape": "square",
+    "size": 96,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ]
+  },
+  "states": {
+    "idle": {
+      "frames": 4,
+      "fps": 4,
+      "loop": true,
+      "action": "gentle breathing and one subtle blink, the relic hand tilts a little and returns, braid sways slightly, both feet planted; sequence relaxed, inhale, exhale with blink, near relaxed. Very small motion, no changing clothing or anatomy."
+    }
+  },
+  "style": "Polished crisp pixel art matching the locked anchor. Preserve face, costume layers, silhouette and all props. Restrained mature proportions, readable at 72 pixels body height. No painterly blur."
+}

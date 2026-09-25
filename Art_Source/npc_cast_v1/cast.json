@@ -1,0 +1,57 @@
+[
+  {
+    "id": "guide",
+    "name": "안내자",
+    "object": "GuideNpc",
+    "speaker": "Npc_Guide_Name",
+    "description": "an elderly lean male wayfinder, weathered kind face, short silver beard, deep ochre hood and layered dark blue-grey traveling cloak, bronze clasp, brown leather boots, right hand holding a crooked wooden staff with a small enclosed amber lantern attached to its top, left hand relaxed on belt, no backpack",
+    "action": "gentle breathing, slight eyelid blink in frame 3 and slight attached lantern tilt, both feet and staff base remain planted",
+    "source": "exec-ffa4e775-5dfd-4e49-b58a-260ae39f8dbd.png",
+    "anchorPrompt": "Use case: stylized-concept. Asset: canonical idle anchor for a premium 2D dark fantasy side-scroller NPC. Draw ONE full-body character only: an elderly lean male wayfinder, weathered kind face, short silver beard, deep ochre hood and layered dark blue-grey traveling cloak, bronze clasp, brown leather boots, right hand holding a crooked wooden staff with a small enclosed amber lantern attached to its top, left hand relaxed on belt, no backpack. Three-quarter front view facing screen RIGHT, camera at torso level, no top-down or isometric perspective. Mature stylized game proportions about 4 heads tall; readable hands and boots. Real crisp PIXEL ART with deliberate square clusters, dark 1px outlines, layered cloth folds, controlled 3-4 tone shading per material, rich but readable detail matching a polished pixel-art roguelite lobby. This is the character's final design, no sketch. Relaxed standing neutral idle, all body and attached props fully inside image with broad 15% empty margin around every side. Solid perfectly uniform bright GREEN #00FF00 background, NO green in character (replace green clothing if needed with muted blue). No ground, no shadows of any kind, no glow, no text, labels, grid or border, no scenery. Single complete isolated pose centered in a square image. Boots and staff touch the same invisible baseline.",
+    "chroma": "#00FF00"
+  },
+  {
+    "id": "chronicler",
+    "name": "기록자",
+    "object": "StoryNpc",
+    "speaker": "Npc_Recordkeeper_Name",
+    "description": "a weary middle-aged male human chronicler, shoulder-length charcoal hair with a single silver streak, clean-shaven narrow face, muted teal scarf over layered charcoal ink-stained long coat, leather satchel, holding an open worn ivory notebook close to his chest and a short charcoal pencil, practical brown boots, reserved expression, no wizard hat",
+    "action": "quiet breathing with a tiny downward glance at the notebook and back, pencil hand shifts slightly without detached marks, feet stay planted",
+    "source": "exec-bdeb3f73-71ed-4d0b-a40b-fa55c751a136.png",
+    "anchorPrompt": "Use case: stylized-concept. Asset: canonical idle anchor for a premium 2D dark fantasy side-scroller NPC. ONE full-body character: a weary middle-aged male human chronicler, shoulder-length charcoal hair with a single silver streak, clean-shaven narrow face, muted teal scarf over layered charcoal ink-stained long coat, leather satchel, holding an open worn ivory notebook close to his chest and a short charcoal pencil, practical brown boots, reserved expression, no wizard hat. Three-quarter front view facing screen RIGHT, torso-level orthographic camera, not isometric. Mature stylized proportions about 4 heads tall; readable hands and boots. Crisp PIXEL ART with deliberate square clusters and stepped edges, dark outlines, sophisticated layered cloth folds, 3-4 shade steps per material. Quality of a polished dark fantasy pixel-art roguelite. Relaxed neutral idle pose, whole body and all held props completely inside image, 15% empty margin all sides. Solid uniform chroma #00FF00 background. NO chroma color in character. No ground, shadows, glow, text, labels, grid, border or scenery. A single isolated character centered in square image, not character sheet.",
+    "chroma": "#00FF00"
+  },
+  {
+    "id": "engraver",
+    "name": "각인사",
+    "object": "ServiceNpc",
+    "speaker": "Npc_Engraver_Name",
+    "description": "a stocky middle-aged male artisan engraver, shaved head, short dark beard, one round brass jeweler loupe strapped above his right brow, rolled ivory sleeves, dark muted green leather apron over charcoal work clothes, leather tool belt, copper wrist brace, holds a short engraving chisel in right hand and an engraved dull stone fragment in left at waist height, broad boots",
+    "action": "subtle breathing and slight inspection of the stone fragment with a small wrist change, chisel and fragment stay connected to hands, feet stay planted",
+    "source": "exec-6f95024b-86d0-4e46-9cbe-02887b18fb90.png",
+    "anchorPrompt": "Use case: stylized-concept. Asset: canonical idle anchor for a premium 2D dark fantasy side-scroller NPC. ONE full-body character: a stocky middle-aged male artisan engraver, shaved head, short dark beard, one round brass jeweler loupe strapped above his right brow, rolled ivory sleeves, dark muted green leather apron over charcoal work clothes, leather tool belt, copper wrist brace, holds a short engraving chisel in right hand and an engraved dull stone fragment in left at waist height, broad boots. Three-quarter front view facing screen RIGHT, torso-level orthographic camera, not isometric. Mature stylized proportions about 4 heads tall; readable hands and boots. Crisp PIXEL ART with deliberate square clusters and stepped edges, dark outlines, sophisticated layered cloth folds, 3-4 shade steps per material. Quality of a polished dark fantasy pixel-art roguelite. Relaxed neutral idle pose, whole body and all held props completely inside image, 15% empty margin all sides. Solid uniform chroma #FF00FF background. NO chroma color in character. No ground, shadows, glow, text, labels, grid, border or scenery. A single isolated character centered in square image, not character sheet.",
+    "chroma": "#FF00FF"
+  },
+  {
+    "id": "altar_keeper",
+    "name": "제단지기",
+    "object": "AltarNpc",
+    "speaker": "Npc_AltarKeeper_Name",
+    "description": "an enigmatic slender altar keeper embodied as an ancient carved stone mask and hands under a heavy hooded indigo and muted violet layered ceremonial robe, face is a plain weathered ivory stone mask with two narrow dark eye slits, no visible mouth, understated bronze geometric trim, both hands holding one small dull pale cyan abyss shard at sternum, feet hidden under grounded heavy robe hem, no wings, no crown, solemn calm silhouette",
+    "action": "very restrained robe breathing and slow small tilt of masked head toward shard then back, hem and hands remain stable, no glow or floating effects",
+    "source": "exec-a9930ffc-ab15-4b16-a227-3207c4f46676.png",
+    "anchorPrompt": "Use case: stylized-concept. ONE complete full-body canonical neutral idle sprite of an enigmatic slender altar keeper embodied as an ancient carved stone mask and hands under a heavy hooded indigo and muted violet layered ceremonial robe, face is a plain weathered ivory stone mask with two narrow dark eye slits, no visible mouth, understated bronze geometric trim, both hands holding one small dull pale cyan abyss shard at sternum, feet hidden under grounded heavy robe hem, no wings, no crown, solemn calm silhouette. Premium dark fantasy pixel-art side-scroller NPC, three-quarter front facing screen right, mature stylized proportions, crisp square pixel clusters and deliberate stepped outlines, richly layered fabric and carved material but readable silhouette, restrained 4 shade steps per material. Full body and robe hem completely visible within square frame with 15% empty margin. Single standing pose, grounded hem. Uniform GREEN #00FF00 chroma background, no green on subject. No background scenery, floor, cast or contact shadows, glow, text, labels, border, chart.",
+    "chroma": "#00FF00"
+  },
+  {
+    "id": "relic_merchant",
+    "name": "유물 상인",
+    "object": "RelicShopNpc",
+    "speaker": "Npc_RelicMerchant_Name",
+    "description": "a shrewd middle-aged female human relic merchant, warm brown skin, dark hair swept into a thick braid over one shoulder, muted burgundy head wrap, teal short traveling coat with ochre lining and many leather pouches, one small brass monocle on a chain, holding a palm-sized dull brass relic in right hand while left rests on leather belt, practical dark trousers and boots, slight knowing smile, no huge backpack",
+    "action": "gentle breathing and one subtle blink, the relic hand tilts a little and returns, braid sways slightly, both feet planted",
+    "source": "exec-d82ab6b1-a620-4897-af02-e1bf8488f96a.png",
+    "anchorPrompt": "Use case: stylized-concept. ONE complete full-body canonical neutral idle sprite of a shrewd middle-aged female human relic merchant, warm brown skin, dark hair swept into a thick braid over one shoulder, muted burgundy head wrap, teal short traveling coat with ochre lining and many leather pouches, one small brass monocle on a chain, holding a palm-sized dull brass relic in right hand while left rests on leather belt, practical dark trousers and boots, slight knowing smile, no huge backpack. Premium dark fantasy pixel-art side-scroller NPC, three-quarter front facing screen right, mature stylized proportions, crisp square pixel clusters and deliberate stepped outlines, richly layered fabric and metal details but readable silhouette, controlled 4 shade steps per material. Full head to boots and hands completely visible with 15% empty margin in square frame. Single relaxed standing idle pose. Uniform GREEN #00FF00 chroma background, no green on subject (teal is muted BLUE teal). No background scenery, floor, cast or contact shadows, glow, text, labels, border or chart.",
+    "chroma": "#00FF00"
+  }
+]

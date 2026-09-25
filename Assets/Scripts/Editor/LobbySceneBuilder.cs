@@ -87,6 +87,8 @@ namespace Abyss.EditorTools
             WireStoryNpc(storyNpc, storyData, dialogueUI, controller);
             WireRelicShopNpc(relicShopNpc, relicShopPanel, controller);
 
+            LobbyNpcArtBuilder.ApplyToScene(scene);
+
             EnsureScenesFolder();
             EditorSceneManager.SaveScene(scene, AbyssPaths.LobbyScene);
             RegisterSceneAfterBootstrap(AbyssPaths.LobbyScene, nameof(LobbySceneBuilder));

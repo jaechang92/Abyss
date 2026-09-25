@@ -1,0 +1,1 @@
+Base lock gate: y. Full body and props are visible, single standing pose, consistent mature dark fantasy styling, separable transparent background. Identity and costume locked to idle-anchor.png. Generated with built-in image_gen.

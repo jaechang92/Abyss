@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="3" result="Passed" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-24 00:17:33Z" end-time="2026-09-24 00:17:33Z" duration="0.1103857">
+  <test-suite type="TestSuite" id="1000" name="Abyss" fullname="Abyss" runstate="Runnable" testcasecount="334" result="Passed" start-time="2026-09-24 00:17:33Z" end-time="2026-09-24 00:17:33Z" duration="0.110386" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1375" name="Abyss.Tests.EditMode.dll" fullname="D:/JaeChang/Abyss/Library/ScriptAssemblies/Abyss.Tests.EditMode.dll" runstate="Runnable" testcasecount="334" result="Passed" start-time="2026-09-24 00:17:33Z" end-time="2026-09-24 00:17:33Z" duration="0.093717" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="12372" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1376" name="Abyss" fullname="Abyss" runstate="Runnable" testcasecount="334" result="Passed" start-time="2026-09-24 00:17:33Z" end-time="2026-09-24 00:17:33Z" duration="0.087838" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1377" name="Tests" fullname="Abyss.Tests" runstate="Runnable" testcasecount="334" result="Passed" start-time="2026-09-24 00:17:33Z" end-time="2026-09-24 00:17:33Z" duration="0.082327" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1378" name="EditMode" fullname="Abyss.Tests.EditMode" runstate="Runnable" testcasecount="334" result="Passed" start-time="2026-09-24 00:17:33Z" end-time="2026-09-24 00:17:33Z" duration="0.075701" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1090" name="LobbyCameraBoundsTests" fullname="Abyss.Tests.EditMode.LobbyCameraBoundsTests" classname="Abyss.Tests.EditMode.LobbyCameraBoundsTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-24 00:17:33Z" end-time="2026-09-24 00:17:33Z" duration="0.056524" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1094" name="ExistingCamerasRemainUnboundedByDefault" fullname="Abyss.Tests.EditMode.LobbyCameraBoundsTests.ExistingCamerasRemainUnboundedByDefault" methodname="ExistingCamerasRemainUnboundedByDefault" classname="Abyss.Tests.EditMode.LobbyCameraBoundsTests" runstate="Runnable" seed="1299480630" result="Passed" start-time="2026-09-24 00:17:33Z" end-time="2026-09-24 00:17:33Z" duration="0.018911" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="1093" name="LobbyCameraKeepsItsViewportInsideArtwork" fullname="Abyss.Tests.EditMode.LobbyCameraBoundsTests.LobbyCameraKeepsItsViewportInsideArtwork" classname="Abyss.Tests.EditMode.LobbyCameraBoundsTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-24 00:17:33Z" end-time="2026-09-24 00:17:33Z" duration="0.017910" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1091" name="LobbyCameraKeepsItsViewportInsideArtwork(1.777778f)" fullname="Abyss.Tests.EditMode.LobbyCameraBoundsTests.LobbyCameraKeepsItsViewportInsideArtwork(1.777778f)" methodname="LobbyCameraKeepsItsViewportInsideArtwork" classname="Abyss.Tests.EditMode.LobbyCameraBoundsTests" runstate="Runnable" seed="1679766544" result="Passed" start-time="2026-09-24 00:17:33Z" end-time="2026-09-24 00:17:33Z" duration="0.007321" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1092" name="LobbyCameraKeepsItsViewportInsideArtwork(2.333333f)" fullname="Abyss.Tests.EditMode.LobbyCameraBoundsTests.LobbyCameraKeepsItsViewportInsideArtwork(2.333333f)" methodname="LobbyCameraKeepsItsViewportInsideArtwork" classname="Abyss.Tests.EditMode.LobbyCameraBoundsTests" runstate="Runnable" seed="782359474" result="Passed" start-time="2026-09-24 00:17:33Z" end-time="2026-09-24 00:17:33Z" duration="0.000413" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <output><![CDATA[Saving results to: C:/Users/JaeChang/AppData/LocalLow/DefaultCompany/Abyss\TestResults.xml
+]]></output>
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

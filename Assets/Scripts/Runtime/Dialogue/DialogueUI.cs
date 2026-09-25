@@ -17,6 +17,7 @@ namespace Abyss.Runtime.Dialogue
         [SerializeField] private Text speakerLabel;
         [SerializeField] private Text bodyLabel;
         [SerializeField] private Text hintLabel;
+        [SerializeField] private DialoguePortraitPresenter portraitPresenter;
 
         private DialogueLine[] lines;
         private int index;
@@ -27,6 +28,7 @@ namespace Abyss.Runtime.Dialogue
         private void Awake()
         {
             if (root != null) root.SetActive(false);
+            portraitPresenter?.Clear();
         }
 
         /// <summary>DialogueData 재생. 라인이 없으면 즉시 complete 호출.</summary>
@@ -47,6 +49,7 @@ namespace Abyss.Runtime.Dialogue
 
             if (dialogueLines == null || dialogueLines.Length == 0)
             {
+                Close();
                 complete?.Invoke();
                 return;
             }
@@ -73,6 +76,7 @@ namespace Abyss.Runtime.Dialogue
         private void ShowLine()
         {
             var line = lines[index];
+            portraitPresenter?.ShowSpeaker(line.speakerKey);
             if (speakerLabel != null) speakerLabel.text = Loc.Get(line.speakerKey);
             if (bodyLabel != null) bodyLabel.text = Loc.Get(line.textKey);
         }
@@ -93,6 +97,7 @@ namespace Abyss.Runtime.Dialogue
 
         private void Close()
         {
+            portraitPresenter?.Clear();
             if (root != null) root.SetActive(false);
             lines = null;
         }

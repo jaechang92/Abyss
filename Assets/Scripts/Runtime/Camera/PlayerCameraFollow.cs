@@ -15,6 +15,9 @@ namespace Abyss.Runtime.Camera
         [SerializeField] private Vector3 offset = new(0f, 2f, -10f);
         [SerializeField, Min(0f)] private float smoothTime = 0.18f;
         [SerializeField] private bool findPlayerAtStart = true;
+        [SerializeField] private bool constrainToEnvironment;
+        [SerializeField] private Vector2 environmentMin;
+        [SerializeField] private Vector2 environmentMax;
 
         private Vector3 velocity;
         private Vector3 smoothedPosition;
@@ -36,7 +39,7 @@ namespace Abyss.Runtime.Camera
 
             if (target != null)
             {
-                smoothedPosition = target.position + offset;
+                smoothedPosition = ConstrainPosition(target.position + offset);
                 smoothedInitialized = true;
                 transform.position = smoothedPosition;
             }
@@ -48,15 +51,40 @@ namespace Abyss.Runtime.Camera
 
             if (!smoothedInitialized)
             {
-                smoothedPosition = target.position + offset;
+                smoothedPosition = ConstrainPosition(target.position + offset);
                 smoothedInitialized = true;
             }
 
-            Vector3 desired = target.position + offset;
+            Vector3 desired = ConstrainPosition(target.position + offset);
             smoothedPosition = Vector3.SmoothDamp(smoothedPosition, desired, ref velocity, smoothTime);
+            smoothedPosition = ConstrainPosition(smoothedPosition);
 
             Vector3 shakeOffset = shake != null ? shake.CurrentShakeOffset : Vector3.zero;
-            transform.position = smoothedPosition + shakeOffset;
+            transform.position = ConstrainPosition(smoothedPosition + shakeOffset);
+        }
+
+        // Opt-in for finite illustrated rooms. Existing run cameras remain unconstrained.
+        public void SetEnvironmentBounds(Vector2 min, Vector2 max)
+        {
+            environmentMin = min;
+            environmentMax = max;
+            constrainToEnvironment = true;
+            smoothedInitialized = false;
+        }
+
+        private Vector3 ConstrainPosition(Vector3 position)
+        {
+            if (!constrainToEnvironment || !TryGetComponent<UnityEngine.Camera>(out var camera)) return position;
+            float halfHeight = camera.orthographicSize;
+            float halfWidth = halfHeight * camera.aspect;
+            position.x = ClampAxis(position.x, environmentMin.x, environmentMax.x, halfWidth);
+            position.y = ClampAxis(position.y, environmentMin.y, environmentMax.y, halfHeight);
+            return position;
+        }
+
+        private static float ClampAxis(float value, float min, float max, float extent)
+        {
+            return max - min <= extent * 2f ? (min + max) * 0.5f : Mathf.Clamp(value, min + extent, max - extent);
         }
 
         public void SetTarget(Transform newTarget)

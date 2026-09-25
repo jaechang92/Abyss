@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "sprite-gen-request",
+  "engine": "component-row",
+  "character": {
+    "id": "altar_keeper",
+    "description": "",
+    "base_image": "base-source.png"
+  },
+  "cell": {
+    "shape": "square",
+    "width": 96,
+    "height": 96,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12,
+    "size": 96,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "states": {
+    "idle": {
+      "frames": 4,
+      "fps": 4,
+      "loop": true,
+      "action": "very restrained robe breathing and slow small tilt of masked head toward shard then back, hem and hands remain stable, no glow or floating effects; sequence relaxed, inhale, exhale with blink, near relaxed. Very small motion, no changing clothing or anatomy."
+    }
+  },
+  "style": "Polished crisp pixel art matching the locked anchor. Preserve face, costume layers, silhouette and all props. Restrained mature proportions, readable at 72 pixels body height. No painterly blur.",
+  "motion_phase_guides": false
+}
