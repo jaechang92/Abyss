@@ -73,10 +73,10 @@ namespace Abyss.EditorTools
             // 와이어링
             WireCamera(cameraFollow, player.transform);
             // 배경 높이는 카메라 추적 offset 에서 파생하므로 카메라 배선 뒤에 입힌다.
-            ApplyEnvironmentArt(ground, cameraFollow);
+            bool isGatePainted = ApplyEnvironmentArt(ground, cameraFollow);
             WireController(controller, groundCheck);
             WireInteractor(interactor, prompt);
-            WirePortal(portal);
+            WirePortal(portal, isGatePainted);
             // 각인사 내력은 정비 NPC가 폼 선택 패널보다 먼저 재생하므로 와이어링 전에 만들어 둔다.
             var engraverData = LoadOrCreateEngraverStoryData();
             WireServiceNpc(serviceNpc, panel.component, controller, engraverData, dialogueUI);
@@ -241,7 +241,7 @@ namespace Abyss.EditorTools
 
         private static DungeonPortal CreatePortal()
         {
-            return CreateNpcObject<DungeonPortal>("DungeonPortal", new Vector2(8f, -2.5f), new Vector2(1.5f, 2f), new Color(0.6f, 0.3f, 0.8f));
+            return CreateNpcObject<DungeonPortal>("DungeonPortal", new Vector2(PortalX, -2.5f), new Vector2(1.5f, 2f), new Color(0.6f, 0.3f, 0.8f));
         }
 
         private static ServiceNpc CreateServiceNpc()
@@ -405,8 +405,10 @@ namespace Abyss.EditorTools
             so.ApplyModifiedProperties();
         }
 
-        private static void WirePortal(DungeonPortal portal)
+        private static void WirePortal(DungeonPortal portal, bool isGatePainted)
         {
+            // 그림 속 아치가 포털이다 — 자리표시자 사각형은 끄고 트리거만 남긴다.
+            if (isGatePainted) portal.GetComponent<SpriteRenderer>().enabled = false;
             var so = new SerializedObject(portal);
             var p = so.FindProperty("promptKey");
             if (p != null) p.stringValue = StringKey.Portal_Prompt;

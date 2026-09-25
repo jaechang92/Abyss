@@ -26,15 +26,23 @@ namespace Abyss.EditorTools
         private const float FloorThickness = 1f;
         private static float FloorTopY => FloorCenterY + FloorThickness * 0.5f;
 
-        private const float FloorWidth = 30f;
-        private const float WallX = 14f;
+        // 오른쪽 벽은 피난처 그림의 관문 아치(x 14.4~19.5) 바깥 기둥에 선다 — 아치가 곧 포털이다.
+        private const float WallLeftX = -14f;
+        private const float WallRightX = 20.5f;
         private const float WallHeight = 8f;
 
+        // 바닥은 양쪽 벽 바깥면까지 덮는다 — 벽을 옮기면 바닥이 따라온다.
+        private const float FloorCenterX = (WallLeftX + WallRightX) * 0.5f;
+        private const float FloorWidth = WallRightX - WallLeftX + 2f;
+
         /// <summary>
-        /// 바닥 그림은 콜라이더(30)보다 넓게 깐다 — 카메라가 벽 가까이 가면 화면 끝이 바닥 밖(±15)을 비춘다.
-        /// 카메라 반폭 10 + 벽 위치 14 를 넘기면 된다.
+        /// 바닥 그림은 콜라이더보다 넓게 깐다 — 카메라가 벽 가까이 가면 화면 끝이 바닥 밖을 비춘다.
+        /// 양쪽으로 카메라 반폭 10 이상 더한다.
         /// </summary>
-        private const float GroundSkinWidth = 52f;
+        private const float GroundSkinWidth = FloorWidth + 24f;
+
+        /// <summary>포털 트리거 중심 — 피난처 그림의 관문 아치 입구 중앙(원본 2172px 기준 실측).</summary>
+        private const float PortalX = 17f;
 
         /// <summary>바닥 윗줄 아래에 깔 속 타일 줄 수 — 카메라 기준 높이에서 화면 아래(-5.6)가 비지 않을 만큼.</summary>
         private const int GroundInteriorRows = 4;
@@ -51,7 +59,7 @@ namespace Abyss.EditorTools
             AbyssPaths.Stage1Tiles + "/wall_interior.png",
         };
 
-        /// <summary>바닥 위 장식(발밑 피벗). x 는 NPC·포털 자리를 피한다 — 포털 8 · 오른벽 14 사이.</summary>
+        /// <summary>바닥 위 장식(발밑 피벗). x 는 NPC·포털 자리를 피한다 — 서비스 NPC 3 · 포털 17 사이.</summary>
         private static readonly (string name, float x)[] DecorProps =
         {
             ("prop_landmark_1", 11.5f),
@@ -65,22 +73,23 @@ namespace Abyss.EditorTools
             var mat = EditorPlatformFactory.GetOrCreateFrictionlessMaterial();
             var color = EditorPlatformFactory.DefaultPlatformColor;
 
-            EditorPlatformFactory.CreatePlatform(root.transform, "Floor", new Vector2(0f, FloorCenterY), new Vector2(FloorWidth, FloorThickness), groundLayer, sprite, mat, color);
-            EditorPlatformFactory.CreatePlatform(root.transform, "WallLeft", new Vector2(-WallX, 0f), new Vector2(1f, WallHeight), groundLayer, sprite, mat, color);
-            EditorPlatformFactory.CreatePlatform(root.transform, "WallRight", new Vector2(WallX, 0f), new Vector2(1f, WallHeight), groundLayer, sprite, mat, color);
+            EditorPlatformFactory.CreatePlatform(root.transform, "Floor", new Vector2(FloorCenterX, FloorCenterY), new Vector2(FloorWidth, FloorThickness), groundLayer, sprite, mat, color);
+            EditorPlatformFactory.CreatePlatform(root.transform, "WallLeft", new Vector2(WallLeftX, 0f), new Vector2(1f, WallHeight), groundLayer, sprite, mat, color);
+            EditorPlatformFactory.CreatePlatform(root.transform, "WallRight", new Vector2(WallRightX, 0f), new Vector2(1f, WallHeight), groundLayer, sprite, mat, color);
             return root;
         }
 
-        private static void ApplyEnvironmentArt(GameObject ground, PlayerCameraFollow follow)
+        /// <returns>피난처 그림을 깔았으면 true — 그림 속 관문 아치가 포털 모습을 대신한다.</returns>
+        private static bool ApplyEnvironmentArt(GameObject ground, PlayerCameraFollow follow)
         {
-            if (ApplyRefugeArt(ground, follow)) return;
+            if (ApplyRefugeArt(ground, follow)) return true;
 
             // 재임포트가 먼저다 — 불러 둔 스프라이트 참조가 재임포트 뒤에 낡을 수 있다.
             Stage1EnvironmentWiring.EnsureFullRect();
             EnsureLobbyFullRect();
 
             var sprites = LoadLobbyEnvironmentSprites();
-            if (sprites == null) return;
+            if (sprites == null) return false;
 
             // 카메라가 바닥에 선 캐릭터를 잡을 때의 높이 — 배경 그림 중심을 여기에 맞춘다(Stage1 과 같은 규칙).
             float cameraOffsetY = new SerializedObject(follow).FindProperty("offset").vector3Value.y;
@@ -94,21 +103,22 @@ namespace Abyss.EditorTools
             Stage1EnvironmentWiring.AddBackground(root, sprites["bg_near"], Stage1EnvironmentWiring.DepthNear, Stage1EnvironmentWiring.OrderNear, 20f, restCameraY, referenceHeight);
 
             BuildLobbyGroundSkin(root, sprites);
-            BuildLobbyWallSkin(root, sprites, -WallX);
-            BuildLobbyWallSkin(root, sprites, WallX);
+            BuildLobbyWallSkin(root, sprites, WallLeftX);
+            BuildLobbyWallSkin(root, sprites, WallRightX);
             PlaceDecor(root, sprites);
 
             // 그림이 다 깔린 뒤에 그레이박스를 끈다. 콜라이더는 그대로다.
             foreach (var graybox in ground.GetComponentsInChildren<SpriteRenderer>(true)) graybox.enabled = false;
+            return false;
         }
 
         private static void BuildLobbyGroundSkin(Transform root, Dictionary<string, Sprite> sprites)
         {
             int order = Stage1EnvironmentWiring.OrderTerrain;
             Stage1EnvironmentWiring.CreateTiled(root, "GroundTop", sprites["ground_top"], new Vector2(GroundSkinWidth, 1f),
-                new Vector2(0f, FloorTopY - 0.5f), order);
+                new Vector2(FloorCenterX, FloorTopY - 0.5f), order);
             Stage1EnvironmentWiring.CreateTiled(root, "GroundInterior", sprites["ground_interior"], new Vector2(GroundSkinWidth, GroundInteriorRows),
-                new Vector2(0f, FloorTopY - 1f - GroundInteriorRows * 0.5f), order);
+                new Vector2(FloorCenterX, FloorTopY - 1f - GroundInteriorRows * 0.5f), order);
         }
 
         /// <summary>벽 콜라이더 사각형(폭 1 · 높이 8 · 중심 y 0)을 정확히 덮는다 — 윗머리 한 칸 + 몸통.</summary>
