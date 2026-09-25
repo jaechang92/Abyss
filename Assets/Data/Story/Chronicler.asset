@@ -19,9 +19,9 @@ MonoBehaviour:
     requiredFormId: 
     minViewedChapters: 0
     lines:
-    - speakerKey: Npc_Chronicler_Name
+    - speakerKey: Npc_Recordkeeper_Name
       textKey: Story_Ch1_Line1
-    - speakerKey: Npc_Chronicler_Name
+    - speakerKey: Npc_Recordkeeper_Name
       textKey: Story_Ch1_Line2
   - chapterStage: 2
     minRunCount: 1
@@ -29,9 +29,9 @@ MonoBehaviour:
     requiredFormId: 
     minViewedChapters: 0
     lines:
-    - speakerKey: Npc_Chronicler_Name
+    - speakerKey: Npc_Recordkeeper_Name
       textKey: Story_Ch2_Line1
-    - speakerKey: Npc_Chronicler_Name
+    - speakerKey: Npc_Recordkeeper_Name
       textKey: Story_Ch2_Line2
   - chapterStage: 3
     minRunCount: 0
@@ -39,10 +39,10 @@ MonoBehaviour:
     requiredFormId: 
     minViewedChapters: 0
     lines:
-    - speakerKey: Npc_Chronicler_Name
+    - speakerKey: Npc_Recordkeeper_Name
       textKey: Story_Ch3_Line1
-    - speakerKey: Npc_Chronicler_Name
+    - speakerKey: Npc_Recordkeeper_Name
       textKey: Story_Ch3_Line2
   idleLines:
-  - speakerKey: Npc_Chronicler_Name
+  - speakerKey: Npc_Recordkeeper_Name
     textKey: Story_Idle_Line1

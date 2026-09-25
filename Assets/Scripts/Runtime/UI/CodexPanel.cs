@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Abyss.Runtime.Localization;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -192,7 +193,7 @@ namespace Abyss.Runtime.UI
                 return;
             }
 
-            countLabel.text = $"발견 {CountText(items)}";
+            countLabel.text = Loc.GetFormat(StringKey.Codex_DiscoveredFormat, CountText(items));
             RefreshGrid();
             RefreshPager();
             RefreshDetail();
@@ -268,7 +269,7 @@ namespace Abyss.Runtime.UI
             detailStats.text = item.Stats;
 
             // 미발견 항목에 빈 설명만 두면 "설명이 없는 항목"과 구별되지 않는다 → 안내 문구를 넣는다.
-            detailDescription.text = item.IsDiscovered ? item.Description : "아직 만나지 못했다.";
+            detailDescription.text = item.IsDiscovered ? item.Description : Loc.Get(StringKey.Codex_Undiscovered);
             detailDescription.color = item.IsDiscovered ? new Color(0.86f, 0.88f, 0.94f) : MutedColor;
 
             bool hasIcon = item.Icon != null;

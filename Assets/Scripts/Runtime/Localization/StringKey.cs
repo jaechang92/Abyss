@@ -22,6 +22,36 @@
         public const string Menu_Continue = "Menu_Continue";
         public const string Menu_Settings = "Menu_Settings";
         public const string Menu_Exit = "Menu_Exit";
+        public const string Menu_Codex = "Menu_Codex";
+        public const string Menu_QuitGame = "Menu_QuitGame";
+        public const string Menu_QuitConfirm = "Menu_QuitConfirm";
+
+        // ---- 타이틀 ----
+        public const string Title_StartGame = "Title_StartGame";
+        public const string Title_Subtitle = "Title_Subtitle";
+        public const string Title_RecordFormat = "Title_RecordFormat";
+        public const string Title_ClearedTag = "Title_ClearedTag";
+
+        // ---- 로비 메뉴(ESC) ----
+        public const string Menu_LobbyTitle = "Menu_LobbyTitle";
+        public const string Menu_Resume = "Menu_Resume";
+        public const string Menu_ToTitle = "Menu_ToTitle";
+        public const string Common_EscToClose = "Common_EscToClose";
+
+        // ---- 도감 ----
+        public const string Codex_DiscoveredFormat = "Codex_DiscoveredFormat";
+        public const string Codex_Undiscovered = "Codex_Undiscovered";
+        public const string Codex_Tab_Form = "Codex_Tab_Form";
+        public const string Codex_Tab_Skill = "Codex_Tab_Skill";
+        public const string Codex_Tab_Enemy = "Codex_Tab_Enemy";
+        public const string Codex_Tab_Boss = "Codex_Tab_Boss";
+        public const string Codex_Tab_Relic = "Codex_Tab_Relic";
+        public const string Codex_Tab_Records = "Codex_Tab_Records";
+
+        // ---- 로비 시작 폼 선택 ----
+        public const string FormSelect_Title = "FormSelect_Title";
+        public const string FormSelect_Confirm = "FormSelect_Confirm";
+        public const string FormSelect_Cancel = "FormSelect_Cancel";
 
         // ---- HUD ----
         public const string Hud_HpLabel = "Hud_HpLabel";
@@ -54,6 +84,8 @@
         // ---- 폼 ----
         public const string Form_DarkBlade = "Form_DarkBlade";
         public const string Form_VoidArcher = "Form_VoidArcher";
+        public const string Form_AncientShield = "Form_AncientShield";
+        public const string Form_VoidThrower = "Form_VoidThrower";
 
         // ---- 대화 (NPC) ----
         public const string Npc_Guide_Name = "Npc_Guide_Name";
@@ -61,6 +93,7 @@
         public const string Npc_Guide_Line1 = "Npc_Guide_Line1";
         public const string Npc_Guide_Line2 = "Npc_Guide_Line2";
         public const string Npc_Guide_Line3 = "Npc_Guide_Line3";
+        public const string Dialogue_NextHint = "Dialogue_NextHint";
 
         // ---- 로비 상호작용 ----
         public const string Portal_Prompt = "Portal_Prompt";
@@ -115,8 +148,8 @@
         public const string SaveStatus_WriteFailed = "SaveStatus_WriteFailed";
 
         // ---- 서사 (기록자 NPC) ----
-        public const string Npc_Chronicler_Name = "Npc_Chronicler_Name";
-        public const string Npc_Chronicler_Prompt = "Npc_Chronicler_Prompt";
+        public const string Npc_Recordkeeper_Name = "Npc_Recordkeeper_Name";
+        public const string Npc_Recordkeeper_Prompt = "Npc_Recordkeeper_Prompt";
         public const string Story_Ch1_Line1 = "Story_Ch1_Line1";
         public const string Story_Ch1_Line2 = "Story_Ch1_Line2";
         public const string Story_Ch2_Line1 = "Story_Ch2_Line1";

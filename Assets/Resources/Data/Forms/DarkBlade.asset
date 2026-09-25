@@ -15,6 +15,7 @@ MonoBehaviour:
   formId: dark_blade
   requiresMetaUnlock: 0
   displayName: "\uC554\uD751 \uAC80\uC0AC"
+  nameKey: Form_DarkBlade
   bodySprite: {fileID: 21300000, guid: 085b980dcc4f7394f856adadfe20d8b4, type: 3}
   animatorController: {fileID: 22100000, guid: f11a52fe5fb74d34f96071ed21817d58, type: 2}
   weaponAnchors: {fileID: 11400000, guid: e4335241e9e7356439bdbc1f2cd29907, type: 2}

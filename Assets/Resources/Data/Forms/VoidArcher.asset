@@ -15,6 +15,7 @@ MonoBehaviour:
   formId: void_archer
   requiresMetaUnlock: 0
   displayName: "\uACF5\uD5C8 \uAD81\uC218"
+  nameKey: Form_VoidArcher
   bodySprite: {fileID: 21300000, guid: 5f8eaf45fad6cad4ab3cb83b27056e04, type: 3}
   animatorController: {fileID: 22100000, guid: 8845250462733fe47805fd3285128bbd, type: 2}
   weaponAnchors: {fileID: 11400000, guid: 19ed33a0ca0b71944b428aeb06856060, type: 2}

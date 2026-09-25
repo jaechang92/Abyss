@@ -116,6 +116,7 @@ namespace Abyss.EditorTools
             SetPrivateField(panel, "quitButton", quit.button);
             SetPrivateField(panel, "startLabel", start.label);
             SetPrivateField(panel, "recordText", record);
+            SetPrivateField(panel, "subtitleLabel", subtitle);
 
             // 로고는 배경보다 나중에 생성되므로 여기서 연결한다(등장 페이드·숨쉬기 대상).
             if (backdrop != null) SetPrivateField(backdrop, "logo", title);

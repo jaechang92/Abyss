@@ -1,4 +1,5 @@
 using Abyss.Runtime.Flow;
+using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,17 +24,13 @@ namespace Abyss.Runtime.UI
         [Header("표시")]
         [SerializeField] private Text startLabel;
         [SerializeField] private Text recordText;
+        [SerializeField] private Text subtitleLabel;
 
-        private const string START_NEW = "게임 시작";
-        private const string START_CONTINUE = "이어하기";
-        private const string QUIT_DEFAULT = "게임 종료";
-        private const string QUIT_ARMED = "게임 종료 — 확정? (다시 클릭)";
         // 화폐 표기 규약: 파편 = 형태(폼) 전용 / 조각 = 메타 화폐 / 골드 = 런 화폐.
-        // 이 줄은 "심연 파편"이었는데 제단은 "심연 조각", 결과 화면은 "어비스 조각"이라
+        // 기록 줄(Title_RecordFormat)은 "심연 파편"이었는데 제단은 "심연 조각", 결과 화면은 "어비스 조각"이라
         // 한 런에 같은 자원이 세 이름으로 보였다(13-novel-game-glossary B-1).
-        private const string RECORD_FORMAT = "누적 {0}런 · 보스 격파 {1} · 심연 조각 {2}";
-        // 엔딩을 본 플레이어에게만 붙는 꼬리표. 완주 여부는 누적 숫자만으로는 드러나지 않는다.
-        private const string RECORD_CLEARED_SUFFIX = "  ✦ 심연 탈출";
+        // 엔딩을 본 플레이어에게만 꼬리표(Title_ClearedTag)가 붙는다 — 완주 여부는 누적 숫자만으로는 드러나지 않는다.
+        private const string CLEARED_TAG_SEPARATOR = "  ";
 
         private bool quitArmed;
         private Text quitLabel;
@@ -49,8 +46,36 @@ namespace Abyss.Runtime.UI
             {
                 quitButton.onClick.AddListener(OnQuitClicked);
                 quitLabel = quitButton.GetComponentInChildren<Text>();
-                if (quitLabel != null) quitLabel.text = QUIT_DEFAULT;
             }
+
+            // 고정 문구는 LocalizedText가 언어 변경을 따라간다. 씬 빌더가 한글로 채워 둔 글자를 여기서 덮는다.
+            AttachButtonLabel(codexButton, StringKey.Menu_Codex);
+            AttachButtonLabel(settingsButton, StringKey.Menu_Settings);
+            LocalizedText.Attach(subtitleLabel, StringKey.Title_Subtitle);
+            RefreshQuitLabel();
+        }
+
+        // 시작·종료 라벨과 기록 줄은 상태에 따라 키가 바뀌거나 포맷 인자가 있어 LocalizedText 대상이 아니다.
+        // 설정 패널에서 언어를 바꾸면 여기서 다시 그린다.
+        private void OnEnable() => Loc.AddLanguageChangedListener(OnLanguageChanged);
+
+        private void OnDisable() => Loc.RemoveLanguageChangedListener(OnLanguageChanged);
+
+        private void OnLanguageChanged(LocalizationLanguage language)
+        {
+            RefreshFromSave();
+            RefreshQuitLabel();
+        }
+
+        private static void AttachButtonLabel(Button button, string stringKey)
+        {
+            if (button == null) return;
+            LocalizedText.Attach(button.GetComponentInChildren<Text>(), stringKey);
+        }
+
+        private void RefreshQuitLabel()
+        {
+            if (quitLabel != null) quitLabel.text = Loc.Get(quitArmed ? StringKey.Menu_QuitConfirm : StringKey.Menu_QuitGame);
         }
 
         private void Start()
@@ -76,7 +101,7 @@ namespace Abyss.Runtime.UI
             var records = ResolveRecords();
             bool hasHistory = records != null && records.totalRunCount > 0;
 
-            if (startLabel != null) startLabel.text = hasHistory ? START_CONTINUE : START_NEW;
+            if (startLabel != null) startLabel.text = Loc.Get(hasHistory ? StringKey.Menu_Continue : StringKey.Title_StartGame);
 
             if (recordText != null)
             {
@@ -87,8 +112,10 @@ namespace Abyss.Runtime.UI
                 }
                 else
                 {
-                    string line = string.Format(RECORD_FORMAT, records.totalRunCount, records.totalBossKillCount, ResolveShards());
-                    recordText.text = records.hasSeenEnding ? line + RECORD_CLEARED_SUFFIX : line;
+                    string line = Loc.GetFormat(StringKey.Title_RecordFormat, records.totalRunCount, records.totalBossKillCount, ResolveShards());
+                    recordText.text = records.hasSeenEnding
+                        ? line + CLEARED_TAG_SEPARATOR + Loc.Get(StringKey.Title_ClearedTag)
+                        : line;
                 }
             }
         }
@@ -146,7 +173,7 @@ namespace Abyss.Runtime.UI
             if (!quitArmed)
             {
                 quitArmed = true;
-                if (quitLabel != null) quitLabel.text = QUIT_ARMED;
+                RefreshQuitLabel();
                 return;
             }
             QuitGame();

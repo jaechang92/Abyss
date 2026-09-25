@@ -1,6 +1,7 @@
 ﻿using System;
 using Abyss.Runtime.Flow;
 using Abyss.Runtime.Form;
+using Abyss.Runtime.Localization;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -21,6 +22,9 @@ namespace Abyss.Runtime.Lobby
         [Header("버튼")]
         [SerializeField] private Button confirmButton;
         [SerializeField] private Button cancelButton;
+
+        [Header("표시")]
+        [SerializeField] private Text titleLabel;
 
         [Header("폼 선택")]
         [Tooltip("선택 가능한 시작 폼. formButtons와 같은 순서로 1:1 대응.")]
@@ -46,7 +50,26 @@ namespace Abyss.Runtime.Lobby
             WireFormButtons();
             if (confirmButton != null) confirmButton.onClick.AddListener(Confirm);
             if (cancelButton != null) cancelButton.onClick.AddListener(Cancel);
+            AttachLabels();
             if (root != null) root.SetActive(false);
+        }
+
+        /// <summary>씬 빌더가 한글로 채워 둔 고정 문구를 언어를 따라가는 라벨로 바꾼다.</summary>
+        private void AttachLabels()
+        {
+            LocalizedText.Attach(titleLabel, StringKey.FormSelect_Title);
+            if (confirmButton != null) LocalizedText.Attach(confirmButton.GetComponentInChildren<Text>(true), StringKey.FormSelect_Confirm);
+            if (cancelButton != null) LocalizedText.Attach(cancelButton.GetComponentInChildren<Text>(true), StringKey.FormSelect_Cancel);
+
+            // 폼 버튼의 이름 라벨은 씬 빌더가 displayName(한글)으로 채워 둔다. 키가 있는 폼만 언어를 따라가게 바꾼다.
+            if (formButtons == null || selectableForms == null) return;
+            int count = Mathf.Min(formButtons.Length, selectableForms.Length);
+            for (int i = 0; i < count; i++)
+            {
+                var form = selectableForms[i];
+                if (formButtons[i] == null || form == null || string.IsNullOrEmpty(form.nameKey)) continue;
+                LocalizedText.Attach(formButtons[i].GetComponentInChildren<Text>(true), form.nameKey);
+            }
         }
 
         private void Update()
