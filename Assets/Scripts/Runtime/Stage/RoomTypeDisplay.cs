@@ -62,5 +62,17 @@ namespace Abyss.Runtime.Stage
 
         /// <summary>글리프 + 라벨. 노드 버튼 제목 한 줄.</summary>
         public static string Headline(RoomType type) => $"{Glyph(type)}  {Label(type)}";
+
+        /// <summary>
+        /// 보상 문 위에 띄우는 한 줄 — 스컬의 문 모양처럼 <b>그 방이 무엇을 주는가</b>를 먼저 말한다.
+        /// 폼·무기 보상은 방 타입(전투)보다 보상이 선택 근거라 보상을 앞에 쓴다. 나머지는 타입 헤드라인.
+        /// </summary>
+        public static string RewardHeadline(RoomData room)
+        {
+            if (room == null) return string.Empty;
+            if (room.IsFormRewardRoom) return $"{Glyph(room.roomType)}  폼 보상";
+            if (room.IsWeaponRewardRoom) return $"{Glyph(room.roomType)}  무기 보상";
+            return Headline(room.roomType);
+        }
     }
 }

@@ -32,6 +32,12 @@ namespace Abyss.Runtime.Flow
         // 페이드 오버레이는 최초 씬 로드 시 지연 생성한다(영속, DontDestroyOnLoad).
         private ScreenFader Fader => fader != null ? fader : (fader = ScreenFader.Create());
 
+        /// <summary>
+        /// 씬 안 전환(맵 방 → 다음 방)도 같은 검은 막을 쓴다 — 페이드 오버레이가 둘이면 겹쳐 그려진다.
+        /// 씬 로드 중(<see cref="IsLoading"/>)에는 쓰지 말 것: 로드가 이 막을 쥐고 있다.
+        /// </summary>
+        public ScreenFader SharedFader => Fader;
+
         public Awaitable LoadBootstrapAsync() => LoadSceneAsync(SceneNames.Bootstrap);
         public Awaitable LoadTitleAsync() => LoadSceneAsync(SceneNames.Title);
         public Awaitable LoadLobbyAsync() => LoadSceneAsync(SceneNames.Lobby);

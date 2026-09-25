@@ -26,3 +26,6 @@ MonoBehaviour:
   formReward: {fileID: 0}
   eventData: {fileID: 0}
   shopData: {fileID: 0}
+  mapLength: 40
+  placements: []
+  reinforcements: []

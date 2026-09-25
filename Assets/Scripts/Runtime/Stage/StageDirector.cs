@@ -184,6 +184,8 @@ namespace Abyss.Runtime.Stage
             if (room == null) return;
 
             currentRoom = room;
+            // 직전 방의 문·벽·추가 소환을 치우고, 맵 방이면 입구 배치·카메라 경계를 잡는다(치트 이동도 이 길을 지난다).
+            PrepareRoomMap(room);
             var stage = CurrentStage;
             int total = stage != null ? stage.steps.Count : 0;
             Debug.Log($"[StageDirector] Step {currentStepIndex + 1}/{total} 진입: {room.roomId} ({room.roomType})");
@@ -211,42 +213,8 @@ namespace Abyss.Runtime.Stage
         private void SpawnEnemies(RoomData room)
         {
             activeEnemies.Clear();
-            int spawnIndex = 0;
-            int expected = 0;
-
-            foreach (var entry in room.enemies)
-            {
-                // entry 자체가 null일 수 있다(직렬화된 리스트의 빈 원소) — 조건에서 먼저 걸러야
-                // entry.data 접근에서 NRE가 나며 이후 적이 통째로 안 나오는 사태를 막는다.
-                if (entry == null || entry.data == null || entry.data.spawnPrefab == null)
-                {
-                    Debug.LogWarning($"[StageDirector] 적 스폰 누락: entry={entry?.data?.enemyId ?? "null"} " +
-                                     $"(room={room.roomId}) — 이 적은 클리어 판정에서 빠진다");
-                    continue;
-                }
-
-                expected += entry.count;
-
-                for (int i = 0; i < entry.count; i++)
-                {
-                    Transform spawn = GetSpawnPoint(spawnIndex);
-                    spawnIndex += 1;
-
-                    var go = Instantiate(entry.data.spawnPrefab, spawn.position, Quaternion.identity);
-
-                    // 프리팹 루트가 아닌 자식에 EnemyBase가 붙어 있으면 GetComponent가 놓친다.
-                    // 예전에는 조용히 건너뛰어, 스폰은 됐는데 추적만 빠지는 상태가 됐다.
-                    var enemy = go.GetComponentInChildren<EnemyBase>(true);
-                    if (enemy == null)
-                    {
-                        Debug.LogError($"[StageDirector] '{entry.data.enemyId}' 프리팹에 EnemyBase가 없다 " +
-                                       $"— 스폰은 됐지만 클리어 판정에서 빠져 방이 조기 클리어된다");
-                        continue;
-                    }
-
-                    activeEnemies.Add(enemy);
-                }
-            }
+            // 맵 방은 배치 좌표에, 옛 아레나 방은 스폰 지점에 — 추적·대조 규약은 같다(StageDirector.Map.cs).
+            int expected = room.IsMapRoom ? SpawnMapOpening(room) : SpawnArena(room);
 
             if (activeEnemies.Count != expected)
             {
@@ -260,11 +228,69 @@ namespace Abyss.Runtime.Stage
 
             WarnUntrackedEnemies(room);
 
-            if (activeEnemies.Count == 0)
+            if (activeEnemies.Count == 0) Debug.Log($"[StageDirector] 빈 방 감지: {room.roomId}");
+            CheckRoomProgress();
+        }
+
+        /// <summary>옛 아레나 방 — enemies 전부를 스폰 지점에 돌려 가며 즉시 스폰한다. 스폰 의도 수를 돌려준다.</summary>
+        private int SpawnArena(RoomData room)
+        {
+            int spawnIndex = 0;
+            int expected = 0;
+
+            foreach (var entry in room.enemies)
             {
-                Debug.Log($"[StageDirector] 빈 방 감지 → 즉시 클리어: {room.roomId}");
-                HandleRoomCleared(room);
+                // entry 자체가 null일 수 있다(직렬화된 리스트의 빈 원소) — 조건에서 먼저 걸러야
+                // entry.data 접근에서 NRE가 나며 이후 적이 통째로 안 나오는 사태를 막는다.
+                if (!IsSpawnable(entry?.data, room)) continue;
+
+                expected += entry.count;
+
+                for (int i = 0; i < entry.count; i++)
+                {
+                    Transform spawn = GetSpawnPoint(spawnIndex);
+                    spawnIndex += 1;
+                    SpawnTracked(entry.data, spawn.position);
+                }
             }
+            return expected;
+        }
+
+        private static bool IsSpawnable(EnemyData data, RoomData room)
+        {
+            if (data != null && data.spawnPrefab != null) return true;
+            Debug.LogWarning($"[StageDirector] 적 스폰 누락: entry={data?.enemyId ?? "null"} " +
+                             $"(room={room.roomId}) — 이 적은 클리어 판정에서 빠진다");
+            return false;
+        }
+
+        /// <summary>한 마리를 스폰하고 클리어 판정 대상으로 등록한다. 등록에 실패하면 소리를 낸다.</summary>
+        private void SpawnTracked(EnemyData data, Vector3 position)
+        {
+            var go = Instantiate(data.spawnPrefab, position, Quaternion.identity);
+
+            // 프리팹 루트가 아닌 자식에 EnemyBase가 붙어 있으면 GetComponent가 놓친다.
+            // 예전에는 조용히 건너뛰어, 스폰은 됐는데 추적만 빠지는 상태가 됐다.
+            var enemy = go.GetComponentInChildren<EnemyBase>(true);
+            if (enemy == null)
+            {
+                Debug.LogError($"[StageDirector] '{data.enemyId}' 프리팹에 EnemyBase가 없다 " +
+                               $"— 스폰은 됐지만 클리어 판정에서 빠져 방이 조기 클리어된다");
+                return;
+            }
+
+            activeEnemies.Add(enemy);
+        }
+
+        /// <summary>
+        /// 방 진행 판정 한 곳. 남은 적이 없을 때, 아직 소환하지 않은 추가 무리가 있으면 그것을 먼저 부르고
+        /// (플레이어가 도달 지점을 건너뛰어 방이 막히지 않게), 없으면 클리어한다.
+        /// </summary>
+        private void CheckRoomProgress()
+        {
+            if (isRoomClearing || CurrentRoom == null || activeEnemies.Count > 0) return;
+            if (ReleaseNextReinforcement("남은 적 없음")) return;
+            HandleRoomCleared(CurrentRoom);
         }
 
         /// <summary>
@@ -317,10 +343,9 @@ namespace Abyss.Runtime.Stage
                 Debug.Log($"[StageDirector] {CurrentRoom.roomId} 잔여 적 {activeEnemies.Count}마리");
             }
 
-            if (!isRoomClearing && activeEnemies.Count == 0 && CurrentRoom != null)
-            {
-                HandleRoomCleared(CurrentRoom);
-            }
+            // 맵 방: 누적 처치 수로 여는 추가 소환을 먼저 본다 — 소환되면 남은 적이 생겨 클리어가 아니다.
+            RegisterMapKill();
+            CheckRoomProgress();
         }
 
         private void HandleRoomCleared(RoomData room)
@@ -361,7 +386,7 @@ namespace Abyss.Runtime.Stage
             // 규칙은 StageDirector.Rewards.cs 가 갖는다.
             if (TryOpenRewardAltar(room)) return;
 
-            Invoke(nameof(ProceedToNextRoom), delayBetweenRooms);
+            ContinueAfterRoom();
         }
 
         /// <summary>
@@ -375,6 +400,16 @@ namespace Abyss.Runtime.Stage
             isRoomGateHeld = false;
 
             Debug.Log($"[StageDirector] {reason} — 다음 방 진행");
+            ContinueAfterRoom();
+        }
+
+        /// <summary>
+        /// 방을 마친 뒤(보상까지 끝난 뒤) 다음으로 가는 길 한 곳. 맵 방이면 오른쪽 끝에 보상 문을 세우고
+        /// 플레이어가 고르기를 기다린다. 아니면(옛 방·스테이지 마지막 방) 예전처럼 잠시 뒤 자동 진행.
+        /// </summary>
+        private void ContinueAfterRoom()
+        {
+            if (TryOpenExitDoors()) return;
             Invoke(nameof(ProceedToNextRoom), delayBetweenRooms);
         }
 
