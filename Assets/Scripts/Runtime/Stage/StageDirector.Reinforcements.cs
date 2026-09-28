@@ -251,6 +251,7 @@ namespace Abyss.Runtime.Stage
         {
             isRoomSessionClosed = false;
             hasRoomSpawnFailure = false;
+            hasRoomBossEnemy = false;
         }
 
         /// <summary>
