@@ -16,6 +16,8 @@ MonoBehaviour:
   formSwapCooldown: 1.5
   formSwapAnimationDuration: 0.3
   formSwapHitstopMs: 120
+  guardSwapReserveWindow: 1.5
+  guardSwapExecutionWait: 1.8
   draftOptionCount: 3
   rerollCostLadder: 0f0000001e000000
   skipReward: 10

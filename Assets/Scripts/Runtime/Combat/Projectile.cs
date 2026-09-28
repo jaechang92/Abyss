@@ -106,6 +106,13 @@ namespace Abyss.Runtime.Combat
                     if (burn.HasBurn) enemy.ApplyBurn(burn);
                     enemy.TakeDamage(finalDamage);
 
+                    // 피해를 준 뒤 「누구를 맞혔나」가 필요한 발사자에게만 알린다(P04 C 표식). 풀 반환 전에 —
+                    // 반환하면 청취자 참조가 비워진다.
+                    if (hitListener is IProjectileEnemyHitListener enemyHitListener)
+                    {
+                        enemyHitListener.OnProjectileEnemyHit(enemy, isFirstHit);
+                    }
+
                     if (ledger.IsExhausted) ReturnToPool();
                     return;
                 }

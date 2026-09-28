@@ -61,6 +61,9 @@ namespace Abyss.Runtime.Player
 
         private void OnDestroy()
         {
+            // P04 연계 문구는 플레이어의 자식이 아니다 — 아래 조기 반환보다 먼저 치운다.
+            DestroyFormComboLabels();
+
             // 플레이어 파괴 시 등록 해제 — 영속 싱글톤에 파괴된 어빌리티가 잔류하지 않도록.
             if (!AbilitySystem.HasInstance) return;
             AbilitySystem.Instance.OnAbilityStarted -= HandleAbilityStartedForCastMotion;
@@ -120,6 +123,8 @@ namespace Abyss.Runtime.Player
 
             // 폼 귀속 검사 — 현재 폼과 다른 전용 스킬은 발동 차단.
             if (!IsSlotUsableInCurrentForm(slot)) return;
+
+            CancelLunge("스킬");  // P04 B — 공격 입력이 접근을 끊는다
 
             // 비동기 실행은 fire-and-forget — 결과는 AbilitySystem 이벤트로 통지된다.
             _ = AbilitySystem.Instance.TryExecuteAbilityAsync(abilityName);

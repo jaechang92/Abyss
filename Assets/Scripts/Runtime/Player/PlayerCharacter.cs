@@ -35,6 +35,7 @@ namespace Abyss.Runtime.Player
             UpdateFacing();
             UpdateAttackFlash();
             UpdateBuff();
+            UpdateFormCombo();  // P04 A/B/C — 가드 · 접지 판정이 끝난 뒤
         }
 
         private void FixedUpdate()

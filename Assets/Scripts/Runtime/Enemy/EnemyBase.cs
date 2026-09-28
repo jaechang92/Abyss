@@ -219,6 +219,31 @@ namespace Abyss.Runtime.Enemy
             ApplyDamage(amount, causesStagger: true);
         }
 
+        // P04 C 표식 소비가 요청한 최소 경직 시간. 다음 경직 판정 한 번에만 쓰고 비운다.
+        private float markInterruptMinDuration;
+
+        /// <summary>
+        /// P04 C 표식을 받을 수 있는 적인가. 🔴 보스 · 중간보스는 대상 자체에서 뺀다 — 경직 면역을 우회하지 않는다.
+        /// 공격 중 경직을 버리는 적(<see cref="ResistsStaggerWhileAttacking"/>)도 뺀다.
+        /// </summary>
+        public bool CanReceiveComboMark =>
+            !isDead && data != null
+            && data.tier != EnemyTier.Boss && data.tier != EnemyTier.MidBoss
+            && !(this is BossEnemy)
+            && !ResistsStaggerWhileAttacking;
+
+        /// <summary>
+        /// P04 C 표식 소비 — <b>기존 경직 경로</b>로 행동을 끊는다. 피해를 주지 않는다.
+        /// 경직 시간은 적 데이터 값과 <paramref name="minDuration"/> 중 긴 쪽이다. 표식 대상이 아니면 아무것도 안 한다.
+        /// </summary>
+        public bool RequestMarkInterrupt(float minDuration)
+        {
+            if (!CanReceiveComboMark) return false;
+            markInterruptMinDuration = Mathf.Max(markInterruptMinDuration, minDuration);
+            staggerQueued = true;
+            return true;
+        }
+
         /// <summary>
         /// 피해 적용 공통 경로. causesStagger가 false면 HP만 깎고 FSM 경직을 걸지 않는다
         /// (연소 등 지속 피해용 — 1초마다 경직이 걸리면 DoT가 하드 CC가 된다).
@@ -303,9 +328,11 @@ namespace Abyss.Runtime.Enemy
             if (staggerQueued)
             {
                 staggerQueued = false;
+                float staggerDuration = Mathf.Max(data.staggerDuration, markInterruptMinDuration);
+                markInterruptMinDuration = 0f;
                 if (!EnemyTimedState.IsStaggerIgnored(ResistsStaggerWhileAttacking, current, Time.time, timedStateExitTime))
                 {
-                    timedStateExitTime = Time.time + data.staggerDuration;
+                    timedStateExitTime = Time.time + staggerDuration;
                     fsm.ForceTransitionTo(EnemyStateIds.Stagger);
                     return;
                 }

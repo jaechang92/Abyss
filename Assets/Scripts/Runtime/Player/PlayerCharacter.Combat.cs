@@ -129,6 +129,8 @@ namespace Abyss.Runtime.Player
         /// </summary>
         private void PerformAttack(int damage, float hitstop, Vector2 shake, bool isHeavy)
         {
+            CancelLunge("공격");  // P04 B — 공격(자동 반격 포함)이 접근을 끊는다
+
             // 본체 sprite tint flash — AttackEffect는 옆에 표시되는 검기, 본체 flash는 캐릭터 자체가 공격함을 인지시킴.
             TriggerAttackFlash(isHeavy ? heavyFlashColor : lightFlashColor,
                                isHeavy ? heavyFlashDuration : lightFlashDuration);
@@ -225,6 +227,9 @@ namespace Abyss.Runtime.Player
             // Passive '심연 충전'은 적중이 확정된 뒤에 적용·소비한다 — 헛스윙으로 장전이 풀리지 않게
             // 하기 위함(Passives 파트 참조). 수집이 끝난 이 지점이 "맞았다"가 확정되는 유일한 곳이다.
             damage = ConsumeAbyssCharge(damage);
+
+            // P04 C — 표식 소비도 적중 확정 뒤 · 피해 전. 피해 식은 바꾸지 않는다(경직만).
+            TryConsumeRangedMark(reusableHitList);
 
             foreach (var enemy in reusableHitList)
             {

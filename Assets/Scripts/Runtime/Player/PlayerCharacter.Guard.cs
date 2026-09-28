@@ -144,6 +144,8 @@ namespace Abyss.Runtime.Player
             PlayGuardFeedback(outcome);
             if (isDead) return;
             TryCounterAttack();
+            // P04 A — 자동 반격은 그대로 두고, 저스트 가드면 교체 입력 창을 연다.
+            OpenGuardSwapWindow(outcome);
         }
 
         /// <summary>
