@@ -26,6 +26,10 @@ namespace Abyss.Runtime.Stage
         // 새 방 진입(OpenRoomSession)에서만 지운다.
         private bool hasRoomSpawnFailure;
 
+        // 이 방에 BossEnemy(중간보스 포함)가 스폰됐는가 — 클리어하려면 반드시 처치되므로 「보스를 잡은 방」과 같다.
+        // BossPresenter가 처치 슬로·대사를 이미 하므로 클리어 연출을 겹치지 않는다. 새 방 진입에서만 지운다.
+        private bool hasRoomBossEnemy;
+
         private void MarkRoomSpawnFailure() => hasRoomSpawnFailure = true;
 
         private void PlayRoomClearFeedback(RoomData room)
@@ -33,6 +37,11 @@ namespace Abyss.Runtime.Stage
             if (room == null || !room.IsMapRoom || mapKillCount <= 0) return;
             if (room.roomType != RoomType.Combat && room.roomType != RoomType.Elite) return;
             if (room.IsEventRoom || room.IsShopRoom) return;
+            if (hasRoomBossEnemy)
+            {
+                Debug.Log($"[StageDirector] {room.roomId} 보스 처치 연출과 겹침 — 클리어 연출 생략");
+                return;
+            }
             if (hasRoomSpawnFailure)
             {
                 Debug.Log($"[StageDirector] {room.roomId} 스폰 실패가 있었던 방 — 클리어 연출 생략");

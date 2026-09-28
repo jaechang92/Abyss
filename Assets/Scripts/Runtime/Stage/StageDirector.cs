@@ -315,6 +315,7 @@ namespace Abyss.Runtime.Stage
             }
 
             activeEnemies.Add(enemy);
+            if (enemy is BossEnemy) hasRoomBossEnemy = true;
         }
 
         /// <summary>

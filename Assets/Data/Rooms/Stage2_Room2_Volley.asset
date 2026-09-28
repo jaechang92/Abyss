@@ -21,5 +21,16 @@ MonoBehaviour:
     count: 2
   clearGoldReward: 14
   mapLength: 40
-  placements: []
-  reinforcements: []
+  placements:
+  - data: {fileID: 11400000, guid: 1ae865111c7cd9940a8ad5309e5be5a8, type: 2}
+    x: -9
+  - data: {fileID: 11400000, guid: 3825ebf787f068e4591b38e30f222528, type: 2}
+    x: 6
+  reinforcements:
+  - trigger: 0
+    value: 0
+    enemies:
+    - data: {fileID: 11400000, guid: 1ae865111c7cd9940a8ad5309e5be5a8, type: 2}
+      x: 10
+    - data: {fileID: 11400000, guid: 3825ebf787f068e4591b38e30f222528, type: 2}
+      x: 15

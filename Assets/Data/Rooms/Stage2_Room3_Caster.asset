@@ -27,5 +27,16 @@ MonoBehaviour:
   eventData: {fileID: 0}
   shopData: {fileID: 0}
   mapLength: 40
-  placements: []
-  reinforcements: []
+  placements:
+  - data: {fileID: 11400000, guid: 1ae865111c7cd9940a8ad5309e5be5a8, type: 2}
+    x: -8
+  - data: {fileID: 11400000, guid: 1ae865111c7cd9940a8ad5309e5be5a8, type: 2}
+    x: -3
+  reinforcements:
+  - trigger: 1
+    value: 2
+    enemies:
+    - data: {fileID: 11400000, guid: 6dae1acaf2a396c4e862e10682b0b081, type: 2}
+      x: 7
+    - data: {fileID: 11400000, guid: 6dae1acaf2a396c4e862e10682b0b081, type: 2}
+      x: 13
