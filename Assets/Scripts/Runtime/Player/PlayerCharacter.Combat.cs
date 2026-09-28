@@ -231,7 +231,21 @@ namespace Abyss.Runtime.Player
                 enemy.TakeDamage(damage);
             }
 
+            ApplyMeleeLifeSteal(damage * reusableHitList.Count);
             return reusableHitList.Count;
+        }
+
+        /// <summary>
+        /// 폼의 근접 흡수(<see cref="Form.FormData.meleeLifeSteal"/>, 암흑 검사). 적중이 확정된 뒤
+        /// 실제로 준 피해 합계에서만 회복한다 — 헛스윙에는 없고, 여러 마리를 베면 그만큼 더 찬다.
+        /// </summary>
+        private void ApplyMeleeLifeSteal(int totalDamage)
+        {
+            Form.FormData form = formController != null ? formController.CurrentForm : null;
+            if (form == null || form.meleeLifeSteal <= 0f) return;
+
+            int amount = Mathf.RoundToInt(totalDamage * form.meleeLifeSteal);
+            if (amount > 0) Heal(amount);
         }
 
         private void TriggerShake(Vector2 magDuration)

@@ -20,7 +20,7 @@ MonoBehaviour:
   animatorController: {fileID: 22100000, guid: 8845250462733fe47805fd3285128bbd, type: 2}
   weaponAnchors: {fileID: 11400000, guid: 19ed33a0ca0b71944b428aeb06856060, type: 2}
   defaultWeapon: {fileID: 11400000, guid: 8f86dbe816b66a74c8a918b2d7baec13, type: 2}
-  description: "\uC6D0\uAC70\uB9AC\xB7\uAE30\uB3D9\uC131\xB7\uC2EC\uC5F0. \uBE60\uB978 \uC5F0\uC0AC\xB7\uBC31\uC2A4\uD15D. HP -10%, \uC774\uB3D9\uC18D\uB3C4 +15%."
+  description: "\uBA40\uB9AC\uC11C \uACAC\uC81C\uD558\uB294 \uC6D0\uAC70\uB9AC. \uAE34 \uC0AC\uAC70\uB9AC\uC758 \uAC00\uBCBC\uC6B4 \uD654\uC0B4, \uAC15\uACF5\uACA9\uC740 \uC5EC\uB7EC \uC801 \uAD00\uD1B5. HP -10%, \uC774\uB3D9\uC18D\uB3C4 +15%, 3\uB2E8 \uC810\uD504."
   icon: {fileID: 0}
   hpMultiplier: 0.9
   moveSpeedMultiplier: 1.15
@@ -28,18 +28,18 @@ MonoBehaviour:
   attackStyle: 1
   rangedLight:
     projectilePrefab: {fileID: 2026052179457165551, guid: c17b8e63a7d88074881f2ceea4a284bb, type: 3}
-    speed: 16
-    lifetime: 0.45
+    speed: 18
+    lifetime: 0.6
     pierceCount: 0
-    damageScale: 0.6
+    damageScale: 0.5
     useWeaponSprite: 0
     spriteAngleOffset: 0
   rangedHeavy:
     projectilePrefab: {fileID: 2026052179457165551, guid: c17b8e63a7d88074881f2ceea4a284bb, type: 3}
-    speed: 20
-    lifetime: 0.5
-    pierceCount: 2
-    damageScale: 0.6
+    speed: 24
+    lifetime: 0.6
+    pierceCount: 3
+    damageScale: 0.7
     useWeaponSprite: 0
     spriteAngleOffset: 0
   guard:

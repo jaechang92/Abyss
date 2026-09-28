@@ -66,6 +66,10 @@ namespace Abyss.Runtime.Form
         [Tooltip("켜면 강공격 키 = 가드, 강공격은 가드 성공 시 자동 반격으로만 나간다(방패병)")]
         public FormGuardSpec guard;
 
+        [Tooltip("근접 기본 공격이 실제로 준 피해의 이 비율만큼 HP를 회복한다(암흑 검사 — 붙어서 벨 이유). " +
+                 "0 = 없음. 헛스윙·원거리·스킬에는 붙지 않는다")]
+        [Range(0f, 0.5f)] public float meleeLifeSteal;
+
         [Header("폼 전용 어빌리티 (P-14에서 채움)")]
         public AbilityData primaryAction;
         public AbilityData secondaryAction;

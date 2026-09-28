@@ -62,22 +62,32 @@ namespace Abyss.EditorTools
             Debug.Log("[ContentBuilder] 프로토 SO 생성 완료 — Assets/Data/ 하위 확인");
         }
 
+        // 폼 역할(P03 · 02-form-change-system.md 「역할표」). 설명은 도감에 그대로 나온다 — 구현 안 된 기능을 적지 않는다.
+        private const float DARK_BLADE_LIFE_STEAL = 0.08f;
+        private const string DARK_BLADE_DESCRIPTION =
+            "붙어서 베는 근접. 적중 피해의 8%를 HP로 흡수. 불꽃 축 시너지. HP +20%, 이동속도 기본.";
+        private const string VOID_ARCHER_DESCRIPTION =
+            "멀리서 견제하는 원거리. 긴 사거리의 가벼운 화살, 강공격은 여러 적 관통. HP -10%, 이동속도 +15%, 3단 점프.";
+        private const string VOID_THROWER_DESCRIPTION =
+            "붙어서 던지는 유리대포. 짧은 사거리의 무거운 투창으로 한 방이 크다. 심연 축 시너지. HP -10%, 이동속도 +15%, 2단 점프.";
+
         private static void CreateForms()
         {
             CreateOrSkip<FormData>($"{AbyssPaths.Forms}/DarkBlade.asset", so =>
             {
                 so.formId = "dark_blade";
                 so.displayName = "암흑 검사";
-                so.description = "근접·패링·흡수 HP. 불꽃 축 시너지. HP 보정 +20%, 이동속도 기본.";
+                so.description = DARK_BLADE_DESCRIPTION;
                 so.hpMultiplier = 1.2f;
                 so.moveSpeedMultiplier = 1f;
+                so.meleeLifeSteal = DARK_BLADE_LIFE_STEAL;
             });
 
             CreateOrSkip<FormData>($"{AbyssPaths.Forms}/VoidArcher.asset", so =>
             {
                 so.formId = "void_archer";
                 so.displayName = "공허 궁수";
-                so.description = "원거리·기동성·심연. 빠른 연사·백스텝. HP -10%, 이동속도 +15%.";
+                so.description = VOID_ARCHER_DESCRIPTION;
                 so.hpMultiplier = 0.9f;
                 so.moveSpeedMultiplier = 1.15f;
             });
@@ -96,7 +106,7 @@ namespace Abyss.EditorTools
             {
                 so.formId = "void_thrower";
                 so.displayName = "심연 투척사";
-                so.description = "투창과 잔상 이동의 기동형 시프터. 유리대포 근·원거리 혼합. 심연 축 시너지. HP -10%, 이동속도 +15%, 2단 점프.";
+                so.description = VOID_THROWER_DESCRIPTION;
                 so.hpMultiplier = 0.9f;
                 so.moveSpeedMultiplier = 1.15f;
                 so.jumpCount = 2;
