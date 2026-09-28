@@ -12901,6 +12901,7 @@ MonoBehaviour:
   delayBetweenRooms: 2
   delayBetweenStages: 3
   formAltar: {fileID: 723407623}
+  summonTelegraphSfx: {fileID: 8300000, guid: 1772524434acb964f9e4cc3a400fb54f, type: 3}
 --- !u!4 &1382588056
 Transform:
   m_ObjectHideFlags: 0

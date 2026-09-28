@@ -34,7 +34,6 @@ namespace Abyss.Runtime.Stage
         private const float GROUND_PROBE_TOP = 30f;
         private const float MAX_MAP_LENGTH_ON_CURRENT_GROUND = 44f;  // Run 씬 바닥 폭 45.6 안쪽
         private const float SUMMON_EFFECT_RADIUS = 0.9f;
-        private const float SUMMON_EFFECT_SECONDS = 0.45f;
         private const float DROP_ENTRY_HEIGHT = 7f;           // 스테이지 추락 뒤 첫 방: 입구 위 이만큼에서 떨어진다
 
         private static readonly Color SummonEffectColor = new Color(0.62f, 0.38f, 0.95f);
@@ -162,78 +161,7 @@ namespace Abyss.Runtime.Stage
             return spread.Count;
         }
 
-        // ───────────────────────── 추가 소환 ─────────────────────────
-
-        /// <summary>도달 조건(ReachX) 추가 소환을 본다. 적이 감지 범위 밖에서 서 있듯, 맵 뒤쪽 무리는 다가갈 때 나온다.</summary>
-        private void Update()
-        {
-            if (pendingReinforcements.Count == 0 || isRoomClearing) return;
-            var player = ResolvePlayer();
-            if (player == null) return;
-
-            float playerX = player.transform.position.x;
-            for (int i = 0; i < pendingReinforcements.Count; i++)
-            {
-                var reinforcement = pendingReinforcements[i];
-                if (reinforcement.trigger != ReinforcementTrigger.ReachX || playerX < reinforcement.value) continue;
-                pendingReinforcements.RemoveAt(i);
-                SpawnReinforcement(reinforcement, $"지점 도달 x≥{reinforcement.value}");
-                return;
-            }
-        }
-
-        /// <summary>맵 방에서 한 마리 처치 — 누적 처치 수(KillCount) 추가 소환을 연다.</summary>
-        private void RegisterMapKill()
-        {
-            if (currentRoom == null || !currentRoom.IsMapRoom || isRoomClearing) return;
-            mapKillCount += 1;
-
-            for (int i = 0; i < pendingReinforcements.Count; i++)
-            {
-                var reinforcement = pendingReinforcements[i];
-                if (reinforcement.trigger != ReinforcementTrigger.KillCount || mapKillCount < reinforcement.value) continue;
-                pendingReinforcements.RemoveAt(i);
-                SpawnReinforcement(reinforcement, $"누적 처치 {mapKillCount}");
-                i -= 1;
-            }
-        }
-
-        /// <summary>남은 추가 소환 중 맨 앞을 조건과 무관하게 부른다. 부를 것이 없으면 false.</summary>
-        private bool ReleaseNextReinforcement(string reason)
-        {
-            if (pendingReinforcements.Count == 0) return false;
-            var reinforcement = pendingReinforcements[0];
-            pendingReinforcements.RemoveAt(0);
-            SpawnReinforcement(reinforcement, reason);
-            return true;
-        }
-
-        private void SpawnReinforcement(Reinforcement reinforcement, string reason)
-        {
-            var room = currentRoom;
-            if (room == null) return;
-
-            float half = room.mapLength * 0.5f;
-            float y = GetSpawnPoint(0).position.y;
-            int before = activeEnemies.Count;
-            int expected = 0;
-
-            foreach (var placement in reinforcement.enemies)
-            {
-                if (placement == null || !IsSpawnable(placement.data, room)) continue;
-                expected += 1;
-                var position = new Vector3(ClampToMap(placement.x, half), y, 0f);
-                // 소환 표식 — 어디서 나오는지 먼저 보인다(본격 예고 연출은 A2).
-                BossAreaEffect.Spawn(position, SUMMON_EFFECT_RADIUS, SummonEffectColor, SUMMON_EFFECT_SECONDS, BossAreaEffect.Mode.Telegraph);
-                SpawnTracked(placement.data, position);
-            }
-
-            int spawned = activeEnemies.Count - before;
-            Debug.Log($"[StageDirector] {room.roomId} 추가 소환({reason}) — {spawned}/{expected}마리");
-
-            // 전부 실패하면(데이터 오류) 남은 적이 안 생겨 방이 멈춘다 — 다음 판정을 바로 돌린다.
-            if (spawned == 0) CheckRoomProgress();
-        }
+        // 추가 소환(조건 판정·예고·등장)은 StageDirector.Reinforcements.cs 가 맡는다.
 
         // ───────────────────────── 보상 문 ─────────────────────────
 
@@ -424,7 +352,11 @@ namespace Abyss.Runtime.Stage
 
         private void ClearMapObjects()
         {
+            // 이전 방의 예고는 여기서 끝낸다 — 새 방에서 옛 무리가 튀어나오거나 표식이 남지 않게.
+            CancelReinforcementTelegraphs("방 이동");
             pendingReinforcements.Clear();
+            // 이전 방의 CLEAR가 새 방에 남지 않게 즉시 숨긴다.
+            UI.RoomClearBanner.Hide();
             exitDoors.Clear();
             mapKillCount = 0;
             if (mapRoot == null) return;

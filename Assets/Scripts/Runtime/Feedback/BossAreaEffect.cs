@@ -29,13 +29,15 @@ namespace Abyss.Runtime.Feedback
         /// 지정 위치에 반경 radius(월드 유닛)의 원형 링 이펙트를 띄운다.
         /// Strike: radius*0.4 → radius까지 확장하며 알파 페이드.
         /// Telegraph: 타격 범위(반경 radius)를 고정 표시하며 깜빡임 → 회피 안내.
+        /// 만든 이펙트를 돌려준다 — 호출자가 부모를 옮기거나 일찍 치울 때 쓴다(추가 소환 예고). 무시해도 된다.
         /// </summary>
-        public static void Spawn(Vector3 position, float radius, Color color, float duration = 0.35f, Mode mode = Mode.Strike)
+        public static BossAreaEffect Spawn(Vector3 position, float radius, Color color, float duration = 0.35f, Mode mode = Mode.Strike)
         {
             var go = new GameObject("BossAreaEffect");
             go.transform.position = position;
             var fx = go.AddComponent<BossAreaEffect>();
             fx.Init(radius, color, duration, mode);
+            return fx;
         }
 
         private void Init(float radius, Color color, float dur, Mode effectMode)

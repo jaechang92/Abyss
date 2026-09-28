@@ -56,6 +56,7 @@
         // ---- HUD ----
         public const string Hud_HpLabel = "Hud_HpLabel";
         public const string Hud_FormSwapHint = "Hud_FormSwapHint";
+        public const string Hud_RoomClear = "Hud_RoomClear";
 
         // ---- 드래프트 ----
         public const string Draft_Title = "Draft_Title";
