@@ -50,11 +50,13 @@ namespace Abyss.Runtime.Player
             }
 
             int damage = RangedAttackSpec.ScaleDamage(meleeDamage, spec.damageScale);
-            FireRangedProjectile(spec, damage, ResolveRangedFeedback(isHeavy, hitstop, shake), form.castColor);
+            // P04 C — 켜져 있으면 발사 순간의 폼 · 세대를 캡처하는 청취자로 감싼다. 꺼져 있으면 기존 청취자 그대로.
+            IProjectileHitListener listener = WrapRangedListenerForMark(ResolveRangedFeedback(isHeavy, hitstop, shake), form);
+            FireRangedProjectile(spec, damage, listener, form.castColor);
             return true;
         }
 
-        private void FireRangedProjectile(RangedAttackSpec spec, int damage, RangedHitFeedback feedback, Color muzzleColor)
+        private void FireRangedProjectile(RangedAttackSpec spec, int damage, IProjectileHitListener feedback, Color muzzleColor)
         {
             Vector3 spawnPos = attackPoint != null ? attackPoint.position : transform.position;
             Vector2 dir = new(facingSign, 0f);

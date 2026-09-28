@@ -58,6 +58,13 @@
         public const string Hud_FormSwapHint = "Hud_FormSwapHint";
         public const string Hud_RoomClear = "Hud_RoomClear";
 
+        // ---- P04 폼 연계 시범 (월드 문구) ----
+        public const string Combo_GuardSwapReady = "Combo_GuardSwapReady";
+        public const string Combo_GuardSwapReserved = "Combo_GuardSwapReserved";
+        public const string Combo_GuardSwapSuccess = "Combo_GuardSwapSuccess";
+        public const string Combo_LungeReady = "Combo_LungeReady";
+        public const string Combo_Mark = "Combo_Mark";
+
         // ---- 드래프트 ----
         public const string Draft_Title = "Draft_Title";
         public const string Draft_Reroll = "Draft_Reroll";

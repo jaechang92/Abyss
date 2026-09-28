@@ -17,6 +17,33 @@ namespace Abyss.Runtime.Run
         [Min(0f)] public float formSwapAnimationDuration = 0.3f;
         [Min(0f)] public float formSwapHitstopMs = 120f;
 
+        [Header("P04 폼 연계 시범 (A/B/C 각자 켜고 끈다 · 전부 끄면 기존 동작)")]
+        [Tooltip("A: 저스트 가드 성공 뒤 창 안의 교체 입력을 1회 예약한다. 쿨다운·교체 가능 조건은 그대로")]
+        public bool isGuardSwapReserveEnabled = true;
+        [Tooltip("A: 저스트 가드 성공 뒤 교체 입력을 받는 창(초). 이 안의 입력만 즉시 교체되거나 예약된다(이름은 호환용으로 유지)")]
+        [Min(0f)] public float guardSwapReserveWindow = 1.5f;
+        [Tooltip("A: 교체 입력이 예약된 순간부터 교체 조건이 열리길 기다리는 시간(초). 반복 입력으로 늘어나지 않는다")]
+        [Min(0f)] public float guardSwapExecutionWait = 1.8f;
+
+        [Tooltip("B: 원거리 → 근접 폼 교체 완료 때 전진 입력을 유지하면 지상에서 1회 짧게 접근한다")]
+        public bool isRangedToMeleeLungeEnabled = true;
+        [Tooltip("B: 교체 완료 뒤 접근을 기다리는 창(초)")]
+        [Min(0f)] public float lungeReadyWindow = 0.5f;
+        [Tooltip("B: 접근 최대 거리(유닛). 벽·낭떠러지 앞에서는 덜 간다")]
+        [Min(0f)] public float lungeDistance = 1.5f;
+        [Tooltip("B: 접근에 걸리는 시간(초)")]
+        [Min(0.01f)] public float lungeDuration = 0.15f;
+
+        [Tooltip("C: 원거리 기본 발사체 첫 적중으로 적 1명에 표식, 다른 폼의 근접 기본 공격이 소비해 짧게 끊는다")]
+        public bool isRangedMarkEnabled = true;
+        [Tooltip("C: 표식 유지 시간(초)")]
+        [Min(0f)] public float rangedMarkDuration = 3f;
+        [Tooltip("C: 표식 소비 때 일반 적의 기존 경직을 최소 이 시간(초)으로 늘린다. 추가 피해 없음")]
+        [Min(0f)] public float rangedMarkInterruptDuration = 0.2f;
+
+        [Tooltip("A/B/C 발생·소비·실패 원인을 콘솔에 남긴다")]
+        public bool isFormComboLogEnabled = true;
+
         [Header("드래프트 (MF-3/MF-4)")]
         [Min(1)] public int draftOptionCount = 3;
         public int[] rerollCostLadder = { 15, 30 };

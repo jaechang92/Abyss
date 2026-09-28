@@ -12,6 +12,11 @@ Menu_Exit,메뉴,메인 메뉴,,,종료,Exit,終了
 Hud_HpLabel,HUD,플레이어 HP 바,,,HP,HP,HP
 Hud_FormSwapHint,HUD,폼 교체 안내 툴팁,,,Q로 폼 교체,[Q] Swap Form,Qでフォーム切替
 Hud_RoomClear,HUD,맵 방 클리어 표시,전투·엘리트 맵 방 클리어 시,,CLEAR,CLEAR,CLEAR
+Combo_GuardSwapReady,HUD,플레이어 머리 위 문구,저스트 가드 뒤 교체 입력을 받는 동안(입력 전),,연계 가능,Swap Ready,連携可能
+Combo_GuardSwapReserved,HUD,플레이어 머리 위 문구,저스트 가드 뒤 교체 입력이 예약됐을 때,,교체 예약,Swap Queued,交代予約
+Combo_GuardSwapSuccess,HUD,플레이어 머리 위 문구,예약된 교체가 실제로 실행된 직후 짧게,,연계 교체,Linked Swap,連携交代
+Combo_LungeReady,HUD,플레이어 머리 위 문구,원거리→근접 교체 완료 뒤 접근 대기 중,,돌진 준비,Lunge Ready,突進準備
+Combo_Mark,HUD,적 머리 위 문구,원거리 기본 공격 표식이 남은 동안,,표식,Marked,マーク
 Draft_Title,드래프트,스킬 드래프트 패널 헤더,,,스킬 선택,Choose a Skill,スキルを選択
 Draft_Reroll,드래프트,리롤 버튼,,,다시 뽑기,Reroll,引き直し
 Draft_Skip,드래프트,스킵 버튼,,,건너뛰기,Skip,スキップ

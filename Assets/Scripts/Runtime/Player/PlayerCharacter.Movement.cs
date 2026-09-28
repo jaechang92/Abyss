@@ -51,6 +51,7 @@ namespace Abyss.Runtime.Player
             if (jumpsRemaining <= 0) return;
 
             BreakGuardForMovement();
+            CancelLunge("점프");
             body.linearVelocity = new Vector2(body.linearVelocity.x, jumpForce);
             jumpsRemaining--;
         }
@@ -62,6 +63,7 @@ namespace Abyss.Runtime.Player
             if (Time.time < lastDashTime + EffectiveDashCooldown) return;
 
             BreakGuardForMovement();
+            CancelLunge("대시");  // 기존 대시가 우선한다
             lastDashTime = Time.time;
             dashTimer = dashDuration;
             // 입력 방향 우선, 무입력 시 facing SoT(facingSign)로 대시. transform.localScale 직접 읽기 대신 SoT 사용.
@@ -139,6 +141,7 @@ namespace Abyss.Runtime.Player
             SubscribeSkillEvents();
             SubscribeSynergyEvents();
             SubscribePassiveEvents();
+            SubscribeFormComboEvents();
         }
 
         private void OnDisable()
@@ -150,6 +153,7 @@ namespace Abyss.Runtime.Player
             UnsubscribeSkillEvents();
             UnsubscribeSynergyEvents();
             UnsubscribePassiveEvents();
+            UnsubscribeFormComboEvents();
         }
 
         /// <summary>
@@ -179,6 +183,9 @@ namespace Abyss.Runtime.Player
                 body.linearVelocity = dashDirection * dashSpeed;
                 return;
             }
+
+            // P04 B 접근 — 대시 다음, 일반 이동 대신. 수평 속도를 쓰는 곳은 이 둘뿐이다.
+            if (TryApplyLungeVelocity()) return;
 
             // 가드 중에는 제자리에서 버틴다(16-shield-guard §2).
             float horizontal = isGuarding ? 0f : moveInput.x * EffectiveMoveSpeed;
