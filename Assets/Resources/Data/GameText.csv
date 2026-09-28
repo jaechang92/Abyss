@@ -11,6 +11,7 @@ Menu_Settings,메뉴,메인 메뉴,,,설정,Settings,設定
 Menu_Exit,메뉴,메인 메뉴,,,종료,Exit,終了
 Hud_HpLabel,HUD,플레이어 HP 바,,,HP,HP,HP
 Hud_FormSwapHint,HUD,폼 교체 안내 툴팁,,,Q로 폼 교체,[Q] Swap Form,Qでフォーム切替
+Hud_RoomClear,HUD,맵 방 클리어 표시,전투·엘리트 맵 방 클리어 시,,CLEAR,CLEAR,CLEAR
 Draft_Title,드래프트,스킬 드래프트 패널 헤더,,,스킬 선택,Choose a Skill,スキルを選択
 Draft_Reroll,드래프트,리롤 버튼,,,다시 뽑기,Reroll,引き直し
 Draft_Skip,드래프트,스킵 버튼,,,건너뛰기,Skip,スキップ

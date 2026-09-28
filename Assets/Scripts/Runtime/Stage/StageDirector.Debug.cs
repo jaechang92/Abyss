@@ -53,8 +53,11 @@ namespace Abyss.Runtime.Stage
             //    (delayBetweenRooms 2초·delayBetweenStages 3초 창이 열려 있을 수 있다).
             CancelInvoke();
 
-            // ③ 현재 방의 적을 치운다.
+            // ③ 현재 방의 적과 추가 소환 예고·대기 무리를 치우고 방 전투 세션을 닫는다. 목표가 갈림길이면
+            //    방 진입(ClearMapObjects)이 선택 뒤로 미뤄지는데, 그 사이 옛 방의 대기 목록이 도달 조건으로
+            //    발동하지 않게 여기서 먼저 버린다. 세션은 목표 방 진입(EnterRoom)이 다시 연다.
             DespawnAllEnemies();
+            CloseRoomSession("치트 이동");
 
             // ④ 게이트·클리어 상태 해제. 이벤트/상점 방에서 점프하면 게이트가 잡힌 채 남아
             //    목표 방을 클리어해도 진행이 안 된다.

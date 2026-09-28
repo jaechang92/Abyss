@@ -44,6 +44,10 @@ namespace Abyss.Runtime.Stage
         // 한쪽만 고쳐 방이 영영 안 넘어가는 스톨이 난다.
         private bool isRoomGateHeld;
 
+        // 갈림길 선택 세대. 패널을 열 때 올려 콜백에 캡처하고, 방 진입·세션 닫기(런 종료·치트 이동)가 올려 무효화한다.
+        // 세대가 다른 콜백은 버린다 — 런이 끝난 뒤 늦게 온 선택이 EnterRoom으로 세션을 다시 여는 것을 막는다.
+        private int nodePickVersion;
+
         public StageSequenceData Sequence => sequence;
         public StageData CurrentStage => IsValidStage(currentStageIndex) ? sequence.stages[currentStageIndex] : null;
         public RoomData CurrentRoom => currentRoom;
@@ -58,6 +62,9 @@ namespace Abyss.Runtime.Stage
             GameEvents.OnFormRewardResolved += HandleFormRewardResolved;
             GameEvents.OnWeaponRewardResolved += HandleWeaponRewardResolved;
             GameEvents.OnEventResolved += HandleEventResolved;
+            GameEvents.OnRunEnded += HandleRunEnded;
+            GameEvents.OnRunAbandoned += HandleRunAbandoned;
+            GameEvents.OnPlayerDead += HandlePlayerDead;
             if (startOnEnable) Invoke(nameof(StartSequence), SEQUENCE_START_DELAY);
         }
 
@@ -67,7 +74,12 @@ namespace Abyss.Runtime.Stage
             GameEvents.OnFormRewardResolved -= HandleFormRewardResolved;
             GameEvents.OnWeaponRewardResolved -= HandleWeaponRewardResolved;
             GameEvents.OnEventResolved -= HandleEventResolved;
+            GameEvents.OnRunEnded -= HandleRunEnded;
+            GameEvents.OnRunAbandoned -= HandleRunAbandoned;
+            GameEvents.OnPlayerDead -= HandlePlayerDead;
             CancelInvoke();
+            // 비활성화·파괴·씬 전환 — 예고·대기 무리를 버리고 세션을 닫는다. 다시 켜져도 새 방 진입 전에는 열리지 않는다.
+            CloseRoomSession("디렉터 비활성화");
         }
 
         public void StartSequence()
@@ -144,12 +156,21 @@ namespace Abyss.Runtime.Stage
             }
 
             Debug.Log($"[StageDirector] 갈림길 — 선택 대기 ({step.options.Count}갈래)");
-            NodeMapPanel.Open(step.options, HandleNodePicked);
+            // Open 전에 캡처한다 — 선택지가 하나뿐이면 Open 안에서 콜백이 동기로 온다.
+            int version = ++nodePickVersion;
+            NodeMapPanel.Open(step.options, picked => HandleNodePicked(picked, version));
         }
 
         // 갈림길 선택 결과. 유효한 방이 없으면(데이터 오류) 스톨 대신 다음 단계로 넘긴다.
-        private void HandleNodePicked(RoomData picked)
+        private void HandleNodePicked(RoomData picked, int version)
         {
+            if (this == null || version != nodePickVersion)
+            {
+                Debug.Log("[StageDirector] 무효화된 갈림길 선택 — 무시(런 종료·다른 전환 이후)");
+                return;
+            }
+            nodePickVersion += 1;  // 한 번 쓴 콜백은 다시 통하지 않는다
+
             if (picked == null)
             {
                 Debug.LogWarning("[StageDirector] 갈림길 선택 결과가 비었다 — 다음 단계로 진행");
@@ -183,6 +204,9 @@ namespace Abyss.Runtime.Stage
         {
             if (room == null) return;
 
+            // 방 전투 세션을 여는 유일한 자리 — 런 종료·치트 이동으로 닫힌 세션도 새 방 진입에서만 다시 열린다.
+            OpenRoomSession();
+            nodePickVersion += 1;  // 다른 경로로 방에 들어왔으면 열려 있던 갈림길 선택은 무효
             currentRoom = room;
             // 직전 방의 문·벽·추가 소환을 치우고, 맵 방이면 입구 배치·카메라 경계를 잡는다(치트 이동도 이 길을 지난다).
             PrepareRoomMap(room);
@@ -256,17 +280,27 @@ namespace Abyss.Runtime.Stage
             return expected;
         }
 
-        private static bool IsSpawnable(EnemyData data, RoomData room)
+        /// <summary>스폰 가능한 적인가. 아니면 경고하고 이 방을 「스폰 실패 방」으로 표시한다(클리어 연출 억제).</summary>
+        private bool IsSpawnable(EnemyData data, RoomData room)
         {
             if (data != null && data.spawnPrefab != null) return true;
             Debug.LogWarning($"[StageDirector] 적 스폰 누락: entry={data?.enemyId ?? "null"} " +
                              $"(room={room.roomId}) — 이 적은 클리어 판정에서 빠진다");
+            MarkRoomSpawnFailure();
             return false;
         }
 
-        /// <summary>한 마리를 스폰하고 클리어 판정 대상으로 등록한다. 등록에 실패하면 소리를 낸다.</summary>
+        /// <summary>한 마리를 스폰하고 클리어 판정 대상으로 등록한다. 등록에 실패하면 소리를 내고 스폰 실패로 표시한다.</summary>
         private void SpawnTracked(EnemyData data, Vector3 position)
         {
+            // 예고 시작 때 검사를 통과했더라도 등장 시점에 다시 본다 — 예고 사이 참조가 비었으면 Instantiate가 던진다.
+            if (data == null || data.spawnPrefab == null)
+            {
+                Debug.LogError($"[StageDirector] '{data?.enemyId ?? "null"}' 등장 시점에 스폰 프리팹이 없다 — 건너뜀");
+                MarkRoomSpawnFailure();
+                return;
+            }
+
             var go = Instantiate(data.spawnPrefab, position, Quaternion.identity);
 
             // 프리팹 루트가 아닌 자식에 EnemyBase가 붙어 있으면 GetComponent가 놓친다.
@@ -276,6 +310,7 @@ namespace Abyss.Runtime.Stage
             {
                 Debug.LogError($"[StageDirector] '{data.enemyId}' 프리팹에 EnemyBase가 없다 " +
                                $"— 스폰은 됐지만 클리어 판정에서 빠져 방이 조기 클리어된다");
+                MarkRoomSpawnFailure();
                 return;
             }
 
@@ -285,10 +320,11 @@ namespace Abyss.Runtime.Stage
         /// <summary>
         /// 방 진행 판정 한 곳. 남은 적이 없을 때, 아직 소환하지 않은 추가 무리가 있으면 그것을 먼저 부르고
         /// (플레이어가 도달 지점을 건너뛰어 방이 막히지 않게), 없으면 클리어한다.
+        /// 예고 중인 무리(<see cref="telegraphs"/>)도 남은 전투다 — 적이 0이어도 예고가 끝나 등장할 때까지 클리어하지 않는다.
         /// </summary>
         private void CheckRoomProgress()
         {
-            if (isRoomClearing || CurrentRoom == null || activeEnemies.Count > 0) return;
+            if (isRoomSessionClosed || isRoomClearing || CurrentRoom == null || activeEnemies.Count > 0 || telegraphs.Count > 0) return;
             if (ReleaseNextReinforcement("남은 적 없음")) return;
             HandleRoomCleared(CurrentRoom);
         }
@@ -356,6 +392,8 @@ namespace Abyss.Runtime.Stage
 
             Debug.Log($"[StageDirector] Room 클리어: {room.roomId}");
             GameEvents.RaiseRoomCleared(room);
+            // 맵 전투·엘리트 방만 짧은 슬로 + CLEAR(StageDirector.ClearFeedback.cs). 보스·비전투·빈 방은 건너뛴다.
+            PlayRoomClearFeedback(room);
 
             if (room.clearGoldReward > 0)
             {
@@ -409,6 +447,8 @@ namespace Abyss.Runtime.Stage
         /// </summary>
         private void ContinueAfterRoom()
         {
+            // 런이 끝난 뒤 늦게 온 보상 해결 신호 등으로 문·자동 진행이 다시 서지 않게.
+            if (isRoomSessionClosed) return;
             if (TryOpenExitDoors()) return;
             Invoke(nameof(ProceedToNextRoom), delayBetweenRooms);
         }

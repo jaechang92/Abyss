@@ -99,7 +99,7 @@ namespace Abyss.Tests.PlayMode
             StringAssert.Contains("\"abyss_shards_earned\":" + run.LastRunAbyssShardsEarned, text);
             StringAssert.Contains("\"schema_version\":2", text);
             StringAssert.Contains("\"build\":{", text);
-            StringAssert.Contains("\"is_editor\":true", text);
+            StringAssert.Contains("\"is_editor\":" + (Application.isEditor ? "true" : "false"), text);
         }
 
         [UnityTest]

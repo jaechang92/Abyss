@@ -18,6 +18,10 @@ namespace Abyss.Runtime.Stage
         private const float DOOR_HEIGHT = 2.6f;
         private const int ORDER_DOOR = -3;          // 지형(-5) 앞, 캐릭터(0) 뒤
         private const int ORDER_LABEL = 5;
+        private const float GLOW_SECONDS = 0.35f;           // 생성 점등 길이(게임 시간 — 정지 중엔 멈춘다)
+        private const float GLOW_PEAK_AT = 0.3f;            // 점등 구간 중 가장 밝은 지점(비율)
+        private const float GLOW_FRAME_BOOST = 0.75f;       // 테두리를 흰색 쪽으로
+        private const float GLOW_PANEL_BOOST = 0.55f;       // 문짝 판을 방 색 쪽으로
 
         private static Sprite whiteSprite;
 
@@ -25,6 +29,13 @@ namespace Abyss.Runtime.Stage
         private string title;
         private Action onChosen;
         private bool isUsed;
+
+        // 생성 점등 — 표시 색만 잠깐 바꾼다. 콜라이더·상호작용·생성 타이밍은 건드리지 않는다.
+        private SpriteRenderer frameRenderer;
+        private SpriteRenderer panelRenderer;
+        private Color frameColor;
+        private Color panelColor;
+        private float glowElapsed = -1f;
 
         public string InteractionPrompt => $"{headline} — {title} (G)";
 
@@ -72,6 +83,7 @@ namespace Abyss.Runtime.Stage
             trigger.size = new Vector2(DOOR_WIDTH + 0.6f, DOOR_HEIGHT);
             trigger.offset = new Vector2(0f, DOOR_HEIGHT * 0.5f);
 
+            door.BeginGlow(frame.GetComponent<SpriteRenderer>(), panel.GetComponent<SpriteRenderer>());
             return door;
         }
 
@@ -80,6 +92,52 @@ namespace Abyss.Runtime.Stage
             if (!CanInteract) return;
             isUsed = true;
             onChosen.Invoke();
+        }
+
+        // ───────────────────────── 생성 점등 ─────────────────────────
+
+        private void BeginGlow(SpriteRenderer frame, SpriteRenderer panel)
+        {
+            frameRenderer = frame;
+            panelRenderer = panel;
+            frameColor = frame != null ? frame.color : Color.white;
+            panelColor = panel != null ? panel.color : Color.white;
+            glowElapsed = 0f;
+            ApplyGlow(0f);
+        }
+
+        private void Update()
+        {
+            if (glowElapsed < 0f) return;
+
+            glowElapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(glowElapsed / GLOW_SECONDS);
+            // 짧게 차올랐다가(0 → 1) 원래 색으로 가라앉는다(1 → 0).
+            float strength = t < GLOW_PEAK_AT ? t / GLOW_PEAK_AT : 1f - (t - GLOW_PEAK_AT) / (1f - GLOW_PEAK_AT);
+            ApplyGlow(strength);
+            if (t >= 1f) EndGlow();
+        }
+
+        /// <summary>비활성화되면 점등을 끊고 원래 색으로 되돌린다 — 다시 켜져도 밝은 채로 남지 않게.</summary>
+        private void OnDisable()
+        {
+            if (glowElapsed >= 0f) EndGlow();
+        }
+
+        private void EndGlow()
+        {
+            glowElapsed = -1f;
+            ApplyGlow(0f);
+        }
+
+        private void ApplyGlow(float strength)
+        {
+            if (frameRenderer != null) frameRenderer.color = Color.Lerp(frameColor, Color.white, strength * GLOW_FRAME_BOOST);
+            if (panelRenderer != null)
+            {
+                var lit = new Color(frameColor.r, frameColor.g, frameColor.b, panelColor.a);
+                panelRenderer.color = Color.Lerp(panelColor, lit, strength * GLOW_PANEL_BOOST);
+            }
         }
 
         private static GameObject CreateQuad(Transform parent, string name, Vector2 size, Color color, int order)
