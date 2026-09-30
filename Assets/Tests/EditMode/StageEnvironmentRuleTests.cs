@@ -161,6 +161,192 @@ namespace Abyss.Tests.EditMode
             Assert.AreEqual(StageEnvironmentLook.Hidden, presenter.CurrentLook);
         }
 
+        // ───────────────────────────── 방 전용 아트(대표방)
+
+        [Test]
+        public void 방_전용_아트는_지정한_일반_방에서만_켜진다()
+        {
+            var art = Room("art");
+            var other = Room("other");
+            var boss = Room("boss");
+            var stage = Stage(new[] { art }, new[] { other }, new[] { boss });
+
+            Assert.IsTrue(StageEnvironmentRule.ShowsRoomArt(StageEnvironmentRule.Resolve(stage, boss, art), art, art));
+            Assert.IsFalse(StageEnvironmentRule.ShowsRoomArt(StageEnvironmentRule.Resolve(stage, boss, other), art, other), "다른 방");
+            Assert.IsFalse(StageEnvironmentRule.ShowsRoomArt(StageEnvironmentRule.Resolve(stage, boss, boss), boss, boss), "보스 방은 지정해도 안 켠다");
+            Assert.IsFalse(StageEnvironmentRule.ShowsRoomArt(StageEnvironmentRule.Resolve(stage, boss, null), art, null), "스테이지 밖");
+            Assert.IsFalse(StageEnvironmentRule.ShowsRoomArt(StageEnvironmentLook.Field, null, art), "방 미지정");
+        }
+
+        [Test]
+        public void 방_전용_아트는_그_방에서만_교체_대상을_끄고_나가면_복원한다()
+        {
+            var art = Room("art");
+            var other = Room("other");
+            var boss = Room("boss");
+            var stage = Stage(new[] { art }, new[] { other }, new[] { boss });
+
+            var host = Track(new GameObject("Stage1Environment"));
+            var shared = Track(new GameObject("Shared"));
+            var groundSkin = Track(new GameObject("GroundSkin"));
+            groundSkin.transform.SetParent(shared.transform);
+            var platformSkin = Track(new GameObject("Stage1Skin"));
+            var field = Track(new GameObject("Field"));
+            var arena = Track(new GameObject("BossArena"));
+            var roomArt = Track(new GameObject("RoomArt"));
+            var graybox = Track(new GameObject("Graybox")).AddComponent<SpriteRenderer>();
+
+            var presenter = host.AddComponent<StageEnvironmentPresenter>();
+            var so = new SerializedObject(presenter);
+            SetArray(so.FindProperty("sharedRoots"), shared, platformSkin);
+            so.FindProperty("fieldRoot").objectReferenceValue = field;
+            so.FindProperty("bossArenaRoot").objectReferenceValue = arena;
+            SetArray(so.FindProperty("grayboxRenderers"), graybox);
+            so.FindProperty("roomArtRoom").objectReferenceValue = art;
+            so.FindProperty("roomArtRoot").objectReferenceValue = roomArt;
+            SetArray(so.FindProperty("roomArtReplacedRoots"), field, groundSkin, platformSkin);
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            // 기대값 순서: 공용 층 · 지면 스킨 · 발판 스킨 · 일반 방 배경 · 보스 방 배경 · 방 아트 · 그레이박스
+            void Enter(RoomData room) => presenter.Apply(StageEnvironmentRule.Resolve(stage, boss, room), room);
+            bool[] States() => new[] { shared.activeSelf, groundSkin.activeSelf, platformSkin.activeSelf, field.activeSelf,
+                                       arena.activeSelf, roomArt.activeSelf, graybox.enabled };
+
+            Enter(art);
+            AssertRoomArtStates("대표방", new[] { true, false, false, false, false, true, false }, States());
+            Assert.IsTrue(presenter.IsRoomArtShown);
+
+            Enter(other);
+            AssertRoomArtStates("다른 방", new[] { true, true, true, true, false, false, false }, States());
+
+            Enter(art);
+            Enter(boss);
+            AssertRoomArtStates("보스 방", new[] { true, true, true, false, true, false, false }, States());
+
+            Enter(art);
+            Enter(null);
+            AssertRoomArtStates("스테이지 밖", new[] { false, true, false, false, false, false, true }, States());
+            Assert.IsFalse(presenter.IsRoomArtShown);
+
+            presenter.Apply(StageEnvironmentLook.Field);
+            AssertRoomArtStates("방 없이 Field", new[] { true, true, true, true, false, false, false }, States());
+        }
+
+        [Test]
+        public void 방_아트_루트가_비어_있으면_기존_표시를_유지한다()
+        {
+            var art = Room("art");
+            var stage = Stage(new[] { art });
+
+            var host = Track(new GameObject("Stage1Environment"));
+            var field = Track(new GameObject("Field"));
+            var presenter = host.AddComponent<StageEnvironmentPresenter>();
+            var so = new SerializedObject(presenter);
+            so.FindProperty("fieldRoot").objectReferenceValue = field;
+            so.FindProperty("roomArtRoom").objectReferenceValue = art;
+            SetArray(so.FindProperty("roomArtReplacedRoots"), field);
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            presenter.Apply(StageEnvironmentRule.Resolve(stage, null, art), art);
+            Assert.IsTrue(field.activeSelf, "아트 파일·배선 전에는 일반 방 배경을 끄지 않는다");
+            Assert.IsFalse(presenter.IsRoomArtShown);
+        }
+
+        // ───────────────────────────── 방 아트(스테이지 전체 — Stage1 전 방 적용)
+
+        [Test]
+        public void 스테이지_전체_방_아트는_보스_방까지_켜고_스테이지_밖에서만_끈다()
+        {
+            var normal = Room("normal");
+            var boss = Room("boss");
+            var stage = Stage(new[] { normal }, new[] { boss });
+            var outside = Room("outside");
+
+            Assert.IsTrue(StageEnvironmentRule.ShowsRoomArt(StageEnvironmentRule.Resolve(stage, boss, normal), null, normal, true));
+            Assert.IsTrue(StageEnvironmentRule.ShowsRoomArt(StageEnvironmentRule.Resolve(stage, boss, boss), null, boss, true), "보스 방");
+            Assert.IsFalse(StageEnvironmentRule.ShowsRoomArt(StageEnvironmentRule.Resolve(stage, boss, outside), null, outside, true), "다른 스테이지 방");
+            Assert.IsFalse(StageEnvironmentRule.ShowsRoomArt(StageEnvironmentRule.Resolve(stage, boss, null), null, null, true), "방 없음");
+            Assert.IsFalse(StageEnvironmentRule.ShowsRoomArt(StageEnvironmentRule.Resolve(stage, boss, boss), normal, boss, false),
+                           "전체 모드가 꺼져 있으면 한 방 규칙 그대로");
+        }
+
+        [Test]
+        public void 스테이지_전체_방_아트는_일반_방과_보스_방_배경을_모두_대체하고_밖에서_복원한다()
+        {
+            var normal = Room("normal");
+            var boss = Room("boss");
+            var stage = Stage(new[] { normal }, new[] { boss });
+            var outside = Room("outside");
+
+            var host = Track(new GameObject("Stage1Environment"));
+            var shared = Track(new GameObject("Shared"));
+            var groundSkin = Track(new GameObject("GroundSkin"));
+            groundSkin.transform.SetParent(shared.transform);
+            var terrainSkin = Track(new GameObject("Stage1Skin"));
+            var field = Track(new GameObject("Field"));
+            var arena = Track(new GameObject("BossArena"));
+            var roomArt = Track(new GameObject("RoomArt"));
+            var graybox = Track(new GameObject("Graybox")).AddComponent<SpriteRenderer>();
+
+            var presenter = host.AddComponent<StageEnvironmentPresenter>();
+            var so = new SerializedObject(presenter);
+            SetArray(so.FindProperty("sharedRoots"), shared, terrainSkin);
+            so.FindProperty("fieldRoot").objectReferenceValue = field;
+            so.FindProperty("bossArenaRoot").objectReferenceValue = arena;
+            SetArray(so.FindProperty("grayboxRenderers"), graybox);
+            so.FindProperty("roomArtWholeStage").boolValue = true;
+            so.FindProperty("roomArtRoot").objectReferenceValue = roomArt;
+            SetArray(so.FindProperty("roomArtReplacedRoots"), field, arena, groundSkin);
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            // 기대값 순서: 공용 층 · 지면 스킨 · 발판 스킨 · 일반 방 배경 · 보스 방 배경 · 방 아트 · 그레이박스
+            void Enter(RoomData room) => presenter.Apply(StageEnvironmentRule.Resolve(stage, boss, room), room);
+            bool[] States() => new[] { shared.activeSelf, groundSkin.activeSelf, terrainSkin.activeSelf, field.activeSelf,
+                                       arena.activeSelf, roomArt.activeSelf, graybox.enabled };
+
+            Enter(normal);
+            AssertRoomArtStates("일반 방", new[] { true, false, true, false, false, true, false }, States());
+
+            Enter(boss);
+            AssertRoomArtStates("보스 방", new[] { true, false, true, false, false, true, false }, States());
+
+            Enter(outside);
+            AssertRoomArtStates("다른 스테이지", new[] { false, true, false, false, false, false, true }, States());
+            Assert.IsFalse(presenter.IsRoomArtShown);
+
+            Enter(normal);
+            AssertRoomArtStates("복귀", new[] { true, false, true, false, false, true, false }, States());
+        }
+
+        // ───────────────────────────── 맵 바닥 판정(테라스 위 적·문)
+
+        [Test]
+        public void 바닥은_묻히지_않은_가장_낮은_윗면이다()
+        {
+            // 지면 윗면 -0.5 가 테라스(-0.5~1.5) 안에 묻혀 있다 → 테라스 윗면 1.5. 그 위 공중 발판 4 는 더 높아 고르지 않는다.
+            var tops = new List<float> { 4f, 1.5f, -0.5f };
+            bool IsBlocked(float y) => y > -0.5f && y < 1.5f;
+
+            Assert.IsTrue(MapFloorRule.TryPickFloor(tops, IsBlocked, out float floor));
+            Assert.AreEqual(1.5f, floor);
+        }
+
+        [Test]
+        public void 공중_발판만_있으면_바닥은_예전처럼_지면이다()
+        {
+            var tops = new List<float> { 2.5f, -0.5f };
+            Assert.IsTrue(MapFloorRule.TryPickFloor(tops, _ => false, out float floor));
+            Assert.AreEqual(-0.5f, floor);
+            Assert.IsFalse(MapFloorRule.TryPickFloor(new List<float>(), _ => false, out _), "맞은 면이 없으면 호출자가 폴백한다");
+        }
+
+        private static void AssertRoomArtStates(string where, bool[] expected, bool[] actual)
+        {
+            string[] names = { "공용 층", "지면 스킨", "발판 스킨", "일반 방 배경", "보스 방 배경", "방 아트", "그레이박스" };
+            for (int i = 0; i < expected.Length; i++)
+                Assert.AreEqual(expected[i], actual[i], $"{where}: {names[i]}");
+        }
+
         // ───────────────────────────── 도우미
 
         private static void AssertStates(string look, bool[] expected, params bool[] actual)

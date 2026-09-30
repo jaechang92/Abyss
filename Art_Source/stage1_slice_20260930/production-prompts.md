@@ -1,0 +1,19 @@
+# 채택 방향 분리 자산 생성 프롬프트
+
+도구: built-in image_gen. 참조: room3_workshop_concept_v1.png. 픽셀 후처리 없음. Unity에서 사용 영역과 월드 크기를 지정한다. 모든 파일은 원본 그대로 저장했다.
+
+## workshop_background_v1.png (opaque)
+
+Use case: precise-object-edit. Create the BACKGROUND ONLY runtime layer of this approved Abyss pixel-art workshop combat room. Preserve full wide landscape dimensions, exact v1 brightness and blue-gray palette, distant cavern bridges, layered stone architecture, familiar workshop props and crisp stepped pixel material. Remove ALL three walkable horizontal platforms and their under-supports including the center vertical support pillar. Remove the continuous horizontal walkable ground and large foreground foundation across the bottom. Extend the existing BACKGROUND workshop walls, cavern depth and architecture naturally downward to cover the former floor area, with no new horizontal foreground surface. The entire image is a backdrop behind the separately rendered collision terrain, not a scene with walkable geometry. Preserve ordinary shelves and wooden everyday clutter at the left and right sides, no large visually blocking pillar in center, center cavern brightness unchanged from v1. Fill all pixels to image bottom with coherent distant/background architecture, no transparency. No ground line, no foreground platforms, no characters or UI, no lamps or beams, no moss, no temple symbols. Clean clustered pixel-art at the same density as supplied reference, no blur. Horizontal borders should blend when tiled, though the center need not be symmetric.
+
+## workshop_ground_v1.png (transparent)
+
+Use case: background-extraction. Extract and redraw ONLY the thick continuous foreground stone ground foundation from this approved pixel-art game panorama as one isolated horizontal terrain sprite on genuine transparent background. Full wide horizontal landscape sprite, no backdrop or platforms or workshop objects. Perfectly flat straight horizontal walkable top surface spanning the whole sprite width. Ground occupies the sprite itself with no transparent top padding: clean top edge, narrow chiseled paving-stone cap with bright readable rim, below it deep large uneven blue-gray stone blocks, coherent substantial thickness. Match original pixels and stone palette, limited clusters, no smooth texture. The body must extend down sufficiently for a game floor foundation, roughly width:height 3:1. No arch-shaped holes/windows or props; continuous filled stone body for tiling. Left and right sprite edges must visually join when repeated; clean flat boundary without protrusions. Avoid tiny busy flecks. Actual alpha outside silhouette only, no checkerboard drawn into image. This output is a runtime game terrain sprite, not a presentation sheet. No labels/text/characters/shadows.
+
+## workshop_platform_v1.png (transparent)
+
+Use case: background-extraction. Extract and redraw a SINGLE isolated stone PLATFORM sprite matching the reference pixel-art top ledges. Transparent background. Wide shallow horizontal slab with flat exactly horizontal clean walkable top edge, five to seven chunky blue-gray paving stones, bright stepped top rim and substantial dark layered underside, closed left and right caps. Small rear diagonal stone corbel under center, no long downward pillar, no wall, no props, no floor, no background. Crisp clusters of square pixels identical to reference, no blur or painterly texture. One sprite only, about 5:1 silhouette width to body height excluding small rear support; use a wide landscape canvas with minimal transparent margins. Straight top surface all across width. No text, no decorative symbols, no scene. Genuine transparent alpha outside sprite; do not draw a checkerboard.
+
+## 원본 검사
+
+세 장 모두 2172×724. 배경 RGB, 지면/발판 RGBA. alpha>=128 기준 지면 bbox(0,261,2172,602), 발판 bbox(44,230,2129,546). 낮은 alpha의 주변 찌꺼기는 원본에 남아 있으며 Unity sprite rect에서 사용 영역 밖으로 제외한다. 실제 상면·충돌·스크롤 품질은 사용자 Unity 확인 전이다.

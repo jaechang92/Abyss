@@ -130,7 +130,6 @@ namespace Abyss.Runtime.Stage
         private int SpawnMapOpening(RoomData room)
         {
             float half = room.mapLength * 0.5f;
-            float y = GetSpawnPoint(0).position.y;
             int expected = 0;
 
             if (room.placements.Count > 0)
@@ -139,7 +138,8 @@ namespace Abyss.Runtime.Stage
                 {
                     if (placement == null || !IsSpawnable(placement.data, room)) continue;
                     expected += 1;
-                    SpawnTracked(placement.data, new Vector3(ClampToMap(placement.x, half), y, 0f));
+                    float x = ClampToMap(placement.x, half);
+                    SpawnTracked(placement.data, new Vector3(x, MapSpawnY(x), 0f));
                 }
                 return expected;
             }
@@ -156,7 +156,8 @@ namespace Abyss.Runtime.Stage
             for (int i = 0; i < spread.Count; i++)
             {
                 float t = spread.Count == 1 ? 0.5f : i / (spread.Count - 1f);
-                SpawnTracked(spread[i], new Vector3(ClampToMap(Mathf.Lerp(left, right, t), half), y, 0f));
+                float x = ClampToMap(Mathf.Lerp(left, right, t), half);
+                SpawnTracked(spread[i], new Vector3(x, MapSpawnY(x), 0f));
             }
             return spread.Count;
         }
@@ -195,7 +196,7 @@ namespace Abyss.Runtime.Stage
             {
                 // 오른쪽 끝부터 왼쪽으로 늘어선다 — 첫 선택지가 가장 안쪽(출구 쪽)이다.
                 float x = half - DOOR_RIGHT_INSET - i * DOOR_SPACING;
-                var door = RoomExitDoor.Create(ResolveMapRoot(), new Vector3(x, ProbeGroundY(x), 0f), options[i], HandleDoorChosen);
+                var door = RoomExitDoor.Create(ResolveMapRoot(), new Vector3(x, ProbeFloorY(x), 0f), options[i], HandleDoorChosen);
                 exitDoors.Add(door);
             }
 
@@ -212,7 +213,7 @@ namespace Abyss.Runtime.Stage
             var stage = sequence.stages[nextStage];
             string title = stage != null && !string.IsNullOrEmpty(stage.displayName) ? stage.displayName : $"Stage {nextStage + 1}";
             float x = half - DOOR_RIGHT_INSET;
-            var door = RoomExitDoor.Create(ResolveMapRoot(), new Vector3(x, ProbeGroundY(x), 0f), "ExitDoor_NextStage",
+            var door = RoomExitDoor.Create(ResolveMapRoot(), new Vector3(x, ProbeFloorY(x), 0f), "ExitDoor_NextStage",
                 "▼  더 깊이", title, StageDoorColor, HandleStageDoorChosen);
             exitDoors.Add(door);
 
@@ -341,13 +342,13 @@ namespace Abyss.Runtime.Stage
         /// 맵 방의 보상 제단(폼·무기)을 맵 가운데로 옮긴다 — 스컬처럼 보상은 맵 한가운데 나타나고, 문은 오른쪽 끝에 선다.
         /// 제단은 Run 씬에 고정 좌표로 놓여 있어(무기 x 19.48 · 폼 13.21) 짧은 맵에서는 <b>벽 밖</b>에 섰다.
         /// 닿을 수 없는 제단은 보상 게이트를 영영 안 풀어 문이 서지 않는다(2026-09-26 사용자 보고 — Stage1 보스 방).
-        /// 높이는 씬 값 그대로 둔다(제단마다 피벗이 다르다). 옛 방은 건드리지 않는다.
+        /// 높이는 씬 값(제단마다 피벗이 다르다)에서 x 0 바닥이 공용 지면보다 올라간 만큼만 올린다(StageDirector.Floor.cs).
+        /// 옛 방은 건드리지 않는다.
         /// </summary>
         private void PlaceRewardAltar(Transform altar)
         {
             if (altar == null || currentRoom == null || !currentRoom.IsMapRoom) return;
-            var position = altar.position;
-            altar.position = new Vector3(0f, position.y, position.z);
+            PlaceAltarOnFloor(altar);
         }
 
         private void ClearMapObjects()

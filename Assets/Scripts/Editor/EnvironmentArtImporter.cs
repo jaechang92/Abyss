@@ -51,6 +51,7 @@ namespace Abyss.EditorTools
                 foreach (string guid in guids)
                 {
                     string path = AssetDatabase.GUIDToAssetPath(guid);
+                    if (IsRoomArt(path)) continue;
                     if (AssetImporter.GetAtPath(path) is not TextureImporter imp) continue;
                     if (ApplyTo(imp, path)) applied++;
                 }
@@ -106,6 +107,13 @@ namespace Abyss.EditorTools
             imp.SaveAndReimport();
             return true;
         }
+
+        /// <summary>
+        /// 대표방 채택 아트(2172x724)인가 — 이 폴더만 제외한다. 2048 로 줄이면 원본 픽셀이 깨지고,
+        /// Single 로 되돌리면 지면·발판의 사용 영역(sprite rect)이 사라진다. 임포트는 Stage1EnvironmentWiring 방 아트 적용이 맡는다.
+        /// </summary>
+        private static bool IsRoomArt(string path)
+            => path.StartsWith(Stage1EnvironmentWiring.RoomArtFolder + "/");
 
         /// <summary>지면에 놓이는 것인가 — 피벗을 발밑으로 둘 대상.</summary>
         private static bool IsProp(string path)

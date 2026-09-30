@@ -178,6 +178,16 @@ namespace Abyss.EditorTools
                     new AbyssTool(AbyssToolNames.WireWeaponAngles,
                         "Project 에서 각도 스트립을 고른 뒤 실행 — WeaponData.angleSprites 에 꽂는다.",
                         WeaponAngleWirer.Wire),
+                    new AbyssTool(AbyssToolNames.ApplyStage1RoomArt,
+                        "Stage1 11방(보스·이벤트·상점·휴식 포함)의 지형을 규격(테라스·석판)으로 다시 만들고 채택 아트(배경·지면·테라스·석판)를 연결한다. " +
+                        "Stage1 레이아웃 루트만 바꾸며, 그 밖의 콜라이더가 바뀌거나 이동·배치 검사가 FAIL 이면 저장하지 않는다.",
+                        () => Stage1EnvironmentWiring.ApplyAllRooms()),
+                    new AbyssTool(AbyssToolNames.ValidateStage1RoomArt,
+                        "읽기 전용 — 파일·임포트 규격 · 11방 지형/도약 한도/적·문·제단 바닥 · 배경 덮임 · Stage2/3 레이아웃 불변 · 표현 전환을 검사한다(씬 저장 안 함).",
+                        () => Stage1EnvironmentWiring.ValidateAllRooms()),
+                    new AbyssTool(AbyssToolNames.RestoreStage1RoomArt,
+                        "Stage1 지형을 RoomLayoutBuilder 원래 좌표·기존 타일 스킨으로 되돌리고 새로 붙인 방 루트와 방 아트 배선을 걷어 낸다. 그림 파일은 지우지 않는다.",
+                        () => Stage1EnvironmentWiring.RestoreAllRooms(), isDestructive: true),
                 },
             },
 

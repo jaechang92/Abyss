@@ -55,6 +55,9 @@ namespace Abyss.EditorTools
         public const string WireWeaponAngles = "Wire Weapon Angle Sprites";
         public const string SliceCharacterSheets = "Character Sheets (Grid Slice)";
         public const string SliceEnemySheets = "Enemy Sheets (Grid Slice)";
+        public const string ApplyStage1RoomArt = "Stage1 All Rooms — Apply (Layout + Art)";
+        public const string ValidateStage1RoomArt = "Stage1 All Rooms — Validate";
+        public const string RestoreStage1RoomArt = "Stage1 All Rooms — Restore (Original Layout)";
 
         // 정리(되돌리는 쪽)
         public const string ClearPlatforms = "Clear Test Platforms";

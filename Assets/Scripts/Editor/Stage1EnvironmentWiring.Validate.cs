@@ -163,8 +163,11 @@ namespace Abyss.EditorTools
                 float xMin = drawn.Min(r => r.xMin), xMax = drawn.Max(r => r.xMax), yMax = drawn.Max(r => r.yMax);
                 bool isColumn = rect.height >= 1f;
                 if (isColumn) columns++;
+                // Stage1 전 방 아트의 테라스(AllRooms.cs)는 윗단 줄보다 낮으면 그림이 지면 쪽으로 더 내려간다 — 아래끝은 「덮는가」만 본다.
+                bool isTerraceArt = skins[0].Find(TerraceArtName) != null;
+                float yMin = drawn.Min(r => r.yMin);
                 bool isFit = Near(xMin, rect.xMin) && Near(xMax, rect.xMax) && Near(yMax, rect.yMax)
-                             && (!isColumn || Near(drawn.Min(r => r.yMin), rect.yMin));
+                             && (!isColumn || (isTerraceArt ? yMin <= rect.yMin + Epsilon : Near(yMin, rect.yMin)));
                 if (!isFit)
                     mismatches.Add($"{PathOf(platform)} 콜라이더 {Fmt(rect)} vs 그림 x {xMin:0.###}~{xMax:0.###} 윗선 {yMax:0.###}");
             }
@@ -209,14 +212,17 @@ namespace Abyss.EditorTools
                                               IList<GameObject> shared, GameObject field, GameObject arena, IList<Renderer> grayboxes)
         {
             var problems = new List<string>();
+            var replaced = ReadArray<GameObject>(new SerializedObject(presenter).FindProperty("roomArtReplacedRoots"));
             foreach (StageEnvironmentLook look in System.Enum.GetValues(typeof(StageEnvironmentLook)))
             {
                 presenter.Apply(look);
+                // Stage1 전 방 아트가 배선돼 있으면 그 대체 대상(일반·보스 배경)은 켜질 자리에서도 꺼져 있어야 한다.
+                bool IsOn(GameObject go, bool rule) => rule && !(presenter.IsRoomArtShown && replaced.Contains(go));
 
                 bool expectShared = StageEnvironmentRule.ShowsShared(look);
-                if (shared.Any(go => go != null && go.activeSelf != expectShared)) problems.Add($"{look}: 공용 층");
-                if (field != null && field.activeSelf != StageEnvironmentRule.ShowsField(look)) problems.Add($"{look}: 일반 방 배경");
-                if (arena != null && arena.activeSelf != StageEnvironmentRule.ShowsBossArena(look)) problems.Add($"{look}: 보스 방 배경");
+                if (shared.Any(go => go != null && go.activeSelf != IsOn(go, expectShared))) problems.Add($"{look}: 공용 층");
+                if (field != null && field.activeSelf != IsOn(field, StageEnvironmentRule.ShowsField(look))) problems.Add($"{look}: 일반 방 배경");
+                if (arena != null && arena.activeSelf != IsOn(arena, StageEnvironmentRule.ShowsBossArena(look))) problems.Add($"{look}: 보스 방 배경");
                 bool expectGraybox = StageEnvironmentRule.ShowsGraybox(look);
                 if (grayboxes.Any(r => r != null && r.enabled != expectGraybox)) problems.Add($"{look}: 그레이박스");
 

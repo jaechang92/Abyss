@@ -186,7 +186,6 @@ namespace Abyss.Runtime.Stage
             if (isRoomSessionClosed || room == null || reinforcement == null) return false;
 
             float half = room.mapLength * 0.5f;
-            float y = GetSpawnPoint(0).position.y;
             var telegraph = new ReinforcementTelegraph
             {
                 Reason = reason,
@@ -199,10 +198,11 @@ namespace Abyss.Runtime.Stage
                 if (placement == null || !IsSpawnable(placement.data, room)) continue;
                 float x = ClampToMap(placement.x, half);
                 telegraph.Enemies.Add(placement.data);
-                telegraph.Positions.Add(new Vector3(x, y, 0f));
+                float floorY = ProbeFloorY(x);
+                telegraph.Positions.Add(new Vector3(x, MapSpawnY(x), 0f));
 
                 // 바닥 표식 — 등장 자리를 먼저 보인다. 맵 루트 아래에 둬 방을 치울 때 함께 치워지게 한다.
-                var marker = BossAreaEffect.Spawn(new Vector3(x, ProbeGroundY(x), 0f), SUMMON_EFFECT_RADIUS, SummonEffectColor,
+                var marker = BossAreaEffect.Spawn(new Vector3(x, floorY, 0f), SUMMON_EFFECT_RADIUS, SummonEffectColor,
                     REINFORCEMENT_TELEGRAPH_SECONDS, BossAreaEffect.Mode.Telegraph);
                 if (marker == null) continue;
                 marker.transform.SetParent(ResolveMapRoot(), true);

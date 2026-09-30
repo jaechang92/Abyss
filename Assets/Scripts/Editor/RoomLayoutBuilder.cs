@@ -137,6 +137,23 @@ namespace Abyss.EditorTools
             },
         };
 
+        /// <summary>
+        /// 이 빌더가 방에 만드는 발판(중심·크기) — 읽기 전용. Stage1 전 방 지형 적용기(<c>Stage1EnvironmentWiring</c>)가
+        /// Stage2/3 레이아웃이 원래 값 그대로인지 검사하고 Stage1 을 원래 좌표로 복원할 때 쓴다. 없는 방이면 false.
+        /// </summary>
+        internal static bool TryGetPlatforms(string roomAsset, out (Vector2 Pos, Vector2 Size)[] platforms)
+        {
+            foreach (var layout in Layouts)
+            {
+                if (layout.RoomAsset != roomAsset) continue;
+                platforms = new (Vector2, Vector2)[layout.Platforms.Length];
+                for (int i = 0; i < layout.Platforms.Length; i++) platforms[i] = (layout.Platforms[i].Pos, layout.Platforms[i].Size);
+                return true;
+            }
+            platforms = null;
+            return false;
+        }
+
         public static void BuildRoomLayouts()
         {
             var scene = EditorSceneManager.GetActiveScene();

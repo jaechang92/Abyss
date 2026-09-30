@@ -89,7 +89,7 @@ namespace Abyss.Runtime.Stage
         [Min(1)] public int count = 1;
     }
 
-    /// <summary>맵 방의 적 한 마리 자리. x는 맵 중심(0) 기준, 높이는 스폰 지점 높이를 쓴다.</summary>
+    /// <summary>맵 방의 적 한 마리 자리. x는 맵 중심(0) 기준, 높이는 그 x 의 걸어서 서는 바닥(테라스 윗면 포함)에 스폰 지점만큼 띄운다(StageDirector.Floor.cs).</summary>
     [System.Serializable]
     public sealed class EnemyPlacement
     {
