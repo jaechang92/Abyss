@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Skill_24_DeathsPromise
   m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Draft.SkillData
   skillId: skill_deaths_promise
-  requiresMetaUnlock: 0
+  requiresMetaUnlock: 1
   displayName: "\uC8FD\uC74C\uC758 \uC57D\uC18D"
   description: "\uB7F0\uB2F9 1\uD68C, \uCE58\uBA85\uC0C1\uC744 HP 1\uB85C \uBC84\uD2F0\uACE0 2\uCD08\uAC04 \uBB34\uC801. \uC8FC\uBCC0 \uC801\uC5D0\uAC8C \uCDA9\uACA9 20"
   icon: {fileID: 0}

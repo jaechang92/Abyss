@@ -58,6 +58,11 @@ Altar_LevelFormat,메타,제단 레벨,,{0}: 현재 {1}: 최대,Lv {0}/{1},Lv {0
 Altar_CostFormat,메타,제단 비용,,{0}: 비용,비용 {0},Cost {0},コスト {0}
 Altar_Maxed,메타,제단 최대치,,,최대,MAX,最大
 Altar_Purchase,메타,제단 강화 버튼,,,강화,Upgrade,強化
+Altar_UnlockSkillNameFormat,메타,제단 스킬 해금 이름,,{0}: 스킬 이름,스킬 해금 · {0},Unlock Skill · {0},スキル解放 · {0}
+Altar_UnlockFormNameFormat,메타,제단 폼 해금 이름,,{0}: 폼 이름,폼 해금 · {0},Unlock Form · {0},フォーム解放 · {0}
+Altar_Locked,메타,제단 해금 전,,,잠김,Locked,未解放
+Altar_Unlocked,메타,제단 해금 완료,,,해금됨,Unlocked,解放済み
+Altar_Unlock,메타,제단 해금 버튼,,,해금,Unlock,解放
 Upgrade_MaxHp_Name,메타,업그레이드 이름,,,생명력 강화,Vitality,生命力強化
 Upgrade_MaxHp_Desc,메타,업그레이드 설명,,,레벨당 최대 체력 +20,+20 Max HP per level,レベルごとに最大HP +20
 Upgrade_Attack_Name,메타,업그레이드 이름,,,공격력 강화,Power,攻撃力強化

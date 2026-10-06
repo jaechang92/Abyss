@@ -147,10 +147,18 @@ namespace Abyss.Tests.EditMode
 
         /// <summary>
         /// 🔵 3-2는 <b>"시스템은 짓되 기존 콘텐츠는 안 뺏는다"</b>로 결정됐다(2026-08-19).
-        /// 실제 에셋 중 하나라도 잠기면 여기서 걸린다.
+        /// 2026-10-06 메타 해금 1단계에서 <b>신규 스킬만</b> 잠그기 시작했다 — 잠겨도 되는 것은 아래 목록뿐이다.
+        /// 기존 폼·스킬이 잠기거나, 목록 밖 스킬이 잠기면 여기서 걸린다.
         /// </summary>
+        private static readonly string[] LockableSkillIds =
+        {
+            SkillIds.DEATHS_PROMISE,
+            SkillIds.CRIMSON_RADIANCE,
+            SkillIds.FATES_FAVOR,
+        };
+
         [Test]
-        public void 실제_폼과_스킬은_하나도_잠겨_있지_않다()
+        public void 기존_폼과_스킬은_잠기지_않고_잠금은_허용_목록뿐이다()
         {
             FormCatalog.Reload();
             foreach (var form in FormCatalog.All)
@@ -163,9 +171,37 @@ namespace Abyss.Tests.EditMode
             SkillCatalog.Reload();
             foreach (var skill in SkillCatalog.All)
             {
-                if (skill == null) continue;
-                Assert.IsFalse(skill.requiresMetaUnlock,
-                    $"{skill.skillId}가 잠겼다 — 기존 콘텐츠를 잠그는 것은 3-2의 결정 범위 밖이다.");
+                if (skill == null || !skill.requiresMetaUnlock) continue;
+                CollectionAssert.Contains(LockableSkillIds, skill.skillId,
+                    $"{skill.skillId}가 잠겼다 — 메타 해금 허용 목록 밖이다(기존 콘텐츠는 안 뺏는다).");
+            }
+        }
+
+        /// <summary>
+        /// 잠긴 스킬마다 제단에 그것을 여는 항목이 있어야 한다. 없으면 그 스킬은 <b>오류 없이 영영 안 나온다</b>
+        /// (2026-08-14 각인사 내력이 같은 모양으로 안 열렸다).
+        /// </summary>
+        [Test]
+        public void 잠긴_스킬마다_제단_해금_항목이_있다()
+        {
+            SkillCatalog.Reload();
+            MetaUpgrades.Reload();
+            var upgrades = MetaUpgrades.All;
+
+            foreach (var skill in SkillCatalog.All)
+            {
+                if (skill == null || !skill.requiresMetaUnlock) continue;
+
+                bool hasUnlock = false;
+                foreach (var upgrade in upgrades)
+                {
+                    if (upgrade != null && upgrade.type == MetaUpgradeType.UnlockSkill && upgrade.unlockTargetId == skill.skillId)
+                    {
+                        hasUnlock = true;
+                        break;
+                    }
+                }
+                Assert.IsTrue(hasUnlock, $"{skill.skillId}가 잠겼는데 제단 해금 항목이 없다 — 영영 드래프트에 안 나온다.");
             }
         }
 

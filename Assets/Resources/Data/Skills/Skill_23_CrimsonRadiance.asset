@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Skill_23_CrimsonRadiance
   m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Draft.SkillData
   skillId: skill_crimson_radiance
-  requiresMetaUnlock: 0
+  requiresMetaUnlock: 1
   displayName: "\uD54F\uBE5B \uAD11\uCC44"
   description: "\uC801 \uCC98\uCE58 \uC2DC \uCD5C\uB300 HP +1 (\uC774\uBC88 \uB7F0, \uCD5C\uB300 +30)"
   icon: {fileID: 0}

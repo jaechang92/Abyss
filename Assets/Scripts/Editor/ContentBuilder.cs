@@ -61,6 +61,7 @@ namespace Abyss.EditorTools
             WireAbilitySfx();
             WireFormSwapSfx();         // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다 — 비어 있는 교체음만 채운다
             PlaceEliteVariants();      // 〃 — Stage2·3 방 한 자리씩. 이미 들어가 있으면 건너뛴다
+            ApplyMetaUnlocks();        // 〃 — 신규 스킬 3종 잠금 + 제단 해금 항목(Upsert)
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

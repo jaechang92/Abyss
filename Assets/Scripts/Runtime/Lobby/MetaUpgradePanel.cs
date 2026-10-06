@@ -110,6 +110,13 @@ namespace Abyss.Runtime.Lobby
             var catalog = MetaUpgrades.All;
             if (catalog == null) return;
 
+            int count = 0;
+            for (int i = 0; i < catalog.Length; i++)
+            {
+                if (catalog[i] != null) count += 1;
+            }
+            FitPanelToRows(count);
+
             for (int i = 0; i < catalog.Length; i++)
             {
                 var data = catalog[i];
@@ -126,10 +133,14 @@ namespace Abyss.Runtime.Lobby
             var bg = rowRt.gameObject.AddComponent<Image>();
             bg.color = RowBg;
 
-            CreateText(rowRt, "Name", Loc.Get(data.nameKey), 22,
+            // 해금 항목(스킬·폼)은 이름·설명을 대상 에셋에서 읽는다 — 문구가 두 벌이 되지 않게(ContentBuilder.MetaUnlocks).
+            // 칸을 넘는 문구는 잘리는 대신 글자를 줄인다(Text 기본값은 오류 없이 조용히 자른다). 칸에 맞는 기존 행은 그대로다.
+            var nameText = CreateText(rowRt, "Name", ResolveRowName(data), 22,
                 new Vector2(-230f, 15f), new Vector2(300f, 30f), TextAnchor.LowerLeft, Color.white);
-            CreateText(rowRt, "Desc", Loc.Get(data.descKey), 14,
-                new Vector2(-224f, -16f), new Vector2(320f, 26f), TextAnchor.UpperLeft, new Color(0.72f, 0.72f, 0.8f));
+            FitText(nameText, 14);
+            var descText = CreateText(rowRt, "Desc", ResolveRowDescription(data), 14,
+                new Vector2(-224f, -20f), new Vector2(320f, 34f), TextAnchor.UpperLeft, new Color(0.72f, 0.72f, 0.8f));
+            FitText(descText, 10);
 
             var levelLabel = CreateText(rowRt, "Level", "", 20,
                 new Vector2(-10f, 0f), new Vector2(110f, 40f), TextAnchor.MiddleCenter, new Color(0.85f, 0.9f, 1f));
@@ -137,7 +148,8 @@ namespace Abyss.Runtime.Lobby
                 new Vector2(110f, 0f), new Vector2(120f, 40f), TextAnchor.MiddleCenter, new Color(1f, 0.9f, 0.6f));
 
             var (btn, img) = CreateButton(rowRt, "Purchase",
-                new Vector2(300f, 0f), new Vector2(130f, 56f), PurchaseBase, Loc.Get(StringKey.Altar_Purchase));
+                new Vector2(300f, 0f), new Vector2(130f, 56f), PurchaseBase,
+                Loc.Get(data.IsUnlock ? StringKey.Altar_Unlock : StringKey.Altar_Purchase));
 
             var row = new UpgradeRow { Data = data, LevelLabel = levelLabel, CostLabel = costLabel, Button = btn, ButtonImage = img };
             btn.onClick.AddListener(() => OnPurchase(row));
@@ -165,14 +177,20 @@ namespace Abyss.Runtime.Lobby
                 if (row == null || row.Data == null) continue;
 
                 int level = MetaSaveService.Instance.GetUpgradeLevel(row.Data.upgradeId);
-                if (row.LevelLabel != null) row.LevelLabel.text = Loc.GetFormat(StringKey.Altar_LevelFormat, level, row.Data.MaxLevel);
-
                 int cost = row.Data.CostForNextLevel(level);
                 bool isMaxed = cost < 0;
+
+                // 해금 항목은 레벨이 아니라 잠김/해금됨이다 — "Lv 0/1"은 1회 구매라는 성격을 못 읽게 한다.
+                if (row.LevelLabel != null)
+                {
+                    row.LevelLabel.text = row.Data.IsUnlock
+                        ? Loc.Get(isMaxed ? StringKey.Altar_Unlocked : StringKey.Altar_Locked)
+                        : Loc.GetFormat(StringKey.Altar_LevelFormat, level, row.Data.MaxLevel);
+                }
                 if (row.CostLabel != null)
                 {
                     row.CostLabel.text = isMaxed
-                        ? Loc.Get(StringKey.Altar_Maxed)
+                        ? Loc.Get(row.Data.IsUnlock ? StringKey.Altar_Unlocked : StringKey.Altar_Maxed)
                         : Loc.GetFormat(StringKey.Altar_CostFormat, cost);
                 }
 

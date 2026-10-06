@@ -122,6 +122,12 @@
         public const string Altar_CostFormat = "Altar_CostFormat";
         public const string Altar_Maxed = "Altar_Maxed";
         public const string Altar_Purchase = "Altar_Purchase";
+        // 해금 항목(메타 해금 1단계 2026-10-06) — 이름은 대상 에셋에서 읽어 형식에 끼운다
+        public const string Altar_UnlockSkillNameFormat = "Altar_UnlockSkillNameFormat";
+        public const string Altar_UnlockFormNameFormat = "Altar_UnlockFormNameFormat";
+        public const string Altar_Locked = "Altar_Locked";
+        public const string Altar_Unlocked = "Altar_Unlocked";
+        public const string Altar_Unlock = "Altar_Unlock";
 
         // ── 유물 상점(가차) ──
         public const string Npc_RelicShop_Prompt = "Npc_RelicShop_Prompt";
