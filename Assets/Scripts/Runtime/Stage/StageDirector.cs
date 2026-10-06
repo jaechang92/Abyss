@@ -290,15 +290,27 @@ namespace Abyss.Runtime.Stage
             return false;
         }
 
+        /// <summary>
+        /// 적이 다른 적을 부른다(엘리트 소환사). 방 전투가 진행 중일 때만 소환하고, 부른 적은 <b>클리어 판정에 등록</b>한다 —
+        /// 등록하지 않으면 졸개가 살아 있는데 방이 넘어가거나(<see cref="WarnUntrackedEnemies"/> 경우), 반대로 영영 안 잡혀 막힌다.
+        /// 소환 실패(방 정리 중·프리팹 없음)면 null. 스폰 실패 표시는 남기지 않는다 — 방 데이터 오류가 아니다.
+        /// </summary>
+        public EnemyBase TrySpawnSummoned(EnemyData data, Vector3 position)
+        {
+            if (isRoomSessionClosed || isRoomClearing || CurrentRoom == null) return null;
+            if (data == null || data.spawnPrefab == null) return null;
+            return SpawnTracked(data, position);
+        }
+
         /// <summary>한 마리를 스폰하고 클리어 판정 대상으로 등록한다. 등록에 실패하면 소리를 내고 스폰 실패로 표시한다.</summary>
-        private void SpawnTracked(EnemyData data, Vector3 position)
+        private EnemyBase SpawnTracked(EnemyData data, Vector3 position)
         {
             // 예고 시작 때 검사를 통과했더라도 등장 시점에 다시 본다 — 예고 사이 참조가 비었으면 Instantiate가 던진다.
             if (data == null || data.spawnPrefab == null)
             {
                 Debug.LogError($"[StageDirector] '{data?.enemyId ?? "null"}' 등장 시점에 스폰 프리팹이 없다 — 건너뜀");
                 MarkRoomSpawnFailure();
-                return;
+                return null;
             }
 
             var go = Instantiate(data.spawnPrefab, position, Quaternion.identity);
@@ -311,11 +323,12 @@ namespace Abyss.Runtime.Stage
                 Debug.LogError($"[StageDirector] '{data.enemyId}' 프리팹에 EnemyBase가 없다 " +
                                $"— 스폰은 됐지만 클리어 판정에서 빠져 방이 조기 클리어된다");
                 MarkRoomSpawnFailure();
-                return;
+                return null;
             }
 
             activeEnemies.Add(enemy);
             if (enemy is BossEnemy) hasRoomBossEnemy = true;
+            return enemy;
         }
 
         /// <summary>

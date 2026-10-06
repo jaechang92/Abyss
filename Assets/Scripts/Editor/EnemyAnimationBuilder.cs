@@ -125,6 +125,12 @@ namespace Abyss.EditorTools
             // 🔴 <b>이 적 때문에 적 칸이 124 -> 148 로 커졌다</b> — SpriteSheetSlicer 주석 참조.
             // 시트: Art_Source/characters/midboss_sentinel/sheet_recipe.json
             new Entry("midboss_sentinel", "midboss_sentinel", new Vector2(1.5f, 3f)),
+
+            // 2026-10-06 엘리트 변종 — 새 그림 없이 원본 시트를 빌린다(접두어 = 원본 id). 색은 EnemyData.bodyTint 가 런타임에 곱한다.
+            // 🔴 EnemyData.artSourceId(정지 그림)와 같은 원본을 가리켜야 한다. 예비동작·회복도 원본과 같게 둬 클립 길이가 맞는다.
+            // 콜라이더는 원본과 같다 — 같은 몸이다.
+            new Entry("elite_berserker", "melee_brute", new Vector2(1.5f, 1.6f)),
+            new Entry("elite_summoner", "void_caster", new Vector2(0.9f, 2.0f)),
         };
 
         /// <summary>시트 파일명의 상태 → 애니메이션 상태 이름. 파일은 레시피의 <c>states</c> 키를 따른다.</summary>

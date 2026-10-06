@@ -44,6 +44,7 @@ namespace Abyss.EditorTools
             CreateSkills();
             CreateSkillsBloodPactAndNeutral();   // 19~30 (2026-10-06)
             CreateEnemies();
+            CreateEliteVariants();             // 엘리트 변종 2종 (2026-10-06)
             LinkEnemySfx();   // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다
             CreateWeapons();
             CreateRunConfig();
@@ -59,6 +60,7 @@ namespace Abyss.EditorTools
             WireFormGuards();          // 〃 — 방패병 가드(강공격 키 = 가드 · 자동 반격)
             WireAbilitySfx();
             WireFormSwapSfx();         // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다 — 비어 있는 교체음만 채운다
+            PlaceEliteVariants();      // 〃 — Stage2·3 방 한 자리씩. 이미 들어가 있으면 건너뛴다
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

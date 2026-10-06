@@ -43,4 +43,6 @@ MonoBehaviour:
   arcFlightTime: 1.1
   arcExplosionRadius: 1.8
   arcExplodes: 1
+  artSourceId: 
+  bodyTint: {r: 1, g: 1, b: 1, a: 1}
   spawnPrefab: {fileID: 9177870670806598160, guid: a5fbc474a24525b4e8e81766cd43657c, type: 3}
