@@ -47,7 +47,7 @@ namespace Abyss.Runtime.UI
 
                 // 채택 UI 스킨 — 저장된 씬의 기존 자식에 배치·프레임·선택 표식만 덧붙인다(빌더 재실행 불필요).
                 ModalArtSkin.ApplyDraft(root.transform, titleText, cards,
-                    rerollButton, rerollLabel, skipButton, skipLabel, buildContext);
+                    rerollButton, rerollLabel, skipButton, skipLabel, buildContext, cardDetails);
             }
 
             for (int i = 0; i < cards.Length; i++)

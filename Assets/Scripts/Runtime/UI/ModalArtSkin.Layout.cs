@@ -5,42 +5,64 @@ namespace Abyss.Runtime.UI
 {
     /// <summary>
     /// 드래프트 창 배치(기준 캔버스 1920×1080, 중심 원점). DraftPanelBuilder가 만든 기존 계층 이름을 따른다.
+    /// 시안 hud-draft-concept-v1(「FRAGMENT DRAFT」)의 위→아래 순서: 장식 제목 → 카드 3장 → 공통 상세 석판 → 리롤/스킵.
     ///
-    /// MainPanel 1400×820, 중심 x=+110(빌더 값 유지 — 왼쪽 BuildContextPanel 자리). 화면 x 370..1770.
-    /// BuildContextPanel 왼쪽 40 + 폭 260 → 화면 x 40..300, MainPanel과 70 떨어진다.
-    /// 카드 3장 400×500 간격 32 → 폭 1264. 제목 40 · 카드 이름 40 · 본문 26 · 보조 24.
-    /// 카드 안 이름·희귀도·설명·공식은 겹치지 않는 고정 영역 안에서 줄바꿈하고 넘는 줄은 자른다 —
-    /// 전체 설명은 기존 SkillCardDetailsPanel(호버·포커스 상세)에서 본다.
+    /// MainPanel 1460×900, 중심 x=+110(빌더 값 유지 — 왼쪽 BuildContextPanel 자리). 화면 x 340..1800, y 90..990.
+    /// BuildContextPanel 왼쪽 40 + 폭 260 → 화면 x 40..300, MainPanel과 40 떨어진다.
+    /// MainPanel 안(위 가장자리 기준): 제목 24..80 / 카드 100..540 / 상세 석판 568..780 / 버튼 800..860.
+    /// 카드 3장 432×440 간격 32 → 폭 1360. 상세 석판도 같은 폭이라 카드 열과 좌우가 맞는다.
+    ///
+    /// 카드에는 아이콘·이름·희귀도 줄·설명만 둔다(시안). 공식·수치·폼·시너지는 아래 공통 상세에서 본다 —
+    /// 상세는 기존 SkillCardDetailsPanel(호버·포커스 카드 하나)을 석판 자리에 붙인 것이다.
     /// </summary>
     public static partial class ModalArtSkin
     {
         private const float DRAFT_PANEL_CORNER = 24f;
         private const float DRAFT_CARD_CORNER = 24f;
         private const float DRAFT_BUTTON_CORNER = 16f;
+        private const float DRAFT_DETAIL_CORNER = 16f;
 
         private static readonly Vector2 DraftPanelPosition = new(110f, 0f);
-        private static readonly Vector2 DraftPanelSize = new(1400f, 820f);
+        private static readonly Vector2 DraftPanelSize = new(1460f, 900f);
+        private const float DRAFT_PANEL_HALF_HEIGHT = 450f;
 
-        private static readonly Vector2 DraftCardSize = new(400f, 500f);
+        private const float DRAFT_TITLE_TOP = 24f;
+        private static readonly Vector2 DraftTitleSize = new(880f, 56f);
+
+        // 제목 양옆 장식선: 제목 칸 바깥(±460)에서 ±660까지, 안쪽 끝에 ◆.
+        private const float TITLE_RULE_INNER = 460f;
+        private const float TITLE_RULE_OUTER = 660f;
+        private const float TITLE_RULE_THICKNESS = 2f;
+        private const float TITLE_DIAMOND_SIZE = 10f;
+
+        private static readonly Vector2 DraftCardSize = new(432f, 440f);
         private const float DRAFT_CARD_GAP = 32f;
-        private const float DRAFT_CARD_Y = 50f;          // 카드 위 가장자리 = 410-110 = 300 (제목 아래)
+        private const float DRAFT_CARD_TOP = 100f;
 
-        private static readonly Vector2 DraftButtonSize = new(320f, 64f);
+        private const float DRAFT_DETAIL_TOP = 568f;
+        private static readonly Vector2 DraftDetailSize = new(1360f, 212f);
+        private const string DETAIL_SLOT_NAME = "ArtDetailSlot";
+
+        private static readonly Vector2 DraftButtonSize = new(320f, 60f);
         private const float DRAFT_BUTTON_X = 180f;
-        private const float DRAFT_BUTTON_Y = -300f;      // 카드 아래 가장자리(-200)와 68 떨어진다
+        private const float DRAFT_BUTTON_TOP = 800f;
 
-        private const float CARD_CONTENT_WIDTH = 352f;   // 400 - 좌우 24
+        private const float CARD_CONTENT_WIDTH = 384f;   // 432 - 좌우 24
+        private const float CARD_ICON_SIZE = 112f;
+        private const float CARD_ICON_FRAME = 8f;        // 아이콘 칸이 아이콘보다 사방 4씩 크다
 
         private static readonly Vector2 BuildContextPosition = new(40f, 0f);
-        private static readonly Vector2 BuildContextSize = new(260f, 820f);
+        private static readonly Vector2 BuildContextSize = new(260f, 900f);
         private const float BUILD_CONTEXT_CONTENT_WIDTH = 228f;
         private const float BUILD_CONTEXT_LIST_TOP = 176f;
 
         /// <summary>
         /// 드래프트 창 스킨. root 비활성 상태(Awake)에서 1회 적용한다. 카드 바인딩·버튼 콜백·문구는 Presenter 그대로다.
+        /// details가 있으면 카드 아래 상세 석판 자리에 붙인다(없으면 기존처럼 카드 옆에 뜬다).
         /// </summary>
         public static void ApplyDraft(Transform root, Text title, SkillCardView[] cards,
-            Button reroll, Text rerollLabel, Button skip, Text skipLabel, BuildContextPanel buildContext)
+            Button reroll, Text rerollLabel, Button skip, Text skipLabel, BuildContextPanel buildContext,
+            SkillCardDetailsPanel details)
         {
             if (root == null) return;
             float ppu = ResolveReferencePpu(root);
@@ -50,53 +72,66 @@ namespace Abyss.Runtime.UI
             {
                 SetRect(mainPanel, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), DraftPanelPosition, DraftPanelSize);
                 ApplyPanel(mainPanel, DRAFT_PANEL_CORNER, ppu);
+
+                var slot = EnsureDetailSlot(mainPanel, ppu);
+                if (details != null && slot != null) details.DockTo(slot);
             }
 
             if (title != null)
             {
-                SetTopRect(title.transform, 28f, new Vector2(1240f, 56f));
+                SetTopRect(title.transform, DRAFT_TITLE_TOP, DraftTitleSize);
                 StyleText(title, 40, BodyTextColor);
                 title.alignment = TextAnchor.MiddleCenter;
+                if (mainPanel != null) EnsureTitleRules(mainPanel);
             }
 
             if (cards != null)
             {
                 float step = DraftCardSize.x + DRAFT_CARD_GAP;
                 float start = -step * (cards.Length - 1) * 0.5f;
+                float y = TopToCenterY(DRAFT_CARD_TOP, DraftCardSize.y);
                 for (int i = 0; i < cards.Length; i++)
                 {
                     if (cards[i] == null) continue;
-                    ApplyDraftCard(cards[i].transform, new Vector2(start + i * step, DRAFT_CARD_Y), ppu);
+                    ApplyDraftCard(cards[i].transform, new Vector2(start + i * step, y), ppu);
                 }
             }
 
-            ApplyDraftButton(reroll, rerollLabel, new Vector2(-DRAFT_BUTTON_X, DRAFT_BUTTON_Y), ppu);
-            ApplyDraftButton(skip, skipLabel, new Vector2(DRAFT_BUTTON_X, DRAFT_BUTTON_Y), ppu);
+            float buttonY = TopToCenterY(DRAFT_BUTTON_TOP, DraftButtonSize.y);
+            ApplyDraftButton(reroll, rerollLabel, new Vector2(-DRAFT_BUTTON_X, buttonY), ppu);
+            ApplyDraftButton(skip, skipLabel, new Vector2(DRAFT_BUTTON_X, buttonY), ppu);
 
             if (buildContext != null) ApplyBuildContext(buildContext.transform, ppu);
         }
+
+        /// <summary>MainPanel 위 가장자리에서 잰 top·높이 → 중심 원점 y.</summary>
+        private static float TopToCenterY(float top, float height) => DRAFT_PANEL_HALF_HEIGHT - top - height * 0.5f;
 
         private static void ApplyDraftCard(Transform card, Vector2 position, float ppu)
         {
             SetRect(card, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), position, DraftCardSize);
 
+            // 세로 영역: 아이콘 28..140 / 이름 152..240(2줄) / 희귀도 244..284(1줄) / 설명 296..416(4줄)
             // 아이콘은 자리·크기만. 스프라이트·enabled(아이콘 없으면 숨김)는 SkillCardView.Bind가 정한다.
             var icon = FindRequired(card, "Icon");
-            if (icon != null) SetTopRect(icon, 32f, new Vector2(112f, 112f));
+            if (icon != null)
+            {
+                SetTopRect(icon, 28f, new Vector2(CARD_ICON_SIZE, CARD_ICON_SIZE));
+                EnsureIconFrame(card, icon);
+            }
 
-            // 세로 영역: 아이콘 32..144 / 이름 152..248(2줄) / 희귀도 252..312(2줄) / 설명 320..412(3줄) / 공식 아래 16..76(2줄)
             var name = FindText(card, "Name");
             if (name != null)
             {
-                SetTopRect(name.transform, 152f, new Vector2(CARD_CONTENT_WIDTH, 96f));
-                StyleText(name, 40, BodyTextColor);
+                SetTopRect(name.transform, 152f, new Vector2(CARD_CONTENT_WIDTH, 88f));
+                StyleText(name, 36, BodyTextColor);
                 name.alignment = TextAnchor.MiddleCenter;
             }
 
             var headline = FindText(card, "RarityCategory");
             if (headline != null)
             {
-                SetTopRect(headline.transform, 252f, new Vector2(CARD_CONTENT_WIDTH, 60f));
+                SetTopRect(headline.transform, 244f, new Vector2(CARD_CONTENT_WIDTH, 40f));
                 StyleText(headline, 24); // 색은 빌더 값 유지
                 headline.alignment = TextAnchor.MiddleCenter;
             }
@@ -104,22 +139,70 @@ namespace Abyss.Runtime.UI
             var description = FindText(card, "Description");
             if (description != null)
             {
-                SetTopRect(description.transform, 320f, new Vector2(CARD_CONTENT_WIDTH, 92f));
+                SetTopRect(description.transform, 296f, new Vector2(CARD_CONTENT_WIDTH, 120f));
                 StyleText(description, 26, BodyTextColor);
                 description.alignment = TextAnchor.UpperCenter;
             }
 
-            var formula = FindText(card, "Formula");
-            if (formula != null)
-            {
-                SetRect(formula.transform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 16f),
-                    new Vector2(CARD_CONTENT_WIDTH, 60f));
-                StyleText(formula, 24, SubTextColor);
-                formula.alignment = TextAnchor.LowerCenter;
-            }
+            // 공식은 카드에서 내리고 공통 상세에서 본다. 문구는 SkillCardView가 계속 채운다(꺼진 Text라 안 보일 뿐).
+            var formula = FindRequired(card, "Formula");
+            if (formula != null) formula.gameObject.SetActive(false);
 
             // 포커스는 카드 루트의 선택 버튼에 머문다(SkillCardView.FocusTarget). 배경색(희귀도)은 SkillCardView 소유.
-            if (card.TryGetComponent(out Button button)) EnsureSelectableSkin(button, DRAFT_CARD_CORNER, ppu);
+            if (card.TryGetComponent(out Button button)) EnsureSelectableSkin(button, DRAFT_CARD_CORNER, ppu, hasArrows: true);
+        }
+
+        /// <summary>아이콘 뒤 어두운 사각 칸(시안의 아이콘 액자). 아이콘 바로 앞 형제라 아이콘 아래에 그려진다.</summary>
+        private static void EnsureIconFrame(Transform card, Transform icon)
+        {
+            var frame = GetOrCreateImage(card, "ArtIconFrame");
+            frame.sprite = null;
+            frame.color = InsetColor;
+            float size = CARD_ICON_SIZE + CARD_ICON_FRAME;
+            SetTopRect(frame.transform, 28f - CARD_ICON_FRAME * 0.5f, new Vector2(size, size));
+            // 처음 만들 때만 아이콘 앞으로 옮긴다 — 이미 앞에 있으면 그대로(다시 옮기면 아이콘 뒤로 밀린다).
+            if (frame.transform.GetSiblingIndex() > icon.GetSiblingIndex())
+            {
+                frame.transform.SetSiblingIndex(icon.GetSiblingIndex());
+            }
+        }
+
+        /// <summary>카드 아래 공통 상세 석판. 면과 프레임만 그리고 내용은 SkillCardDetailsPanel이 위에 얹는다.</summary>
+        private static RectTransform EnsureDetailSlot(Transform mainPanel, float ppu)
+        {
+            var face = GetOrCreateImage(mainPanel, DETAIL_SLOT_NAME);
+            face.sprite = null;
+            face.color = InsetColor;
+            SetTopRect(face.transform, DRAFT_DETAIL_TOP, DraftDetailSize);
+            EnsureFrame(face.transform, DRAFT_DETAIL_CORNER, ppu);
+            return (RectTransform)face.transform;
+        }
+
+        /// <summary>제목 양옆 금속색 장식선 + 안쪽 끝 ◆. 제목 문구 폭과 무관한 고정 자리다.</summary>
+        private static void EnsureTitleRules(Transform mainPanel)
+        {
+            float y = -(DRAFT_TITLE_TOP + DraftTitleSize.y * 0.5f);
+            float length = TITLE_RULE_OUTER - TITLE_RULE_INNER;
+            float center = (TITLE_RULE_OUTER + TITLE_RULE_INNER) * 0.5f;
+            var top = new Vector2(0.5f, 1f);
+            var middle = new Vector2(0.5f, 0.5f);
+
+            for (int side = -1; side <= 1; side += 2)
+            {
+                string suffix = side < 0 ? "Left" : "Right";
+
+                var rule = GetOrCreateImage(mainPanel, "ArtTitleRule" + suffix);
+                rule.sprite = null;
+                rule.color = MetalColor;
+                SetRect(rule.transform, top, middle, new Vector2(side * center, y), new Vector2(length, TITLE_RULE_THICKNESS));
+
+                var diamond = GetOrCreateImage(mainPanel, "ArtTitleDiamond" + suffix);
+                diamond.sprite = null;
+                diamond.color = MetalColor;
+                SetRect(diamond.transform, top, middle, new Vector2(side * TITLE_RULE_INNER, y),
+                    new Vector2(TITLE_DIAMOND_SIZE, TITLE_DIAMOND_SIZE));
+                diamond.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            }
         }
 
         private static void ApplyDraftButton(Button button, Text label, Vector2 position, float ppu)

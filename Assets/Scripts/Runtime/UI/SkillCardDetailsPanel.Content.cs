@@ -23,6 +23,57 @@ namespace Abyss.Runtime.UI
         private static readonly Color HeaderColor = new Color(1f, 0.86f, 0.55f);
         private static readonly Color BodyColor = new Color(0.92f, 0.92f, 0.95f);
 
+        // 도킹 판(드래프트 공통 상세 석판). 글자는 레이아웃 스펙의 보조 24 / 제목급 30.
+        private const int DOCK_HEADER_FONT_SIZE = 30;
+        private const int DOCK_BODY_FONT_SIZE = 24;
+        private const float DOCK_PADDING = 20f;
+        private const float DOCK_ICON_SIZE = 120f;
+        private const float DOCK_ICON_GAP = 28f;
+        private const float DOCK_ICON_INSET = 4f;
+        private const string STAT_SEPARATOR = "   ·   ";
+
+        private Image dockIconFrame;
+        private Image dockIcon;
+
+        /// <summary>
+        /// 카드 옆에 뜨는 대신 slot 위에 겹쳐 고정 표시한다(드래프트 시안의 공통 상세). 면·테두리는 slot이 그리므로
+        /// 본체 바탕을 끄고, 왼쪽에 아이콘 칸을 만든다. 표시 대상 규칙(호버 → 포커스 → 숨김)은 그대로다.
+        /// </summary>
+        public void DockTo(RectTransform slot)
+        {
+            dockSlot = slot;
+            if (body == null || slot == null) return;
+
+            if (body.TryGetComponent(out Image background)) background.enabled = false;
+
+            headerText.fontSize = DOCK_HEADER_FONT_SIZE;
+            headerText.color = ModalArtSkin.BodyTextColor;
+            bodyText.fontSize = DOCK_BODY_FONT_SIZE;
+            bodyText.color = ModalArtSkin.SubTextColor;
+            bodyText.resizeTextMaxSize = DOCK_BODY_FONT_SIZE;
+
+            if (dockIconFrame == null)
+            {
+                var topLeft = new Vector2(0f, 1f);
+                var frameGo = UiFactory.CreateRect(body.transform, "IconFrame", topLeft, topLeft, topLeft, Vector2.zero, Vector2.zero);
+                dockIconFrame = frameGo.AddComponent<Image>();
+                dockIconFrame.color = ModalArtSkin.PanelColor;
+                dockIconFrame.raycastTarget = false;
+
+                var iconGo = UiFactory.CreateRect(frameGo.transform, "Icon", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+                var iconRect = (RectTransform)iconGo.transform;
+                iconRect.offsetMin = new Vector2(DOCK_ICON_INSET, DOCK_ICON_INSET);
+                iconRect.offsetMax = new Vector2(-DOCK_ICON_INSET, -DOCK_ICON_INSET);
+                dockIcon = iconGo.AddComponent<Image>();
+                dockIcon.preserveAspect = true;
+                dockIcon.raycastTarget = false;
+                dockIcon.enabled = false;
+            }
+
+            shownSkill = null;
+            isLayoutDirty = true;
+        }
+
         private void BuildView()
         {
             var center = new Vector2(0.5f, 0.5f);
@@ -66,11 +117,21 @@ namespace Abyss.Runtime.UI
         private void RebuildContent(SkillData skill)
         {
             if (skill == null) return;
-            headerText.text = $"{skill.displayName} — {Loc.Get(StringKey.DraftDetail_Title)}";
-            bodyText.text = BuildBody(skill);
+            bool isDocked = dockSlot != null;
+
+            // 도킹 판은 시안처럼 이름만 제목으로 둔다(왼쪽 아이콘과 같은 줄에서 이미 상세 자리라 「상세」 꼬리가 필요 없다).
+            headerText.text = isDocked ? skill.displayName : $"{skill.displayName} — {Loc.Get(StringKey.DraftDetail_Title)}";
+            bodyText.text = BuildBody(skill, isDocked);
+
+            if (dockIcon != null)
+            {
+                dockIcon.sprite = skill.icon;
+                dockIcon.enabled = skill.icon != null;
+            }
         }
 
-        private static string BuildBody(SkillData skill)
+        /// <summary>isCompact: 수치·폼·시너지 네 줄을 한 줄로 잇는다(도킹 석판 높이가 고정이라). 값·문구는 같다.</summary>
+        private static string BuildBody(SkillData skill, bool isCompact)
         {
             var lines = new List<string>();
 
@@ -79,10 +140,15 @@ namespace Abyss.Runtime.UI
             if (!string.IsNullOrEmpty(skill.formulaDescription))
                 lines.Add(Loc.GetFormat(StringKey.Codex_Skill_FormulaFormat, skill.formulaDescription));
 
-            lines.Add(Loc.GetFormat(StringKey.DraftDetail_FlatBonusFormat, FormatSigned(skill.flatBonus)));
-            lines.Add(Loc.GetFormat(StringKey.DraftDetail_MultiplierFormat, FormatNumber(skill.multiplier)));
-            lines.Add(FormLine(skill));
-            lines.Add(Loc.GetFormat(StringKey.DraftDetail_SynergyFormat, SynergyAxis.GetDisplayName(skill.synergyTag)));
+            var stats = new[]
+            {
+                Loc.GetFormat(StringKey.DraftDetail_FlatBonusFormat, FormatSigned(skill.flatBonus)),
+                Loc.GetFormat(StringKey.DraftDetail_MultiplierFormat, FormatNumber(skill.multiplier)),
+                FormLine(skill),
+                Loc.GetFormat(StringKey.DraftDetail_SynergyFormat, SynergyAxis.GetDisplayName(skill.synergyTag)),
+            };
+            if (isCompact) lines.Add(string.Join(STAT_SEPARATOR, stats));
+            else lines.AddRange(stats);
 
             return string.Join("\n", lines);
         }

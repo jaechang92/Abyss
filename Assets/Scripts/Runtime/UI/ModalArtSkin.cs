@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Abyss.Runtime.UI
@@ -35,11 +36,17 @@ namespace Abyss.Runtime.UI
         private const float NOTCH_CENTER = 2f;
         private static readonly Vector2 NotchSize = new(10f, 56f);
 
+        // 드래프트 카드용 화살 표식(시안의 ◀ ▶ ▼): 45° 돌린 사각형. 절반이 바깥 외곽선 밖으로 나와 화살처럼 읽힌다.
+        private const float ARROW_SIZE = 16f;
+        private const string POINTER_NAME = "PointerDown";
+
         internal static readonly Color PanelColor = new(0.090f, 0.129f, 0.169f, 0.96f); // #17212B
         internal static readonly Color BodyTextColor = new(0.906f, 0.878f, 0.808f); // #E7E0CE
         internal static readonly Color SubTextColor = new(0.671f, 0.722f, 0.753f); // #ABB8C0
         internal static readonly Color FocusColor = new(0.906f, 0.878f, 0.808f); // #E7E0CE
         internal static readonly Color HoverFillColor = new(0.906f, 0.878f, 0.808f, 0.08f);
+        internal static readonly Color InsetColor = new(0.149f, 0.204f, 0.259f); // #263442 — 아이콘 칸·상세 석판 면
+        internal static readonly Color MetalColor = new(0.588f, 0.502f, 0.416f); // #96806A — 제목 장식선
 
         // Sprite.Create로 만든 프레임 스프라이트 1개를 소유한다(HudArtSkin 캐시는 그쪽 private이라 따로 둔다).
         // 도메인 리로드를 끈 재진입에서도 살아 있으면 재사용하고, 파괴됐으면 Unity null 비교로 다시 만든다.
@@ -124,8 +131,10 @@ namespace Abyss.Runtime.UI
         /// <summary>
         /// 버튼(카드·노드·리롤·스킵)에 프레임·호버 면·선택 표식을 만들고 <see cref="SelectableArtFeedback"/>을
         /// 실제 포커스가 머무는 버튼 GameObject에 붙인다. 버튼의 색 전환·콜백·Navigation은 그대로다.
+        /// hasArrows: 좌우 홈 대신 좌우 화살 + 아래 화살(공통 상세를 가리킴) — 드래프트 카드 전용.
         /// </summary>
-        public static SelectableArtFeedback EnsureSelectableSkin(Selectable target, float cornerUnits, float referencePpu)
+        public static SelectableArtFeedback EnsureSelectableSkin(Selectable target, float cornerUnits, float referencePpu,
+            bool hasArrows = false)
         {
             if (target == null) return null;
             var t = target.transform;
@@ -139,7 +148,7 @@ namespace Abyss.Runtime.UI
             Stretch(hover.transform, 0f);
             hover.transform.SetAsFirstSibling();
 
-            var marks = EnsureFocusMarks(t);
+            var marks = EnsureFocusMarks(t, hasArrows);
 
             if (!target.TryGetComponent(out SelectableArtFeedback feedback))
             {
@@ -149,8 +158,11 @@ namespace Abyss.Runtime.UI
             return feedback;
         }
 
-        /// <summary>이중 외곽선 4+4개와 좌우 홈 2개. 맨 위 자식이지만 대상 바깥 테두리에만 그린다.</summary>
-        private static Image[] EnsureFocusMarks(Transform target)
+        /// <summary>
+        /// 이중 외곽선 4+4개와 좌우 표식 2개(홈 또는 화살), 화살 판이면 아래 화살 1개.
+        /// 맨 위 자식이지만 대상 바깥 테두리에만 그린다. 같은 이름을 재사용하므로 판을 바꿔 다시 적용해도 모양이 덮어써진다.
+        /// </summary>
+        private static Image[] EnsureFocusMarks(Transform target, bool hasArrows)
         {
             var group = target.Find(FOCUS_NAME);
             if (group == null)
@@ -166,7 +178,25 @@ namespace Abyss.Runtime.UI
             float o = FOCUS_OUTER_THICKNESS;
             float a = FOCUS_INNER_OFFSET;
             float b = FOCUS_INNER_OFFSET + FOCUS_INNER_THICKNESS;
-            return new[]
+
+            // 화살 판: 표식 중심을 바깥 외곽선 위에 둔다(절반이 밖으로 나와 바깥을 가리킨다).
+            var left = hasArrows
+                ? Arrow(group, "NotchLeft", new Vector2(0f, 0.5f))
+                : Notch(group, "NotchLeft", new Vector2(0f, 0.5f), new Vector2(NOTCH_CENTER, 0f));
+            var right = hasArrows
+                ? Arrow(group, "NotchRight", new Vector2(1f, 0.5f))
+                : Notch(group, "NotchRight", new Vector2(1f, 0.5f), new Vector2(-NOTCH_CENTER, 0f));
+
+            var pointer = group.Find(POINTER_NAME);
+            if (!hasArrows && pointer != null) pointer.gameObject.SetActive(false);
+            Image down = null;
+            if (hasArrows)
+            {
+                down = Arrow(group, POINTER_NAME, new Vector2(0.5f, 0f));
+                down.gameObject.SetActive(true);
+            }
+
+            var marks = new List<Image>
             {
                 Bar(group, "OuterTop", new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -o), Vector2.zero),
                 Bar(group, "OuterBottom", Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, o)),
@@ -176,9 +206,11 @@ namespace Abyss.Runtime.UI
                 Bar(group, "InnerBottom", Vector2.zero, new Vector2(1, 0), new Vector2(a, a), new Vector2(-a, b)),
                 Bar(group, "InnerLeft", Vector2.zero, new Vector2(0, 1), new Vector2(a, a), new Vector2(b, -a)),
                 Bar(group, "InnerRight", new Vector2(1, 0), Vector2.one, new Vector2(-b, a), new Vector2(-a, -a)),
-                Notch(group, "NotchLeft", new Vector2(0f, 0.5f), new Vector2(NOTCH_CENTER, 0f)),
-                Notch(group, "NotchRight", new Vector2(1f, 0.5f), new Vector2(-NOTCH_CENTER, 0f)),
+                left,
+                right,
             };
+            if (down != null) marks.Add(down);
+            return marks.ToArray();
         }
 
         private static Image Bar(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)
@@ -201,6 +233,17 @@ namespace Abyss.Runtime.UI
             image.sprite = null;
             image.color = FocusColor;
             SetRect(image.transform, anchor, new Vector2(0.5f, 0.5f), position, NotchSize);
+            image.transform.localRotation = Quaternion.identity;
+            return image;
+        }
+
+        private static Image Arrow(Transform parent, string name, Vector2 anchor)
+        {
+            var image = GetOrCreateImage(parent, name);
+            image.sprite = null;
+            image.color = FocusColor;
+            SetRect(image.transform, anchor, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(ARROW_SIZE, ARROW_SIZE));
+            image.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
             return image;
         }
 

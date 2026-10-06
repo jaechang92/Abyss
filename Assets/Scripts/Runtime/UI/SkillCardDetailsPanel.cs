@@ -19,6 +19,8 @@ namespace Abyss.Runtime.UI
     /// 카드·리롤·스킵 버튼 클릭을 가로채지 않는다.
     ///
     /// 우선순위: 호버 카드 → 포커스 카드. 호버가 빠지면 포커스 카드로 돌아가고 둘 다 없으면 숨긴다.
+    ///
+    /// <see cref="DockTo"/>로 슬롯을 받으면(드래프트 채택 UI) 카드 옆 대신 그 슬롯 위에 고정 크기로 표시한다.
     /// </summary>
     public sealed partial class SkillCardDetailsPanel : MonoBehaviour
     {
@@ -43,6 +45,9 @@ namespace Abyss.Runtime.UI
 
         private bool isLayoutDirty;
         private Vector2 lastBoundsSize;
+
+        // 도킹: 드래프트 창의 고정 상세 석판(ModalArtSkin이 만든 슬롯). null이면 카드 옆에 뜨는 기존 방식이다.
+        private RectTransform dockSlot;
 
         /// <summary>parent(드래프트 root) 밑에 화면 전체를 덮는 빈 홀더와 숨긴 패널 본체를 만든다.</summary>
         public static SkillCardDetailsPanel Create(Transform parent)
@@ -180,6 +185,12 @@ namespace Abyss.Runtime.UI
             if (shownCard == null || body == null) return;
 
             var holder = (RectTransform)transform;
+            if (dockSlot != null)
+            {
+                UpdateDockedLayout(holder);
+                return;
+            }
+
             Rect bounds = ScreenBoundsIn(holder);
             Rect card = RectIn((RectTransform)shownCard.transform, holder);
 
@@ -258,6 +269,56 @@ namespace Abyss.Runtime.UI
             headerHeight = Mathf.Ceil(headerText.preferredHeight);
             textHeight = Mathf.Ceil(bodyText.preferredHeight);
             return PADDING * 2f + headerHeight + HEADER_GAP + textHeight;
+        }
+
+        /// <summary>도킹: 본체를 슬롯 rect에 그대로 겹친다. 크기는 슬롯 고정, 내용 배치는 내용·슬롯이 바뀔 때만 다시 한다.</summary>
+        private void UpdateDockedLayout(RectTransform holder)
+        {
+            Rect slot = RectIn(dockSlot, holder);
+            if (isLayoutDirty || slot.size != lastBoundsSize)
+            {
+                ResizeDocked(slot.size);
+                lastBoundsSize = slot.size;
+                isLayoutDirty = false;
+            }
+
+            var bodyRect = (RectTransform)body.transform;
+            var position = new Vector3(slot.xMin, slot.yMax, 0f);
+            if (bodyRect.localPosition != position) bodyRect.localPosition = position;
+        }
+
+        /// <summary>
+        /// 왼쪽 아이콘 칸, 오른쪽에 제목 + 본문. 본문이 슬롯 높이를 넘으면 떠 있는 판과 같은 규칙으로 글자를 줄여 담는다.
+        /// </summary>
+        private void ResizeDocked(Vector2 size)
+        {
+            float contentLeft = DOCK_PADDING + DOCK_ICON_SIZE + DOCK_ICON_GAP;
+            float innerWidth = Mathf.Max(DOCK_PADDING, size.x - contentLeft - DOCK_PADDING);
+
+            // preferredHeight는 현재 rect 폭으로 줄바꿈해 잰다 — 폭부터 맞춘다. best fit은 끈 상태로 잰다.
+            bodyText.resizeTextForBestFit = false;
+            headerText.rectTransform.sizeDelta = new Vector2(innerWidth, 0f);
+            bodyText.rectTransform.sizeDelta = new Vector2(innerWidth, 0f);
+
+            float headerHeight = Mathf.Ceil(headerText.preferredHeight);
+            float available = Mathf.Max(BODY_MIN_FONT_SIZE, size.y - DOCK_PADDING * 2f - headerHeight - HEADER_GAP);
+            bool isOverflowing = Mathf.Ceil(bodyText.preferredHeight) > available;
+            bodyText.resizeTextForBestFit = isOverflowing;
+            bodyText.verticalOverflow = isOverflowing ? VerticalWrapMode.Truncate : VerticalWrapMode.Overflow;
+
+            headerText.rectTransform.anchoredPosition = new Vector2(contentLeft, -DOCK_PADDING);
+            headerText.rectTransform.sizeDelta = new Vector2(innerWidth, headerHeight);
+            bodyText.rectTransform.anchoredPosition = new Vector2(contentLeft, -(DOCK_PADDING + headerHeight + HEADER_GAP));
+            bodyText.rectTransform.sizeDelta = new Vector2(innerWidth, available);
+
+            if (dockIconFrame != null)
+            {
+                var iconRect = (RectTransform)dockIconFrame.transform;
+                iconRect.anchoredPosition = new Vector2(DOCK_PADDING, -(size.y - DOCK_ICON_SIZE) * 0.5f);
+                iconRect.sizeDelta = new Vector2(DOCK_ICON_SIZE, DOCK_ICON_SIZE);
+            }
+
+            ((RectTransform)body.transform).sizeDelta = size;
         }
 
         /// <summary>최상위 캔버스가 덮는 화면 영역을 space 좌표로. 패널이 화면 밖으로 나가지 않게 하는 경계다.</summary>
