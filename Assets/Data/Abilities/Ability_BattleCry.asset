@@ -32,7 +32,9 @@ MonoBehaviour:
   buffMoveSpeedMultiplier: 1
   buffAttackMultiplier: 1.5
   buffDefenseMultiplier: 1
+  buffAttackCooldownMultiplier: 1
   buffDuration: 6
+  hpCostRatio: 0
   burnStacks: 0
   burnDuration: 4
   burnDamagePerStack: 2

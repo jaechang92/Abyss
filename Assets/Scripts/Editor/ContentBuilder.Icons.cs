@@ -27,6 +27,9 @@ namespace Abyss.EditorTools
             WireIcon("skill_void_javelin", "void_javelin");
             WireIcon("skill_phantom_step", "phantom_step");
             WireIcon("skill_flame_burst", "flame_burst");
+            // 2026-10-06 — 그림은 Codex 이미지 작업 대기. 파일이 생기면 메뉴 재실행으로 붙는다(없으면 경고만).
+            WireIcon("skill_blood_pact_blade", "blood_pact_blade");
+            WireIcon("skill_time_warp", "time_warp");
         }
 
         private static void WireIcon(string skillId, string iconKey)

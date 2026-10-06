@@ -13,7 +13,7 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// 프로토 SO 에셋 일괄 생성 에디터 툴.
-    /// 생성 대상: FormData 4 / SkillData 18 / EnemyData 10 / RunConfig 1.
+    /// 생성 대상: FormData 4 / SkillData 30 / EnemyData 10 / RunConfig 1.
     /// 기본값은 stage-d-analyst.md 확정 스펙 + 03-skill-draft-system.md 스킬 목록.
     /// 이미 존재하는 에셋은 건너뜀(덮어쓰지 않음).
     /// </summary>
@@ -25,7 +25,7 @@ namespace Abyss.EditorTools
                 "ContentBuilder",
                 "프로토 SO 에셋 생성:\n" +
                 "  · FormData 4 (dark_blade, void_archer, ancient_shield, void_thrower)\n" +
-                "  · SkillData 18 (불꽃 6 + 심연 6 + 버프 1 + 방패 3 + 투척 2)\n" +
+                "  · SkillData 30 (불꽃 6 + 심연 8 + 수호 3 + 피의 서약 7 + 무축 6)\n" +
                 "  · EnemyData 10 (근접 2 / 원거리 4 / 엘리트 1 / 보스 1 + Stage2 중간보스 1 / 보스 1)\n" +
                 "  · WeaponData 4 (폼마다 기본 무기 하나)\n" +
                 "  · RunConfig 1\n\n" +
@@ -42,12 +42,15 @@ namespace Abyss.EditorTools
 
             CreateForms();
             CreateSkills();
+            CreateSkillsBloodPactAndNeutral();   // 19~30 (2026-10-06)
             CreateEnemies();
             LinkEnemySfx();   // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다
             CreateWeapons();
             CreateRunConfig();
             CreateAbilities();
+            CreateAbilitiesBloodPactAndNeutral();
             WireActiveAbilities();
+            WireActiveAbilitiesBloodPactAndNeutral();
             WireSkillIcons();
             WireFormBodySprites();     // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다
             WireWeaponSprites();       // 〃 — 무기 그림 + 각도 스트립

@@ -39,6 +39,38 @@ namespace Abyss.Runtime.Draft
         /// <summary>영혼 회수 — 적 처치 시 HP 회복.</summary>
         public const string SOUL_RECLAIM = "skill_soul_reclaim";
 
+        // ── 피의 서약 축 (2026-10-06, 전역) — PlayerCharacter.BloodPact ──
+        /// <summary>최후의 일격(Synergy) — [피의 서약] 2+ 시 HP 25% 이하에서 기본 공격 피해 2배.</summary>
+        public const string FINAL_STAND = "skill_final_stand";
+
+        /// <summary>피의 분노 — HP 50% 이하에서 기본 공격 쿨다운 30% 감소.</summary>
+        public const string BLOOD_RAGE = "skill_blood_rage";
+
+        /// <summary>흡혈 인장(Augment) — 기본 공격 적중 피해의 5% HP 회복.</summary>
+        public const string VAMPIRIC_SEAL = "skill_vampiric_seal";
+
+        /// <summary>핏빛 광채 — 적 처치 시 최대 HP +1(런 한정, 상한 있음).</summary>
+        public const string CRIMSON_RADIANCE = "skill_crimson_radiance";
+
+        /// <summary>죽음의 약속 — 런당 1회 치명상을 HP 1로 버티고 잠시 무적.</summary>
+        public const string DEATHS_PROMISE = "skill_deaths_promise";
+
+        /// <summary>혈영 — HP 30% 이하에서 피격 시 일정 확률로 피해 무효.</summary>
+        public const string BLOOD_SHADE = "skill_blood_shade";
+
+        // ── 무축 보편 (2026-10-06) — PlayerCharacter.NeutralPassives ──
+        /// <summary>신중한 시선 — 기본 공격 치명타(확률·배율).</summary>
+        public const string KEEN_EYE = "skill_keen_eye";
+
+        /// <summary>신성 보호 — 일정 주기마다 다음 피격 피해를 1로.</summary>
+        public const string HOLY_WARD = "skill_holy_ward";
+
+        /// <summary>황금 손길 — 전투 보상 골드 +25%.</summary>
+        public const string GOLDEN_TOUCH = "skill_golden_touch";
+
+        /// <summary>운명의 가호 — 이번 런 드래프트의 Epic·Legendary 가중치 2배(DraftSessionController).</summary>
+        public const string FATES_FAVOR = "skill_fates_favor";
+
         /// <summary>보유 목록에 해당 스킬이 있는지. 상시 효과(Passive) 판정의 공통 진입점.</summary>
         public static bool IsOwned(System.Collections.Generic.IReadOnlyList<SkillData> owned, string skillId)
         {

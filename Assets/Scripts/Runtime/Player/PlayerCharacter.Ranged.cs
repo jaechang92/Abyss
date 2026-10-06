@@ -145,10 +145,19 @@ namespace Abyss.Runtime.Player
 
             public int OnProjectileHit(int damage, bool isFirstHit)
             {
-                if (owner == null || !isFirstHit) return damage;
+                if (owner == null) return damage;
+
+                // 신중한 시선 치명타 · 흡혈 인장은 화살이 적에게 닿을 때마다 — 관통 화살의 두 번째 적도 기본 공격 적중이다.
+                if (!isFirstHit)
+                {
+                    int pierceDamage = owner.RollKeenEye(damage);
+                    owner.ApplyVampiricSeal(pierceDamage);
+                    return pierceDamage;
+                }
 
                 // 심연 충전은 적중이 확정된 뒤에 소비한다 — 빗나간 화살로 장전이 풀리지 않는다(근접과 같은 약속).
-                int finalDamage = owner.ConsumeAbyssCharge(damage);
+                int finalDamage = owner.RollKeenEye(owner.ConsumeAbyssCharge(damage));
+                owner.ApplyVampiricSeal(finalDamage);
 
                 if (HitstopController.HasInstance) HitstopController.Instance.Trigger(hitstop);
                 owner.TriggerShake(shake);

@@ -56,6 +56,9 @@ namespace Abyss.Runtime.Skill
                     AudioManager.Instance.PlaySfx(data.castSfx);
                 }
 
+                // 피의 서약 대가 — 효과보다 먼저 치른다(발동이 확정된 뒤라 쿨다운·조건으로 막힌 시도에는 안 든다).
+                PayHpCost(context);
+
                 if (effect != null)
                 {
                     await effect.ApplyAsync(context, data, destroyCancellationToken);
@@ -66,6 +69,19 @@ namespace Abyss.Runtime.Skill
                 // 예외·취소 경로에서도 실행 플래그 해제 + 쿨다운 시작을 보장(무한 연사 방지).
                 EndExecution();
             }
+        }
+
+        /// <summary>
+        /// 현재 HP × hpCostRatio(내림, 최소 1)를 바친다. <see cref="Abyss.Runtime.Player.PlayerCharacter.PayHpCost"/>가
+        /// 최소 1을 남기므로 대가로 죽지 않는다 — HP 1에서도 발동은 되고 대가만 사라진다.
+        /// </summary>
+        private void PayHpCost(IGameplayContext ownerContext)
+        {
+            if (data.hpCostRatio <= 0f || ownerContext?.Owner == null) return;
+            if (!ownerContext.Owner.TryGetComponent(out Abyss.Runtime.Player.PlayerCharacter player)) return;
+
+            int cost = Mathf.Max(1, Mathf.FloorToInt(player.CurrentHp * data.hpCostRatio));
+            player.PayHpCost(cost);
         }
 
         private static IAbilityEffect CreateEffect(AbilityEffectType type)

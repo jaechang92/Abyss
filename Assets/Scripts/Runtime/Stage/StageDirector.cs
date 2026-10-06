@@ -398,7 +398,7 @@ namespace Abyss.Runtime.Stage
 
             if (room.clearGoldReward > 0)
             {
-                RunManager.Instance?.GainGoldShards(room.clearGoldReward);
+                RunManager.Instance?.GainCombatGoldShards(room.clearGoldReward);
             }
 
             // 이벤트 룸: 선택 모달을 열고 선택이 끝날 때까지 자동 진행을 보류한다.

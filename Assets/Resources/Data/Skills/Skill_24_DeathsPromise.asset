@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b7ffb57272b5a149b440852a8b1035f, type: 3}
+  m_Name: Skill_24_DeathsPromise
+  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Draft.SkillData
+  skillId: skill_deaths_promise
+  requiresMetaUnlock: 0
+  displayName: "\uC8FD\uC74C\uC758 \uC57D\uC18D"
+  description: "\uB7F0\uB2F9 1\uD68C, \uCE58\uBA85\uC0C1\uC744 HP 1\uB85C \uBC84\uD2F0\uACE0 2\uCD08\uAC04 \uBB34\uC801. \uC8FC\uBCC0 \uC801\uC5D0\uAC8C \uCDA9\uACA9 20"
+  icon: {fileID: 0}
+  rarity: 2
+  category: 1
+  synergyTag: blood_pact
+  formBound: 
+  flatBonus: 0
+  multiplier: 1
+  formulaDescription: (flatBonus + base) * multiplier
+  relatedAbility: {fileID: 0}
+  tags: []

@@ -280,7 +280,7 @@ namespace Abyss.Runtime.Enemy
             if (data != null && RunManager.HasInstance)
             {
                 RunManager.Instance.GainExp(data.expReward, data.enemyId);
-                RunManager.Instance.GainGoldShards(data.goldReward);
+                RunManager.Instance.GainCombatGoldShards(data.goldReward);
                 if (data.IsBoss) RunManager.Instance.NotifyBossKilled();
                 else if (data.IsElite) RunManager.Instance.NotifyEliteKilled();
             }
