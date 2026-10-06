@@ -1,4 +1,4 @@
-using Abyss.Runtime.Events;
+﻿using Abyss.Runtime.Events;
 using Abyss.Runtime.Flow;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Run;
@@ -32,8 +32,16 @@ namespace Abyss.Runtime.UI
         private LocalizedText toTitleLabel;
         private LocalizedText quitLabel;
 
+        // 키보드·패드 탐색 대상(위→아래). 보일 때 계속하기에 선택을 준다.
+        private Button[] menuButtons;
+        // 상위 화면(저장 모달·설정)이 닫힌 순간만 잡아 선택을 복구한다 — 매 프레임 선택을 다시 쥐지 않는다.
+        private bool wasUpperOverlayOpen;
+
         private void Awake()
         {
+            menuButtons = new[] { resumeButton, settingsButton, toTitleButton, quitButton };
+            MenuButtonNavigation.ApplyVertical(menuButtons);
+
             // 이 컴포넌트는 GameEvents를 직접 구독하므로 자기 자신을 끄면 안 된다(OnDisable → 구독 해제 →
             // 다시 켜줄 주체 소멸). 빌더가 root를 자식 Body로 배선하고 그것만 토글한다.
             if (root == null)
@@ -76,6 +84,20 @@ namespace Abyss.Runtime.UI
         {
             GameEvents.OnGamePaused -= HandleGamePaused;
             GameEvents.OnGameResumed -= HandleGameResumed;
+            // SetVisible을 거치지 않고 꺼질 때(HUD 비활성화·씬 언로드)도 이 패널 버튼이 쥔 선택만 푼다.
+            MenuButtonNavigation.ClearOwnedSelection(menuButtons);
+        }
+
+        /// <summary>정지(timeScale=0)에서도 Update는 돈다. 보이는 동안 상위 화면이 닫힌 순간에만 선택을 복구한다.</summary>
+        private void Update()
+        {
+            bool isUpperOverlayOpen = MenuButtonNavigation.IsUpperOverlayOpen;
+            var target = root != null ? root : gameObject;
+            if (wasUpperOverlayOpen && !isUpperOverlayOpen && target.activeSelf)
+            {
+                MenuButtonNavigation.SelectIfLost(null, menuButtons);
+            }
+            wasUpperOverlayOpen = isUpperOverlayOpen;
         }
 
         private void HandleGamePaused() => SetVisible(true);
@@ -165,7 +187,16 @@ namespace Abyss.Runtime.UI
         private void SetVisible(bool visible)
         {
             var target = root != null ? root : gameObject;
-            if (target.activeSelf != visible) target.SetActive(visible);
+            if (target.activeSelf == visible) return;
+
+            // 숨기기 전에 이 패널 버튼이 쥔 선택만 푼다 — 꺼진 버튼을 쥔 채면 다음 화면의 키보드·패드 조작이 막힌다.
+            if (!visible) MenuButtonNavigation.ClearOwnedSelection(menuButtons);
+            target.SetActive(visible);
+            if (!visible) return;
+
+            // 새로 보일 때 1회. 선택만 옮기고 누르지 않는다 — 결정은 EventSystem Submit 몫이다.
+            MenuButtonNavigation.ApplyVertical(menuButtons);
+            MenuButtonNavigation.SelectFirst(menuButtons);
         }
     }
 }

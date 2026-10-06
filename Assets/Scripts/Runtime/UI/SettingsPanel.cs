@@ -1,11 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Abyss.Runtime.Audio;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 // CreateRect·CreateLabel·CreateButton 등 uGUI 조립 헬퍼는 UiFactory가 소유한다(LobbyMenuPanel과 공유).
 using static Abyss.Runtime.UI.UiFactory;
@@ -23,8 +22,8 @@ namespace Abyss.Runtime.UI
     ///
     /// timeScale=0인 일시정지 중에도 조작되어야 하므로 시간에 의존하는 연출을 쓰지 않는다.
     ///
-    /// ESC로 닫는 책임은 이 패널이 갖는다(<see cref="Update"/>) — 씬마다 ESC가 오는 경로가 달라
-    /// 씬별 처리기에만 맡기면 입력 배선이 없는 타이틀 씬에서 닫을 방법이 사라진다.
+    /// ESC·패드 B로 닫는 책임과 키보드·패드 포커스는 이 패널이 갖는다(SettingsPanel.Navigation.cs) —
+    /// 씬마다 ESC가 오는 경로가 달라 씬별 처리기에만 맡기면 입력 배선이 없는 타이틀 씬에서 닫을 방법이 사라진다.
     ///
     /// 🔑 <b>자기 글자를 스스로 다시 그린다.</b> 언어 선택이 이 패널 안에 있으므로, 라벨이 만들어질
     /// 때의 언어로 고정되면 <b>언어를 바꾼 그 창만 안 바뀌는</b> 자리가 된다 — 사용자가 방금 누른 것이
@@ -32,7 +31,7 @@ namespace Abyss.Runtime.UI
     /// <see cref="Localization.LocalizedText"/>로 붙여 <c>OnLanguageChanged</c>를 듣게 한다.
     /// 값 칸(음량 %·해상도 크기·언어 이름)만은 번역 대상이 아니라 그대로 둔다.
     /// </summary>
-    public sealed class SettingsPanel : MonoBehaviour
+    public sealed partial class SettingsPanel : MonoBehaviour
     {
         private static SettingsPanel instance;
 
@@ -73,17 +72,21 @@ namespace Abyss.Runtime.UI
         {
             EnsureInstance();
             if (instance == null) return;
+            // 이미 열린 창에 다시 들어온 호출이 기억해 둔 뒤 화면 선택을 덮어쓰지 않게 한다.
+            bool wasOpen = IsOpen;
             instance.SyncFromCurrent();
             instance.body.SetActive(true);
+            if (!wasOpen) instance.BeginFocus();
         }
 
-        /// <summary>열려 있으면 닫고 설정을 저장한다.</summary>
+        /// <summary>열려 있으면 닫고 설정을 저장한다. 닫혀 있으면 아무것도 하지 않는다(저장은 닫을 때 1회).</summary>
         public static void Close()
         {
-            if (instance == null || instance.body == null) return;
+            if (!IsOpen) return;
             instance.body.SetActive(false);
             instance.SaveAll();
             closedFrame = Time.frameCount;
+            instance.ReleaseFocus();
         }
 
         public static bool IsOpen => instance != null && instance.body != null && instance.body.activeSelf;
@@ -93,28 +96,6 @@ namespace Abyss.Runtime.UI
         /// 같은 프레임에 도착한 다른 ESC 처리(정지 해제·로비 메뉴)가 한 번의 입력을 두 번 쓰지 않게 막는 가드다.
         /// </summary>
         public static bool WasClosedThisFrame => closedFrame == Time.frameCount;
-
-        /// <summary>
-        /// 열려 있는 동안 ESC를 직접 받는다.
-        ///
-        /// 씬마다 ESC가 도착하는 경로가 다르다 — Run은 UI 맵 <c>Cancel</c>, 로비는 Player 맵 <c>Pause</c>,
-        /// 타이틀은 <b>수신자가 아예 없다</b>. 패널이 자기 닫기를 직접 소유하면 타이틀처럼 입력 배선이
-        /// 없는 씬에서도 ESC가 통한다(씬마다 입력을 배선하는 것보다 싸다).
-        ///
-        /// 씬의 ESC 처리기가 먼저 닫는 경우도 있으므로(입력 처리는 Update보다 먼저 돈다) 여기서는 아직
-        /// 열려 있을 때만 동작하고, 반대 순서는 <see cref="WasClosedThisFrame"/>가 막는다.
-        /// timeScale=0에서도 Update는 돌기 때문에 일시정지 중에도 유효하다.
-        /// </summary>
-        private void Update()
-        {
-            if (body == null || !body.activeSelf) return;
-            if (SaveStatusOverlay.IsCapturingInput) return;
-
-            var keyboard = Keyboard.current;
-            if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame) return;
-
-            Close();
-        }
 
         /// <summary>
         /// 도메인 리로드 비활성화 대비 정적 상태 리셋(AbyssBootstrap 선례).
@@ -283,6 +264,8 @@ namespace Abyss.Runtime.UI
         {
             if (resolutionPrev != null) resolutionPrev.interactable = canPrev;
             if (resolutionNext != null) resolutionNext.interactable = canNext;
+            // 끝 버튼이 꺼지고 켜지면 탐색 경로도 바뀐다 — 꺼진 버튼으로 가는 길을 남기지 않는다.
+            RefreshNavigation();
         }
 
         // ───────────────────────── 언어 ─────────────────────────
@@ -347,6 +330,7 @@ namespace Abyss.Runtime.UI
         {
             if (languagePrev != null) languagePrev.interactable = canPrev;
             if (languageNext != null) languageNext.interactable = canNext;
+            RefreshNavigation();
         }
 
         /// <summary>볼륨과 화면 설정을 세이브에 반영한다(패널을 닫을 때 1회).</summary>
@@ -398,6 +382,7 @@ namespace Abyss.Runtime.UI
 
             var close = CreateLocalizedButton(panel.transform, "CloseButton", new Vector2(0, CloseY), new Vector2(240, CloseHeight), StringKey.Common_Close);
             close.onClick.AddListener(Close);
+            closeButton = close;
         }
 
         /// <summary>

@@ -19,8 +19,9 @@ namespace Abyss.Runtime.UI
     /// 빌려 쓴다(전용 정지 로직 불필요). 다만 FormReplacementModal과 달리 <b>동적 생성</b>이라
     /// HudBuilder 수정도 메뉴 재실행도 필요 없다 — HUD 재빌드가 다른 배선을 끊은 전력이 있다.
     /// 생성·정지 규약은 <see cref="RunModalPanel{T}"/>에 있다.
+    /// 키보드·패드 조작(포커스·탐색 경로·결과 단계 ESC/패드 B)은 EventRoomPanel.Navigation.cs가 맡는다.
     /// </summary>
-    public sealed class EventRoomPanel : RunModalPanel<EventRoomPanel>
+    public sealed partial class EventRoomPanel : RunModalPanel<EventRoomPanel>
     {
         // 선택지 상한. 넘치는 선택지는 조용히 안 보인다 — 에러도 로그도 없다.
         // 3 → 4 (무기 가차). 기존 이벤트가 정확히 3개씩이라, 올리지 않으면 더한 선택지가 그냥 사라진다.
@@ -96,6 +97,7 @@ namespace Abyss.Runtime.UI
             if (continueRoot != null) continueRoot.SetActive(false);
 
             ShowBody();
+            BeginFocus();
         }
 
         private void BindChoices(EventData data)
@@ -120,6 +122,8 @@ namespace Abyss.Runtime.UI
 
         private void OnChoiceClicked(int index)
         {
+            // 연 프레임·이미 고른 뒤·상위 모달이 쥔 동안의 클릭은 버린다 — 효과가 두 번 적용되지 않게(Navigation 참조).
+            if (!CanAcceptChoice) return;
             if (current == null || index < 0 || index >= current.choices.Count) return;
 
             chosen = current.choices[index];
@@ -142,6 +146,7 @@ namespace Abyss.Runtime.UI
 
             foreach (var b in choiceButtons) b.gameObject.SetActive(false);
             if (continueRoot != null) continueRoot.SetActive(true);
+            BeginResultFocus();
         }
 
         /// <summary>
@@ -154,11 +159,18 @@ namespace Abyss.Runtime.UI
         /// </summary>
         private void OnContinueClicked()
         {
+            // 한 번만 끝낸다 — 결과가 뜬 그 프레임의 Submit·상위 모달 입력·두 번째 입력(클릭+ESC/B)은 버린다.
+            if (!CanAcceptContinue) return;
+
             int drafts = pendingDrafts;
             pendingDrafts = 0;
 
             current = null;
             chosen = null;
+
+            // 본체를 숨기기 전에 포커스를 내준다 — 컴포넌트는 본체 밖이라 숨겨도 OnDisable이 안 돈다.
+            // 이어서 열릴 드래프트가 있으면 비워 두기만 한다(첫 카드를 그쪽이 잡는다).
+            ReleaseFocus(drafts > 0);
             HideBody();
 
             // 모달을 안 여는 효과는 선택 시점에 이미 적용됐다. 드래프트만 패널을 닫은 지금 연다 —
@@ -172,6 +184,8 @@ namespace Abyss.Runtime.UI
 
         protected override void BuildContent(Transform body)
         {
+            navigationRoot = body.gameObject;
+
             var panel = CreateRect(body, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(PANEL_WIDTH, PANEL_HEIGHT));
             var panelImg = panel.AddComponent<Image>();

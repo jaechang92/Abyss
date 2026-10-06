@@ -59,6 +59,8 @@ namespace Abyss.Runtime.Cheats
 
             GUILayout.EndHorizontal();
 
+            DrawFirstPlayTutorialRow(meta);
+
             GUILayout.Label("※ 설정 시 스냅샷 0 리셋 — 다음 대화에서 해당 다음 챕터 열람 가능(누적 기준)");
 
             GUILayout.Label("※ 각인사 내력은 폼 해금이 조건이라 단계 +1만으로는 안 열린다(폼 해금 병행)");
@@ -280,5 +282,19 @@ namespace Abyss.Runtime.Cheats
 
         private static string Describe(string value) =>
             string.IsNullOrEmpty(value) ? "(미설정)" : value;
+
+        // ====== 첫 플레이 튜토리얼 ======
+        // 완료·생략은 세이브당 한 번이라, 재검증하려면 두 플래그만 지우는 수단이 필요하다.
+        // 프롤로그·진행 기록은 건드리지 않는다. 다음 Run 씬 진입부터 다시 안내된다.
+        private static void DrawFirstPlayTutorialRow(MetaSaveService meta)
+        {
+            string state = meta.HasCompletedFirstPlayTutorial ? "완료"
+                : meta.HasSkippedFirstPlayTutorial ? "생략" : "미학습";
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label($"첫 플레이 튜토리얼: {state}");
+            if (GUILayout.Button("재학습(플래그 초기화)")) meta.ResetFirstPlayTutorial();
+            GUILayout.EndHorizontal();
+        }
     }
 }

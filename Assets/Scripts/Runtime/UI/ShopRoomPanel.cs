@@ -24,7 +24,7 @@ namespace Abyss.Runtime.UI
     ///
     /// 생성·정지 규약은 <see cref="RunModalPanel{T}"/>에 있다.
     /// </summary>
-    public sealed class ShopRoomPanel : RunModalPanel<ShopRoomPanel>
+    public sealed partial class ShopRoomPanel : RunModalPanel<ShopRoomPanel>
     {
         // 진열 상한. 넘치는 품목은 조용히 안 보인다 — 에러도 로그도 없다.
         // 4 → 5 (리롤권) → 6 (무기 좌판).
@@ -111,6 +111,7 @@ namespace Abyss.Runtime.UI
 
             RefreshItems();
             ShowBody();
+            BeginFocus();
         }
 
         /// <summary>진열대를 현재 잔액·재고 기준으로 다시 그린다. 구매할 때마다 호출된다.</summary>
@@ -151,11 +152,16 @@ namespace Abyss.Runtime.UI
                 buyLabels[i].text = soldOut ? "품절" : "구매";
                 buyButtons[i].interactable = !soldOut && affordable;
             }
+
+            // 품절·잔액 부족으로 못 사게 된 버튼을 경로에서 빼고, 선택이 거기 있었으면 옮긴다.
+            RefreshNavigation();
         }
 
         private void OnBuyClicked(int index)
         {
             if (current == null || index < 0 || index >= current.items.Count) return;
+            // 연 프레임의 Submit은 무시한다 — 대화를 끝낸 확인 입력이 같은 프레임에 막 선택된 첫 구매 버튼까지 누를 수 있다.
+            if (Time.frameCount == openedFrame) return;
 
             var item = current.items[index];
             if (purchasedCounts[index] >= item.stock) return;
@@ -297,6 +303,13 @@ namespace Abyss.Runtime.UI
         /// </summary>
         private void OnLeaveClicked()
         {
+            // 한 번만 떠난다 — 버튼 결정과 ESC·패드 B가 같은 프레임에 겹쳐도 해결이 두 번 발행되지 않게.
+            if (current == null) return;
+            // 연 프레임의 Submit으로 열자마자 떠나지 않게 한다(구매 버튼과 같은 가드).
+            if (Time.frameCount == openedFrame) return;
+
+            ClearOwnedSelection();
+
             int drafts = pendingDrafts;
             pendingDrafts = 0;
 
@@ -311,6 +324,8 @@ namespace Abyss.Runtime.UI
 
         protected override void BuildContent(Transform body)
         {
+            navigationRoot = body.gameObject;
+
             var panel = CreateRect(body, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(PANEL_WIDTH, PANEL_HEIGHT));
             var panelImg = panel.AddComponent<Image>();
@@ -331,6 +346,7 @@ namespace Abyss.Runtime.UI
             var leave = CreateButton(panel.transform, "LeaveButton", new Vector2(0, LEAVE_BUTTON_Y), new Vector2(300, 52),
                 "떠난다", 20);
             leave.onClick.AddListener(OnLeaveClicked);
+            leaveButton = leave;
         }
 
         private void BuildItemRows(Transform parent)

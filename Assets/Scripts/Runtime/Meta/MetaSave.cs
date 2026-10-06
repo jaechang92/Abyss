@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Abyss.Runtime.Run;
 using SaveSystem_Core;
@@ -132,6 +132,20 @@ namespace Abyss.Runtime.Meta
 
         /// <summary>⚠️ v2 레거시 — <see cref="storyStage"/> 참조.</summary>
         public int storyBossSnapshot;
+
+        // ── 첫 플레이 튜토리얼 ──
+        // records.hasSeenPrologue·hasSeenEnding 과 섞지 않는다 — 저쪽은 「서사를 봤다」이고 이쪽은
+        // 「조작을 배웠다」다. 프롤로그를 치트로 되돌려도 학습 기록은 그대로여야 하고, 그 반대도 같다.
+        // 순수 필드 추가라 마이그레이션이 필요 없다 — 기본값 false(= 아직 안 배움)가 곧 옳은 과거다.
+
+        /// <summary>첫 플레이 학습 6행동(이동·점프·대시·공격·폼 교체·드래프트)을 모두 수행했는가.</summary>
+        public bool hasCompletedFirstPlayTutorial;
+
+        /// <summary>
+        /// 플레이어가 학습을 건너뛰었는가. <see cref="hasCompletedFirstPlayTutorial"/>과 따로 둔다 —
+        /// 「끝까지 배웠다」와 「배우기를 거절했다」는 다음 런에서 생략된다는 결과만 같고 의미가 다르다.
+        /// </summary>
+        public bool hasSkippedFirstPlayTutorial;
 
         /// <summary>런 기록(최고 스테이지·최장 런 등).</summary>
         public MetaRecords records = new();

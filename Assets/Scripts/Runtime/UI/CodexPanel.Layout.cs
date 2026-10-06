@@ -1,4 +1,4 @@
-using Abyss.Runtime.Localization;
+﻿using Abyss.Runtime.Localization;
 using UnityEngine;
 using UnityEngine.UI;
 using static Abyss.Runtime.UI.UiFactory;
@@ -35,6 +35,7 @@ namespace Abyss.Runtime.UI
             public Image Icon;
             public Text Glyph;
             public Text NameLabel;
+            public Button Button;
         }
 
         private void BuildUI(Transform root)
@@ -67,6 +68,7 @@ namespace Abyss.Runtime.UI
 
             var close = CreateLocalizedButton(panel, "CloseButton", new Vector2(CONTENT_RIGHT - 70f, 372f), new Vector2(140, 44), StringKey.Common_Close, 18);
             close.onClick.AddListener(Close);
+            closeButton = close;
 
             // 구분선. 헤더·탭과 본문을 시각적으로 끊는다.
             var divider = CreateRect(panel, "Divider",
@@ -209,6 +211,8 @@ namespace Abyss.Runtime.UI
 
             int captured = slot;
             button.onClick.AddListener(() => SelectItem(currentPage * PAGE_SIZE + captured));
+            // 패드·키보드로 포커스만 옮겨도 상세가 따라오게 한다(클릭 경로는 위 그대로).
+            bgGo.AddComponent<CodexTileFocusRelay>().Init(this, slot);
 
             return new TileView
             {
@@ -217,7 +221,8 @@ namespace Abyss.Runtime.UI
                 Background = background,
                 Icon = icon,
                 Glyph = glyph,
-                NameLabel = nameLabel
+                NameLabel = nameLabel,
+                Button = button
             };
         }
 

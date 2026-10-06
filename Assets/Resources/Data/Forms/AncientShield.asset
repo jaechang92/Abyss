@@ -51,3 +51,4 @@ MonoBehaviour:
   primaryAction: {fileID: 0}
   secondaryAction: {fileID: 0}
   castColor: {r: 1, g: 0.8, b: 0.3, a: 1}
+  swapInSfx: {fileID: 8300000, guid: 031a679ce1ad74143aaf7ebcfa21316d, type: 3}

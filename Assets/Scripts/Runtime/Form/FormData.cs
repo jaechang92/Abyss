@@ -78,5 +78,10 @@ namespace Abyss.Runtime.Form
         [Tooltip("이 폼의 formBound 전용 스킬 발동 시 본체 개시 플래시 색상. " +
                  "기본값은 공용 청록 — 폼별로 지정하면 발동한 폼을 색으로 구분한다.")]
         public Color castColor = new(0.6f, 0.9f, 1f, 1f);
+
+        [Header("폼 교체음")]
+        [Tooltip("이 폼으로 교체가 성공한 시작 시점에 한 번 재생할 효과음. 비우면 무음으로 교체한다. " +
+                 "현재는 폼 대표 스킬 발동음을 임시 재사용한다(정식 교체음은 후속).")]
+        public AudioClip swapInSfx;
     }
 }

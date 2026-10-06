@@ -12,8 +12,9 @@ namespace Abyss.Runtime.UI
     /// 슬롯 버튼 클릭 → FormController.EquipForm(선택 폼, 슬롯, activate:true)로 즉시 전환.
     /// 스킬 교체 모달(ReplacementModal)과 동형. 열림/닫힘에 OnDraftOpened/Closed를 발행해
     /// 기존 DraftOpen FSM 상태로 게임을 전역 정지/재개시킨다(전용 정지 로직 불필요).
+    /// 키보드·패드 조작(포커스·탐색 경로·ESC/패드 B 취소)은 FormReplacementModal.Navigation.cs가 맡는다.
     /// </summary>
-    public sealed class FormReplacementModal : MonoBehaviour
+    public sealed partial class FormReplacementModal : MonoBehaviour
     {
         [Header("루트")]
         [SerializeField] private GameObject root;
@@ -42,12 +43,12 @@ namespace Abyss.Runtime.UI
                 int idx = i;
                 if (currentSlotButtons[i] != null)
                 {
-                    currentSlotButtons[i].onClick.AddListener(() => OnSlotSelected(idx));
+                    currentSlotButtons[i].onClick.AddListener(() => OnSlotClicked(idx));
                 }
             }
             if (cancelButton != null)
             {
-                cancelButton.onClick.AddListener(Cancel);
+                cancelButton.onClick.AddListener(OnCancelClicked);
                 // 취소 버튼 자식 Text를 잡아 무장 시 라벨을 바꾼다(HudBuilder가 버튼 라벨을 자식 Text로 생성).
                 cancelLabel = cancelButton.GetComponentInChildren<Text>();
             }
@@ -81,14 +82,17 @@ namespace Abyss.Runtime.UI
             // 새로 열 때는 취소 무장을 해제해 항상 1클릭=경고 상태에서 시작한다.
             ResetCancelArm();
 
+            // root가 이 컴포넌트의 GameObject라 첫 SetActive(true)에서 Awake가 돈다 — 포커스는 그 뒤에 잡는다.
             if (root != null) root.SetActive(true);
 
             // 이미 열려 있는 상태(중복 호출)가 아니면 정지 진입.
+            bool isFirstOpen = !isOpen;
             if (!isOpen)
             {
                 isOpen = true;
                 GameEvents.RaiseDraftOpened();
             }
+            BeginFocus(isFirstOpen);
         }
 
         private void Cancel()
@@ -111,16 +115,23 @@ namespace Abyss.Runtime.UI
             if (cancelLabel != null) cancelLabel.text = Loc.Get(StringKey.Common_Cancel);
         }
 
+        /// <summary>
+        /// 상태를 먼저 비우고 포커스를 돌려준 뒤 root를 끈다 — root가 이 컴포넌트라 SetActive(false)가 OnDisable을
+        /// 부르는데, 그때는 이미 닫힌 상태라 선택 정리만 한다(닫기 중복 없음). 닫힘 신호는 맨 마지막에 낸다 —
+        /// 그 신호로 이어지는 다음 방·드래프트가 잡는 포커스를 이 모달이 뒤에서 뺏지 않는다.
+        /// </summary>
         private void Close()
         {
             ResetCancelArm();
-            if (root != null) root.SetActive(false);
+            bool wasOpen = isOpen;
+            isOpen = false;
             incomingForm = null;
             controller = null;
+            if (wasOpen) ReleaseFocus();
+            if (root != null) root.SetActive(false);
 
-            if (isOpen)
+            if (wasOpen)
             {
-                isOpen = false;
                 GameEvents.RaiseDraftClosed();
                 // 보상 흐름 종료 신호(획득/거절 공통). 보상 룸 게이트(StageDirector)가 이걸로 진행을 재개한다.
                 GameEvents.RaiseFormRewardResolved();

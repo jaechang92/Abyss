@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Abyss.Runtime.Lobby
@@ -73,6 +72,8 @@ namespace Abyss.Runtime.Lobby
             public Image Background;
             public Text NameLabel;
             public Text LevelLabel;
+            public Button Button;
+            public int Row;   // 그리드 행(카탈로그 순서 기준). 탐색 경로가 실제 행끼리 묶을 때 쓴다.
         }
 
         private void Awake()
@@ -82,31 +83,37 @@ namespace Abyss.Runtime.Lobby
             IsOpen = false;
         }
 
-        private void Update()
-        {
-            if (!IsOpen) return;
-            var kb = Keyboard.current;
-            if (kb == null) return;
-            if (kb.escapeKey.wasPressedThisFrame) Close();
-        }
-
-        /// <summary>패널을 연다. closed는 닫힐 때(Esc/떠난다) 호출되는 콜백.</summary>
+        /// <summary>
+        /// 패널을 연다. closed는 닫힐 때(Esc·패드 B/떠난다) 호출되는 콜백.
+        /// 열린 채 다시 불리면 콜백만 바꾸고, 열기 전 뒤 화면 선택 기억은 처음 것을 유지한다.
+        /// </summary>
         public void Open(Action closed)
         {
+            bool isFirstOpen = !IsOpen;
             onClosed = closed;
             EnsureBuilt();
             SetMessage(string.Empty);
             Refresh();
+            isRootHidePending = false;
             if (root != null) root.SetActive(true);
             IsOpen = true;
+            BeginFocus(isFirstOpen);
         }
 
+        /// <summary>
+        /// 닫는다. 외부 정리용으로도 불리므로 연 프레임 가드를 두지 않는다(UI의 [떠난다]는 <see cref="OnCloseClicked"/>).
+        ///
+        /// 🔴 상태와 콜백을 먼저 비운 뒤 root를 끈다 — root가 이 GameObject면 SetActive(false)가 같은 호출 안에서
+        /// OnDisable을 부르는데, 그때 IsOpen이 남아 있으면 외부 비활성으로 오인해 콜백이 두 번 불린다.
+        /// </summary>
         public void Close()
         {
-            if (root != null) root.SetActive(false);
             IsOpen = false;
             var cb = onClosed;
             onClosed = null;
+            isRootHidePending = false;
+            ReleaseFocus();
+            if (root != null) root.SetActive(false);
             cb?.Invoke();
         }
 
@@ -121,6 +128,7 @@ namespace Abyss.Runtime.Lobby
         /// </summary>
         private void OnDraw()
         {
+            if (IsOpenedThisFrame) return;   // 여는 입력이 Submit으로 흘러 든 것 — 조각을 쓰지 않는다
             var meta = MetaSaveService.Instance;
             if (meta == null) return;
 
@@ -184,6 +192,7 @@ namespace Abyss.Runtime.Lobby
         /// </summary>
         private void OnTileClicked(TileView tile)
         {
+            if (IsOpenedThisFrame) return;
             var meta = MetaSaveService.Instance;
             if (meta == null || tile?.Data == null) return;
 
@@ -217,6 +226,7 @@ namespace Abyss.Runtime.Lobby
 
         private void OnSlotClicked(SlotView slot)
         {
+            if (IsOpenedThisFrame) return;
             var meta = MetaSaveService.Instance;
             if (meta == null || slot == null) return;
             if (!meta.UnequipRelicSlot(slot.Index)) return;
@@ -247,6 +257,7 @@ namespace Abyss.Runtime.Lobby
 
             RefreshSlots(meta);
             RefreshTiles(meta);
+            RefreshNavigation();
         }
 
         private void RefreshSlots(MetaSaveService meta)

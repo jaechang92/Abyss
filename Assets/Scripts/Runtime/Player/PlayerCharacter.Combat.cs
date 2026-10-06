@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Feedback;
 using UnityEngine;
@@ -106,6 +106,8 @@ namespace Abyss.Runtime.Player
             lastAttackLightTime = Time.time;
             stateMachine?.TriggerAttackLight();
             PerformAttack(LightAttackDamage, lightHitstop, lightShake, isHeavy: false);
+            // 입력 경로에서만, 실제 판정·발사가 일어났을 때만 알린다 — 가드 자동 반격은 PerformAttack 을 직접 불러 여기를 지나지 않는다.
+            RaiseTutorialAttackIfPerformed();
         }
 
         private void OnAttackHeavy(InputValue value)
@@ -118,6 +120,7 @@ namespace Abyss.Runtime.Player
             lastAttackHeavyTime = Time.time;
             stateMachine?.TriggerAttackHeavy();
             PerformAttack(HeavyAttackDamage, heavyHitstop, heavyShake, isHeavy: true);
+            RaiseTutorialAttackIfPerformed();
         }
 
         /// <summary>
@@ -130,6 +133,7 @@ namespace Abyss.Runtime.Player
         private void PerformAttack(int damage, float hitstop, Vector2 shake, bool isHeavy)
         {
             CancelLunge("공격");  // P04 B — 공격(자동 반격 포함)이 접근을 끊는다
+            isTutorialAttackPerformed = false;
 
             // 본체 sprite tint flash — AttackEffect는 옆에 표시되는 검기, 본체 flash는 캐릭터 자체가 공격함을 인지시킴.
             TriggerAttackFlash(isHeavy ? heavyFlashColor : lightFlashColor,
@@ -145,6 +149,7 @@ namespace Abyss.Runtime.Player
 
             if (attackPoint == null) return;
 
+            isTutorialAttackPerformed = true;  // 근접 판정을 실제로 돌렸다(빗나감 포함)
             int hitCount = CollectAndDamageEnemies(damage);
             if (hitCount <= 0) return;
 

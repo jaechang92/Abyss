@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Form;
@@ -44,6 +44,9 @@ namespace Abyss.Runtime.UI
 
         private void Start()
         {
+            // 채택 UI 스킨 — 이미 저장된 HUD 자식의 배치·색·폰트만 바꾼다(빌더 재실행 불필요). 바인딩 전에 적용.
+            HudArtSkin.Apply(transform);
+
             // PrefabBuilder가 Player prefab을 재생성하면 씬 인스턴스가 갈리며 SerializeField 참조가 끊어질 수 있어 폴백 검색.
             if (player == null) player = FindAnyObjectByType<PlayerCharacter>();
 
@@ -100,6 +103,7 @@ namespace Abyss.Runtime.UI
                 // 쿨다운 게이지 소스(플레이어+슬롯 인덱스) 연결 후 스킬 표시.
                 if (player != null) skillSlots[i].BindCooldownSource(player, i);
                 skillSlots[i].SetSkill(i < activeBuffer.Count ? activeBuffer[i] : null);
+                HudArtSkin.SyncSkillIconTint(skillSlots[i]);
             }
         }
     }

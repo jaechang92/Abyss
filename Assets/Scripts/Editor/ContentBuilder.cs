@@ -55,6 +55,7 @@ namespace Abyss.EditorTools
             WireFormRangedAttacks();   // 〃 — 궁수·투척사 원거리 기본 공격(발사체 프리팹은 PrefabBuilder)
             WireFormGuards();          // 〃 — 방패병 가드(강공격 키 = 가드 · 자동 반격)
             WireAbilitySfx();
+            WireFormSwapSfx();         // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다 — 비어 있는 교체음만 채운다
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -229,6 +230,43 @@ namespace Abyss.EditorTools
             }
             if (linked > 0) AssetDatabase.SaveAssets();
             Debug.Log($"[ContentBuilder] 폼 몸통 스프라이트 연결: {linked}종 갱신, {missing}종은 그림 없음(폴백 유지).");
+        }
+
+        /// <summary>
+        /// 폼 교체음(<see cref="FormData.swapInSfx"/>) 임시 연결. 정식 교체음이 없어 폼 대표 스킬 발동음을 재사용한다.
+        ///
+        /// <see cref="CreateOrSkip"/>가 건너뛰는 기존 4폼에도 붙여야 하므로 별도 패스다.
+        /// 🔴 이미 지정된 값은 덮어쓰지 않는다 — 나중에 정식 교체음을 넣었을 때 빌더가 임시 음원으로 되돌리면 안 된다.
+        /// </summary>
+        private static void WireFormSwapSfx()
+        {
+            WireFormSwapSfx($"{AbyssPaths.Forms}/DarkBlade.asset", "skill_flame_roar");
+            WireFormSwapSfx($"{AbyssPaths.Forms}/VoidArcher.asset", "skill_void_volley");
+            WireFormSwapSfx($"{AbyssPaths.Forms}/AncientShield.asset", "skill_shield_bash");
+            WireFormSwapSfx($"{AbyssPaths.Forms}/VoidThrower.asset", "skill_void_javelin");
+        }
+
+        private static void WireFormSwapSfx(string formPath, string sfxKey)
+        {
+            var form = AssetDatabase.LoadAssetAtPath<FormData>(formPath);
+            if (form == null)
+            {
+                Debug.LogWarning($"[ContentBuilder] 교체음 연결 건너뜀 — 폼 없음: {formPath}");
+                return;
+            }
+            if (form.swapInSfx != null) return;
+
+            string sfxPath = $"{AbyssPaths.Sfx}/{sfxKey}.wav";
+            var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(sfxPath);
+            if (clip == null)
+            {
+                Debug.LogWarning($"[ContentBuilder] 교체음 연결 건너뜀 — 음원 없음: {sfxPath}");
+                return;
+            }
+
+            form.swapInSfx = clip;
+            EditorUtility.SetDirty(form);
+            Debug.Log($"[ContentBuilder] 교체음 연결: {form.name}.swapInSfx → {clip.name}");
         }
     }
 }

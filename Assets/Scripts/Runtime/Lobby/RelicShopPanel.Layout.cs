@@ -1,4 +1,4 @@
-using Abyss.Runtime.Localization;
+﻿using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using Abyss.Runtime.UI;
 using UnityEngine;
@@ -67,6 +67,7 @@ namespace Abyss.Runtime.Lobby
             var box = CreateRect(parent, "Box", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(BOX_W, boxHeight));
             box.gameObject.AddComponent<Image>().color = BoxBg;
+            navigationBox = box;
 
             BuildHeader(box);
             BuildSlots(box);
@@ -146,7 +147,11 @@ namespace Abyss.Runtime.Lobby
                 var level = CreateCentered(rect, "Level", string.Empty, 13, new Vector2(0f, -16f),
                     new Vector2(TILE_W - 12f, 22f), TextAnchor.MiddleCenter, new Color(0.85f, 0.9f, 1f));
 
-                var view = new TileView { Data = data, Root = rect.gameObject, Background = image, NameLabel = name, LevelLabel = level };
+                var view = new TileView
+                {
+                    Data = data, Root = rect.gameObject, Background = image, NameLabel = name, LevelLabel = level,
+                    Button = button, Row = row,
+                };
                 button.onClick.AddListener(() => OnTileClicked(view));
                 rect.gameObject.SetActive(false);   // 보유 판정은 Refresh 가 한다
                 tiles.Add(view);
@@ -171,7 +176,8 @@ namespace Abyss.Runtime.Lobby
 
             var (close, _) = CreateButton(box, "CloseButton", new Vector2(140f, buttonY),
                 new Vector2(200f, 56f), CloseBase, Loc.Get(StringKey.Relic_Close));
-            close.onClick.AddListener(Close);
+            close.onClick.AddListener(OnCloseClicked);
+            closeButton = close;
         }
 
         // ───────────────────────── UI 헬퍼(런타임 생성) ─────────────────────────

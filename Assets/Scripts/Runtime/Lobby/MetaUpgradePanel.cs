@@ -4,7 +4,6 @@ using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using Abyss.Runtime.UI;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Abyss.Runtime.Lobby
@@ -14,9 +13,9 @@ namespace Abyss.Runtime.Lobby
     /// 심연 조각 잔액과 MetaUpgrades.All 각 항목을 1행씩 표시하고 [강화] 구매를 처리한다.
     /// 행은 최초 Open 시 런타임 동적 생성한다(업그레이드 개수 유동적).
     /// 모든 텍스트는 Loc.Get(StringKey)로 조회(하드코딩 금지).
-    /// FormSelectPanel/DialogueUI의 Open·IsOpen·Esc 입력 패턴을 그대로 따른다.
+    /// FormSelectPanel/DialogueUI의 Open·IsOpen 패턴을 따르고, 키보드·패드 조작은 MetaUpgradePanel.Navigation.cs가 맡는다.
     /// </summary>
-    public sealed class MetaUpgradePanel : MonoBehaviour
+    public sealed partial class MetaUpgradePanel : MonoBehaviour
     {
         [Header("루트")]
         [SerializeField] private GameObject root;
@@ -57,22 +56,18 @@ namespace Abyss.Runtime.Lobby
 
         private void Awake()
         {
-            if (closeButton != null) closeButton.onClick.AddListener(Close);
+            if (closeButton != null) closeButton.onClick.AddListener(OnCloseClicked);
             if (root != null) root.SetActive(false);
             IsOpen = false;
         }
 
-        private void Update()
-        {
-            if (!IsOpen) return;
-            var kb = Keyboard.current;
-            if (kb == null) return;
-            if (kb.escapeKey.wasPressedThisFrame) Close();
-        }
-
-        /// <summary>패널을 연다. closed는 닫힐 때(Esc/닫기) 호출되는 콜백.</summary>
+        /// <summary>
+        /// 패널을 연다. closed는 닫힐 때(Esc·패드 B/닫기) 호출되는 콜백.
+        /// 열린 채 다시 불리면 콜백만 바꾸고, 열기 전 뒤 화면 선택 기억은 처음 것을 유지한다.
+        /// </summary>
         public void Open(Action closed)
         {
+            bool isFirstOpen = !IsOpen;
             onClosed = closed;
             EnsureRows();
             if (titleLabel != null) titleLabel.text = Loc.Get(StringKey.Altar_Title);
@@ -82,16 +77,26 @@ namespace Abyss.Runtime.Lobby
                 if (closeText != null) closeText.text = Loc.Get(StringKey.Common_Close);
             }
             Refresh();
+            isRootHidePending = false;
             if (root != null) root.SetActive(true);
             IsOpen = true;
+            BeginFocus(isFirstOpen);
         }
 
+        /// <summary>
+        /// 닫는다. 외부 정리용으로도 불리므로 연 프레임 가드를 두지 않는다(UI의 [닫기]는 <see cref="OnCloseClicked"/>).
+        ///
+        /// 🔴 상태와 콜백을 먼저 비운 뒤 root를 끈다 — root가 이 GameObject면 SetActive(false)가 같은 호출 안에서
+        /// OnDisable을 부르는데, 그때 IsOpen이 남아 있으면 외부 비활성으로 오인해 콜백이 두 번 불린다.
+        /// </summary>
         public void Close()
         {
-            if (root != null) root.SetActive(false);
             IsOpen = false;
             var cb = onClosed;
             onClosed = null;
+            isRootHidePending = false;
+            ReleaseFocus();
+            if (root != null) root.SetActive(false);
             cb?.Invoke();
         }
 
@@ -143,6 +148,8 @@ namespace Abyss.Runtime.Lobby
 
         private void OnPurchase(UpgradeRow row)
         {
+            // 여는 입력이 Submit으로 흘러 든 것·상위 모달이 입력을 쥔 동안의 클릭 — 조각을 쓰지 않는다
+            if (!IsOpen || IsOpenedThisFrame || IsUpperModalOwningInput) return;
             if (row == null || row.Data == null) return;
             if (MetaSaveService.Instance.TryPurchaseUpgrade(row.Data)) Refresh();
         }
@@ -173,6 +180,8 @@ namespace Abyss.Runtime.Lobby
                 if (row.Button != null) row.Button.interactable = canBuy;
                 if (row.ButtonImage != null) row.ButtonImage.color = canBuy ? PurchaseBase : PurchaseDisabled;
             }
+
+            RefreshNavigation();
         }
 
         // ───────────────────────── UI 헬퍼(런타임 생성) ─────────────────────────

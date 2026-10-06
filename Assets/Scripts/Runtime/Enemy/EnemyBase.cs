@@ -115,7 +115,13 @@ namespace Abyss.Runtime.Enemy
 
         protected virtual void FixedUpdate()
         {
-            if (body == null || isDead) return;
+            if (body == null) return;
+            // 사망 후에도 사망 클립 동안 남은 수평 속도로 미끄러지지 않게 한다. 낙하(y)는 그대로 둔다.
+            if (isDead)
+            {
+                StopHorizontal();
+                return;
+            }
             if (fsm == null || !fsm.IsRunning) return;
 
             string current = fsm.CurrentStateId;
@@ -268,6 +274,8 @@ namespace Abyss.Runtime.Enemy
         {
             if (isDead) return;
             isDead = true;
+            // 추적·순찰 중 남은 수평 속도를 즉시 끊는다 — 사망 FixedUpdate 도 계속 멈춘다.
+            if (body != null) StopHorizontal();
 
             if (data != null && RunManager.HasInstance)
             {

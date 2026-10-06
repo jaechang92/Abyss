@@ -29,3 +29,4 @@ MonoBehaviour:
   secondaryAction: {fileID: 0}
   meleeLifeSteal: 0.08
   castColor: {r: 0.7, g: 0.35, b: 0.95, a: 1}
+  swapInSfx: {fileID: 8300000, guid: 0627da07cafc56c42ad8d67b532f7bdf, type: 3}

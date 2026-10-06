@@ -1,4 +1,4 @@
-using Abyss.Runtime.Combat;
+﻿using Abyss.Runtime.Combat;
 using Abyss.Runtime.Feedback;
 using Abyss.Runtime.Form;
 using ObjectPool_Core;
@@ -67,6 +67,7 @@ namespace Abyss.Runtime.Player
 
             proj.Launch(dir, damage, spec.speed, spec.lifetime, spec.projectilePrefab,
                         ProjectileFaction.HitsEnemies, default, spec.pierceCount, feedback);
+            isTutorialAttackPerformed = true;  // 발사체가 실제로 나갔다 — 풀 Get 이 null 이면 여기까지 오지 않는다
 
             // Launch 가 진행 방향으로 돌려 둔 뒤에 그림 보정을 얹는다.
             if (!Mathf.Approximately(spec.spriteAngleOffset, 0f))

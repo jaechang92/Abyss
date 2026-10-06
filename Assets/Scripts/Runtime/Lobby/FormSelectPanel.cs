@@ -3,8 +3,6 @@ using Abyss.Runtime.Flow;
 using Abyss.Runtime.Form;
 using Abyss.Runtime.Localization;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Abyss.Runtime.Lobby
@@ -13,8 +11,9 @@ namespace Abyss.Runtime.Lobby
     /// 던전 포털 상호작용 시 열리는 시작 폼 선택 패널.
     /// 확정 시 RunStartContext.StartingForm을 기록하고 onConfirm 콜백을 호출한다.
     /// 폼 선택 로직은 이전 메뉴식 LobbyController에서 이전(추출)했다.
+    /// 키보드·패드 조작(포커스·탐색 경로·취소)은 FormSelectPanel.Navigation.cs가 맡는다.
     /// </summary>
-    public sealed class FormSelectPanel : MonoBehaviour
+    public sealed partial class FormSelectPanel : MonoBehaviour
     {
         [Header("루트")]
         [SerializeField] private GameObject root;
@@ -48,8 +47,8 @@ namespace Abyss.Runtime.Lobby
         private void Awake()
         {
             WireFormButtons();
-            if (confirmButton != null) confirmButton.onClick.AddListener(Confirm);
-            if (cancelButton != null) cancelButton.onClick.AddListener(Cancel);
+            if (confirmButton != null) confirmButton.onClick.AddListener(OnConfirmClicked);
+            if (cancelButton != null) cancelButton.onClick.AddListener(OnCancelClicked);
             AttachLabels();
             if (root != null) root.SetActive(false);
         }
@@ -72,28 +71,22 @@ namespace Abyss.Runtime.Lobby
             }
         }
 
-        private void Update()
-        {
-            if (!IsOpen) return;
-            var kb = Keyboard.current;
-            if (kb == null) return;
-            if (kb.enterKey.wasPressedThisFrame) Confirm();
-            else if (kb.escapeKey.wasPressedThisFrame) Cancel();
-        }
-
         /// <summary>패널을 연다. confirm/cancel은 각각 확정·취소 시 콜백.</summary>
         public void Open(Action confirm, Action cancel)
         {
+            bool wasOpen = IsOpen;
             onConfirm = confirm;
             onCancel = cancel;
             RestoreSelection();
             RefreshHighlight();
             if (root != null) root.SetActive(true);
-            FocusConfirm();
+            BeginFocus(isFirstOpen: !wasOpen);
         }
 
+        /// <summary>표시만 닫는다 — 콜백은 부르지 않는다(외부 호출 의미 그대로). 패널이 쥔 포커스는 이전 선택으로 돌려준다.</summary>
         public void Close()
         {
+            if (IsOpen) ReleaseFocus();
             if (root != null) root.SetActive(false);
         }
 
@@ -105,7 +98,7 @@ namespace Abyss.Runtime.Lobby
                 int index = i; // 클로저 캡처 주의 — 지역 복사
                 if (formButtons[i] != null)
                 {
-                    formButtons[i].onClick.AddListener(() => SelectForm(index));
+                    formButtons[i].onClick.AddListener(() => OnFormButtonClicked(index));
                 }
             }
         }
@@ -144,6 +137,8 @@ namespace Abyss.Runtime.Lobby
             if (selectableForms == null || index < 0 || index >= selectableForms.Length) return;
             selectedFormIndex = index;
             RefreshHighlight();
+            // [선택]·[취소]에서 위로 올라갈 곳은 강조된 폼이다 — 강조가 바뀌면 경로도 다시 잇는다.
+            RefreshNavigation();
         }
 
         private void RefreshHighlight()
@@ -159,13 +154,7 @@ namespace Abyss.Runtime.Lobby
             }
         }
 
-        private void FocusConfirm()
-        {
-            if (EventSystem.current == null || confirmButton == null) return;
-            EventSystem.current.SetSelectedGameObject(null);
-            EventSystem.current.SetSelectedGameObject(confirmButton.gameObject);
-        }
-
+        /// <summary>콜백은 지역에 잡고 먼저 비운다 — 같은 열림에서 확정·취소가 두 번 불리지 않는다.</summary>
         private void Confirm()
         {
             if (selectableForms != null && selectedFormIndex >= 0 && selectedFormIndex < selectableForms.Length
@@ -173,14 +162,20 @@ namespace Abyss.Runtime.Lobby
             {
                 RunStartContext.StartingForm = selectableForms[selectedFormIndex];
             }
+            var confirm = onConfirm;
+            onConfirm = null;
+            onCancel = null;
             Close();
-            onConfirm?.Invoke();
+            confirm?.Invoke();
         }
 
         private void Cancel()
         {
+            var cancel = onCancel;
+            onConfirm = null;
+            onCancel = null;
             Close();
-            onCancel?.Invoke();
+            cancel?.Invoke();
         }
     }
 }

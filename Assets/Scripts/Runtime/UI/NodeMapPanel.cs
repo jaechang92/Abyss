@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Stage;
@@ -18,15 +18,19 @@ namespace Abyss.Runtime.UI
     /// 정지는 <c>RaiseDraftOpened/Closed</c>로 기존 DraftOpen FSM 상태를 빌린다 — 둘 다 <see cref="RunModalPanel{T}"/>가 맡는다.
     /// 표시 라벨·색은 <see cref="RoomTypeDisplay"/>(SoT)에서 가져온다.
     /// </summary>
-    public sealed class NodeMapPanel : RunModalPanel<NodeMapPanel>
+    public sealed partial class NodeMapPanel : RunModalPanel<NodeMapPanel>
     {
         private const int MAX_OPTIONS = 3;       // 현재 콘텐츠는 2갈래지만 데이터가 앞서갈 수 있다
 
-        private const float PANEL_WIDTH = 820f;
-        private const float PANEL_HEIGHT = 380f;
-        private const float NODE_WIDTH = 300f;
-        private const float NODE_HEIGHT = 190f;
-        private const float NODE_GAP = 40f;
+        // 채택 UI 배치(layout-spec 방 경로 290/310/1340/460). 3개 폭 3×384+2×32=1216 — 패널 안쪽에 맞는다.
+        private const float PANEL_WIDTH = 1340f;
+        private const float PANEL_HEIGHT = 460f;
+        private const float NODE_WIDTH = 384f;
+        private const float NODE_HEIGHT = 280f;
+        private const float NODE_GAP = 32f;
+        private const float NODE_Y = -28f;                 // 노드 위 가장자리 112, 제목 아래 가장자리 154
+        private const float NODE_LABEL_WIDTH = 320f;
+        private const float PANEL_CORNER = 24f;
 
         private readonly List<Button> nodeButtons = new();
         private readonly List<Text> nodeTitles = new();
@@ -103,6 +107,7 @@ namespace Abyss.Runtime.UI
 
             LayoutNodes(roomOptions.Count);
             ShowBody();
+            BeginFocus();
         }
 
         private void Bind(int index, RoomData room)
@@ -133,22 +138,28 @@ namespace Abyss.Runtime.UI
             {
                 var rect = (RectTransform)nodeButtons[i].transform;
                 rect.sizeDelta = new Vector2(width, NODE_HEIGHT);
-                rect.anchoredPosition = new Vector2(start + i * (width + NODE_GAP), -20f);
+                rect.anchoredPosition = new Vector2(start + i * (width + NODE_GAP), NODE_Y);
             }
         }
 
         private void OnNodeClicked(int index)
         {
-            if (options == null || index < 0 || index >= options.Count) return;
+            // 연 프레임·이미 고른 뒤·상위 모달이 쥔 동안의 클릭은 버린다 — 방이 두 번 정해지지 않게(Navigation 참조).
+            if (!CanAcceptPick) return;
+            if (index < 0 || index >= options.Count) return;
 
+            // 선택값·콜백을 지역으로 확보하고 공유 상태를 먼저 비운다 — HideBody(DraftClosed) 중에 새 Open이
+            // 재진입해도 새 options/callback을 이 닫기가 덮어쓰거나 지우지 않게.
             var picked = options[index];
-
+            var callback = onPicked;
             options = null;
+            onPicked = null;
+
+            // 본체를 숨기기 전에 자기 선택만 비운다 — 컴포넌트는 본체 밖이라 숨겨도 OnDisable이 안 돈다.
+            // 이전 HUD 선택은 돌려주지 않는다 — 이어서 열릴 방 모달의 첫 포커스를 막지 않게.
+            ClearOwnedSelection();
             HideBody();
 
-            // 콜백을 먼저 비우고 호출한다 — 콜백 안에서 다시 열어도 중첩되지 않게.
-            var callback = onPicked;
-            onPicked = null;
             callback?.Invoke(picked);
         }
 
@@ -156,36 +167,45 @@ namespace Abyss.Runtime.UI
 
         protected override void BuildContent(Transform body)
         {
+            navigationRoot = body.gameObject;
+
             var panel = CreateRect(body, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(PANEL_WIDTH, PANEL_HEIGHT));
-            var panelImg = panel.AddComponent<Image>();
-            panelImg.color = new Color(0.10f, 0.10f, 0.15f, 0.98f);
+            panel.AddComponent<Image>();
+            float ppu = ModalArtSkin.ResolveReferencePpu(panel.transform);
+            ModalArtSkin.ApplyPanel(panel.transform, PANEL_CORNER, ppu);
 
-            CreateLabel(panel.transform, "TitleText", new Vector2(0, 138), new Vector2(720, 44),
-                "다음 길을 고르십시오", 24, new Color(0.92f, 0.92f, 1f), TextAnchor.MiddleCenter);
+            var title = CreateLabel(panel.transform, "TitleText", new Vector2(0, 182), new Vector2(1240, 56),
+                "다음 길을 고르십시오", 40, ModalArtSkin.BodyTextColor, TextAnchor.MiddleCenter);
+            ModalArtSkin.StyleText(title, 40);
 
             for (int i = 0; i < MAX_OPTIONS; i++)
             {
-                BuildNode(panel.transform, i);
+                BuildNode(panel.transform, i, ppu);
             }
         }
 
-        private void BuildNode(Transform parent, int index)
+        private void BuildNode(Transform parent, int index, float ppu)
         {
             // 라벨은 버튼 기본 Text를 쓰지 않고 3줄(타입·이름·힌트)을 따로 얹는다.
             var button = CreateButton(parent, $"Node{index}", Vector2.zero, new Vector2(NODE_WIDTH, NODE_HEIGHT),
                 string.Empty, 18);
             button.onClick.AddListener(() => OnNodeClicked(index));
 
+            // 세로 영역(노드 중심 기준): 타입 72..112 / 이름 8..72(2줄) / 힌트 -8..-128(4줄). 폭 320 안에서 줄바꿈, 넘는 줄은 자른다.
             var t = button.transform;
-            var type = CreateLabel(t, "Type", new Vector2(0, 52), new Vector2(NODE_WIDTH - 24, 36),
-                string.Empty, 22, Color.white, TextAnchor.MiddleCenter);
-            var title = CreateLabel(t, "Title", new Vector2(0, 8), new Vector2(NODE_WIDTH - 24, 34),
-                string.Empty, 19, new Color(0.92f, 0.92f, 1f), TextAnchor.MiddleCenter);
-            var hint = CreateLabel(t, "Hint", new Vector2(0, -44), new Vector2(NODE_WIDTH - 32, 52),
-                string.Empty, 15, new Color(0.68f, 0.68f, 0.78f), TextAnchor.UpperCenter);
-            hint.horizontalOverflow = HorizontalWrapMode.Wrap;
-            hint.verticalOverflow = VerticalWrapMode.Overflow;
+            var type = CreateLabel(t, "Type", new Vector2(0, 92), new Vector2(NODE_LABEL_WIDTH, 40),
+                string.Empty, 28, Color.white, TextAnchor.MiddleCenter);
+            var title = CreateLabel(t, "Title", new Vector2(0, 40), new Vector2(NODE_LABEL_WIDTH, 64),
+                string.Empty, 28, ModalArtSkin.BodyTextColor, TextAnchor.MiddleCenter);
+            var hint = CreateLabel(t, "Hint", new Vector2(0, -68), new Vector2(NODE_LABEL_WIDTH, 120),
+                string.Empty, 24, ModalArtSkin.SubTextColor, TextAnchor.UpperCenter);
+            ModalArtSkin.StyleText(type, 28);   // 색은 Bind에서 RoomTypeDisplay(SoT)가 정한다
+            ModalArtSkin.StyleText(title, 28);
+            ModalArtSkin.StyleText(hint, 24);
+
+            // 프레임·호버 면·선택 표식(시각 전용). 클릭·Navigation은 위 onClick과 Navigation 파일 그대로다.
+            ModalArtSkin.EnsureSelectableSkin(button, PANEL_CORNER, ppu);
 
             nodeButtons.Add(button);
             nodeTypes.Add(type);
