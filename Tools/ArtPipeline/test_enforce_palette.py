@@ -265,7 +265,7 @@ def g8_peel_cap():
 
 def r1_real_anchor():
     print("R1  확정된 stage1 앵커 — 손으로 이미 자른 것이라 뗄 것이 없어야 한다")
-    path = os.path.join(ep.REPO, "Art_Source", "anchors", "stage1_rift_entrance.png")
+    path = os.path.join(ep.REPO, "..", "Abyss_Local", "Art_Source", "anchors", "stage1_rift_entrance.png")
     if not os.path.exists(path):
         print("  skip 앵커가 없다: %s" % ep.short(path))
         return

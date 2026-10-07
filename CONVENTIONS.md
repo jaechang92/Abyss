@@ -3,6 +3,8 @@
 코드 수정·Git 작업 때 참조한다. 작업 범위·검증 담당·세션 종료는 [AGENTS.md](AGENTS.md)를 따른다.
 버전은 `ProjectSettings/ProjectVersion.txt`와 `Packages/manifest.json`, 파일 형식은 [.editorconfig](.editorconfig)를 기준으로 한다.
 
+아트 제작 원본·프롬프트·검토 자료는 프로젝트 밖 `../Abyss_Local/Art_Source/`에 보관한다. 게임 적용본과 `.meta`는 `Assets/`에서 추적한다. 과거 문서의 `Art_Source/...` 경로는 외부 보관 폴더 기준이며, 제작 도구에 원본 경로를 전달할 때 새 위치를 사용한다.
+
 ## 이름 규칙
 
 | 대상 | 프로젝트 규칙 |

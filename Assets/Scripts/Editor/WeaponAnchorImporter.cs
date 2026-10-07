@@ -26,7 +26,7 @@ namespace Abyss.EditorTools
     /// </summary>
     public static class WeaponAnchorImporter
     {
-        private const string AnchorFolder = "Art_Source/anchors";
+        private const string AnchorFolder = "../Abyss_Local/Art_Source/anchors";
         private const string AnchorPattern = "*_hand_anchors.json";
         private const string OutputDir = "Assets/Resources/Data/WeaponAnchors";
 
