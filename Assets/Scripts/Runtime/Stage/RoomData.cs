@@ -62,6 +62,11 @@ namespace Abyss.Runtime.Stage
         [Tooltip("설정 시 이 방은 상점 방이 된다. eventData와 동시에 설정하지 말 것 — 이벤트가 먼저 잡힌다.")]
         public ShopData shopData;
 
+        [Header("상호작용 방식 (21-room-reward-flow §5)")]
+        [Tooltip("LegacyAuto = 기존대로 클리어 즉시 선택 UI를 연다(기본). WorldInteraction = 맵 가운데 오브젝트에 다가가 " +
+                 "상호작용해야 연다 — 지금은 맵 이벤트 방(eventData + mapLength > 0)만 지원하고, 아니면 legacy로 진행한다.")]
+        public RoomInteractionMode interactionMode = RoomInteractionMode.LegacyAuto;
+
         /// <summary>이 방이 폼 보상 룸인지. 플래그 또는 고정 폼 지정 중 하나라도 있으면 보상 룸.</summary>
         public bool IsFormRewardRoom => hasFormReward || formReward != null;
 
@@ -80,6 +85,18 @@ namespace Abyss.Runtime.Stage
         /// <summary>분기 선택지에 쓸 제목. 방 이름이 없으면 타입 라벨로 폴백한다.</summary>
         public string ChoiceTitle =>
             string.IsNullOrEmpty(displayName) ? RoomTypeDisplay.Label(roomType) : displayName;
+    }
+
+    /// <summary>
+    /// 비전투 방 상호작용을 여는 방식. 직렬화 값이 곧 에셋 데이터다 — 기존 값의 번호를 바꾸지 말 것.
+    /// 필드가 없는 기존 에셋은 0(LegacyAuto)으로 읽혀 지금과 같게 동작한다.
+    /// </summary>
+    public enum RoomInteractionMode
+    {
+        /// <summary>클리어 즉시 선택 UI 자동 개방(기존 경로).</summary>
+        LegacyAuto = 0,
+        /// <summary>월드 오브젝트 접근·상호작용으로 개방, 세션 단위 완료(StageDirector.WorldInteraction.cs).</summary>
+        WorldInteraction = 1
     }
 
     [System.Serializable]

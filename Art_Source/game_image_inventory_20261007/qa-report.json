@@ -1,0 +1,13 @@
+{
+  "selected_count": 45,
+  "generated_png_count": 47,
+  "selected_alpha_images": 43,
+  "opaque_environment_candidates": 2,
+  "sha256_copies_match": true,
+  "new_metadata_guids_unique": true,
+  "no_dense_edge_contact_selected_transparent": true,
+  "empty_frames_center_alpha_zero": true,
+  "runtime_changes": false,
+  "unity_executed": false,
+  "tests_build_executed": false
+}

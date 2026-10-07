@@ -55,6 +55,7 @@ namespace Abyss.Runtime.Stage
         private void Update()
         {
             if (isRoomSessionClosed) return;
+            TickTutorialOpening();
             TickReinforcementTelegraphs();
             CheckReachReinforcements();
         }
@@ -105,7 +106,7 @@ namespace Abyss.Runtime.Stage
         /// <summary>도달 조건(ReachX) 추가 소환. 적이 감지 범위 밖에서 서 있듯, 맵 뒤쪽 무리는 다가갈 때 나온다.</summary>
         private void CheckReachReinforcements()
         {
-            if (pendingReinforcements.Count == 0 || isRoomClearing) return;
+            if (pendingReinforcements.Count == 0 || isRoomClearing || isTutorialOpeningReserved) return;
             var player = ResolvePlayer();
             if (player == null) return;
 
@@ -262,6 +263,7 @@ namespace Abyss.Runtime.Stage
         private void CloseRoomSession(string reason)
         {
             isRoomSessionClosed = true;
+            ResetTutorialRoom();
             roomEntryVersion += 1;
             nodePickVersion += 1;  // 열려 있던 갈림길 선택도 무효 — 치트 이동은 이 뒤 EnterStep이 새 세대로 다시 연다
             CancelReinforcementTelegraphs(reason);

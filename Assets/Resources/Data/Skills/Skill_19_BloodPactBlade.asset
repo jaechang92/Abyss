@@ -16,7 +16,7 @@ MonoBehaviour:
   requiresMetaUnlock: 0
   displayName: "\uD608\uB9F9\uC758 \uCE7C\uB0A0"
   description: "\uD604\uC7AC HP 10%\uB97C \uBC14\uCCD0 \uC804\uBC29\uC744 \uD06C\uAC8C \uBCA4\uB2E4 (\uD53C\uD574 40, CD 4\uCD08)"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: dbaa55506d6f41e9a12a8054adceeaad, type: 3}
   rarity: 1
   category: 0
   synergyTag: blood_pact

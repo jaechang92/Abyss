@@ -7,9 +7,9 @@ namespace Abyss.Runtime.UI
     /// 드래프트 창 배치(기준 캔버스 1920×1080, 중심 원점). DraftPanelBuilder가 만든 기존 계층 이름을 따른다.
     /// 시안 hud-draft-concept-v1(「FRAGMENT DRAFT」)의 위→아래 순서: 장식 제목 → 카드 3장 → 공통 상세 석판 → 리롤/스킵.
     ///
-    /// MainPanel 1460×900, 중심 x=+110(빌더 값 유지 — 왼쪽 BuildContextPanel 자리). 화면 x 340..1800, y 90..990.
+    /// MainPanel 1460×960, 중심 x=+110(빌더 값 유지 — 왼쪽 BuildContextPanel 자리). 화면 x 340..1800, y 60..1020.
     /// BuildContextPanel 왼쪽 40 + 폭 260 → 화면 x 40..300, MainPanel과 40 떨어진다.
-    /// MainPanel 안(위 가장자리 기준): 제목 24..80 / 카드 100..540 / 상세 석판 568..780 / 버튼 800..860.
+    /// MainPanel 안(위 가장자리 기준): 제목 24..80 / 카드 100..540 / 상세 석판 568..844 / 버튼 864..924 / 아래 여백 36.
     /// 카드 3장 432×440 간격 32 → 폭 1360. 상세 석판도 같은 폭이라 카드 열과 좌우가 맞는다.
     ///
     /// 카드에는 아이콘·이름·희귀도 줄·설명만 둔다(시안). 공식·수치·폼·시너지는 아래 공통 상세에서 본다 —
@@ -23,8 +23,8 @@ namespace Abyss.Runtime.UI
         private const float DRAFT_DETAIL_CORNER = 16f;
 
         private static readonly Vector2 DraftPanelPosition = new(110f, 0f);
-        private static readonly Vector2 DraftPanelSize = new(1460f, 900f);
-        private const float DRAFT_PANEL_HALF_HEIGHT = 450f;
+        private static readonly Vector2 DraftPanelSize = new(1460f, 960f);
+        private const float DRAFT_PANEL_HALF_HEIGHT = 480f;
 
         private const float DRAFT_TITLE_TOP = 24f;
         private static readonly Vector2 DraftTitleSize = new(880f, 56f);
@@ -40,16 +40,18 @@ namespace Abyss.Runtime.UI
         private const float DRAFT_CARD_TOP = 100f;
 
         private const float DRAFT_DETAIL_TOP = 568f;
-        private static readonly Vector2 DraftDetailSize = new(1360f, 212f);
+        private static readonly Vector2 DraftDetailSize = new(1360f, 276f);
         private const string DETAIL_SLOT_NAME = "ArtDetailSlot";
 
         private static readonly Vector2 DraftButtonSize = new(320f, 60f);
         private const float DRAFT_BUTTON_X = 180f;
-        private const float DRAFT_BUTTON_TOP = 800f;
+        private const float DRAFT_BUTTON_TOP = 864f;
 
         private const float CARD_CONTENT_WIDTH = 384f;   // 432 - 좌우 24
         private const float CARD_ICON_SIZE = 112f;
         private const float CARD_ICON_FRAME = 8f;        // 아이콘 칸이 아이콘보다 사방 4씩 크다
+        private const int DRAFT_CARD_NAME_FONT = 32;
+        private const int DRAFT_HEADLINE_FONT = 24;
 
         private static readonly Vector2 BuildContextPosition = new(40f, 0f);
         private static readonly Vector2 BuildContextSize = new(260f, 900f);
@@ -68,12 +70,13 @@ namespace Abyss.Runtime.UI
             float ppu = ResolveReferencePpu(root);
 
             var mainPanel = FindRequired(root, "MainPanel");
+            RectTransform slot = null;
             if (mainPanel != null)
             {
                 SetRect(mainPanel, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), DraftPanelPosition, DraftPanelSize);
                 ApplyPanel(mainPanel, DRAFT_PANEL_CORNER, ppu);
 
-                var slot = EnsureDetailSlot(mainPanel, ppu);
+                slot = EnsureDetailSlot(mainPanel, ppu);
                 if (details != null && slot != null) details.DockTo(slot);
             }
 
@@ -102,6 +105,10 @@ namespace Abyss.Runtime.UI
             ApplyDraftButton(skip, skipLabel, new Vector2(DRAFT_BUTTON_X, buttonY), ppu);
 
             if (buildContext != null) ApplyBuildContext(buildContext.transform, ppu);
+
+            // 시안의 얇은 금속 테두리 — 위에서 만든 석판 프레임을 끄고 드래프트 대상에만 덧씌운다(공유 석판 규칙은 그대로).
+            DraftArtSkin.Apply(mainPanel, slot, cards, reroll, skip,
+                buildContext != null ? buildContext.transform : null, ppu);
         }
 
         /// <summary>MainPanel 위 가장자리에서 잰 top·높이 → 중심 원점 y.</summary>
@@ -111,7 +118,8 @@ namespace Abyss.Runtime.UI
         {
             SetRect(card, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), position, DraftCardSize);
 
-            // 세로 영역: 아이콘 28..140 / 이름 152..240(2줄) / 희귀도 244..284(1줄) / 설명 296..416(4줄)
+            // 세로 영역: 희귀도 띠 2..6(DraftArtSkin) / 아이콘 28..140 / 이름 152..240(2줄) / 희귀도 244..308(2줄) / 설명 320..416(3줄)
+            // 실제 문구는 시안보다 길다 — 각 칸은 Truncate라 넘친 줄은 잘리고 전체 문구는 아래 공통 상세에서 본다.
             // 아이콘은 자리·크기만. 스프라이트·enabled(아이콘 없으면 숨김)는 SkillCardView.Bind가 정한다.
             var icon = FindRequired(card, "Icon");
             if (icon != null)
@@ -124,22 +132,23 @@ namespace Abyss.Runtime.UI
             if (name != null)
             {
                 SetTopRect(name.transform, 152f, new Vector2(CARD_CONTENT_WIDTH, 88f));
-                StyleText(name, 36, BodyTextColor);
+                StyleText(name, DRAFT_CARD_NAME_FONT, BodyTextColor); // 2줄 이름이 88 안에 들도록 32
                 name.alignment = TextAnchor.MiddleCenter;
             }
 
             var headline = FindText(card, "RarityCategory");
             if (headline != null)
             {
-                SetTopRect(headline.transform, 244f, new Vector2(CARD_CONTENT_WIDTH, 40f));
-                StyleText(headline, 24); // 색은 빌더 값 유지
+                // 자동 글자 축소 없이 24 고정 — 별·분류·[축]이 384를 넘으면 둘째 줄로 내려가도록 높이 64(2줄).
+                SetTopRect(headline.transform, 244f, new Vector2(CARD_CONTENT_WIDTH, 64f));
+                StyleText(headline, DRAFT_HEADLINE_FONT); // 색은 빌더 값 유지. BestFit 끔·Wrap·Truncate
                 headline.alignment = TextAnchor.MiddleCenter;
             }
 
             var description = FindText(card, "Description");
             if (description != null)
             {
-                SetTopRect(description.transform, 296f, new Vector2(CARD_CONTENT_WIDTH, 120f));
+                SetTopRect(description.transform, 320f, new Vector2(CARD_CONTENT_WIDTH, 96f));
                 StyleText(description, 26, BodyTextColor);
                 description.alignment = TextAnchor.UpperCenter;
             }

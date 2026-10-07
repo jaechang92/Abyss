@@ -1,0 +1,24 @@
+[
+  {
+    "name": "blood_pact_blade",
+    "dimensions": [
+      1254,
+      1254
+    ],
+    "guid": "dbaa55506d6f41e9a12a8054adceeaad",
+    "asset": "Skill_19_BloodPactBlade.asset",
+    "alpha": "0..255",
+    "connection": "Single Sprite fileID21300000"
+  },
+  {
+    "name": "time_warp",
+    "dimensions": [
+      1254,
+      1254
+    ],
+    "guid": "23fcddde9b024ced8ee50a22db724e2d",
+    "asset": "Skill_30_TimeWarp.asset",
+    "alpha": "0..255",
+    "connection": "Single Sprite fileID21300000"
+  }
+]

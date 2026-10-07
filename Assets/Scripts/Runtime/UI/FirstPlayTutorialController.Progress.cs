@@ -40,7 +40,7 @@ namespace Abyss.Runtime.UI
             doneCount++;
             isDirty = true;
 
-            if (doneCount >= STEP_COUNT) Complete();
+            if (doneCount >= STEP_COUNT && HasSpatialEvidence) Complete();
         }
 
         private static TutorialStep ToStep(PlayerTutorialAction action) => action switch
@@ -57,7 +57,7 @@ namespace Abyss.Runtime.UI
         /// </summary>
         private TutorialStep? CurrentPlayStep()
         {
-            for (int i = (int)TutorialStep.Move; i <= (int)TutorialStep.Attack; i++)
+            for (int i = (int)TutorialStep.Move; i <= (int)TutorialStep.Attack && IsInFirstRoom; i++)
             {
                 if (!doneSteps[i]) return (TutorialStep)i;
             }
@@ -92,7 +92,10 @@ namespace Abyss.Runtime.UI
             if (panel == null) return;
 
             panel.SetVisible(isVisible);
+            panel.SetSpatialVisible(false);
             if (!isVisible) return;
+            if (RenderSpatialHint()) return;
+            panel.SetCompact(IsWaitingForRemaining);
 
             string header = IsShowingObjective
                 ? SafeGet(StringKey.Tutorial_Objective)
@@ -107,7 +110,7 @@ namespace Abyss.Runtime.UI
             {
                 TutorialStep? step = CurrentPlayStep();
                 if (step.HasValue) hint = SafeGetFormat(HintKey(step.Value), BindingText(ActionName(step.Value)));
-                else if (IsWaitingForRemaining) hint = SafeGet(StringKey.Tutorial_Waiting);
+                else if (IsWaitingForRemaining) header = string.Empty;
             }
 
             panel.SetContent(header, hint, PadSkipHintText());

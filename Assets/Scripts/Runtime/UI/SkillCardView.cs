@@ -19,6 +19,17 @@ namespace Abyss.Runtime.UI
         [SerializeField] private Text formulaText;
         [SerializeField] private Button selectButton;
 
+        // 드래프트 시안: 카드 면은 일정한 짙은 청회색, 희귀도는 위 가장자리 작은 띠 색으로만 보인다.
+        private static readonly Color DraftFaceColor = new(0.067f, 0.106f, 0.145f); // #111B25
+        private static readonly Color EmptyFaceColor = new(0.1f, 0.1f, 0.13f);
+
+        // 희귀도 띠 밝기 보정(드래프트 전용). RarityBackground는 어두운 면용 색이라 4px 띠로는 안 보인다.
+        private static readonly Color AccentIvory = new(0.93f, 0.89f, 0.80f);
+        private const float ACCENT_IVORY_BLEND = 0.35f;
+
+        // DraftArtSkin이 붙이는 희귀도 띠. 없으면(스킨 미적용) 예전처럼 면 전체를 희귀도 색으로 칠한다.
+        private Image rarityAccent;
+
         private int cardIndex;
         private SkillData currentSkill;
         private SkillCardFocusRelay focusRelay;
@@ -70,6 +81,13 @@ namespace Abyss.Runtime.UI
             details = panel;
         }
 
+        /// <summary>희귀도 띠 연결. Bind보다 늦게 붙어도 현재 스킬 기준으로 바로 칠한다.</summary>
+        public void AttachRarityAccent(Image accent)
+        {
+            rarityAccent = accent;
+            ApplyFaceStyle(currentSkill);
+        }
+
         public void Bind(int index, SkillData skill)
         {
             BindView(index, skill);
@@ -91,7 +109,7 @@ namespace Abyss.Runtime.UI
                 if (descriptionText != null) descriptionText.text = string.Empty;
                 if (formulaText != null) formulaText.text = string.Empty;
                 if (iconImage != null) iconImage.enabled = false;
-                if (background != null) background.color = new Color(0.1f, 0.1f, 0.13f);
+                ApplyFaceStyle(null);
                 return;
             }
 
@@ -102,11 +120,37 @@ namespace Abyss.Runtime.UI
 
             if (iconImage != null)
             {
+                // 빌더가 남긴 회색 tint를 지워 아이콘 원색을 보인다. 아이콘 없는 스킬은 숨김(대체 그림 없음).
                 iconImage.sprite = skill.icon;
+                iconImage.color = Color.white;
+                iconImage.preserveAspect = true;
                 iconImage.enabled = skill.icon != null;
             }
 
-            if (background != null) background.color = SkillDisplay.RarityBackground(skill.rarity);
+            ApplyFaceStyle(skill);
+        }
+
+        /// <summary>
+        /// 카드 면·희귀도 띠. 빈 카드는 기존 빈 면 색 + 띠 숨김.
+        /// 띠가 있으면 면은 일정 색, 띠 색만 <see cref="SkillDisplay.RarityBackground"/>(도감과 같은 SoT)를 따른다.
+        /// </summary>
+        private void ApplyFaceStyle(SkillData skill)
+        {
+            bool hasSkill = skill != null;
+            if (rarityAccent != null)
+            {
+                rarityAccent.enabled = hasSkill;
+                if (hasSkill)
+                {
+                    rarityAccent.color = Color.Lerp(SkillDisplay.RarityBackground(skill.rarity),
+                        AccentIvory, ACCENT_IVORY_BLEND);
+                }
+            }
+
+            if (background == null) return;
+            background.color = !hasSkill ? EmptyFaceColor
+                : rarityAccent != null ? DraftFaceColor
+                : SkillDisplay.RarityBackground(skill.rarity);
         }
 
         public void TriggerSelectFromKeyboard()

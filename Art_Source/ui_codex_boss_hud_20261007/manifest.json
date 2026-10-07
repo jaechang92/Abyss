@@ -1,0 +1,581 @@
+{
+  "generator": "built-in image_gen",
+  "date": "2026-10-07",
+  "count": 20,
+  "runtime_connected": false,
+  "unity_validation": "pending",
+  "pixel_processing": "none; identical copies",
+  "assets": [
+    {
+      "name": "bosses/abyss-keeper-portrait-v2",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/bosses/abyss-keeper-portrait-v2.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/bosses/abyss-keeper-portrait-v2.png",
+      "guid": "eff792d289f24a598d92bfc9f1907392",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 253,
+      "dense_bbox_top_left": [
+        49,
+        92,
+        1205,
+        1186
+      ],
+      "crop_hint_top_left": [
+        47,
+        90,
+        1160,
+        1098
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "095fb091296c323bc7fa5f1ce7e7d5e496988973cd2b224f4513316238ec47ce",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "bosses/flame-serpent-portrait-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/bosses/flame-serpent-portrait-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/bosses/flame-serpent-portrait-v1.png",
+      "guid": "1b37da83bfd546c5b7ff22b02332f2ec",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 252,
+      "dense_bbox_top_left": [
+        126,
+        5,
+        1247,
+        1240
+      ],
+      "crop_hint_top_left": [
+        124,
+        3,
+        1125,
+        1239
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "100f81f126e165bb53c5948682a90dcaeb7f977c5e99a49c471b9551f21fb2ce",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "bosses/thronebound-portrait-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/bosses/thronebound-portrait-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/bosses/thronebound-portrait-v1.png",
+      "guid": "b9cc7cb2c30c40b2a5d9c4b395fd3e5f",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "center_alpha": 253,
+      "dense_bbox_top_left": [
+        61,
+        6,
+        966,
+        1529
+      ],
+      "crop_hint_top_left": [
+        59,
+        4,
+        909,
+        1527
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "1a84ad55d499f124579bd2832bd47a94ef575959372509dcdcd4cfa64ec5eb51",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "bosses/sentinel-portrait-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/bosses/sentinel-portrait-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/bosses/sentinel-portrait-v1.png",
+      "guid": "acb3125675604622b503a5cf51ae25e8",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "center_alpha": 252,
+      "dense_bbox_top_left": [
+        26,
+        11,
+        1509,
+        981
+      ],
+      "crop_hint_top_left": [
+        24,
+        9,
+        1487,
+        974
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "034bff424ebc770e4e33a988f7880c9424f6524df4c1fa39506cd24d2143aff5",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "bosses/throne-warden-portrait-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/bosses/throne-warden-portrait-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/bosses/throne-warden-portrait-v1.png",
+      "guid": "57aaf1f1407344d5b0368ddd0cea0ad1",
+      "width": 1312,
+      "height": 1199,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 253,
+      "dense_bbox_top_left": [
+        12,
+        11,
+        1300,
+        1188
+      ],
+      "crop_hint_top_left": [
+        10,
+        9,
+        1292,
+        1181
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "7c4067a17166d4d947bb90fbabcffe10b96237d998eb6194efb028c34d027333",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "hud/player-health-frame-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/hud/player-health-frame-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/hud/player-health-frame-v1.png",
+      "guid": "ad612858724a403a8e9c9671a2269590",
+      "width": 1983,
+      "height": 793,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 0,
+      "dense_bbox_top_left": [
+        23,
+        282,
+        1960,
+        511
+      ],
+      "crop_hint_top_left": [
+        21,
+        280,
+        1941,
+        233
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "6d11c212ea56fa0e47ae2b30c6af222caeb89f2ae5dcbcfbe01eef65a2e9c1bc",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "hud/boss-health-frame-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/hud/boss-health-frame-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/hud/boss-health-frame-v1.png",
+      "guid": "2e8dfdbfbdf54dbcad8c940fe7af07fd",
+      "width": 1983,
+      "height": 793,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 0,
+      "dense_bbox_top_left": [
+        18,
+        316,
+        1966,
+        477
+      ],
+      "crop_hint_top_left": [
+        16,
+        314,
+        1952,
+        165
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "9b0370bda883aa9d70aa1cdabe8e34c11d06b0dd47e728fdf1b5ae35f44484a0",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "hud/form-slot-frame-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/hud/form-slot-frame-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/hud/form-slot-frame-v1.png",
+      "guid": "78ff6581207b4e8b885e831e09cde171",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 0,
+      "dense_bbox_top_left": [
+        107,
+        130,
+        1147,
+        1126
+      ],
+      "crop_hint_top_left": [
+        105,
+        128,
+        1044,
+        1000
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "bbc7dc092834abfd774e7f162fbaedcb5af0531d565d154fbba50a9748fefd81",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "hud/skill-slot-frame-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/hud/skill-slot-frame-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/hud/skill-slot-frame-v1.png",
+      "guid": "448a6957c98f421aa0efeb30cf4be4c3",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 0,
+      "dense_bbox_top_left": [
+        125,
+        147,
+        1129,
+        1106
+      ],
+      "crop_hint_top_left": [
+        123,
+        145,
+        1008,
+        963
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "a714246d5f9d6ee2c104b8f6a2b95b9f47f4895a4f08187099b6f2edffff6ef5",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "hud/currency-frame-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/hud/currency-frame-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/hud/currency-frame-v1.png",
+      "guid": "a8df5afd11e543288d4176a51b52c022",
+      "width": 1888,
+      "height": 833,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 0,
+      "dense_bbox_top_left": [
+        54,
+        222,
+        1837,
+        593
+      ],
+      "crop_hint_top_left": [
+        52,
+        220,
+        1787,
+        375
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "711fe47ff2065df82412f29b87a3e073f0334949dcf4a4385469a6f300a3bd6a",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "hud/synergy-frame-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/hud/synergy-frame-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/hud/synergy-frame-v1.png",
+      "guid": "83a1684fa3634c1d9d5858b205ee9beb",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 0,
+      "dense_bbox_top_left": [
+        265,
+        275,
+        990,
+        989
+      ],
+      "crop_hint_top_left": [
+        263,
+        273,
+        729,
+        718
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "f9d63772a8f68a0fe5875e7defb28d7e58171fac4851d6e29a472fee11d8d128",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "codex/entry-frame-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/codex/entry-frame-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/codex/entry-frame-v1.png",
+      "guid": "4719208e5c02405e8be6c848c38fa87d",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 0,
+      "dense_bbox_top_left": [
+        150,
+        155,
+        1104,
+        1092
+      ],
+      "crop_hint_top_left": [
+        148,
+        153,
+        958,
+        941
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "33f7ed07377cc440f165a42aeb31e937b2a07b6fbce9c4bdf78871bec520e88a",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "codex/portrait-frame-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/codex/portrait-frame-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/codex/portrait-frame-v1.png",
+      "guid": "17490a6b656442cbbd37ad9edd2e2ea1",
+      "width": 1086,
+      "height": 1448,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 0,
+      "dense_bbox_top_left": [
+        67,
+        26,
+        1019,
+        1419
+      ],
+      "crop_hint_top_left": [
+        65,
+        24,
+        956,
+        1397
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "e127990bd73eea29e8f80859928576dff09382374621e3384cad900b7fadb4b5",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "codex/undiscovered-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/codex/undiscovered-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/codex/undiscovered-v1.png",
+      "guid": "7e75c1cff431420ebfeb7091f9e1b19c",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 253,
+      "dense_bbox_top_left": [
+        252,
+        278,
+        1007,
+        1018
+      ],
+      "crop_hint_top_left": [
+        250,
+        276,
+        759,
+        744
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "9c248e87a5560f25443aa2996360606cf0118dc84fa252fc415e69ac1a1b328a",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "codex/tab-form-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/codex/tab-form-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/codex/tab-form-v1.png",
+      "guid": "0f3d21e35e7547749c8662052e546cdf",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 254,
+      "dense_bbox_top_left": [
+        177,
+        84,
+        1109,
+        1125
+      ],
+      "crop_hint_top_left": [
+        175,
+        82,
+        936,
+        1045
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "3e1410ac0aa5f2a0092dc24704844af70bf78112acb98e961e91eb9a5016f120",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "codex/tab-skill-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/codex/tab-skill-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/codex/tab-skill-v1.png",
+      "guid": "8f44c2ddabd743a0b9ab58a8509aca71",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 253,
+      "dense_bbox_top_left": [
+        243,
+        64,
+        1041,
+        1195
+      ],
+      "crop_hint_top_left": [
+        241,
+        62,
+        802,
+        1135
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "872e8c986ac3fb9ef23ef50ce5bce55796052d80c0704fb028d644d7dcdd327d",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "codex/tab-enemy-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/codex/tab-enemy-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/codex/tab-enemy-v1.png",
+      "guid": "1cde89f236534c1aabb1dd999637801e",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 253,
+      "dense_bbox_top_left": [
+        152,
+        121,
+        1102,
+        1080
+      ],
+      "crop_hint_top_left": [
+        150,
+        119,
+        954,
+        963
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "8572bedface1a3716ca6d746597a2e7b4f24d7fdb61ed500a4fd7b7a01bbfe51",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "codex/tab-boss-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/codex/tab-boss-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/codex/tab-boss-v1.png",
+      "guid": "9550c30c19fc4a61934d7f5d36985e48",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 253,
+      "dense_bbox_top_left": [
+        81,
+        219,
+        1173,
+        1029
+      ],
+      "crop_hint_top_left": [
+        79,
+        217,
+        1096,
+        814
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "8f1c3e9a4c9ac23db4ee2de59efd740fe312b35b806990101884303b94044f67",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "codex/tab-relic-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/codex/tab-relic-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/codex/tab-relic-v1.png",
+      "guid": "ab82c6d3ad454af99b920e1490526ce3",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 253,
+      "dense_bbox_top_left": [
+        222,
+        217,
+        1031,
+        1070
+      ],
+      "crop_hint_top_left": [
+        220,
+        215,
+        813,
+        857
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "09ebf7b5cb2743181f07bd423470815443fd044cb82ceb15c0c5f0ee1c62d651",
+      "status": "image_produced_integration_pending"
+    },
+    {
+      "name": "codex/tab-records-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/codex/tab-records-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/codex/tab-records-v1.png",
+      "guid": "0bab5b6506444dd7abd75edb5dcf9fab",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 254,
+      "dense_bbox_top_left": [
+        142,
+        129,
+        1192,
+        1241
+      ],
+      "crop_hint_top_left": [
+        140,
+        127,
+        1054,
+        1116
+      ],
+      "dense_art_touches_canvas_edge": false,
+      "sha256": "1960020b3f17889c93a977cdef9b80e1e13940a016f12a446f2cc0624f4e8013",
+      "status": "image_produced_integration_pending"
+    }
+  ],
+  "archived_variants": [
+    {
+      "name": "bosses/abyss-keeper-portrait-v1",
+      "source_path": "Art_Source/ui_codex_boss_hud_20261007/bosses/abyss-keeper-portrait-v1.png",
+      "unity_path": "Assets/Art/UI/CodexBossHud/bosses/abyss-keeper-portrait-v1.png",
+      "guid": "a7aa7657b1ab4438bb73b8a7c9a98b50",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "center_alpha": 253,
+      "dense_bbox_top_left": [
+        24,
+        0,
+        1238,
+        1254
+      ],
+      "crop_hint_top_left": [
+        22,
+        0,
+        1218,
+        1254
+      ],
+      "dense_art_touches_canvas_edge": true,
+      "sha256": "f59e03b8ff8baf18b984880d32654560b9278734586c8c57b8c31789114b46ef",
+      "status": "superseded_top_edge_crop"
+    }
+  ],
+  "generated_png_count": 21,
+  "selected_count": 20
+}

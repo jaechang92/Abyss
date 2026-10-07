@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Run;
 using Abyss.Runtime.Stage;
@@ -63,6 +64,11 @@ namespace Abyss.Runtime.UI
         //    (ShopRoomPanel 이 구매 때마다 그렇게 부르고 있다).
         private int pendingDrafts;
 
+        // 월드 모드(R1) 확인 콜백. null이면 legacy — [계속]이 OnEventResolved를 낸다.
+        // 열 때마다 덮어쓴다 — legacy로 다시 열면 비워져 낡은 월드 콜백이 섞이지 않는다.
+        private Action worldConfirmed;
+        private Text continueLabel;
+
         /// <summary>이벤트를 연다. 선택이 끝나면 <see cref="GameEvents.OnEventResolved"/>가 발행된다.</summary>
         public static void Open(EventData data)
         {
@@ -76,7 +82,31 @@ namespace Abyss.Runtime.UI
 
             var panel = EnsureInstance();
             if (panel == null) return;
-            panel.Show(data);
+            panel.Show(data, null);
+        }
+
+        /// <summary>
+        /// 월드 오브젝트에서 연다(R1). 선택·효과·결과·드래프트 순서는 legacy와 같고, [확인]이 UI를 닫고 드래프트를 연 뒤
+        /// <paramref name="onConfirmed"/>를 부른다 — <see cref="GameEvents.OnEventResolved"/>는 내지 않는다.
+        /// 바깥에서 꺼지거나 파괴되면 콜백은 오지 않는다(자동 해결 없음). 열지 못했으면 false.
+        /// </summary>
+        public static bool OpenForWorld(EventData data, Action onConfirmed)
+        {
+            if (onConfirmed == null || data == null || data.choices == null || data.choices.Count == 0)
+            {
+                Debug.LogWarning("[EventRoomPanel] 월드 이벤트 열기 실패 — 데이터·콜백 없음");
+                return false;
+            }
+            if (IsOpen)
+            {
+                Debug.LogWarning("[EventRoomPanel] 이미 열린 이벤트가 있다 — 월드 이벤트를 열지 않는다");
+                return false;
+            }
+
+            var panel = EnsureInstance();
+            if (panel == null) return false;
+            panel.Show(data, onConfirmed);
+            return true;
         }
 
         /// <summary>도메인 리로드 비활성화 대비 정적 상태 리셋(AbyssBootstrap 선례). 제네릭 베이스에선 안 불려 여기 둔다.</summary>
@@ -85,10 +115,14 @@ namespace Abyss.Runtime.UI
 
         // ───────────────────────── 흐름 ─────────────────────────
 
-        private void Show(EventData data)
+        private void Show(EventData data, Action onConfirmed)
         {
             current = data;
             chosen = null;
+            worldConfirmed = onConfirmed;
+
+            // 월드 모드의 버튼은 방 이동이 아니라 확인 닫기다(21-room-reward-flow §4). legacy 문구는 그대로.
+            if (continueLabel != null) continueLabel.text = onConfirmed != null ? "확인" : "계속";
 
             if (titleText != null) titleText.text = data.title;
             if (descriptionText != null) descriptionText.text = data.description;
@@ -164,6 +198,8 @@ namespace Abyss.Runtime.UI
 
             int drafts = pendingDrafts;
             pendingDrafts = 0;
+            var confirmed = worldConfirmed;
+            worldConfirmed = null;
 
             current = null;
             chosen = null;
@@ -177,6 +213,12 @@ namespace Abyss.Runtime.UI
             // 그래야 정지가 끊기지 않고 이어진다(EventEffectApplier 주석 참조).
             EventEffectApplier.GrantDrafts(drafts);
 
+            // 월드 모드는 연 쪽의 세션 콜백으로만 알린다 — 인자 없는 공용 신호가 다른 방의 게이트를 풀지 않게.
+            if (confirmed != null)
+            {
+                confirmed.Invoke();
+                return;
+            }
             GameEvents.RaiseEventResolved();
         }
 
@@ -228,6 +270,7 @@ namespace Abyss.Runtime.UI
             continueButton = CreateButton(parent, "ContinueButton", new Vector2(0, CONTINUE_Y), new Vector2(300, 52),
                 "계속", 20);
             continueButton.onClick.AddListener(OnContinueClicked);
+            continueLabel = continueButton.GetComponentInChildren<Text>();
             continueRoot = continueButton.gameObject;
             continueRoot.SetActive(false);
         }

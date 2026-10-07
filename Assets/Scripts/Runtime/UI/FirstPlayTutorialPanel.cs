@@ -14,7 +14,7 @@ namespace Abyss.Runtime.UI
     /// 건너뛰기 버튼 하나이고, 패드 내비게이션이 드래프트 카드에서 이 버튼으로 새지 않게 내비게이션을 끈다.
     /// 층은 HUD·드래프트 패널 위, 보스 HUD·모달 아래다 — 모달이 열리면 가려진다.
     /// </summary>
-    public sealed class FirstPlayTutorialPanel : MonoBehaviour
+    public sealed partial class FirstPlayTutorialPanel : MonoBehaviour
     {
         private const int SORTING_ORDER = UiSortingOrder.BossHud - 10;
 
@@ -28,6 +28,7 @@ namespace Abyss.Runtime.UI
         private Text header;
         private Text hint;
         private Text padHint;
+        private Button skipButton;
 
         /// <summary>건너뛰기 버튼 클릭.</summary>
         public event Action OnSkipClicked;
@@ -50,6 +51,7 @@ namespace Abyss.Runtime.UI
         public void SetVisible(bool isVisible)
         {
             if (body != null && body.activeSelf != isVisible) body.SetActive(isVisible);
+            if (!isVisible) SetSpatialVisible(false);
         }
 
         /// <summary>세 줄을 갱신한다. 같은 글자면 건드리지 않는다(매 갱신마다 레이아웃을 다시 짜지 않게).</summary>
@@ -83,7 +85,7 @@ namespace Abyss.Runtime.UI
             padHint = CreateLabel(body.transform, "PadSkipHint", new Vector2(-70f, -36f), new Vector2(440f, 24f),
                 string.Empty, 14, SubColor, TextAnchor.MiddleLeft);
 
-            var skipButton = CreateLocalizedButton(body.transform, "SkipButton", new Vector2(250f, -36f),
+            skipButton = CreateLocalizedButton(body.transform, "SkipButton", new Vector2(250f, -36f),
                 new Vector2(110f, 26f), StringKey.Tutorial_Skip, 14);
             skipButton.navigation = new Navigation { mode = Navigation.Mode.None };
             skipButton.onClick.AddListener(() => OnSkipClicked?.Invoke());

@@ -16,7 +16,7 @@ MonoBehaviour:
   requiresMetaUnlock: 0
   displayName: "\uC2DC\uAC04 \uC65C\uACE1"
   description: "4\uCD08\uAC04 \uC790\uC2E0\uC758 \uC2DC\uAC04\uC744 \uAC00\uC18D\uD55C\uB2E4: \uC774\uB3D9\uC18D\uB3C4 1.3\uBC30, \uAE30\uBCF8 \uACF5\uACA9 \uCFE8\uB2E4\uC6B4 \uC808\uBC18 (CD 14\uCD08)"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 23fcddde9b024ced8ee50a22db724e2d, type: 3}
   rarity: 2
   category: 0
   synergyTag: 

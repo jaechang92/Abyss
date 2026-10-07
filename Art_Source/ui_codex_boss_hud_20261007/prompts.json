@@ -1,0 +1,107 @@
+[
+  {
+    "name": "bosses/abyss-keeper-portrait-v1",
+    "source": "48bf7464-bd2a-46f0-be31-84f4d9cafc8a",
+    "prompt": "Create one production candidate transparent PNG boss portrait for Abyss, a dark pixel-art action roguelite. Subject: Abyss Keeper, based on reference sprite identity: faceless black-indigo hooded humanoid, two small violet eyes, prominent angular violet chest gem, broad dark shoulders, tapering cloak, restrained purple accents. Three-quarter front upper-body portrait, large central silhouette fully within canvas, no feet needed, dramatic calm menace. Crisp hand placed pixel clusters, 2D pixel art, no smooth painterly shading, no photorealism, no blur. Deep bluegray and indigo, dull ivory edges, muted purple gem. Transparent background, no frame, no text, no logo, no skulls, no wings, no new weapons, no scenery. Intended reusable square codex/intro portrait, subject fills about80% width and85% height with clear margin."
+  },
+  {
+    "name": "bosses/flame-serpent-portrait-v1",
+    "source": "83ee1fec-be82-47d0-a5f1-2b1a7a69b11c",
+    "prompt": "Abyss game boss portrait standalone transparent PNG, Flame Serpent. Faithful to existing tiny sprite: orange-red serpentine creature, round forward-facing head, two bright yellow eyes, no limbs, no wings, no horns, sinuous neck and coiled long tapering body. Portrait shows large head upperleft and S-curve neck/body fully inside square canvas, curled tail lower right, 8% empty margins. Dark red scale pixel clusters with amber edges, restrained flame tongues along back, black-red silhouette strongly readable. Crisp detailed 2D pixel art, intentional square pixel clusters, no smooth painting or 3D. Match dark fantasy indigo/ivory UI portrait craftsmanship but serpent remains orange-red. No text, no border, no scenery, no particles far outside silhouette. Transparent background. A codex and boss-introduction portrait, not a spritesheet."
+  },
+  {
+    "name": "bosses/thronebound-portrait-v1",
+    "source": "b8fd71b3-7e63-4a2d-bd5a-b0a7a28201a5",
+    "prompt": "Standalone transparent PNG boss portrait, Thronebound Soul for Abyss pixel-art roguelite. Existing identity: floating violet spectral royal figure, angular pale ivory/gold crown with three high points, faceless dark mask with two tiny violet eye slits, broad angular mantle shoulders, violet diamond chest, elongated pointed tapering lower cloak. Chest-up portrait three-quarter front, regal stillness, worn oxidized gold crown, slate-indigo mantle and muted violet fabric. Detailed crisp pixel clusters not smooth painting, same restrained dark-fantasy pixel portrait craftsmanship as Abyss Keeper. Center subject, silhouette within 90%canvas, leave transparent top and side margins. No throne furniture, skull, horns,wings,sword, scenery, text or border. Do not depict a living king with skin. Codex and boss introduction illustration, not animation."
+  },
+  {
+    "name": "bosses/sentinel-portrait-v1",
+    "source": "ef7a62e8-4f07-49dc-a209-e90dca93fc94",
+    "prompt": "Transparent-background PNG portrait of the Sentinel, an Abyss game midboss. Required canon silhouette: empty narrow helmet with utterly black interior, wide iron shoulders, rust-red oxidized dark armor, TWO very long broad blades emerging from shoulder/arm axis left and right, downward-angled blades with one thin dull ivory worn cutting edge. NO legs. Lower torso tapers into a single sharp iron pivot point. Stationary machinery-like empty armor, not a person or giant. Bust/upper-body composition includes both blades and tapered axis within canvas with 8%transparent margins. Entire figure fits, no crop. Three-quarter front. No cyan, no glowing core, no magic light, no ash person, no wings, skulls, crown, background or text. Crisp restrained pixel-art illustration with strong block clusters, readable rust and charcoal masses. Codex and boss-intro portrait. Transparent background without shadow cloud or opaque dark backing."
+  },
+  {
+    "name": "bosses/throne-warden-portrait-v1",
+    "source": "afaf3423-479d-4cc8-80fd-b406410f3d80",
+    "prompt": "Create transparent PNG pixel-art boss portrait for Abyss: Throne Warden. Identity from existing sprite: compact dark iron armored guardian, round empty dark face/helmet with single narrow ivory slit, small oxidized-gold three-point crown fixed atop helmet, prominent horizontal ochre-gold chest armor band, dark slate shoulders and tapered armored lower body. Expand into convincing chest-up portrait with blocky heavy worn plate armor. Distinct from Thronebound Soul: NO purple robe, NO gem, NO ornate tall royal crown, solid physical plate body rather than ghost. Restrained charcoal bluegray, worn muted brass, ivory edge pixels. Three-quarter front, centered with ample clear margins, readable silhouette. Crisp 2D pixel art with deliberate square clusters, no photorealistic textures. NO background, fog, vignette, halo, floor, frame, text, weapon, skulls or wings. Genuine alpha transparent canvas outside silhouette. One codex/boss intro illustration."
+  },
+  {
+    "name": "hud/player-health-frame-v1",
+    "source": "26a335c4-2d32-40e9-812a-984723d132c3",
+    "prompt": "One standalone transparent PNG game UI image: long horizontal empty PLAYER HEALTH BAR FRAME for Abyss dark pixel-art action roguelite. Aspect ratio about8:1, frame occupies central canvas with transparent exterior AND transparent empty rectangular center, no health fill or numbers baked in. Thin layered dark slate bluegray chipped iron rails, restrained dull ivory highlight on upper edge, tiny muted oxidized brass rivets at the four corners, modest angular endcaps. No central ornament, no skull, crown, wings, spikes, text or icons. Crisp pixel clusters and flat structural planes, no blur or shine cloud. Straight continuous top and bottom rails, left/right ends only decorated. Production UI asset for360x44 displayed area, readable thin outline at smallscale, all ornament contained within frame outer rectangle. Genuine alpha transparent center and outside. Not mockup, not full HUD."
+  },
+  {
+    "name": "hud/boss-health-frame-v1",
+    "source": "32ddf443-8483-499c-a00a-9cef9909ea2f",
+    "prompt": "One isolated transparent PNG BOSS HEALTH BAR empty frame for Abyss pixel-art game. Very long narrow horizontal rectangle, visible frame ratio approximately20:1, thin plain slate-indigo worn iron rails, dull ivory top edge. Left and right restrained stepped angular endcaps with a tiny diamond notch, NO middle ornament. Empty central rectangular opening fully transparent, outside transparent. No portrait, HPfill, numbers, text, skulls, wings, crown, backdrop, fog, shadow cloud. Intentionally crisp simple pixel clusters readable at displayed960x48; keep endcaps compact and leave broad straight region for stretch/tiledcenter. One production candidate UI component, no other items on canvas. Entire frame contained with clear outside margins."
+  },
+  {
+    "name": "hud/form-slot-frame-v1",
+    "source": "93ca0426-36ee-4bb7-b61b-e1bd6654ae37",
+    "prompt": "One standalone square empty FORM PORTRAIT HUD SLOT FRAME, genuine transparent PNG for Abyss pixelart roguelite. Thin thick-enough at88pxdisplay slate bluegray iron square bezel with clipped angular corners, tiny muted dull brass etched record marks at bottom corners, ivory light upper rim. Inner clear opening approximately78%width/height, fully transparent, outside fully transparent. No icon, face, character, text, digit, colored gem, skull, wings, background, fog or shadow. No central ornaments. Pixel-art clusters carefully placed, subdued cool dark materials. Frame is same width and height, no circular medal. A production UI candidate intended reusable for88px active-form and64px spare-form slots; form identities supplied by runtime."
+  },
+  {
+    "name": "hud/skill-slot-frame-v1",
+    "source": "88316778-484a-437c-aee8-d7dd2ee8f9b3",
+    "prompt": "One transparent PNG game UI asset: empty square SKILL SLOT FRAME for Abyss dark pixel-art HUD. Intended80x80 on screen. Thin slate iron square frame, subtly clipped corner plates, dull ivory edges, two small bottomcorner etched marks for structural texture only. Inner icon area fully transparent about82%width. Distinct from formframe: thinner simpler border with small stepped inset at bottomcenter where runtime keytext can sit BELOW image, do not draw text. No skill icon, timer, fill, digits, blue glow, backgrounds, halo or drop shadow. Crisp deliberate 2D pixel clusters, charcoal bluegray with very restrained oxidized brass pin accents. Clear transparent outside margin, entire frame fits canvas. One isolated component."
+  },
+  {
+    "name": "hud/currency-frame-v1",
+    "source": "de989ba0-2a01-460a-bb36-3bfa42a89875",
+    "prompt": "Standalone empty CURRENCY HUD PLAQUE FRAME PNG for Abyss dark pixel art. Horizontal rectangle approximate5:1 ratio, cool charcoal/slate iron with dull ivory bevel and modest worn brass corner rivets. Left30% clear icon area, right70% clear number area, ONE subtle vertical separator near left25%, no gold coin or number baked in. Fully transparent center and exterior, thin restrained rails, simple angular corner plates. Intended232x48 display. Crisp pixelclusters, no smooth gradient, no glows, no cloud, no text, no symbols, no skulls. Entire rectangular silhouette contained with clear margins. One reusable UI component forruntime currencies."
+  },
+  {
+    "name": "hud/synergy-frame-v1",
+    "source": "abff4b1d-2cdc-40b0-b2b7-48bec1dfa69f",
+    "prompt": "Single transparent PNG small SYNERGY BADGE FRAME for dark pixel-art Abyss game HUD. Empty compact square with subtly clipped corners, very thin charcoal bluegray iron rails, ivory pixel ticks at four corners, one small worn brass notch on bottomrim. Large transparent empty inner area, transparent exterior. Neutral color no red/green/blue thematic gem because synergy icon and tier are supplied separately in runtime. Intended40x40screen with optional tiny number placed outside notbaked. Minimal clean pixel-art clusters. No text,numbers,icons,skulls,wings,glow,backdrop or shadow. Wholeframe comfortably fitscanvas. Matches slate metalform/skillHUD frames but lighter and simpler."
+  },
+  {
+    "name": "codex/entry-frame-v1",
+    "source": "920f5ad3-0322-45db-b1b7-9d8f20c344d6",
+    "prompt": "One transparent PNG CODEX ENTRY TILE FRAME for Abyss dark pixel-art game. Square miniature archival display bezel, slim charcoal slate metal with worn dull ivory upper highlights and tiny oxidized brass cutmarks in corners. Empty fully transparent center about84%width, transparent outside. Crisp angular pixelart structure, no parchment, temple, skull, wings, face, icon, text, numbers, glow, cloud or backdrop. Neutral category-free design reusable for forms, skills, enemies, bosses, relics. Display at approximately112x112, restrained enough not to overpower actual content icons. Entire silhouette visible with outside clear margins. One isolated production candidate UI asset, not a full screen."
+  },
+  {
+    "name": "codex/portrait-frame-v1",
+    "source": "55c84091-b6ee-4740-bff1-f699df40d54c",
+    "prompt": "One isolated transparent PNG detailed CODEX BOSS PORTRAIT DISPLAY FRAME for Abyss dark pixel art. Tall rectangular aspect3:4, cool slate iron thinrails and reinforced angular corners, dull ivory edge highlight, small muted oxidizedbrass record-mark incision in topcorner plates, no central ornament. Empty opening completely transparent, outside completely transparent, no portrait or text, no solid pane. Understated archive display artifact, not cathedral, no skulls,wings,coins,glow or fog. Crisp intentional pixel clusters, straight middle rails soedges remainquiet. Margin aroundfullframe, silhouettefit. Intended roughly360x480 portrait area, actual portrait inserted separately with preserveAspect. One production UI candidate component."
+  },
+  {
+    "name": "codex/undiscovered-v1",
+    "source": "f4966fb6-da8b-411c-8b63-2f9a10e69833",
+    "prompt": "One standalone transparent PNG UNKNOWN/UNDISCOVERED CODEX ENTRY SYMBOL for Abyss dark pixel-art archive UI. A small broken slate stone tablet held together by two modest dull iron clasps, face bears ONE ivory angular question mark engraved into stone, not typeset font. No padlock because undiscovered is not purchase-locked. Strong recognizable compact square silhouette, subdued bluegray/slate and ivory, little worn brass. Crisp bold pixelart shapes designed toread at64x64. Transparent exterior, no background, fog,frame,shadow,skull,wings or extra writing. One isolated icon, ample clear margin. Neutral for any form/skill/enemy/boss/relic undiscovered entry."
+  },
+  {
+    "name": "codex/tab-form-v1",
+    "source": "b2e1640a-1634-4ea1-afe1-469bf829cc0b",
+    "prompt": "One isolated small FORM CATEGORY icon for Abyss codex tabs, transparent PNG pixelart. Two offset faceless angular mask/profile plates overlapping, one upright ivory/slate mask front, one dark slate mask behind offsetright, symbolizes replacing character form. NO eyes, skull, demon, color gem, actual specific player face. Simple bold silhouette, restrained worn ivory metal and bluegray, tiny dull brass edge. Crisp chunky square pixels, clean functional glyph recognizable at32px onscreen. No frame, background, glow, text, numbers or shadowcloud. Center icon fills70% squarecanvas, transparentmargin. Neutral color, form identity by silhouette, not newformpalette."
+  },
+  {
+    "name": "codex/tab-skill-v1",
+    "source": "ea6e0bb4-364b-462b-a424-9839457ff510",
+    "prompt": "One isolated SKILL CATEGORY tab icon transparent PNG for Abyss codex. Simple bold angular ivory lightning stroke carved as a metal glyph, backed by two shorter offset slate strokes suggesting active action. No flame, magic orb, sword, skull or categoryframe. Restrained wornivory and bluegray with tiny mutedbrass edge, same chunky pixelart craft as angular masktabglyph. Centerpiece fills70%canvas, ample alpha margin. Intentional lowcomplexity squarepixel clusters readable at32x32. No text, numbers, background,glow,cloud or shadow. Neutral categorysymbol, not actual skillillustration."
+  },
+  {
+    "name": "codex/tab-enemy-v1",
+    "source": "1ec77ec1-ee90-4440-873d-5b1de68a6ea1",
+    "prompt": "One isolated ENEMY CATEGORY tabglyph transparent PNG for Abyss codex. A compact dark iron angular enemy visor with two stern ivory eye openings and three small fanglike lower platepoints, mechanical faceless helmet not a human skull, no horns or crown. Bold squat silhouette distinct from tall formmask. Worn slatebluegray metal, ivory edges, verysmall dullbrass accent. Crisp chunky 2D pixelart cluster design readable at32px. No background, frame, halo,glow,scenery,text or numbers. Center fills70% squarecanvas with clean transparent margins. Generic categorysymbol only not a specific enemy portrait."
+  },
+  {
+    "name": "codex/tab-boss-v1",
+    "source": "e4111081-d76a-45b0-b7c1-e80e9f0d67e6",
+    "prompt": "One isolated BOSS CATEGORY tabglyph transparent PNG for Abyss codex. Small heavy three-point angular crown silhouette, low wide band with ONE chipped central pointed diamondcut, no jewels, skull, face, helmet, wings or text. Worn ivorymetal highlights over charcoal slate with tiny oxidizedbrass edge. Crisp bold chunky pixelart readableat32x32, deliberately simple symbolic silhouette, not ornate royal portrait. Centerfills70% squarecanvas with clear alpha margin. No background, glow,cloud,shadow or frame. Visually matches slate/ivory maskandlightning codextabicons."
+  },
+  {
+    "name": "codex/tab-relic-v1",
+    "source": "2c9102c4-ee86-4231-856d-bc7f074d519e",
+    "prompt": "One isolated RELIC CATEGORY tab icon transparent PNG for Abyss codex. A squat cracked square keepsake medallion with a small off-center ivory diamond fragment inset into a worn slateiron holder, tiny dull brass fastening. Compact artifact silhouette, no necklace chain, crown, skull,gemglow,wing or text. Restrained ivory/slatebluegray palette matching other codexsymbols. Crisp chunky block pixelart, lowcomplexity clearlyreadable at32x32. Centerfills70% squarecanvas, transparent margins. No borderframe,backdrop,cloud,halo or castshadow. Generic reliccategory symbol, not new specific relic or gameplayeffect."
+  },
+  {
+    "name": "codex/tab-records-v1",
+    "source": "37ab3ece-8b9f-452a-9003-fdd71cb3c658",
+    "prompt": "One isolated RECORDS CATEGORY codex tab icon transparent PNG for Abyss dark pixel art. A compact closed archival ledger with dark slateiron cover, three bold ivory horizontal tallymarks engraved on front, one small wornbrass clasp at rightedge, stepped ivory page edges. Simple rectangular book silhouette viewed slightthreequarter, no writing, letters, numbers, quill,scroll,skull,crown or frame. Restrained slatebluegray and dullivory matching othercodexsymbols. Crisp chunky intentional squarepixelclusters designedreadableat32x32. Centerfills70% squarecanvas with clear alpha margins. No background, glow,fog,shadowcloud. Generic runrecords symbol."
+  },
+  {
+    "name": "bosses/abyss-keeper-portrait-v2",
+    "source": "58432b2c-bf22-44c2-9162-588db7f2c6cb",
+    "prompt": "Edit keeper v1 preserving character. Add transparent margins at top and both shoulders, show entire hood tip. No backdrop, glow fog, shadow. Preserve pixel art, ivory edges, violet gem. See source v1 for original full identity prompt."
+  }
+]

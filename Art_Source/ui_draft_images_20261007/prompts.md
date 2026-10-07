@@ -1,0 +1,15 @@
+# 제작 프롬프트
+
+도구: built-in image_gen, 각 PNG 별도 호출, transparent_background=true.
+
+## Card
+
+ABYSS game UI sprite image, one tall rectangular SKILL DRAFT CARD FRAME, aspect ratio approximately 432:440 nearly square but slightly tall. Transparent background and fully transparent central hole. Precise orthographic front view, horizontal and vertical edges, NO perspective. Delicate thin double border of desaturated aged bronze and ivory with small incised angular corner marks, tiny offset broken-fragment notches, very restrained worn blue-gray metal patina. Match sophisticated dark fantasy draft UI with near-black navy panels and crisp pixel-cluster contours, not chunky stone slabs. Border occupies only outer 4percent, corners at most10percent. Broad uncluttered center left EMPTY TRANSPARENT for actual game icon/title/description. No text, no symbols in center, no skeletons/skulls/wings, no filigree, no neon/glow, no drop shadow, no backdrop, no cards stacked behind. Single isolated complete frame with 5percent transparent outer margin, symmetrical geometry. Designed as image-based UI art component, high craft, subdued ornamental character, readable at400px. Exact real alpha.
+
+## Details
+
+ABYSS dark fantasy pixel-crafted UI artwork, ONE very wide horizontal DESCRIPTION PANEL FRAME, overall aspect ratio about 6:1, transparent background with fully transparent center. Thin double aged bronze / muted ivory metal rails, restrained blue-gray patina, tiny angular incised corner brackets, little offset fragment motif. Precise flat front-facing orthographic rectangle. Extremely delicate decoration confined to thin border, no chunky stone, no giant corner ornaments. Match a tall skill-card frame of thin blue-gray bronze double lines and small angular diamond notches. Entire center EMPTY alpha, no divider burned into art, no text, no icon, no symbols, no glow, no shadows, no background. Complete isolated frame fits inside canvas with generous transparent outer margin; no cut corners. Wide landscape composition. Asset for the shared details area under three skill cards, text and skill icon will be separate Unity components. Genuine transparent alpha.
+
+## Selected
+
+ONE ABYSS game UI SELECTED CARD OUTLINE OVERLAY. Transparent background, center completely transparent. Thin bright ivory double rectangular outline, tall near-square ratio 432:440. Small sharp inward triangular ivory pointer at middle left and middle right, and ONE downward ivory diamond pointer centered just below bottom outline indicating the detail panel below. Only a very delicate muted bronze inner line and tiny angular corner incisions. Clear legible selection state at400px, 2D flat pixel-crafted contours; no glow or bloom, no filled card, no text, no skills, no icons, no stones, no shadows or presentation background. Frame+three pointers as ONE isolated transparent UI overlay, all geometry fully inside canvas with8percent margin. Straight aligned horizontal and vertical edges, consistent thin border thickness. Crisp opaque artwork with genuine empty alpha inside/outside.

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Abyss.Runtime.Camera;
 using Abyss.Runtime.Enemy;
@@ -353,6 +353,7 @@ namespace Abyss.Runtime.Stage
 
         private void ClearMapObjects()
         {
+            ResetTutorialRoom();
             // 이전 방의 예고는 여기서 끝낸다 — 새 방에서 옛 무리가 튀어나오거나 표식이 남지 않게.
             CancelReinforcementTelegraphs("방 이동");
             pendingReinforcements.Clear();

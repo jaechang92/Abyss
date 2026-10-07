@@ -1,0 +1,600 @@
+{
+  "selected_count": 40,
+  "generated_count": 45,
+  "transparent_count": 38,
+  "image_processing": "none; source and Unity PNGs copied byte-identically",
+  "checks": [
+    {
+      "id": "EXT-001",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1774,
+        887
+      ],
+      "alpha_min": 255,
+      "alpha_max": 255,
+      "edge_contact": true
+    },
+    {
+      "id": "EXT-002",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1672,
+        941
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": true
+    },
+    {
+      "id": "EXT-003",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1983,
+        793
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": true
+    },
+    {
+      "id": "EXT-004",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        2172,
+        724
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": true
+    },
+    {
+      "id": "EXT-005",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        2172,
+        724
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-006",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        2172,
+        724
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-007",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1983,
+        793
+      ],
+      "alpha_min": 255,
+      "alpha_max": 255,
+      "edge_contact": true
+    },
+    {
+      "id": "EXT-008",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1983,
+        793
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": true
+    },
+    {
+      "id": "EXT-009",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        2172,
+        724
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": true
+    },
+    {
+      "id": "EXT-010",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1983,
+        793
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": true
+    },
+    {
+      "id": "EXT-011",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        2172,
+        724
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-012",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-013",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-014",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1024,
+        1536
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-015",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1024,
+        1536
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-016",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-017",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-018",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-019",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-020",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1374,
+        1145
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-021",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1374,
+        1145
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-022",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-023",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-024",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1402,
+        1122
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-025",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-026",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1274,
+        1234
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-027",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1312,
+        1199
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-028",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1145,
+        1374
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-029",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-030",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1374,
+        1145
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-031",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-032",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1264,
+        1244
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-033",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-034",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1983,
+        793
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-035",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        887,
+        1774
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-036",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1218,
+        1291
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-037",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1364,
+        1153
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-038",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-039",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1268,
+        1240
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    },
+    {
+      "id": "EXT-040",
+      "copies_match": true,
+      "guid_unique_in_Assets": true,
+      "size": [
+        1374,
+        1145
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "edge_contact": false
+    }
+  ],
+  "state_pairs": [
+    {
+      "ready": "EXT-012",
+      "changed": "EXT-013",
+      "equal_canvas": true,
+      "ready_bbox": [
+        112,
+        222,
+        1439,
+        894
+      ],
+      "changed_bbox": [
+        112,
+        221,
+        1440,
+        895
+      ],
+      "pixel_geometry_identical": "not guaranteed; Unity alignment review pending"
+    },
+    {
+      "ready": "EXT-014",
+      "changed": "EXT-015",
+      "equal_canvas": true,
+      "ready_bbox": [
+        90,
+        101,
+        935,
+        1431
+      ],
+      "changed_bbox": [
+        90,
+        100,
+        934,
+        1432
+      ],
+      "pixel_geometry_identical": "not guaranteed; Unity alignment review pending"
+    },
+    {
+      "ready": "EXT-016",
+      "changed": "EXT-017",
+      "equal_canvas": true,
+      "ready_bbox": [
+        52,
+        104,
+        1485,
+        957
+      ],
+      "changed_bbox": [
+        71,
+        21,
+        1482,
+        1011
+      ],
+      "pixel_geometry_identical": "not guaranteed; Unity alignment review pending"
+    },
+    {
+      "ready": "EXT-018",
+      "changed": "EXT-019",
+      "equal_canvas": true,
+      "ready_bbox": [
+        42,
+        234,
+        1499,
+        894
+      ],
+      "changed_bbox": [
+        42,
+        234,
+        1500,
+        894
+      ],
+      "pixel_geometry_identical": "not guaranteed; Unity alignment review pending"
+    },
+    {
+      "ready": "EXT-020",
+      "changed": "EXT-021",
+      "equal_canvas": true,
+      "ready_bbox": [
+        362,
+        68,
+        1013,
+        1080
+      ],
+      "changed_bbox": [
+        359,
+        291,
+        1016,
+        1080
+      ],
+      "pixel_geometry_identical": "not guaranteed; Unity alignment review pending"
+    },
+    {
+      "ready": "EXT-022",
+      "changed": "EXT-023",
+      "equal_canvas": true,
+      "ready_bbox": [
+        28,
+        182,
+        1508,
+        902
+      ],
+      "changed_bbox": [
+        29,
+        180,
+        1507,
+        905
+      ],
+      "pixel_geometry_identical": "not guaranteed; Unity alignment review pending"
+    }
+  ],
+  "game_tests_run": false,
+  "Unity_import_and_play": "user validation pending"
+}

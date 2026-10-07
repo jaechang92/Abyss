@@ -18,7 +18,7 @@ namespace Abyss.Runtime.UI
     /// <see cref="PlayerCharacter.OnTutorialAction"/>으로, 폼 교체는 성공한 교체의 <see cref="GameEvents.OnFormSwapped"/>로,
     /// 드래프트는 실제 드래프트 세션 중의 <see cref="GameEvents.OnSkillDrafted"/>로 받는다.
     ///
-    /// 게임 진행을 막지 않는다 — 문·적·보상·타임스케일·입력을 건드리지 않고 글자만 띄운다.
+    /// 첫 방은 공간 과제로 안내한다. 첫 적 예약은 디렉터가 소유하며 학습 실패로 문을 잠그지 않는다.
     /// 두 번째 폼이 없으면 교체 안내를 띄우지 않고 기다린다.
     ///
     /// 멈춤: 일시정지·모달 중에는 행동 구독을 떼고 띠를 숨긴다. 사망·포기·결과·Stage2 진입·씬 전환이면
@@ -50,6 +50,7 @@ namespace Abyss.Runtime.UI
         private bool isModalOpen;
         private bool isDraftSession;
         private bool isEnding;
+        private bool isRunInterrupted;
 
         private float objectiveTimer = OBJECTIVE_DURATION;
         private float completeTimer;
@@ -107,6 +108,7 @@ namespace Abyss.Runtime.UI
         private void OnDisable()
         {
             wasDisabled = true;
+            if (!isRunInterrupted && director != null) director.ReleaseTutorialOpening();
             Unsubscribe();
             UnsubscribeCompleteDismiss();
             padSkipHeld = 0f;
@@ -201,6 +203,7 @@ namespace Abyss.Runtime.UI
             }
 
             bool isVisible = ShouldShowPanel();
+            UpdateSpatialLearning();
             if (isVisible)
             {
                 if (!isModalOpen && !isPaused && objectiveTimer > 0f) objectiveTimer -= Time.unscaledDeltaTime;
@@ -289,10 +292,15 @@ namespace Abyss.Runtime.UI
         private void HandlePlayerAction(PlayerTutorialAction action)
         {
             if (!CanCountPlay) return;
+            RecordSpatialAction(action);
             MarkDone(ToStep(action));
         }
 
-        private void HandleRunInterrupted() => Abort();
+        private void HandleRunInterrupted()
+        {
+            isRunInterrupted = true;
+            Abort();
+        }
 
         private void HandleActionChange(object target, InputActionChange change)
         {
@@ -313,6 +321,7 @@ namespace Abyss.Runtime.UI
         private void Skip()
         {
             if (isEnding) return;
+            if (director != null) director.ReleaseTutorialOpening();
             var meta = MetaSaveService.GetInstanceSafe();
             if (meta != null) meta.MarkFirstPlayTutorialSkipped();
             EndSession(showComplete: false);
@@ -342,6 +351,8 @@ namespace Abyss.Runtime.UI
             if (showComplete && panel != null)
             {
                 completeTimer = COMPLETE_DURATION;
+                panel.SetSpatialVisible(false);
+                panel.SetCompact(false);
                 panel.SetContent(SafeGet(StringKey.Tutorial_Complete), string.Empty, string.Empty);
                 panel.SetVisible(true);
                 SubscribeCompleteDismiss();
