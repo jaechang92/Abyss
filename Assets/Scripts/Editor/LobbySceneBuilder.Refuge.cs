@@ -89,7 +89,7 @@ namespace Abyss.EditorTools
 
         private static void CaptureRefugeReview(UnityEngine.Camera camera)
         {
-            string output = "Art_Source/lobby_refuge/review";
+            string output = Path.GetFullPath(Path.Combine(Application.dataPath, "../../Abyss_Local/Art_Source/lobby_refuge/review"));
             Directory.CreateDirectory(output);
             // Sample the actual starting form for editor-only review (the scene was already saved).
             var visual = UnityEngine.Object.FindAnyObjectByType<Abyss.Runtime.Lobby.LobbyFormVisual>();
