@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 namespace Abyss.EditorTools
 {
     /// <summary>
@@ -50,6 +50,7 @@ namespace Abyss.EditorTools
         // 아트 임포트
         public const string ApplyFormSpriteImport = "Form Sprite Import Settings";
         public const string ApplyEnvironmentArtImport = "Environment Art Import Settings";
+        public const string ApplyGeneratedContentIcons = "Apply Generated Content Icons";
         public const string ImportWeaponSprites = "Weapon Sprites";
         public const string ImportWeaponAnchorSet = "Weapon Anchor Set";
         public const string WireWeaponAngles = "Wire Weapon Angle Sprites";

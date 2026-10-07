@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.IO;
 using System.Text;
@@ -54,6 +54,7 @@ namespace Abyss.EditorTools
             WireActiveAbilitiesBloodPactAndNeutral();
             WireSkillIcons();
             WireFormBodySprites();     // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다
+            GeneratedContentIconWiring.ApplyForms(); // UI 아이콘만 연결, 몸통 그림은 유지
             WireWeaponSprites();       // 〃 — 무기 그림 + 각도 스트립
             WireFormDefaultWeapons();  // 〃 — 폼이 들고 시작할 무기
             WireFormRangedAttacks();   // 〃 — 궁수·투척사 원거리 기본 공격(발사체 프리팹은 PrefabBuilder)

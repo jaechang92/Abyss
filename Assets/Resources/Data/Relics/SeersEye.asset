@@ -15,7 +15,7 @@ MonoBehaviour:
   relicId: relic_seers_eye
   nameKey: Relic_SeersEye_Name
   descKey: Relic_SeersEye_Desc
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: e9a7b41cb3c54e5e96e74ae445f84ee8, type: 3}
   rarity: 2
   effectType: 3
   valuePerLevel: 1

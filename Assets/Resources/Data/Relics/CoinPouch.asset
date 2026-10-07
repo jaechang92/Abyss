@@ -15,7 +15,7 @@ MonoBehaviour:
   relicId: relic_coin_pouch
   nameKey: Relic_CoinPouch_Name
   descKey: Relic_CoinPouch_Desc
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 98d7b40bdf1d455a96bcdc16fa2a6b19, type: 3}
   rarity: 0
   effectType: 2
   valuePerLevel: 15

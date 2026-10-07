@@ -15,7 +15,7 @@ MonoBehaviour:
   relicId: relic_whetstone
   nameKey: Relic_Whetstone_Name
   descKey: Relic_Whetstone_Desc
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 374ed51f3d2243b6971680fd6f44b790, type: 3}
   rarity: 0
   effectType: 1
   valuePerLevel: 0.03

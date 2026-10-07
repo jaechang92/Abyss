@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: Skill_03_ExplosiveTheology
   m_EditorClassIdentifier: 
   skillId: skill_explosive_theology
+  requiresMetaUnlock: 0
   displayName: "\uD3ED\uBC1C \uC2E0\uD559"
   description: "[\uBD88\uAF43] 2\uAC1C+ \uC2DC \uC801 \uC0AC\uB9DD \uD3ED\uBC1C (\uC801 \uCD5C\uB300 HP 30%)"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 497f60b2320b46588237450075c14002, type: 3}
   rarity: 1
   category: 3
   synergyTag: fire

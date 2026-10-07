@@ -16,7 +16,7 @@ MonoBehaviour:
   requiresMetaUnlock: 1
   displayName: "\uD54F\uBE5B \uAD11\uCC44"
   description: "\uC801 \uCC98\uCE58 \uC2DC \uCD5C\uB300 HP +1 (\uC774\uBC88 \uB7F0, \uCD5C\uB300 +30)"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 49dee4d1a4cf4d64bc1e3b6a42fc6c4c, type: 3}
   rarity: 3
   category: 1
   synergyTag: blood_pact

@@ -16,7 +16,7 @@ MonoBehaviour:
   requiresMetaUnlock: 0
   displayName: "\uD669\uAE08 \uC190\uAE38"
   description: "\uC801 \uCC98\uCE58\xB7\uBC29 \uD074\uB9AC\uC5B4 \uACE8\uB4DC +25%"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 465df34a00ba43b087137365d574b480, type: 3}
   rarity: 0
   category: 1
   synergyTag: 

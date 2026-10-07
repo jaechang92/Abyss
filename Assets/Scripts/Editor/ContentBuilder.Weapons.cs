@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Abyss.Runtime.Form;
 using Abyss.Runtime.Weapon;
@@ -89,6 +89,9 @@ namespace Abyss.EditorTools
 
                 if (changed) EditorUtility.SetDirty(so);
             }
+
+            // UI 아이콘(icon)은 전투 그림과 별개 — 비어 있는 것만 채운다.
+            GeneratedContentIconWiring.ApplyWeapons();
         }
 
         /// <summary>이름 끝 숫자 순서로 정렬한 각도 스트립. 스트립이 없으면 null.</summary>
