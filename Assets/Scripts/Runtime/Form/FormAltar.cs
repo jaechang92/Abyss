@@ -28,6 +28,30 @@ namespace Abyss.Runtime.Form
 
         private bool consumed;
         private float baseAlpha = 1f;
+        private static FormAltar offeringAltar;
+        private GameObject offeringInteractor;
+        private Feedback.RewardAltarFeedback feedback;
+        public int OfferGeneration { get; private set; }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetOffer() => offeringAltar = null;
+
+        // 제시 이벤트를 처리하는 동안만 유효하다. 치트/다른 보상을 근처 제단으로 오인하지 않는다.
+        public static Vector3? CaptureOfferOrigin(FormData form, FormController controller)
+        {
+            var altar = CaptureOffer(form, controller);
+            if (altar == null) return null;
+            return altar.visual != null ? altar.visual.bounds.center : altar.transform.position;
+        }
+
+        public static FormAltar CaptureOffer(FormData form, FormController controller)
+        {
+            var altar = offeringAltar;
+            if (altar == null || altar.rewardForm != form || altar.offeringInteractor == null || controller == null) return null;
+            if (controller.gameObject != altar.offeringInteractor &&
+                !controller.transform.IsChildOf(altar.offeringInteractor.transform)) return null;
+            return altar;
+        }
 
         public string InteractionPrompt => Loc.Get(string.IsNullOrEmpty(promptKey) ? StringKey.Prompt_FormAltar : promptKey);
 
@@ -38,6 +62,8 @@ namespace Abyss.Runtime.Form
         {
             if (visual == null) visual = GetComponent<SpriteRenderer>();
             if (visual != null) baseAlpha = visual.color.a;
+            feedback = Feedback.RewardAltarFeedback.Ensure(this, visual);
+            feedback.Configure(rewardForm != null ? rewardForm.icon : null, rewardForm != null);
         }
 
         /// <summary>
@@ -50,7 +76,9 @@ namespace Abyss.Runtime.Form
             if (!gameObject.activeSelf) gameObject.SetActive(true);
 
             rewardForm = reward;
+            OfferGeneration++;
             consumed = false;
+            if (feedback != null) feedback.Configure(reward != null ? reward.icon : null, reward != null);
             if (visual != null)
             {
                 var c = visual.color;
@@ -64,8 +92,24 @@ namespace Abyss.Runtime.Form
             if (!CanInteract) return;
 
             consumed = true;
-            GameEvents.RaiseFormRewardOffered(rewardForm);
+            if (feedback != null) feedback.SetPending();
+            var previousOffer = offeringAltar;
+            offeringAltar = this;
+            offeringInteractor = interactor;
+            try { GameEvents.RaiseFormRewardOffered(rewardForm); }
+            finally
+            {
+                offeringInteractor = null;
+                offeringAltar = previousOffer;
+            }
             ApplyConsumedVisual();
+        }
+
+        // 획득/거절 결과는 모달이 전달하며, 이 메서드는 표현만 바꾼다.
+        public void CompletePresentation(bool acquired, int generation)
+        {
+            if (!consumed || generation != OfferGeneration || feedback == null) return;
+            feedback.Complete(acquired);
         }
 
         // 파괴/비활성 대신 흐리게 남겨 "이미 받은 제단"임을 알린다. 재상호작용은 CanInteract가 차단한다.

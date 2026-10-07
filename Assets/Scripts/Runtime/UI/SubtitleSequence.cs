@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Abyss.Runtime.Localization;
 using UnityEngine;
 using UnityEngine.UI;
@@ -37,6 +37,10 @@ namespace Abyss.Runtime.UI
 
         /// <summary>모든 문단이 끝났는가. <see cref="Restart"/> 전이나 빈 배열이면 처음부터 true다.</summary>
         public bool IsFinished => paragraphIndex >= paragraphs.Length;
+
+        /// <summary>표시 전용 장면이 자막과 같은 단계·시간을 사용한다.</summary>
+        public int ParagraphIndex => paragraphIndex;
+        public float ElapsedSeconds => timer;
 
         private SubtitleSequence(Text label) => this.label = label;
 

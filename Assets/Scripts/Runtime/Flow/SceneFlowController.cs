@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Abyss.Runtime.Input;
 using Singleton_Core;
 using UnityEngine;
@@ -28,6 +28,7 @@ namespace Abyss.Runtime.Flow
         private ScreenFader fader;
 
         public bool IsLoading => isLoading;
+        public int TransitionVersion { get; private set; }
 
         // 페이드 오버레이는 최초 씬 로드 시 지연 생성한다(영속, DontDestroyOnLoad).
         private ScreenFader Fader => fader != null ? fader : (fader = ScreenFader.Create());
@@ -72,6 +73,7 @@ namespace Abyss.Runtime.Flow
             }
 
             isLoading = true;
+            TransitionVersion++;
             bool isCommitted = false;
             bool isPauseReleased = false;
 
@@ -94,6 +96,7 @@ namespace Abyss.Runtime.Flow
                 await Fader.FadeOutAsync();
 
                 SceneManager.sceneLoaded += HandleSceneLoaded;
+                string sourceScene = SceneManager.GetActiveScene().name;
                 var op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
                 if (op == null)
                 {
@@ -103,6 +106,7 @@ namespace Abyss.Runtime.Flow
                 }
 
                 isCommitted = true;
+                JourneyPresentation.CommitTransition(sourceScene, sceneName);
                 InvokeCommitted(onCommitted, sceneName);
 
                 while (!op.isDone)

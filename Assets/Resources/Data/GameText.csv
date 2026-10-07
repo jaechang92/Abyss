@@ -262,3 +262,6 @@ Tutorial_Skip,튜토리얼,첫 플레이 안내 건너뛰기 버튼,,,건너뛰�
 Tutorial_PadSkipHintFormat,튜토리얼,첫 플레이 안내 패드 건너뛰기,게임패드 사용 시,{0}: 버튼 표시,{0} 길게 눌러 건너뛰기,Hold {0} to skip,{0} 長押しでスキップ
 Tutorial_Unbound,튜토리얼,첫 플레이 안내 미지정 키,현재 장치에 바인딩 없음,,미지정,Unbound,未設定
 Tutorial_Waiting,튜토리얼,첫 플레이 안내 대기,기본 4동작 후 폼 교체·드래프트 대기 중,,다른 폼과 성장 선택은 다음 방에서 만난다,Other forms and growth picks await in the next rooms,別のフォームと成長の選択は次の部屋で出会える
+Journey_ReturnTitle,여정,사망 후 로비 귀환 안내,직전 런 처치 있음,,남겨진 흔적이 돌아왔다,Your traces have returned,残された痕跡が帰ってきた
+Journey_ReturnEarlyTitle,여정,사망 후 로비 귀환 안내,직전 런 처치 없음,,아직 희미한 흔적이 돌아왔다,A faint trace has returned,まだ淡い痕跡が帰ってきた
+Journey_ReturnDetailFormat,여정,로비 귀환 직전 런 요약,,{0}: 구역 {1}: 처치 {2}: 정산 조각,기록: {0}구역 · {1}처치 · +{2}심연 조각,Last attempt: Stage {0} · {1} defeated · +{2} Abyss shards,前の挑戦: エリア{0} · {1}体撃破 · 深淵の欠片+{2}

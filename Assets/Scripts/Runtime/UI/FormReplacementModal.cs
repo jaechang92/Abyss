@@ -28,6 +28,9 @@ namespace Abyss.Runtime.UI
         private FormController controller;
         private FormData incomingForm;
         private bool isOpen;
+        private Vector3? acquisitionOrigin;
+        private FormAltar rewardAltar;
+        private int rewardGeneration;
 
         // 2단계 취소 확인: 첫 클릭은 '무장'(경고 라벨)만, 재클릭에서 실제 포기. 오조작으로 보상을 날리는 걸 막는다.
         private bool cancelArmed;
@@ -60,6 +63,9 @@ namespace Abyss.Runtime.UI
 
             incomingForm = incoming;
             controller = formController;
+            acquisitionOrigin = FormAltar.CaptureOfferOrigin(incoming, formController);
+            rewardAltar = FormAltar.CaptureOffer(incoming, formController);
+            rewardGeneration = rewardAltar != null ? rewardAltar.OfferGeneration : -1;
 
             if (incomingText != null)
             {
@@ -120,19 +126,24 @@ namespace Abyss.Runtime.UI
         /// 부르는데, 그때는 이미 닫힌 상태라 선택 정리만 한다(닫기 중복 없음). 닫힘 신호는 맨 마지막에 낸다 —
         /// 그 신호로 이어지는 다음 방·드래프트가 잡는 포커스를 이 모달이 뒤에서 뺏지 않는다.
         /// </summary>
-        private void Close()
+        private void Close(bool acquired = false)
         {
+            var sourceAltar = rewardAltar;
+            int sourceGeneration = rewardGeneration;
             ResetCancelArm();
             bool wasOpen = isOpen;
             isOpen = false;
             incomingForm = null;
             controller = null;
+            acquisitionOrigin = null;
+            rewardAltar = null;
             if (wasOpen) ReleaseFocus();
             if (root != null) root.SetActive(false);
 
             if (wasOpen)
             {
                 GameEvents.RaiseDraftClosed();
+                if (sourceAltar != null) sourceAltar.CompletePresentation(acquired, sourceGeneration);
                 // 보상 흐름 종료 신호(획득/거절 공통). 보상 룸 게이트(StageDirector)가 이걸로 진행을 재개한다.
                 GameEvents.RaiseFormRewardResolved();
             }
@@ -145,10 +156,17 @@ namespace Abyss.Runtime.UI
 
             // 선택 슬롯에 주입 + 즉시 전환(activate). 전환을 알려 HUD·스킬 로드아웃·이동배율을 갱신.
             var previous = controller.CurrentForm;
+            var acquiredController = controller;
+            var acquiredForm = incomingForm;
+            var origin = acquisitionOrigin;
+            var presentation = acquiredController.GetComponent<Feedback.FormPresentationFeedback>();
+            int roomVersion = presentation != null ? presentation.RoomVersion : -1;
             controller.EquipForm(incomingForm, index, activate: true);
             GameEvents.RaiseFormSwapped(previous, controller.CurrentForm);
 
-            Close();
+            Close(acquired: true);
+            // 획득 성공 전용. 닫기/거절/시작 폼 적용은 이 경로를 지나지 않는다.
+            Feedback.FormPresentationFeedback.PlayAcquisition(acquiredController, acquiredForm, origin, roomVersion);
         }
     }
 }

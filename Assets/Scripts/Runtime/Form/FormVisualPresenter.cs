@@ -1,4 +1,4 @@
-using Abyss.Runtime.Form;
+﻿using Abyss.Runtime.Form;
 using Anim.Core;
 using UnityEngine;
 
@@ -67,6 +67,8 @@ namespace Abyss.Runtime.Form
             if (animatorDriver == null) animatorDriver = GetComponent<AnimatorDriver>();
             if (weaponSocket == null) weaponSocket = GetComponentInChildren<Player.WeaponSocket>(true);
             if (playerCharacter == null) playerCharacter = GetComponentInParent<Player.PlayerCharacter>();
+            if (formController != null && target != null)
+                Feedback.FormPresentationFeedback.Ensure(formController, target);
         }
 
         private void LateUpdate()
