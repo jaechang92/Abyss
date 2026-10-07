@@ -14,14 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roomId: stage2_room3_phalanx
   roomType: 0
+  displayName: 
+  hint: 
   enemies:
   - data: {fileID: 11400000, guid: 03c0a0ca364f01848bbbac63dc134c4f, type: 2}
-    count: 2
+    count: 1
   - data: {fileID: 11400000, guid: 1ae865111c7cd9940a8ad5309e5be5a8, type: 2}
     count: 2
-  clearGoldReward: 18
-  hasFormReward: 1
-  formReward: {fileID: 0}
+  - data: {fileID: 11400000, guid: 380f002b7d25c0d49898a0bfd548dd68, type: 2}
+    count: 1
   mapLength: 40
   placements:
   - data: {fileID: 11400000, guid: 03c0a0ca364f01848bbbac63dc134c4f, type: 2}
@@ -32,7 +33,14 @@ MonoBehaviour:
   - trigger: 1
     value: 2
     enemies:
-    - data: {fileID: 11400000, guid: 03c0a0ca364f01848bbbac63dc134c4f, type: 2}
+    - data: {fileID: 11400000, guid: 380f002b7d25c0d49898a0bfd548dd68, type: 2}
       x: 9
     - data: {fileID: 11400000, guid: 1ae865111c7cd9940a8ad5309e5be5a8, type: 2}
       x: 13
+  clearGoldReward: 18
+  hasFormReward: 1
+  formReward: {fileID: 0}
+  hasWeaponReward: 0
+  weaponReward: {fileID: 0}
+  eventData: {fileID: 0}
+  shopData: {fileID: 0}

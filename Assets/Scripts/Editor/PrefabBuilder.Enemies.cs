@@ -55,7 +55,8 @@ namespace Abyss.EditorTools
                 col.size = data.IsBoss ? new Vector2(2f, 2f) : Vector2.one;
 
                 // 도트 스프라이트 우선 로드. 없으면 WhiteSquare 폴백 + 틴팅 유지.
-                var enemySprite = GetEnemySpriteByEnemyId(data.enemyId, sprite);
+                // 변종은 원본 적의 그림을 빌린다(EnemyData.ArtId — artSourceId 가 비면 자기 id).
+                var enemySprite = GetEnemySpriteByEnemyId(data.ArtId, sprite);
                 bool hasDotSprite = enemySprite != sprite;
 
                 var sr = root.AddComponent<SpriteRenderer>();
@@ -200,6 +201,23 @@ namespace Abyss.EditorTools
                     SetPrivateField(keeper, "phaseChangeSfx", LoadSfx("boss_phase"));
                     SetPrivateField(keeper, "telegraphSfx", LoadSfx("boss_telegraph"));
                     return keeper;
+                }
+                case "elite_berserker":
+                {
+                    // 엘리트 변종 ① (2026-10-06) — 중장 강적 그림을 빌린 광폭화형.
+                    var berserker = root.AddComponent<EliteBerserkerEnemy>();
+                    SetPrivateField(berserker, "enrageSfx", LoadSfx("boss_phase"));
+                    return berserker;
+                }
+                case "elite_summoner":
+                {
+                    // 엘리트 변종 ② (2026-10-06) — 공허 술사 그림을 빌린 소환사형. 졸개는 근접 병사.
+                    var summoner = root.AddComponent<EliteSummonerEnemy>();
+                    var minion = AssetDatabase.LoadAssetAtPath<EnemyData>($"{AbyssPaths.Enemies}/MeleeGrunt.asset");
+                    if (minion == null) Debug.LogWarning("[PrefabBuilder] 소환사 졸개(MeleeGrunt) 없음 — 소환하지 않는 소환사가 된다.");
+                    SetPrivateField(summoner, "minionData", minion);
+                    SetPrivateField(summoner, "summonSfx", LoadSfx("boss_telegraph"));
+                    return summoner;
                 }
                 case "boss_thronebound":
                 {

@@ -36,6 +36,7 @@ namespace Abyss.Runtime.Weapon
 
         private bool consumed;
         private float baseAlpha = 1f;
+        private Feedback.RewardAltarFeedback feedback;
 
         /// <summary>
         /// 무엇을 얻는지 + 이미 가진 것인지. 🔑 <b>「강화」로 읽혀야 중복이 꽝으로 안 보인다.</b>
@@ -61,6 +62,8 @@ namespace Abyss.Runtime.Weapon
         {
             if (visual == null) visual = GetComponent<SpriteRenderer>();
             if (visual != null) baseAlpha = visual.color.a;
+            feedback = Feedback.RewardAltarFeedback.Ensure(this, visual);
+            feedback.Configure(rewardWeapon != null ? rewardWeapon.icon : null, rewardWeapon != null);
         }
 
         /// <summary>
@@ -74,6 +77,7 @@ namespace Abyss.Runtime.Weapon
 
             rewardWeapon = reward;
             consumed = false;
+            if (feedback != null) feedback.Configure(reward != null ? reward.icon : null, reward != null);
             if (visual != null)
             {
                 var c = visual.color;
@@ -90,7 +94,23 @@ namespace Abyss.Runtime.Weapon
 
             // 🔴 <b>먼저 담고 나서 알린다.</b> 순서가 뒤집히면 게이트가 풀려 방이 넘어가는 동안
             //    아직 인벤토리에 안 들어간 상태로 폼이 다시 비칠 수 있다.
-            ResolveInventory()?.Grant(rewardWeapon);
+            var inventory = ResolveInventory();
+            int beforeVersion = inventory != null ? inventory.Version : -1;
+            inventory?.Grant(rewardWeapon);
+            bool granted = inventory != null && inventory.Version != beforeVersion;
+            if (feedback != null) feedback.Complete(granted);
+            if (granted && Audio.AudioManager.HasInstance && RunManager.Instance.IsRunActive &&
+                (!Flow.SceneFlowController.HasInstance || !Flow.SceneFlowController.Instance.IsLoading))
+            {
+                // 전용 획득음은 후속. 해당 폼의 기존 대표음을 성공 때만 한 번 재사용한다.
+                var forms = Form.FormCatalog.All;
+                if (forms != null) foreach (var form in forms)
+                {
+                    if (form == null || form.formId != rewardWeapon.formBound) continue;
+                    if (form.swapInSfx != null) Audio.AudioManager.Instance.PlaySfx(form.swapInSfx);
+                    break;
+                }
+            }
 
             ApplyConsumedVisual();
             GameEvents.RaiseWeaponRewardResolved();

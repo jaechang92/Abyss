@@ -17,7 +17,7 @@ MonoBehaviour:
   rarity: 0
   displayName: "\uB0A1\uC740 \uD65C"
   description: "\uC2DC\uC704\uAC00 \uB298\uC5B4\uC84C\uB2E4. \uADF8\uB798\uB3C4 \uB2F9\uAE30\uBA74 \uC3D8\uC544\uC9C4\uB2E4."
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 9d2dd43ca05e45a28545e4ccda26b9c2, type: 3}
   sprite: {fileID: 21300000, guid: ba2991baac0e86944ba42e57fec1d420, type: 3}
   angleSprites:
   - {fileID: 790336363, guid: 86b5354b2c3c413588155d06711b35e4, type: 3}

@@ -11,7 +11,7 @@ using UnityEngine;
 namespace Abyss.Runtime.Player
 {
     /// <summary>
-    /// 전용 발동 코드가 필요한 Passive 스킬 파트. 현재 5종 —
+    /// 전용 발동 코드가 필요한 Passive 스킬 파트(피의 서약 축은 PlayerCharacter.BloodPact, 무축은 .NeutralPassives). 이 파일은 5종 —
     /// 불꽃 축의 <b>연소 강화</b>(모든 연소 피해 +50%)·<b>불꽃 갑옷</b>(받는 피해 10%를 주변 적의 연소로 변환),
     /// 심연 축의 <b>잔상</b>(대시 자리에 남아 0.5초 후 폭발)·<b>심연 충전</b>(폼 교체 시 다음 기본 공격 2배)·
     /// <b>영혼 회수</b>(적 처치 시 HP 회복).
@@ -133,6 +133,10 @@ namespace Abyss.Runtime.Player
             // 스킬을 잃으면 장전분도 함께 사라진다 — 미보유 스킬의 효과가 한 대 더 나가면
             // "지금 무엇을 가졌는가"와 화면에서 벌어지는 일이 어긋난다.
             if (!isAbyssChargeActive) isAbyssChargeReady = false;
+
+            // 피의 서약 축·무축 보편(2026-10-06)도 같은 시점·같은 보유 목록으로 다시 계산한다.
+            RecomputeBloodPactState(owned);
+            RecomputeNeutralState(owned);
         }
 
         // ====== 영혼 회수 — 적 처치 시 HP 회복 ======
@@ -147,8 +151,12 @@ namespace Abyss.Runtime.Player
         /// </summary>
         private void HandleEnemyKilledForPassives(EnemyData _, Vector3 __)
         {
-            if (!isSoulReclaimActive || isDead || soulReclaimHealPerKill <= 0) return;
-            Heal(soulReclaimHealPerKill);
+            if (isDead) return;
+
+            // 핏빛 광채(최대 HP +1)를 먼저 — 늘어난 최대치 위로 영혼 회수가 채운다.
+            ApplyCrimsonRadiance();
+
+            if (isSoulReclaimActive && soulReclaimHealPerKill > 0) Heal(soulReclaimHealPerKill);
         }
 
         // ====== 불꽃 갑옷 — 받는 피해 10% → 주변 적 연소로 변환 ======

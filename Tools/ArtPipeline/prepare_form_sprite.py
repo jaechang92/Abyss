@@ -61,7 +61,7 @@ def needs_chroma(im):
 
 
 def prepare(form_id, src_rel):
-    src = os.path.join(ROOT, src_rel)
+    src = os.path.join(ROOT, "..", "Abyss_Local", src_rel)
     if not os.path.exists(src):
         print("  ❌ %-16s 원본 없음: %s" % (form_id, src_rel))
         return None

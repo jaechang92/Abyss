@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: EliteSummoner
+  m_Controller: {fileID: 9100000, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 5040836902385925639, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: fc8ccd5f1c9ca8c458f0d48164f6e943, type: 2}
+  - m_OriginalClip: {fileID: -1446783422544244587, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 4c1ca057d86ef1b4ea398c002f700729, type: 2}
+  - m_OriginalClip: {fileID: -8883298834322327098, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: fd0280a57269fc64d867db64becebffb, type: 2}
+  - m_OriginalClip: {fileID: -3283547260190204195, guid: 7efa0a45d8e3c8041a7fe4643b03367e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 9c568de8db38b0142b361100f58fa35f, type: 2}

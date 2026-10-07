@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Feedback;
@@ -18,8 +18,10 @@ namespace Abyss.Runtime.UI
     /// 대사는 <b>enemyId에서 규칙으로 만든 키</b>(<c>Boss_{Stem}_Intro1</c> …) 중 GameText.csv에 있는 것만 쓴다.
     /// 보스마다 SO를 두지 않은 이유: 보스 5종의 연출 데이터가 문구 키뿐이라, 에셋·참조 배선을 늘릴 만큼의
     /// 내용이 없다. 새 보스는 CSV에 행만 넣으면 연출이 붙는다(없으면 이름 카드 없이 체력바만).
+    ///
+    /// 📌 첫 보스(boss_abyss_keeper)만 등장 카드 대신 접근·첫 피격 조우 장면을 쓴다 — <c>BossPresenter.Keeper.cs</c>(E1).
     /// </summary>
-    public sealed class BossPresenter : MonoBehaviour
+    public sealed partial class BossPresenter : MonoBehaviour
     {
         private const float BAR_WIDTH = 900f;
         private const float SUBTITLE_SECONDS = 3f;
@@ -120,6 +122,9 @@ namespace Abyss.Runtime.UI
                 intro.Add(line);
             }
 
+            // 첫 보스는 Start 에서 카드를 띄우지 않고 접근·첫 피격을 기다린다(대기를 쥔 경우만).
+            if (TryBeginKeeperEncounter(spawned, title, epithet, intro)) return;
+
             // 등장 대사가 없는 보스(키 미작성)는 카드 없이 곧바로 체력바 — 정지 없이 싸움이 시작된다.
             if (intro.Count == 0 && Line("Title") == null)
             {
@@ -131,12 +136,15 @@ namespace Abyss.Runtime.UI
 
         private void OnDestroy()
         {
+            // 씬 이탈 — 정지는 씬 흐름이 소유하므로 풀지 않고 자기 연출만 정리한다.
+            CancelKeeperEncounter(KeeperAbort.KeepPause);
             Detach();
             if (instance == this) instance = null;
         }
 
         private void Detach()
         {
+            CancelKeeperEncounter(KeeperAbort.Release);
             if (boss == null) return;
             boss.OnHpChanged -= HandleHpChanged;
             boss.OnPhaseChanged -= HandlePhaseChanged;
@@ -155,6 +163,7 @@ namespace Abyss.Runtime.UI
             trailHoldUntil = Time.unscaledTime + TRAIL_DELAY_SECONDS;
 
             if (current <= 0) HandleDeath();
+            else if (current < previous) NoteKeeperDamaged();
         }
 
         private void HandlePhaseChanged(int phase)
@@ -169,6 +178,7 @@ namespace Abyss.Runtime.UI
             if (HitstopController.HasInstance) HitstopController.Instance.TriggerSlow(DEATH_SLOW_SCALE, DEATH_SLOW_SECONDS);
             ShowSubtitle(Line("Death"));
             Flash();
+            PlayKeeperAftermath();
             barHideAt = Time.unscaledTime + BAR_HIDE_DELAY_SECONDS;
             Detach();
         }
@@ -178,6 +188,8 @@ namespace Abyss.Runtime.UI
         /// <summary>슬로모션·정지 위에서도 흘러야 하므로 전부 실시간으로 잰다.</summary>
         private void Update()
         {
+            TickKeeperEncounter();
+
             float now = Time.unscaledTime;
 
             if (trailRatio > targetRatio && now >= trailHoldUntil)

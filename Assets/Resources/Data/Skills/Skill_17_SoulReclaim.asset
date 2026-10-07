@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: Skill_17_SoulReclaim
   m_EditorClassIdentifier: 
   skillId: skill_soul_reclaim
+  requiresMetaUnlock: 0
   displayName: "\uC601\uD63C \uD68C\uC218"
   description: "\uC801 \uCC98\uCE58 \uC2DC HP 2 \uD68C\uBCF5"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 0e9280f8d4274053836a241d5d3ded40, type: 3}
   rarity: 0
   category: 1
   synergyTag: abyss

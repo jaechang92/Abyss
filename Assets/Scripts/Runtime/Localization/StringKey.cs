@@ -71,6 +71,13 @@
         public const string Draft_Skip = "Draft_Skip";
         public const string Draft_ReplaceSlotTitle = "Draft_ReplaceSlotTitle";
 
+        // 카드 호버·포커스 상세 패널(SkillCardDetailsPanel). 폼·공식 줄은 도감의 Codex_Skill_* 를 같이 쓴다.
+        public const string DraftDetail_Title = "DraftDetail_Title";
+        public const string DraftDetail_DescriptionFormat = "DraftDetail_DescriptionFormat";
+        public const string DraftDetail_FlatBonusFormat = "DraftDetail_FlatBonusFormat";
+        public const string DraftDetail_MultiplierFormat = "DraftDetail_MultiplierFormat";
+        public const string DraftDetail_SynergyFormat = "DraftDetail_SynergyFormat";
+
         // ---- 결과 ----
         public const string Result_RunClear = "Result_RunClear";
         public const string Result_Death = "Result_Death";
@@ -115,6 +122,12 @@
         public const string Altar_CostFormat = "Altar_CostFormat";
         public const string Altar_Maxed = "Altar_Maxed";
         public const string Altar_Purchase = "Altar_Purchase";
+        // 해금 항목(메타 해금 1단계 2026-10-06) — 이름은 대상 에셋에서 읽어 형식에 끼운다
+        public const string Altar_UnlockSkillNameFormat = "Altar_UnlockSkillNameFormat";
+        public const string Altar_UnlockFormNameFormat = "Altar_UnlockFormNameFormat";
+        public const string Altar_Locked = "Altar_Locked";
+        public const string Altar_Unlocked = "Altar_Unlocked";
+        public const string Altar_Unlock = "Altar_Unlock";
 
         // ── 유물 상점(가차) ──
         public const string Npc_RelicShop_Prompt = "Npc_RelicShop_Prompt";
@@ -195,6 +208,9 @@
         public const string Story_Ending_Line2 = "Story_Ending_Line2";
         public const string Story_Ending_Line3 = "Story_Ending_Line3";
         public const string Story_Ending_Line4 = "Story_Ending_Line4";
+        // {0} = 확인 입력 표기(키보드 + 연결된 패드의 실제 확인 버튼 이름)
+        public const string Story_SequenceNextHintFormat = "Story_SequenceNextHintFormat";
+        public const string Story_SequenceTitleHintFormat = "Story_SequenceTitleHintFormat";
 
         // 일시정지·상호작용·폼 모달·도감 본문 (2026-09-26)
         public const string Pause_Title = "Pause_Title";
@@ -254,5 +270,21 @@
         public const string RunSummary_AbyssEarnedFormat = "RunSummary_AbyssEarnedFormat";
         public const string Run_StageNumberFormat = "Run_StageNumberFormat";
         public const string Run_ReachStepFormat = "Run_ReachStepFormat";
+
+        // ---- 첫 플레이 튜토리얼 (FirstPlayTutorialController) ----
+        // {0} 은 PlayerInput 의 실제 바인딩 표시 문자열이다 — 키 이름을 문구에 박지 않는다.
+        public const string Tutorial_Objective = "Tutorial_Objective";
+        public const string Tutorial_ProgressFormat = "Tutorial_ProgressFormat";
+        public const string Tutorial_MoveFormat = "Tutorial_MoveFormat";
+        public const string Tutorial_JumpFormat = "Tutorial_JumpFormat";
+        public const string Tutorial_DashFormat = "Tutorial_DashFormat";
+        public const string Tutorial_AttackFormat = "Tutorial_AttackFormat";
+        public const string Tutorial_SwapFormat = "Tutorial_SwapFormat";
+        public const string Tutorial_Draft = "Tutorial_Draft";
+        public const string Tutorial_Complete = "Tutorial_Complete";
+        public const string Tutorial_Skip = "Tutorial_Skip";
+        public const string Tutorial_PadSkipHintFormat = "Tutorial_PadSkipHintFormat";
+        public const string Tutorial_Unbound = "Tutorial_Unbound";
+        public const string Tutorial_Waiting = "Tutorial_Waiting";
     }
 }

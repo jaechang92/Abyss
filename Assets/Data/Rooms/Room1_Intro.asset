@@ -21,7 +21,7 @@ MonoBehaviour:
   mapLength: 40
   placements:
   - data: {fileID: 11400000, guid: 1ae865111c7cd9940a8ad5309e5be5a8, type: 2}
-    x: -4
+    x: 0
   - data: {fileID: 11400000, guid: 1ae865111c7cd9940a8ad5309e5be5a8, type: 2}
     x: 8
   reinforcements:
@@ -29,6 +29,6 @@ MonoBehaviour:
     value: 2
     enemies:
     - data: {fileID: 11400000, guid: 1ae865111c7cd9940a8ad5309e5be5a8, type: 2}
-      x: 13
+      x: 12
     - data: {fileID: 11400000, guid: 1ae865111c7cd9940a8ad5309e5be5a8, type: 2}
-      x: 16
+      x: 15

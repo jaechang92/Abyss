@@ -65,6 +65,7 @@ namespace Abyss.Runtime.Stage
             GameEvents.OnRunEnded += HandleRunEnded;
             GameEvents.OnRunAbandoned += HandleRunAbandoned;
             GameEvents.OnPlayerDead += HandlePlayerDead;
+            SubscribeWorldInteraction(true);
             if (startOnEnable) Invoke(nameof(StartSequence), SEQUENCE_START_DELAY);
         }
 
@@ -77,6 +78,7 @@ namespace Abyss.Runtime.Stage
             GameEvents.OnRunEnded -= HandleRunEnded;
             GameEvents.OnRunAbandoned -= HandleRunAbandoned;
             GameEvents.OnPlayerDead -= HandlePlayerDead;
+            SubscribeWorldInteraction(false);
             CancelInvoke();
             // 비활성화·파괴·씬 전환 — 예고·대기 무리를 버리고 세션을 닫는다. 다시 켜져도 새 방 진입 전에는 열리지 않는다.
             CloseRoomSession("디렉터 비활성화");
@@ -210,6 +212,7 @@ namespace Abyss.Runtime.Stage
             currentRoom = room;
             // 직전 방의 문·벽·추가 소환을 치우고, 맵 방이면 입구 배치·카메라 경계를 잡는다(치트 이동도 이 길을 지난다).
             PrepareRoomMap(room);
+            ResetWorldInteraction();  // 직전 방의 월드 상호작용 세션은 여기서 끝난다(StageDirector.WorldInteraction.cs)
             var stage = CurrentStage;
             int total = stage != null ? stage.steps.Count : 0;
             Debug.Log($"[StageDirector] Step {currentStepIndex + 1}/{total} 진입: {room.roomId} ({room.roomType})");
@@ -223,6 +226,7 @@ namespace Abyss.Runtime.Stage
                 stage != null ? stage.displayName : string.Empty);
 
             GameEvents.RaiseRoomEntered(room);
+            PrepareTutorialRoom(room);
             SpawnEnemies(room);
         }
 
@@ -237,6 +241,7 @@ namespace Abyss.Runtime.Stage
         private void SpawnEnemies(RoomData room)
         {
             activeEnemies.Clear();
+            if (isTutorialOpeningReserved) return;
             // 맵 방은 배치 좌표에, 옛 아레나 방은 스폰 지점에 — 추적·대조 규약은 같다(StageDirector.Map.cs).
             int expected = room.IsMapRoom ? SpawnMapOpening(room) : SpawnArena(room);
 
@@ -290,15 +295,27 @@ namespace Abyss.Runtime.Stage
             return false;
         }
 
+        /// <summary>
+        /// 적이 다른 적을 부른다(엘리트 소환사). 방 전투가 진행 중일 때만 소환하고, 부른 적은 <b>클리어 판정에 등록</b>한다 —
+        /// 등록하지 않으면 졸개가 살아 있는데 방이 넘어가거나(<see cref="WarnUntrackedEnemies"/> 경우), 반대로 영영 안 잡혀 막힌다.
+        /// 소환 실패(방 정리 중·프리팹 없음)면 null. 스폰 실패 표시는 남기지 않는다 — 방 데이터 오류가 아니다.
+        /// </summary>
+        public EnemyBase TrySpawnSummoned(EnemyData data, Vector3 position)
+        {
+            if (isRoomSessionClosed || isRoomClearing || CurrentRoom == null) return null;
+            if (data == null || data.spawnPrefab == null) return null;
+            return SpawnTracked(data, position);
+        }
+
         /// <summary>한 마리를 스폰하고 클리어 판정 대상으로 등록한다. 등록에 실패하면 소리를 내고 스폰 실패로 표시한다.</summary>
-        private void SpawnTracked(EnemyData data, Vector3 position)
+        private EnemyBase SpawnTracked(EnemyData data, Vector3 position)
         {
             // 예고 시작 때 검사를 통과했더라도 등장 시점에 다시 본다 — 예고 사이 참조가 비었으면 Instantiate가 던진다.
             if (data == null || data.spawnPrefab == null)
             {
                 Debug.LogError($"[StageDirector] '{data?.enemyId ?? "null"}' 등장 시점에 스폰 프리팹이 없다 — 건너뜀");
                 MarkRoomSpawnFailure();
-                return;
+                return null;
             }
 
             var go = Instantiate(data.spawnPrefab, position, Quaternion.identity);
@@ -311,11 +328,12 @@ namespace Abyss.Runtime.Stage
                 Debug.LogError($"[StageDirector] '{data.enemyId}' 프리팹에 EnemyBase가 없다 " +
                                $"— 스폰은 됐지만 클리어 판정에서 빠져 방이 조기 클리어된다");
                 MarkRoomSpawnFailure();
-                return;
+                return null;
             }
 
             activeEnemies.Add(enemy);
             if (enemy is BossEnemy) hasRoomBossEnemy = true;
+            return enemy;
         }
 
         /// <summary>
@@ -325,7 +343,7 @@ namespace Abyss.Runtime.Stage
         /// </summary>
         private void CheckRoomProgress()
         {
-            if (isRoomSessionClosed || isRoomClearing || CurrentRoom == null || activeEnemies.Count > 0 || telegraphs.Count > 0) return;
+            if (isRoomSessionClosed || isRoomClearing || isTutorialOpeningReserved || CurrentRoom == null || activeEnemies.Count > 0 || telegraphs.Count > 0) return;
             if (ReleaseNextReinforcement("남은 적 없음")) return;
             HandleRoomCleared(CurrentRoom);
         }
@@ -370,6 +388,7 @@ namespace Abyss.Runtime.Stage
 
         private void HandleEnemyKilled(EnemyData _, Vector3 __)
         {
+            if (!isRoomSessionClosed && IsTutorialRoom && activeEnemies.Exists(e => e != null && e.IsDead)) TutorialCombatKills++;
             // EnemyBase.Die는 Destroy(gameObject, 0.3f) 지연 파괴라 이 시점에는 e != null.
             // IsDead 플래그로 즉시 제거해야 마지막 적 사망 시 룸이 즉시 클리어됨.
             activeEnemies.RemoveAll(e => e == null || e.IsDead);
@@ -398,8 +417,11 @@ namespace Abyss.Runtime.Stage
 
             if (room.clearGoldReward > 0)
             {
-                RunManager.Instance?.GainGoldShards(room.clearGoldReward);
+                RunManager.Instance?.GainCombatGoldShards(room.clearGoldReward);
             }
+
+            // 월드 상호작용 opt-in 이벤트 방: 자동 모달 대신 오브젝트를 세운다(legacy 게이트를 잡지 않는다).
+            if (TryBeginWorldEvent(room)) return;
 
             // 이벤트 룸: 선택 모달을 열고 선택이 끝날 때까지 자동 진행을 보류한다.
             // 모달이 DraftOpen 상태로 정지시키므로 게이트 중에는 세계가 멈춘다.

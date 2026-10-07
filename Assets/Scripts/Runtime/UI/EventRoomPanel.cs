@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Run;
 using Abyss.Runtime.Stage;
@@ -19,8 +20,9 @@ namespace Abyss.Runtime.UI
     /// 빌려 쓴다(전용 정지 로직 불필요). 다만 FormReplacementModal과 달리 <b>동적 생성</b>이라
     /// HudBuilder 수정도 메뉴 재실행도 필요 없다 — HUD 재빌드가 다른 배선을 끊은 전력이 있다.
     /// 생성·정지 규약은 <see cref="RunModalPanel{T}"/>에 있다.
+    /// 키보드·패드 조작(포커스·탐색 경로·결과 단계 ESC/패드 B)은 EventRoomPanel.Navigation.cs가 맡는다.
     /// </summary>
-    public sealed class EventRoomPanel : RunModalPanel<EventRoomPanel>
+    public sealed partial class EventRoomPanel : RunModalPanel<EventRoomPanel>
     {
         // 선택지 상한. 넘치는 선택지는 조용히 안 보인다 — 에러도 로그도 없다.
         // 3 → 4 (무기 가차). 기존 이벤트가 정확히 3개씩이라, 올리지 않으면 더한 선택지가 그냥 사라진다.
@@ -62,6 +64,11 @@ namespace Abyss.Runtime.UI
         //    (ShopRoomPanel 이 구매 때마다 그렇게 부르고 있다).
         private int pendingDrafts;
 
+        // 월드 모드(R1) 확인 콜백. null이면 legacy — [계속]이 OnEventResolved를 낸다.
+        // 열 때마다 덮어쓴다 — legacy로 다시 열면 비워져 낡은 월드 콜백이 섞이지 않는다.
+        private Action worldConfirmed;
+        private Text continueLabel;
+
         /// <summary>이벤트를 연다. 선택이 끝나면 <see cref="GameEvents.OnEventResolved"/>가 발행된다.</summary>
         public static void Open(EventData data)
         {
@@ -75,7 +82,31 @@ namespace Abyss.Runtime.UI
 
             var panel = EnsureInstance();
             if (panel == null) return;
-            panel.Show(data);
+            panel.Show(data, null);
+        }
+
+        /// <summary>
+        /// 월드 오브젝트에서 연다(R1). 선택·효과·결과·드래프트 순서는 legacy와 같고, [확인]이 UI를 닫고 드래프트를 연 뒤
+        /// <paramref name="onConfirmed"/>를 부른다 — <see cref="GameEvents.OnEventResolved"/>는 내지 않는다.
+        /// 바깥에서 꺼지거나 파괴되면 콜백은 오지 않는다(자동 해결 없음). 열지 못했으면 false.
+        /// </summary>
+        public static bool OpenForWorld(EventData data, Action onConfirmed)
+        {
+            if (onConfirmed == null || data == null || data.choices == null || data.choices.Count == 0)
+            {
+                Debug.LogWarning("[EventRoomPanel] 월드 이벤트 열기 실패 — 데이터·콜백 없음");
+                return false;
+            }
+            if (IsOpen)
+            {
+                Debug.LogWarning("[EventRoomPanel] 이미 열린 이벤트가 있다 — 월드 이벤트를 열지 않는다");
+                return false;
+            }
+
+            var panel = EnsureInstance();
+            if (panel == null) return false;
+            panel.Show(data, onConfirmed);
+            return true;
         }
 
         /// <summary>도메인 리로드 비활성화 대비 정적 상태 리셋(AbyssBootstrap 선례). 제네릭 베이스에선 안 불려 여기 둔다.</summary>
@@ -84,10 +115,14 @@ namespace Abyss.Runtime.UI
 
         // ───────────────────────── 흐름 ─────────────────────────
 
-        private void Show(EventData data)
+        private void Show(EventData data, Action onConfirmed)
         {
             current = data;
             chosen = null;
+            worldConfirmed = onConfirmed;
+
+            // 월드 모드의 버튼은 방 이동이 아니라 확인 닫기다(21-room-reward-flow §4). legacy 문구는 그대로.
+            if (continueLabel != null) continueLabel.text = onConfirmed != null ? "확인" : "계속";
 
             if (titleText != null) titleText.text = data.title;
             if (descriptionText != null) descriptionText.text = data.description;
@@ -96,6 +131,7 @@ namespace Abyss.Runtime.UI
             if (continueRoot != null) continueRoot.SetActive(false);
 
             ShowBody();
+            BeginFocus();
         }
 
         private void BindChoices(EventData data)
@@ -120,6 +156,8 @@ namespace Abyss.Runtime.UI
 
         private void OnChoiceClicked(int index)
         {
+            // 연 프레임·이미 고른 뒤·상위 모달이 쥔 동안의 클릭은 버린다 — 효과가 두 번 적용되지 않게(Navigation 참조).
+            if (!CanAcceptChoice) return;
             if (current == null || index < 0 || index >= current.choices.Count) return;
 
             chosen = current.choices[index];
@@ -142,6 +180,7 @@ namespace Abyss.Runtime.UI
 
             foreach (var b in choiceButtons) b.gameObject.SetActive(false);
             if (continueRoot != null) continueRoot.SetActive(true);
+            BeginResultFocus();
         }
 
         /// <summary>
@@ -154,17 +193,32 @@ namespace Abyss.Runtime.UI
         /// </summary>
         private void OnContinueClicked()
         {
+            // 한 번만 끝낸다 — 결과가 뜬 그 프레임의 Submit·상위 모달 입력·두 번째 입력(클릭+ESC/B)은 버린다.
+            if (!CanAcceptContinue) return;
+
             int drafts = pendingDrafts;
             pendingDrafts = 0;
+            var confirmed = worldConfirmed;
+            worldConfirmed = null;
 
             current = null;
             chosen = null;
+
+            // 본체를 숨기기 전에 포커스를 내준다 — 컴포넌트는 본체 밖이라 숨겨도 OnDisable이 안 돈다.
+            // 이어서 열릴 드래프트가 있으면 비워 두기만 한다(첫 카드를 그쪽이 잡는다).
+            ReleaseFocus(drafts > 0);
             HideBody();
 
             // 모달을 안 여는 효과는 선택 시점에 이미 적용됐다. 드래프트만 패널을 닫은 지금 연다 —
             // 그래야 정지가 끊기지 않고 이어진다(EventEffectApplier 주석 참조).
             EventEffectApplier.GrantDrafts(drafts);
 
+            // 월드 모드는 연 쪽의 세션 콜백으로만 알린다 — 인자 없는 공용 신호가 다른 방의 게이트를 풀지 않게.
+            if (confirmed != null)
+            {
+                confirmed.Invoke();
+                return;
+            }
             GameEvents.RaiseEventResolved();
         }
 
@@ -172,6 +226,8 @@ namespace Abyss.Runtime.UI
 
         protected override void BuildContent(Transform body)
         {
+            navigationRoot = body.gameObject;
+
             var panel = CreateRect(body, "Panel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(PANEL_WIDTH, PANEL_HEIGHT));
             var panelImg = panel.AddComponent<Image>();
@@ -214,6 +270,7 @@ namespace Abyss.Runtime.UI
             continueButton = CreateButton(parent, "ContinueButton", new Vector2(0, CONTINUE_Y), new Vector2(300, 52),
                 "계속", 20);
             continueButton.onClick.AddListener(OnContinueClicked);
+            continueLabel = continueButton.GetComponentInChildren<Text>();
             continueRoot = continueButton.gameObject;
             continueRoot.SetActive(false);
         }

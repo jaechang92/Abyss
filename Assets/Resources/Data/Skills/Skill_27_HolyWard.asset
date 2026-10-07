@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b7ffb57272b5a149b440852a8b1035f, type: 3}
+  m_Name: Skill_27_HolyWard
+  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Draft.SkillData
+  skillId: skill_holy_ward
+  requiresMetaUnlock: 0
+  displayName: "\uC2E0\uC131 \uBCF4\uD638"
+  description: "5\uCD08\uB9C8\uB2E4 \uB2E4\uC74C \uD53C\uACA9 \uD53C\uD574\uB97C 1\uB85C \uC904\uC778\uB2E4"
+  icon: {fileID: 21300000, guid: 65eb505b63f24ea487c60fe7a168cdca, type: 3}
+  rarity: 1
+  category: 1
+  synergyTag: 
+  formBound: 
+  flatBonus: 0
+  multiplier: 1
+  formulaDescription: (flatBonus + base) * multiplier
+  relatedAbility: {fileID: 0}
+  tags: []

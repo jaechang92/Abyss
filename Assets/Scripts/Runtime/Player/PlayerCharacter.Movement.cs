@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Physics;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -54,6 +54,7 @@ namespace Abyss.Runtime.Player
             CancelLunge("점프");
             body.linearVelocity = new Vector2(body.linearVelocity.x, jumpForce);
             jumpsRemaining--;
+            RaiseTutorialAction(PlayerTutorialAction.Jump);
         }
 
         private void OnDash(InputValue value)
@@ -73,6 +74,7 @@ namespace Abyss.Runtime.Player
 
             // Passive '잔상'은 출발 지점에 남는다 — 이동이 시작되기 전인 여기서 호출해야 위치가 맞다.
             TryLeaveAfterimage();
+            RaiseTutorialAction(PlayerTutorialAction.Dash);
         }
 
         private void UpdateGrounded()
@@ -177,6 +179,8 @@ namespace Abyss.Runtime.Player
         private void FixedUpdateMovement()
         {
             if (body == null) return;
+
+            TrackTutorialGroundMove();  // 대시·접근 분기보다 먼저 — 그 둘에서 return 해도 위치 기준은 갱신돼야 한다
 
             if (dashTimer > 0f)
             {

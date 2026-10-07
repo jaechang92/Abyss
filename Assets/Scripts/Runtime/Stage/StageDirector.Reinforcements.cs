@@ -55,6 +55,7 @@ namespace Abyss.Runtime.Stage
         private void Update()
         {
             if (isRoomSessionClosed) return;
+            TickTutorialOpening();
             TickReinforcementTelegraphs();
             CheckReachReinforcements();
         }
@@ -105,7 +106,7 @@ namespace Abyss.Runtime.Stage
         /// <summary>도달 조건(ReachX) 추가 소환. 적이 감지 범위 밖에서 서 있듯, 맵 뒤쪽 무리는 다가갈 때 나온다.</summary>
         private void CheckReachReinforcements()
         {
-            if (pendingReinforcements.Count == 0 || isRoomClearing) return;
+            if (pendingReinforcements.Count == 0 || isRoomClearing || isTutorialOpeningReserved) return;
             var player = ResolvePlayer();
             if (player == null) return;
 
@@ -186,7 +187,6 @@ namespace Abyss.Runtime.Stage
             if (isRoomSessionClosed || room == null || reinforcement == null) return false;
 
             float half = room.mapLength * 0.5f;
-            float y = GetSpawnPoint(0).position.y;
             var telegraph = new ReinforcementTelegraph
             {
                 Reason = reason,
@@ -199,10 +199,11 @@ namespace Abyss.Runtime.Stage
                 if (placement == null || !IsSpawnable(placement.data, room)) continue;
                 float x = ClampToMap(placement.x, half);
                 telegraph.Enemies.Add(placement.data);
-                telegraph.Positions.Add(new Vector3(x, y, 0f));
+                float floorY = ProbeFloorY(x);
+                telegraph.Positions.Add(new Vector3(x, MapSpawnY(x), 0f));
 
                 // 바닥 표식 — 등장 자리를 먼저 보인다. 맵 루트 아래에 둬 방을 치울 때 함께 치워지게 한다.
-                var marker = BossAreaEffect.Spawn(new Vector3(x, ProbeGroundY(x), 0f), SUMMON_EFFECT_RADIUS, SummonEffectColor,
+                var marker = BossAreaEffect.Spawn(new Vector3(x, floorY, 0f), SUMMON_EFFECT_RADIUS, SummonEffectColor,
                     REINFORCEMENT_TELEGRAPH_SECONDS, BossAreaEffect.Mode.Telegraph);
                 if (marker == null) continue;
                 marker.transform.SetParent(ResolveMapRoot(), true);
@@ -262,6 +263,7 @@ namespace Abyss.Runtime.Stage
         private void CloseRoomSession(string reason)
         {
             isRoomSessionClosed = true;
+            ResetTutorialRoom();
             roomEntryVersion += 1;
             nodePickVersion += 1;  // 열려 있던 갈림길 선택도 무효 — 치트 이동은 이 뒤 EnterStep이 새 세대로 다시 연다
             CancelReinforcementTelegraphs(reason);

@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: Skill_09_AbyssAlly
   m_EditorClassIdentifier: 
   skillId: skill_abyss_ally
+  requiresMetaUnlock: 0
   displayName: "\uC2EC\uC5F0 \uB3D9\uB8CC"
   description: "[\uC2EC\uC5F0] 2\uAC1C+ \uC2DC \uB300\uC2DC CD -0.5\uCD08 (\uCD5C\uC18C 0.3\uCD08)"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: dd47921a144d4a7b973b77911edb5fe6, type: 3}
   rarity: 1
   category: 3
   synergyTag: abyss

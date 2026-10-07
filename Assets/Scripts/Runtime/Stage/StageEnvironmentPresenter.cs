@@ -40,13 +40,28 @@ namespace Abyss.Runtime.Stage
         [Tooltip("첫 방 진입 이벤트 전(시퀀스 시작 지연 0.2초)의 모습. 런은 이 스테이지 첫 방에서 시작한다")]
         [SerializeField] private StageEnvironmentLook initialLook = StageEnvironmentLook.Field;
 
+        [Header("방 전용 아트 — 비어 있으면 기존 표시 그대로(Stage1EnvironmentWiring 방 아트 진입점이 채운다)")]
+        [Tooltip("이 방(이 스테이지의 일반 방)에서만 roomArtRoot 를 켠다. 보스 방·스테이지 밖에서는 무시된다")]
+        [SerializeField] private RoomData roomArtRoom;
+        [Tooltip("켜면 roomArtRoom 대신 이 스테이지의 모든 방(보스 포함)에서 roomArtRoot 를 켠다. 스테이지 밖에서는 끈다")]
+        [SerializeField] private bool roomArtWholeStage;
+        [SerializeField] private GameObject roomArtRoot;
+        [Tooltip("방 전용 아트가 켜질 때만 끌 기존 표현(일반 방 배경·지면 스킨·그 방 발판 스킨). 다른 방에서는 원래 규칙으로 돌아간다")]
+        [SerializeField] private GameObject[] roomArtReplacedRoots = new GameObject[0];
+
         private StageEnvironmentLook currentLook;
+        private bool isRoomArtShown;
 
         /// <summary>지금 보이는 모습(검증·디버그용).</summary>
         public StageEnvironmentLook CurrentLook => currentLook;
 
+        /// <summary>지금 방 전용 아트가 켜져 있는가(검증·디버그용).</summary>
+        public bool IsRoomArtShown => isRoomArtShown;
+
         public StageData Stage => stage;
         public RoomData BossRoom => bossRoom;
+        public RoomData RoomArtRoom => roomArtRoom;
+        public bool IsRoomArtWholeStage => roomArtWholeStage;
 
         private void Awake()
         {
@@ -66,22 +81,38 @@ namespace Abyss.Runtime.Stage
 
         private void HandleRoomEntered(RoomData room)
         {
-            Apply(StageEnvironmentRule.Resolve(stage, bossRoom, room));
+            Apply(StageEnvironmentRule.Resolve(stage, bossRoom, room), room);
         }
 
-        /// <summary>모습 하나를 적용한다. 같은 값이어도 다시 적용한다(멱등) — 누가 중간에 켰어도 규칙대로 돌린다.</summary>
-        public void Apply(StageEnvironmentLook look)
+        /// <summary>모습 하나를 적용한다(방 전용 아트 없음). 같은 값이어도 다시 적용한다(멱등) — 누가 중간에 켰어도 규칙대로 돌린다.</summary>
+        public void Apply(StageEnvironmentLook look) => Apply(look, null);
+
+        /// <summary>
+        /// 모습 하나를 들어간 방과 함께 적용한다. 방 전용 아트가 켜지는 방이면 교체 대상만 끄고 <see cref="roomArtRoot"/> 를 켠다.
+        /// 🔑 교체 대상은 매번 원래 규칙값으로 다시 계산한다 — 다른 방·보스 방·스테이지 밖으로 나가면 그대로 복원된다.
+        /// </summary>
+        public void Apply(StageEnvironmentLook look, RoomData enteredRoom)
         {
             currentLook = look;
+            // 루트가 비었으면(배선 전·복원 후) 방 전용 아트는 없다 — 기존 표시를 그대로 둔다.
+            isRoomArtShown = roomArtRoot != null && StageEnvironmentRule.ShowsRoomArt(look, roomArtRoom, enteredRoom, roomArtWholeStage);
 
             bool isShared = StageEnvironmentRule.ShowsShared(look);
             foreach (var root in sharedRoots)
             {
-                if (root != null && root.activeSelf != isShared) root.SetActive(isShared);
+                SetActive(root, isShared && !IsReplaced(root));
             }
 
-            SetActive(fieldRoot, StageEnvironmentRule.ShowsField(look));
-            SetActive(bossArenaRoot, StageEnvironmentRule.ShowsBossArena(look));
+            SetActive(fieldRoot, StageEnvironmentRule.ShowsField(look) && !IsReplaced(fieldRoot));
+            SetActive(bossArenaRoot, StageEnvironmentRule.ShowsBossArena(look) && !IsReplaced(bossArenaRoot));
+
+            // 위 목록 밖의 교체 대상(공용 층 안의 지면 스킨 등)은 평소 켜 둔다 — 부모가 꺼지면 같이 안 보인다.
+            foreach (var root in roomArtReplacedRoots)
+            {
+                if (root != null && !IsListedRoot(root)) SetActive(root, !isRoomArtShown);
+            }
+
+            SetActive(roomArtRoot, isRoomArtShown);
 
             bool isGraybox = StageEnvironmentRule.ShowsGraybox(look);
             foreach (var graybox in grayboxRenderers)
@@ -94,6 +125,14 @@ namespace Abyss.Runtime.Stage
         {
             if (target != null && target.activeSelf != isActive) target.SetActive(isActive);
         }
+
+        /// <summary>지금 방 전용 아트 때문에 꺼야 하는 루트인가.</summary>
+        private bool IsReplaced(GameObject root)
+            => isRoomArtShown && root != null && System.Array.IndexOf(roomArtReplacedRoots, root) >= 0;
+
+        /// <summary>모습 규칙이 직접 켜고 끄는 루트인가(공용 층·일반 방 배경·보스 방 배경).</summary>
+        private bool IsListedRoot(GameObject root)
+            => root == fieldRoot || root == bossArenaRoot || System.Array.IndexOf(sharedRoots, root) >= 0;
 
         /// <summary>
         /// 꺼진 루트 아래 레이어까지 카메라를 넘긴다. Awake 에 하므로 레이어들의 Start 보다 먼저다

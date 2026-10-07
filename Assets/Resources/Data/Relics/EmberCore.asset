@@ -15,7 +15,7 @@ MonoBehaviour:
   relicId: relic_ember_core
   nameKey: Relic_EmberCore_Name
   descKey: Relic_EmberCore_Desc
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 964fea791982469e85ac045ef4e9615c, type: 3}
   rarity: 1
   effectType: 1
   valuePerLevel: 0.07

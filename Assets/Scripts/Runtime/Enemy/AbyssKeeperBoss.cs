@@ -1,4 +1,4 @@
-using Abyss.Runtime.Feedback;
+﻿using Abyss.Runtime.Feedback;
 using UnityEngine;
 
 namespace Abyss.Runtime.Enemy
@@ -22,8 +22,9 @@ namespace Abyss.Runtime.Enemy
     /// </list>
     ///
     /// 📌 피해·HP·쿨다운·볼리 발 수·주기는 건드리지 않는다. 볼리 직렬값은 <see cref="BossEnemy"/> 쪽 필드가 SoT.
+    /// 📌 조우 대기(소개 전 선공 금지)는 <c>AbyssKeeperBoss.Presentation.cs</c> 에 있다(E1).
     /// </summary>
-    public sealed class AbyssKeeperBoss : BossEnemy
+    public sealed partial class AbyssKeeperBoss : BossEnemy
     {
         [Header("첫 보스 예고 (C2 · 기존 boss_telegraph 재사용)")]
         [Tooltip("근접·탄막 예고 시작에 재생. 기존 boss_telegraph.wav — 신규 음원 아님")]
@@ -47,7 +48,7 @@ namespace Abyss.Runtime.Enemy
 
         protected override bool ResistsStaggerWhileAttacking => true;
 
-        protected override bool CanBeginAttack() => !volley.IsTelegraphing;
+        protected override bool CanBeginAttack() => !isHoldingForEncounter && !volley.IsTelegraphing;
 
         protected override void OnAttackWindupStarted(float windup)
         {
@@ -69,7 +70,8 @@ namespace Abyss.Runtime.Enemy
         /// <summary>기본 볼리(<c>BossEnemy.TryFireVolley</c>) 대신 예고가 붙은 볼리를 돈다. 발 수·확산·주기는 같은 값.</summary>
         protected override void TickPattern()
         {
-            if (IsDead || Target == null || Data == null || Data.projectilePrefab == null)
+            // 조우 대기 중에는 예고도 시작하지 않는다 — 소개가 끝난 뒤 첫 볼리는 정상 예고부터 나간다.
+            if (IsDead || isHoldingForEncounter || Target == null || Data == null || Data.projectilePrefab == null)
             {
                 volley.Cancel();
                 return;

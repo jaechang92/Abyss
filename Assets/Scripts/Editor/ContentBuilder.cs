@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.IO;
 using System.Text;
@@ -13,7 +13,7 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// 프로토 SO 에셋 일괄 생성 에디터 툴.
-    /// 생성 대상: FormData 4 / SkillData 18 / EnemyData 10 / RunConfig 1.
+    /// 생성 대상: FormData 4 / SkillData 30 / EnemyData 10 / RunConfig 1.
     /// 기본값은 stage-d-analyst.md 확정 스펙 + 03-skill-draft-system.md 스킬 목록.
     /// 이미 존재하는 에셋은 건너뜀(덮어쓰지 않음).
     /// </summary>
@@ -25,7 +25,7 @@ namespace Abyss.EditorTools
                 "ContentBuilder",
                 "프로토 SO 에셋 생성:\n" +
                 "  · FormData 4 (dark_blade, void_archer, ancient_shield, void_thrower)\n" +
-                "  · SkillData 18 (불꽃 6 + 심연 6 + 버프 1 + 방패 3 + 투척 2)\n" +
+                "  · SkillData 30 (불꽃 6 + 심연 8 + 수호 3 + 피의 서약 7 + 무축 6)\n" +
                 "  · EnemyData 10 (근접 2 / 원거리 4 / 엘리트 1 / 보스 1 + Stage2 중간보스 1 / 보스 1)\n" +
                 "  · WeaponData 4 (폼마다 기본 무기 하나)\n" +
                 "  · RunConfig 1\n\n" +
@@ -42,19 +42,27 @@ namespace Abyss.EditorTools
 
             CreateForms();
             CreateSkills();
+            CreateSkillsBloodPactAndNeutral();   // 19~30 (2026-10-06)
             CreateEnemies();
+            CreateEliteVariants();             // 엘리트 변종 2종 (2026-10-06)
             LinkEnemySfx();   // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다
             CreateWeapons();
             CreateRunConfig();
             CreateAbilities();
+            CreateAbilitiesBloodPactAndNeutral();
             WireActiveAbilities();
+            WireActiveAbilitiesBloodPactAndNeutral();
             WireSkillIcons();
             WireFormBodySprites();     // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다
+            GeneratedContentIconWiring.ApplyForms(); // UI 아이콘만 연결, 몸통 그림은 유지
             WireWeaponSprites();       // 〃 — 무기 그림 + 각도 스트립
             WireFormDefaultWeapons();  // 〃 — 폼이 들고 시작할 무기
             WireFormRangedAttacks();   // 〃 — 궁수·투척사 원거리 기본 공격(발사체 프리팹은 PrefabBuilder)
             WireFormGuards();          // 〃 — 방패병 가드(강공격 키 = 가드 · 자동 반격)
             WireAbilitySfx();
+            WireFormSwapSfx();         // 기존 에셋에도 붙여야 하므로 생성과 분리된 패스다 — 비어 있는 교체음만 채운다
+            PlaceEliteVariants();      // 〃 — Stage2·3 방 한 자리씩. 이미 들어가 있으면 건너뛴다
+            ApplyMetaUnlocks();        // 〃 — 신규 스킬 3종 잠금 + 제단 해금 항목(Upsert)
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -229,6 +237,43 @@ namespace Abyss.EditorTools
             }
             if (linked > 0) AssetDatabase.SaveAssets();
             Debug.Log($"[ContentBuilder] 폼 몸통 스프라이트 연결: {linked}종 갱신, {missing}종은 그림 없음(폴백 유지).");
+        }
+
+        /// <summary>
+        /// 폼 교체음(<see cref="FormData.swapInSfx"/>) 임시 연결. 정식 교체음이 없어 폼 대표 스킬 발동음을 재사용한다.
+        ///
+        /// <see cref="CreateOrSkip"/>가 건너뛰는 기존 4폼에도 붙여야 하므로 별도 패스다.
+        /// 🔴 이미 지정된 값은 덮어쓰지 않는다 — 나중에 정식 교체음을 넣었을 때 빌더가 임시 음원으로 되돌리면 안 된다.
+        /// </summary>
+        private static void WireFormSwapSfx()
+        {
+            WireFormSwapSfx($"{AbyssPaths.Forms}/DarkBlade.asset", "skill_flame_roar");
+            WireFormSwapSfx($"{AbyssPaths.Forms}/VoidArcher.asset", "skill_void_volley");
+            WireFormSwapSfx($"{AbyssPaths.Forms}/AncientShield.asset", "skill_shield_bash");
+            WireFormSwapSfx($"{AbyssPaths.Forms}/VoidThrower.asset", "skill_void_javelin");
+        }
+
+        private static void WireFormSwapSfx(string formPath, string sfxKey)
+        {
+            var form = AssetDatabase.LoadAssetAtPath<FormData>(formPath);
+            if (form == null)
+            {
+                Debug.LogWarning($"[ContentBuilder] 교체음 연결 건너뜀 — 폼 없음: {formPath}");
+                return;
+            }
+            if (form.swapInSfx != null) return;
+
+            string sfxPath = $"{AbyssPaths.Sfx}/{sfxKey}.wav";
+            var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(sfxPath);
+            if (clip == null)
+            {
+                Debug.LogWarning($"[ContentBuilder] 교체음 연결 건너뜀 — 음원 없음: {sfxPath}");
+                return;
+            }
+
+            form.swapInSfx = clip;
+            EditorUtility.SetDirty(form);
+            Debug.Log($"[ContentBuilder] 교체음 연결: {form.name}.swapInSfx → {clip.name}");
         }
     }
 }

@@ -99,7 +99,17 @@ namespace Abyss.Tests.EditMode
                 SkillIds.FLAME_ARMOR,
                 SkillIds.AFTERIMAGE,
                 SkillIds.ABYSS_CHARGE,
-                SkillIds.SOUL_RECLAIM
+                SkillIds.SOUL_RECLAIM,
+                SkillIds.FINAL_STAND,
+                SkillIds.BLOOD_RAGE,
+                SkillIds.VAMPIRIC_SEAL,
+                SkillIds.CRIMSON_RADIANCE,
+                SkillIds.DEATHS_PROMISE,
+                SkillIds.BLOOD_SHADE,
+                SkillIds.KEEN_EYE,
+                SkillIds.HOLY_WARD,
+                SkillIds.GOLDEN_TOUCH,
+                SkillIds.FATES_FAVOR
             };
 
             var missing = new List<string>();

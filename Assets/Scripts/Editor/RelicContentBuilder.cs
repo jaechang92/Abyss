@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.IO;
 using Abyss.Runtime.Meta;
 using UnityEditor;
@@ -16,6 +16,8 @@ namespace Abyss.EditorTools
     /// → <see cref="Generate"/> 자체가 <b>추가 전용</b>이다. 기존 에셋은 읽지도 고치지도 않고
     ///   <b>relicId 에 해당하는 파일이 없는 것만</b> 새로 만든다. 그래서 정의에 유물을 더하고
     ///   메뉴를 다시 돌리면 그것만 들어온다 — 손으로 맞춘 수치는 그대로 남는다.
+    ///   예외는 생성 뒤 아이콘 후처리(<see cref="GeneratedContentIconWiring.ApplyRelics"/>) 하나다 —
+    ///   기존 에셋에도 들어가지만 <b>비어 있는 icon 만</b> 채우고 수치·등급은 건드리지 않는다.
     ///
     /// 효과 어휘는 <see cref="MetaUpgradeType"/>를 그대로 쓴다(<see cref="RelicData"/> 주석 참조).
     /// 해금 2종은 유물이 쓸 수 없으므로 여기서도 만들지 않는다.
@@ -31,6 +33,9 @@ namespace Abyss.EditorTools
             {
                 if (CreateOrSkip(def)) created += 1;
             }
+
+            // 아이콘은 생성과 분리된 후처리 — 기존 에셋도 비어 있는 icon 만 채운다(수치는 안 건드림).
+            GeneratedContentIconWiring.ApplyRelics();
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

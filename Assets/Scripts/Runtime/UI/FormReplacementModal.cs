@@ -12,8 +12,9 @@ namespace Abyss.Runtime.UI
     /// 슬롯 버튼 클릭 → FormController.EquipForm(선택 폼, 슬롯, activate:true)로 즉시 전환.
     /// 스킬 교체 모달(ReplacementModal)과 동형. 열림/닫힘에 OnDraftOpened/Closed를 발행해
     /// 기존 DraftOpen FSM 상태로 게임을 전역 정지/재개시킨다(전용 정지 로직 불필요).
+    /// 키보드·패드 조작(포커스·탐색 경로·ESC/패드 B 취소)은 FormReplacementModal.Navigation.cs가 맡는다.
     /// </summary>
-    public sealed class FormReplacementModal : MonoBehaviour
+    public sealed partial class FormReplacementModal : MonoBehaviour
     {
         [Header("루트")]
         [SerializeField] private GameObject root;
@@ -27,6 +28,9 @@ namespace Abyss.Runtime.UI
         private FormController controller;
         private FormData incomingForm;
         private bool isOpen;
+        private Vector3? acquisitionOrigin;
+        private FormAltar rewardAltar;
+        private int rewardGeneration;
 
         // 2단계 취소 확인: 첫 클릭은 '무장'(경고 라벨)만, 재클릭에서 실제 포기. 오조작으로 보상을 날리는 걸 막는다.
         private bool cancelArmed;
@@ -42,12 +46,12 @@ namespace Abyss.Runtime.UI
                 int idx = i;
                 if (currentSlotButtons[i] != null)
                 {
-                    currentSlotButtons[i].onClick.AddListener(() => OnSlotSelected(idx));
+                    currentSlotButtons[i].onClick.AddListener(() => OnSlotClicked(idx));
                 }
             }
             if (cancelButton != null)
             {
-                cancelButton.onClick.AddListener(Cancel);
+                cancelButton.onClick.AddListener(OnCancelClicked);
                 // 취소 버튼 자식 Text를 잡아 무장 시 라벨을 바꾼다(HudBuilder가 버튼 라벨을 자식 Text로 생성).
                 cancelLabel = cancelButton.GetComponentInChildren<Text>();
             }
@@ -59,6 +63,9 @@ namespace Abyss.Runtime.UI
 
             incomingForm = incoming;
             controller = formController;
+            acquisitionOrigin = FormAltar.CaptureOfferOrigin(incoming, formController);
+            rewardAltar = FormAltar.CaptureOffer(incoming, formController);
+            rewardGeneration = rewardAltar != null ? rewardAltar.OfferGeneration : -1;
 
             if (incomingText != null)
             {
@@ -81,14 +88,17 @@ namespace Abyss.Runtime.UI
             // 새로 열 때는 취소 무장을 해제해 항상 1클릭=경고 상태에서 시작한다.
             ResetCancelArm();
 
+            // root가 이 컴포넌트의 GameObject라 첫 SetActive(true)에서 Awake가 돈다 — 포커스는 그 뒤에 잡는다.
             if (root != null) root.SetActive(true);
 
             // 이미 열려 있는 상태(중복 호출)가 아니면 정지 진입.
+            bool isFirstOpen = !isOpen;
             if (!isOpen)
             {
                 isOpen = true;
                 GameEvents.RaiseDraftOpened();
             }
+            BeginFocus(isFirstOpen);
         }
 
         private void Cancel()
@@ -111,17 +121,29 @@ namespace Abyss.Runtime.UI
             if (cancelLabel != null) cancelLabel.text = Loc.Get(StringKey.Common_Cancel);
         }
 
-        private void Close()
+        /// <summary>
+        /// 상태를 먼저 비우고 포커스를 돌려준 뒤 root를 끈다 — root가 이 컴포넌트라 SetActive(false)가 OnDisable을
+        /// 부르는데, 그때는 이미 닫힌 상태라 선택 정리만 한다(닫기 중복 없음). 닫힘 신호는 맨 마지막에 낸다 —
+        /// 그 신호로 이어지는 다음 방·드래프트가 잡는 포커스를 이 모달이 뒤에서 뺏지 않는다.
+        /// </summary>
+        private void Close(bool acquired = false)
         {
+            var sourceAltar = rewardAltar;
+            int sourceGeneration = rewardGeneration;
             ResetCancelArm();
-            if (root != null) root.SetActive(false);
+            bool wasOpen = isOpen;
+            isOpen = false;
             incomingForm = null;
             controller = null;
+            acquisitionOrigin = null;
+            rewardAltar = null;
+            if (wasOpen) ReleaseFocus();
+            if (root != null) root.SetActive(false);
 
-            if (isOpen)
+            if (wasOpen)
             {
-                isOpen = false;
                 GameEvents.RaiseDraftClosed();
+                if (sourceAltar != null) sourceAltar.CompletePresentation(acquired, sourceGeneration);
                 // 보상 흐름 종료 신호(획득/거절 공통). 보상 룸 게이트(StageDirector)가 이걸로 진행을 재개한다.
                 GameEvents.RaiseFormRewardResolved();
             }
@@ -134,10 +156,17 @@ namespace Abyss.Runtime.UI
 
             // 선택 슬롯에 주입 + 즉시 전환(activate). 전환을 알려 HUD·스킬 로드아웃·이동배율을 갱신.
             var previous = controller.CurrentForm;
+            var acquiredController = controller;
+            var acquiredForm = incomingForm;
+            var origin = acquisitionOrigin;
+            var presentation = acquiredController.GetComponent<Feedback.FormPresentationFeedback>();
+            int roomVersion = presentation != null ? presentation.RoomVersion : -1;
             controller.EquipForm(incomingForm, index, activate: true);
             GameEvents.RaiseFormSwapped(previous, controller.CurrentForm);
 
-            Close();
+            Close(acquired: true);
+            // 획득 성공 전용. 닫기/거절/시작 폼 적용은 이 경로를 지나지 않는다.
+            Feedback.FormPresentationFeedback.PlayAcquisition(acquiredController, acquiredForm, origin, roomVersion);
         }
     }
 }

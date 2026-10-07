@@ -33,8 +33,8 @@ import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
-ASSEMBLED = os.path.join(REPO, "Art_Source", "assembled")
-LOG_PATH = os.path.join(REPO, "Art_Source", "_measurements.tsv")
+ASSEMBLED = os.path.join(REPO, "..", "Abyss_Local", "Art_Source", "assembled")
+LOG_PATH = os.path.join(REPO, "..", "Abyss_Local", "Art_Source", "_measurements.tsv")
 
 # ── 경로 ──────────────────────────────────────────────────────────────────────
 # 조립본이 이미 이 구분을 갖고 있다 — `_style_image_path` 유무 + `tool`.

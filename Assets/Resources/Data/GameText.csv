@@ -21,6 +21,11 @@ Draft_Title,드래프트,스킬 드래프트 패널 헤더,,,스킬 선택,Choos
 Draft_Reroll,드래프트,리롤 버튼,,,다시 뽑기,Reroll,引き直し
 Draft_Skip,드래프트,스킵 버튼,,,건너뛰기,Skip,スキップ
 Draft_ReplaceSlotTitle,드래프트,슬롯 교체 모달,Active 슬롯 가득 찼을 때,,교체할 스킬을 선택하세요,Choose a skill to replace,交換するスキルを選択
+DraftDetail_Title,드래프트,카드 상세 패널 헤더,카드 호버·포커스,,상세 정보,Details,詳細情報
+DraftDetail_DescriptionFormat,드래프트,카드 상세 설명,,{0}: 스킬 설명 원문,설명: {0},Description: {0},説明: {0}
+DraftDetail_FlatBonusFormat,드래프트,카드 상세 고정 보너스,,{0}: flatBonus,고정 보너스: {0},Flat bonus: {0},固定ボーナス: {0}
+DraftDetail_MultiplierFormat,드래프트,카드 상세 배율,,{0}: multiplier,배율: ×{0},Multiplier: ×{0},倍率: ×{0}
+DraftDetail_SynergyFormat,드래프트,카드 상세 시너지 축,,{0}: 축 이름,시너지 축: {0},Synergy axis: {0},シナジー軸: {0}
 Result_RunClear,결과,결과 패널,런 클리어 시,,런 클리어!,Run Cleared!,ランクリア！
 Result_Death,결과,결과 패널,사망 시,,사망,Death,デス
 Result_PlayTimeFormat,결과,플레이 타임 라벨,,{0}: 플레이 시간 (mm:ss),플레이 시간: {0},Play Time: {0},プレイ時間: {0}
@@ -34,7 +39,7 @@ Settings_SfxVolume,설정,SFX 볼륨 라벨,,,효과음,SFX Volume,SFX音量
 Settings_Fullscreen,설정,전체 화면 토글 라벨,,,전체 화면,Fullscreen,フルスクリーン
 Settings_Resolution,설정,해상도 셀렉터 라벨,,,해상도,Resolution,解像度
 Settings_Language,설정,언어 선택 라벨,,,언어,Language,言語
-Settings_KeyGuide,설정,설정 패널 하단 조작 안내,,,← → 이동   C 점프   D 대시   Z 공격   X 강공격\nA 스킬1   S 스킬2   LCtrl 폼 교체   G 상호작용   ESC 일시정지,← → Move   C Jump   D Dash   Z Attack   X Heavy\nA Skill 1   S Skill 2   LCtrl Swap Form   G Interact   ESC Pause,← → 移動   C ジャンプ   D ダッシュ   Z 攻撃   X 強攻撃\nA スキル1   S スキル2   LCtrl フォーム交代   G 調べる   ESC ポーズ
+Settings_KeyGuide,설정,설정 패널 하단 조작 안내,,,방향키 이동·조절   Enter 결정   ESC 닫기\n패드: 스틱/십자 이동·조절   A 결정   B 닫기,Arrows Move/Adjust   Enter Select   ESC Close\nPad: Stick/D-pad Move/Adjust   A Select   B Close,方向キー 移動・調整   Enter 決定   ESC 閉じる\nパッド: スティック/十字 移動・調整   A 決定   B 閉じる
 Form_DarkBlade,폼,폼 이름,,,암흑 검사,Dark Blade,暗黒剣士
 Form_VoidArcher,폼,폼 이름,,,공허 궁수,Void Archer,虚空の弓手
 Form_AncientShield,폼,폼 이름,,,고대 방패병,Ancient Shieldbearer,古代の盾兵
@@ -53,6 +58,11 @@ Altar_LevelFormat,메타,제단 레벨,,{0}: 현재 {1}: 최대,Lv {0}/{1},Lv {0
 Altar_CostFormat,메타,제단 비용,,{0}: 비용,비용 {0},Cost {0},コスト {0}
 Altar_Maxed,메타,제단 최대치,,,최대,MAX,最大
 Altar_Purchase,메타,제단 강화 버튼,,,강화,Upgrade,強化
+Altar_UnlockSkillNameFormat,메타,제단 스킬 해금 이름,,{0}: 스킬 이름,스킬 해금 · {0},Unlock Skill · {0},スキル解放 · {0}
+Altar_UnlockFormNameFormat,메타,제단 폼 해금 이름,,{0}: 폼 이름,폼 해금 · {0},Unlock Form · {0},フォーム解放 · {0}
+Altar_Locked,메타,제단 해금 전,,,잠김,Locked,未解放
+Altar_Unlocked,메타,제단 해금 완료,,,해금됨,Unlocked,解放済み
+Altar_Unlock,메타,제단 해금 버튼,,,해금,Unlock,解放
 Upgrade_MaxHp_Name,메타,업그레이드 이름,,,생명력 강화,Vitality,生命力強化
 Upgrade_MaxHp_Desc,메타,업그레이드 설명,,,레벨당 최대 체력 +20,+20 Max HP per level,レベルごとに最大HP +20
 Upgrade_Attack_Name,메타,업그레이드 이름,,,공격력 강화,Power,攻撃力強化
@@ -93,6 +103,8 @@ Story_Ending_Line1,서사,엔딩-1,,,내 앞에서 마지막 불꽃이 꺼졌다
 Story_Ending_Line2,서사,엔딩-2,,,내가 걸어 내려온 길은 닫혔다.\n올라가는 길만 남았다.,"The path I had walked down was closed.\nOnly the way up remained.","私が歩いて降りてきた道は閉じた。\n上る道だけが残った。"
 Story_Ending_Line3,서사,엔딩-3,,,무너진 왕좌 너머로\n오래 잊혔던 빛이 들어왔다.,"Beyond the fallen throne,\nlong-forgotten light came in.","崩れた玉座の向こうから\n長く忘れられていた光が差し込んだ。"
 Story_Ending_Line4,서사,엔딩-4,,,나는 심연을 벗어났다.\n나를 내려다보던 것은 아래에 남았다.,"I left the Abyss behind.\nWhat had been looking down at me stayed below.","私は深淵を抜け出した。\n私を見下ろしていたものは下に残った。"
+Story_SequenceNextHintFormat,서사,프롤로그·엔딩 다음 단계 안내,,{0}: 확인 입력 표기,{0} — 다음,{0} — Next,{0} — 次へ
+Story_SequenceTitleHintFormat,서사,엔딩 결산 타이틀 복귀 안내,,{0}: 확인 입력 표기,{0} — 타이틀로,{0} — To Title,{0} — タイトルへ
 Npc_RelicShop_Prompt,대화,로비-유물 상점 프롬프트,,,유물 감정 (G),Appraise Relics (G),遺物鑑定 (G)
 Relic_Title,메타,유물 상점 제목,,,잊힌 것들의 좌판,Stall of Forgotten Things,忘れられた物の露店
 Relic_DrawFormat,메타,유물 뽑기 버튼,,{0}: 비용,감정 ({0}),Appraise ({0}),鑑定 ({0})
@@ -237,3 +249,19 @@ Boss_Thronebound_Intro2,서사,보스-왕좌의 영혼 등장 2,,,너도 누군�
 Boss_Thronebound_Phase2,서사,보스-왕좌의 영혼 페이즈 2,,,달아나 보아라. 이 왕좌는 어디에나 있다.,,
 Boss_Thronebound_Phase3,서사,보스-왕좌의 영혼 페이즈 3,,,기억해라… 아니다. 아무도 기억하지 못하겠지.,,
 Boss_Thronebound_Death,서사,보스-왕좌의 영혼 처치,,,내 이름을… 부르던 이가… 있었는데.,,
+Tutorial_Objective,튜토리얼,첫 플레이 안내 목표,Stage1 첫 방,,목표: 오른쪽 출구를 따라 아래로,Goal: follow the exit on the right and head down,目標：右の出口をたどって下へ
+Tutorial_ProgressFormat,튜토리얼,첫 플레이 안내 진행,,{0}: 완료 수 / {1}: 전체 수,기본 조작 {0}/{1},Basics {0}/{1},基本操作 {0}/{1}
+Tutorial_MoveFormat,튜토리얼,첫 플레이 안내 이동,,{0}: 바인딩 표시,[{0}] 이동,[{0}] Move,[{0}] 移動
+Tutorial_JumpFormat,튜토리얼,첫 플레이 안내 점프,,{0}: 바인딩 표시,[{0}] 점프,[{0}] Jump,[{0}] ジャンプ
+Tutorial_DashFormat,튜토리얼,첫 플레이 안내 대시,,{0}: 바인딩 표시,[{0}] 대시로 회피,[{0}] Dash to evade,[{0}] ダッシュで回避
+Tutorial_AttackFormat,튜토리얼,첫 플레이 안내 공격,,{0}: 바인딩 표시,[{0}] 기본 공격,[{0}] Basic attack,[{0}] 通常攻撃
+Tutorial_SwapFormat,튜토리얼,첫 플레이 안내 폼 교체,두 번째 폼 보유 시,{0}: 바인딩 표시,[{0}] 폼 교체,[{0}] Swap form,[{0}] フォーム切替
+Tutorial_Draft,튜토리얼,첫 플레이 안내 드래프트,첫 드래프트 열림,,스킬 카드 하나를 골라 익혀라,Pick one skill card to learn it,スキルカードを1枚選んで習得しよう
+Tutorial_Complete,튜토리얼,첫 플레이 안내 완료,,,기본 조작을 모두 익혔다,You have learned the basics,基本操作をすべて覚えた
+Tutorial_Skip,튜토리얼,첫 플레이 안내 건너뛰기 버튼,,,건너뛰기,Skip,スキップ
+Tutorial_PadSkipHintFormat,튜토리얼,첫 플레이 안내 패드 건너뛰기,게임패드 사용 시,{0}: 버튼 표시,{0} 길게 눌러 건너뛰기,Hold {0} to skip,{0} 長押しでスキップ
+Tutorial_Unbound,튜토리얼,첫 플레이 안내 미지정 키,현재 장치에 바인딩 없음,,미지정,Unbound,未設定
+Tutorial_Waiting,튜토리얼,첫 플레이 안내 대기,기본 4동작 후 폼 교체·드래프트 대기 중,,다른 폼과 성장 선택은 다음 방에서 만난다,Other forms and growth picks await in the next rooms,別のフォームと成長の選択は次の部屋で出会える
+Journey_ReturnTitle,여정,사망 후 로비 귀환 안내,직전 런 처치 있음,,남겨진 흔적이 돌아왔다,Your traces have returned,残された痕跡が帰ってきた
+Journey_ReturnEarlyTitle,여정,사망 후 로비 귀환 안내,직전 런 처치 없음,,아직 희미한 흔적이 돌아왔다,A faint trace has returned,まだ淡い痕跡が帰ってきた
+Journey_ReturnDetailFormat,여정,로비 귀환 직전 런 요약,,{0}: 구역 {1}: 처치 {2}: 정산 조각,기록: {0}구역 · {1}처치 · +{2}심연 조각,Last attempt: Stage {0} · {1} defeated · +{2} Abyss shards,前の挑戦: エリア{0} · {1}体撃破 · 深淵の欠片+{2}

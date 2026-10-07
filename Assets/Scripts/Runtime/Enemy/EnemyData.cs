@@ -98,6 +98,16 @@ namespace Abyss.Runtime.Enemy
                  "포물선으로 나는 화살(원거리 사수)용. PrefabBuilder가 이 값으로 곡사 프리팹을 고른다.")]
         public bool arcExplodes = true;
 
+        [Header("변종 표현 (그림을 빌려 쓰는 적 — 엘리트 변종 등)")]
+        [Tooltip("그림·애니메이션을 빌려 올 적의 enemyId. 비우면 자기 enemyId. PrefabBuilder 정지 그림 조회가 이 값을 쓴다 " +
+                 "(애니메이션 시트 접두어는 EnemyAnimationBuilder.Entries 가 따로 갖는다 — 둘을 같이 맞출 것).")]
+        public string artSourceId;
+        [Tooltip("몸 색(곱). 흰색이면 그림 그대로. 빌린 그림을 원본과 구별하는 용도 — 크기는 바꾸지 않는다(정수 배율 규약).")]
+        public Color bodyTint = Color.white;
+
+        /// <summary>정지 그림·시트를 찾을 때 쓰는 id. <see cref="artSourceId"/>가 비면 자기 id.</summary>
+        public string ArtId => string.IsNullOrEmpty(artSourceId) ? enemyId : artSourceId;
+
         [Header("스폰 프리팹 (StageDirector가 Instantiate)")]
         public GameObject spawnPrefab;
     }

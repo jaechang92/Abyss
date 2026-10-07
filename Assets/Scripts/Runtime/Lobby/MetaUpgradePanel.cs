@@ -4,7 +4,6 @@ using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using Abyss.Runtime.UI;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Abyss.Runtime.Lobby
@@ -14,9 +13,9 @@ namespace Abyss.Runtime.Lobby
     /// 심연 조각 잔액과 MetaUpgrades.All 각 항목을 1행씩 표시하고 [강화] 구매를 처리한다.
     /// 행은 최초 Open 시 런타임 동적 생성한다(업그레이드 개수 유동적).
     /// 모든 텍스트는 Loc.Get(StringKey)로 조회(하드코딩 금지).
-    /// FormSelectPanel/DialogueUI의 Open·IsOpen·Esc 입력 패턴을 그대로 따른다.
+    /// FormSelectPanel/DialogueUI의 Open·IsOpen 패턴을 따르고, 키보드·패드 조작은 MetaUpgradePanel.Navigation.cs가 맡는다.
     /// </summary>
-    public sealed class MetaUpgradePanel : MonoBehaviour
+    public sealed partial class MetaUpgradePanel : MonoBehaviour
     {
         [Header("루트")]
         [SerializeField] private GameObject root;
@@ -57,22 +56,18 @@ namespace Abyss.Runtime.Lobby
 
         private void Awake()
         {
-            if (closeButton != null) closeButton.onClick.AddListener(Close);
+            if (closeButton != null) closeButton.onClick.AddListener(OnCloseClicked);
             if (root != null) root.SetActive(false);
             IsOpen = false;
         }
 
-        private void Update()
-        {
-            if (!IsOpen) return;
-            var kb = Keyboard.current;
-            if (kb == null) return;
-            if (kb.escapeKey.wasPressedThisFrame) Close();
-        }
-
-        /// <summary>패널을 연다. closed는 닫힐 때(Esc/닫기) 호출되는 콜백.</summary>
+        /// <summary>
+        /// 패널을 연다. closed는 닫힐 때(Esc·패드 B/닫기) 호출되는 콜백.
+        /// 열린 채 다시 불리면 콜백만 바꾸고, 열기 전 뒤 화면 선택 기억은 처음 것을 유지한다.
+        /// </summary>
         public void Open(Action closed)
         {
+            bool isFirstOpen = !IsOpen;
             onClosed = closed;
             EnsureRows();
             if (titleLabel != null) titleLabel.text = Loc.Get(StringKey.Altar_Title);
@@ -82,16 +77,26 @@ namespace Abyss.Runtime.Lobby
                 if (closeText != null) closeText.text = Loc.Get(StringKey.Common_Close);
             }
             Refresh();
+            isRootHidePending = false;
             if (root != null) root.SetActive(true);
             IsOpen = true;
+            BeginFocus(isFirstOpen);
         }
 
+        /// <summary>
+        /// 닫는다. 외부 정리용으로도 불리므로 연 프레임 가드를 두지 않는다(UI의 [닫기]는 <see cref="OnCloseClicked"/>).
+        ///
+        /// 🔴 상태와 콜백을 먼저 비운 뒤 root를 끈다 — root가 이 GameObject면 SetActive(false)가 같은 호출 안에서
+        /// OnDisable을 부르는데, 그때 IsOpen이 남아 있으면 외부 비활성으로 오인해 콜백이 두 번 불린다.
+        /// </summary>
         public void Close()
         {
-            if (root != null) root.SetActive(false);
             IsOpen = false;
             var cb = onClosed;
             onClosed = null;
+            isRootHidePending = false;
+            ReleaseFocus();
+            if (root != null) root.SetActive(false);
             cb?.Invoke();
         }
 
@@ -104,6 +109,13 @@ namespace Abyss.Runtime.Lobby
 
             var catalog = MetaUpgrades.All;
             if (catalog == null) return;
+
+            int count = 0;
+            for (int i = 0; i < catalog.Length; i++)
+            {
+                if (catalog[i] != null) count += 1;
+            }
+            FitPanelToRows(count);
 
             for (int i = 0; i < catalog.Length; i++)
             {
@@ -121,10 +133,14 @@ namespace Abyss.Runtime.Lobby
             var bg = rowRt.gameObject.AddComponent<Image>();
             bg.color = RowBg;
 
-            CreateText(rowRt, "Name", Loc.Get(data.nameKey), 22,
+            // 해금 항목(스킬·폼)은 이름·설명을 대상 에셋에서 읽는다 — 문구가 두 벌이 되지 않게(ContentBuilder.MetaUnlocks).
+            // 칸을 넘는 문구는 잘리는 대신 글자를 줄인다(Text 기본값은 오류 없이 조용히 자른다). 칸에 맞는 기존 행은 그대로다.
+            var nameText = CreateText(rowRt, "Name", ResolveRowName(data), 22,
                 new Vector2(-230f, 15f), new Vector2(300f, 30f), TextAnchor.LowerLeft, Color.white);
-            CreateText(rowRt, "Desc", Loc.Get(data.descKey), 14,
-                new Vector2(-224f, -16f), new Vector2(320f, 26f), TextAnchor.UpperLeft, new Color(0.72f, 0.72f, 0.8f));
+            FitText(nameText, 14);
+            var descText = CreateText(rowRt, "Desc", ResolveRowDescription(data), 14,
+                new Vector2(-224f, -20f), new Vector2(320f, 34f), TextAnchor.UpperLeft, new Color(0.72f, 0.72f, 0.8f));
+            FitText(descText, 10);
 
             var levelLabel = CreateText(rowRt, "Level", "", 20,
                 new Vector2(-10f, 0f), new Vector2(110f, 40f), TextAnchor.MiddleCenter, new Color(0.85f, 0.9f, 1f));
@@ -132,7 +148,8 @@ namespace Abyss.Runtime.Lobby
                 new Vector2(110f, 0f), new Vector2(120f, 40f), TextAnchor.MiddleCenter, new Color(1f, 0.9f, 0.6f));
 
             var (btn, img) = CreateButton(rowRt, "Purchase",
-                new Vector2(300f, 0f), new Vector2(130f, 56f), PurchaseBase, Loc.Get(StringKey.Altar_Purchase));
+                new Vector2(300f, 0f), new Vector2(130f, 56f), PurchaseBase,
+                Loc.Get(data.IsUnlock ? StringKey.Altar_Unlock : StringKey.Altar_Purchase));
 
             var row = new UpgradeRow { Data = data, LevelLabel = levelLabel, CostLabel = costLabel, Button = btn, ButtonImage = img };
             btn.onClick.AddListener(() => OnPurchase(row));
@@ -143,6 +160,8 @@ namespace Abyss.Runtime.Lobby
 
         private void OnPurchase(UpgradeRow row)
         {
+            // 여는 입력이 Submit으로 흘러 든 것·상위 모달이 입력을 쥔 동안의 클릭 — 조각을 쓰지 않는다
+            if (!IsOpen || IsOpenedThisFrame || IsUpperModalOwningInput) return;
             if (row == null || row.Data == null) return;
             if (MetaSaveService.Instance.TryPurchaseUpgrade(row.Data)) Refresh();
         }
@@ -158,14 +177,20 @@ namespace Abyss.Runtime.Lobby
                 if (row == null || row.Data == null) continue;
 
                 int level = MetaSaveService.Instance.GetUpgradeLevel(row.Data.upgradeId);
-                if (row.LevelLabel != null) row.LevelLabel.text = Loc.GetFormat(StringKey.Altar_LevelFormat, level, row.Data.MaxLevel);
-
                 int cost = row.Data.CostForNextLevel(level);
                 bool isMaxed = cost < 0;
+
+                // 해금 항목은 레벨이 아니라 잠김/해금됨이다 — "Lv 0/1"은 1회 구매라는 성격을 못 읽게 한다.
+                if (row.LevelLabel != null)
+                {
+                    row.LevelLabel.text = row.Data.IsUnlock
+                        ? Loc.Get(isMaxed ? StringKey.Altar_Unlocked : StringKey.Altar_Locked)
+                        : Loc.GetFormat(StringKey.Altar_LevelFormat, level, row.Data.MaxLevel);
+                }
                 if (row.CostLabel != null)
                 {
                     row.CostLabel.text = isMaxed
-                        ? Loc.Get(StringKey.Altar_Maxed)
+                        ? Loc.Get(row.Data.IsUnlock ? StringKey.Altar_Unlocked : StringKey.Altar_Maxed)
                         : Loc.GetFormat(StringKey.Altar_CostFormat, cost);
                 }
 
@@ -173,6 +198,8 @@ namespace Abyss.Runtime.Lobby
                 if (row.Button != null) row.Button.interactable = canBuy;
                 if (row.ButtonImage != null) row.ButtonImage.color = canBuy ? PurchaseBase : PurchaseDisabled;
             }
+
+            RefreshNavigation();
         }
 
         // ───────────────────────── UI 헬퍼(런타임 생성) ─────────────────────────

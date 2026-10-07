@@ -1,7 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Localization;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using static Abyss.Runtime.UI.UiFactory;
 
@@ -87,8 +86,11 @@ namespace Abyss.Runtime.UI
             EnsureInstance();
             if (instance == null) return;
 
+            // 이미 열린 창에 다시 들어온 호출이 기억해 둔 뒤 화면 선택을 덮어쓰지 않게 한다.
+            bool wasOpen = IsOpen;
             instance.body.SetActive(true);
             instance.Refresh();
+            if (!wasOpen) instance.BeginFocus();
         }
 
         public static void Close()
@@ -96,6 +98,7 @@ namespace Abyss.Runtime.UI
             if (!IsOpen) return;
             instance.body.SetActive(false);
             closedFrame = Time.frameCount;
+            instance.ReleaseFocus();
         }
 
         /// <summary>
@@ -125,16 +128,24 @@ namespace Abyss.Runtime.UI
         /// ESC 닫기를 스스로 소유한다 — 타이틀 씬에는 ESC를 받는 입력 배선이 아예 없고,
         /// 로비는 LobbyPlayerController가 받는다. 화면마다 다른 경로에 기대지 않으려면 여기서 처리해야 한다.
         /// timeScale=0에서도 Update는 돌기 때문에 정지 화면 위에서도 유효하다.
+        /// 패드 B도 같은 닫기로 받는다(키보드가 없어도 닫힌다). 열려 있는 동안 포커스를 도감 안에 붙잡아 둔다.
+        /// 저장 모달·설정이 입력을 쥔 동안에는 닫기도 포커스도 건드리지 않는다 — 그 키와 선택은 그쪽 몫이다.
         /// </summary>
         private void Update()
         {
             if (body == null || !body.activeSelf) return;
-            if (SaveStatusOverlay.IsCapturingInput) return;
+            if (IsUpperModalOwningFocus) return;
+            // 설정이 이번 프레임에 같은 ESC·B로 먼저 닫혔으면 그 입력은 설정 몫이다 — 도감까지 닫지 않는다.
+            // 반대 순서(도감 Update가 먼저)는 위의 IsOpen 가드가 막는다.
+            if (SettingsPanel.WasClosedThisFrame) return;
 
-            var keyboard = Keyboard.current;
-            if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame) return;
-
-            Close();
+            // 연 프레임의 취소 입력은 쓰지 않는다 — 여는 입력과 같은 프레임에 열자마자 닫히지 않게.
+            if (openedFrame != Time.frameCount && WasCancelPressedThisFrame())
+            {
+                Close();
+                return;
+            }
+            KeepFocusInside();
         }
 
         // ───────────────────────── 상태 갱신 ─────────────────────────
@@ -191,6 +202,7 @@ namespace Abyss.Runtime.UI
                 countLabel.text = string.Empty;
                 recordsText.text = BuildLastRunText();
                 recordsSecondaryText.text = BuildRecordsText();
+                RefreshNavigation();
                 return;
             }
 
@@ -198,6 +210,7 @@ namespace Abyss.Runtime.UI
             RefreshGrid();
             RefreshPager();
             RefreshDetail();
+            RefreshNavigation();
         }
 
         private void RefreshGrid()

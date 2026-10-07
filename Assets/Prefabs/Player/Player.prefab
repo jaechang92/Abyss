@@ -421,7 +421,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c07151da8676cd4a9c764d49dfe5c33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableDebugLog: 1
+  isEnableDebugLog: 1
   initialStateId: 
   currentStateDisplay: None
   previousStateDisplay: None
@@ -490,6 +490,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4752d647da573b641916c3e913926412, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bloodRageHpThreshold: 0.5
+  bloodRageCooldownMultiplier: 0.7
+  finalStandHpThreshold: 0.25
+  finalStandDamageMultiplier: 2
+  bloodShadeHpThreshold: 0.3
+  bloodShadeDodgeChance: 0.25
+  vampiricSealRatio: 0.05
+  crimsonRadianceMaxHpPerKill: 1
+  crimsonRadianceMaxHpCap: 30
+  deathsPromiseInvulnDuration: 2
+  deathsPromiseRadius: 3
+  deathsPromiseDamage: 20
+  deathsPromiseRingDuration: 0.35
+  bloodShadeFlashDuration: 0.12
   attackCooldownLight: 0.3
   attackCooldownHeavy: 0.8
   attackPoint: {fileID: 2282693742304363163}
@@ -525,6 +539,12 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  keenEyeCritChance: 0.1
+  keenEyeCritMultiplier: 1.5
+  holyWardInterval: 5
+  holyWardRingRadius: 0.9
+  holyWardRingDuration: 0.2
+  goldenTouchMultiplier: 1.25
   flameArmorConversionRatio: 0.1
   flameArmorRadius: 3
   flameArmorBurnDuration: 4

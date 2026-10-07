@@ -61,5 +61,19 @@ namespace Abyss.Runtime.Stage
 
         /// <summary>그레이박스 렌더러(흰 사각 지면·발판)를 켜는가 — 스킨이 꺼지면 반드시 돌아와야 한다.</summary>
         public static bool ShowsGraybox(StageEnvironmentLook look) => look == StageEnvironmentLook.Hidden;
+
+        /// <summary>
+        /// 방 전용 아트를 켜는가. 이 스테이지의 <b>일반 방(Field)</b>이면서 지정한 방과 <b>같은 방</b>일 때만이다.
+        /// 보스 방·스테이지 밖 방·방 미지정은 전부 false — 그때는 기존 스테이지 표현이 그대로 보인다.
+        /// </summary>
+        public static bool ShowsRoomArt(StageEnvironmentLook look, RoomData artRoom, RoomData enteredRoom)
+            => look == StageEnvironmentLook.Field && artRoom != null && enteredRoom == artRoom;
+
+        /// <summary>
+        /// 방 아트 켜기 판정(스테이지 전체 모드 포함). <paramref name="isWholeStage"/> 이면 이 스테이지의 <b>모든 방</b>
+        /// (일반·이벤트·상점·휴식·보스)에서 켜고, 스테이지 밖(Hidden)에서만 끈다. 아니면 위의 한 방 규칙과 같다.
+        /// </summary>
+        public static bool ShowsRoomArt(StageEnvironmentLook look, RoomData artRoom, RoomData enteredRoom, bool isWholeStage)
+            => isWholeStage ? look != StageEnvironmentLook.Hidden : ShowsRoomArt(look, artRoom, enteredRoom);
     }
 }

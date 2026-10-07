@@ -243,7 +243,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c07151da8676cd4a9c764d49dfe5c33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableDebugLog: 1
+  isEnableDebugLog: 1
   initialStateId: 
   currentStateDisplay: None
   previousStateDisplay: None

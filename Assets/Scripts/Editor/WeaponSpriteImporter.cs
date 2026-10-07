@@ -29,8 +29,8 @@ namespace Abyss.EditorTools
     /// </summary>
     public static class WeaponSpriteImporter
     {
-        private const string GripJson = "Art_Source/anchors/weapon_grips.json";
-        private const string SourceDir = "Art_Source/weapons";
+        private const string GripJson = "../Abyss_Local/Art_Source/anchors/weapon_grips.json";
+        private const string SourceDir = "../Abyss_Local/Art_Source/weapons";
         private const string OutputDir = "Assets/Art/Sprites/Weapons";
         private const int PixelsPerUnit = 32;
 

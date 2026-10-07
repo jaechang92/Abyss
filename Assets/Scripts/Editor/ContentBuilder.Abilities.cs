@@ -12,8 +12,11 @@ namespace Abyss.EditorTools
         public static void WireAbilitiesOnly()
         {
             EnsureDir(AbyssPaths.Abilities);
+            CreateSkillsBloodPactAndNeutral();   // 연결 대상 스킬 에셋이 없으면 먼저 만든다(있으면 건너뜀)
             CreateAbilities();
+            CreateAbilitiesBloodPactAndNeutral();
             WireActiveAbilities();
+            WireActiveAbilitiesBloodPactAndNeutral();
             WireSkillIcons();
             WireAbilitySfx();
             AssetDatabase.SaveAssets();

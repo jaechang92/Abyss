@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Abyss.Runtime.Audio;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Flow;
 using Abyss.Runtime.Run;
@@ -171,6 +172,12 @@ namespace Abyss.Runtime.Form
             Debug.Log($"[FormController] Swap 실행: {previous?.formId ?? "?"} → {next?.formId ?? "?"}");
             OnSwapStarted?.Invoke(previous, next);
             GameEvents.RaiseFormSwapped(previous, next);
+
+            // 교체음은 성공한 교체의 시작에만 한 번 — 거부·시작 폼 적용·EquipForm·교체 완료에서는 울리지 않는다.
+            if (next != null && next.swapInSfx != null && AudioManager.HasInstance)
+            {
+                AudioManager.Instance.PlaySfx(next.swapInSfx);
+            }
             return true;
         }
 

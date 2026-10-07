@@ -1,4 +1,4 @@
-using Abyss.Runtime.Feedback;
+﻿using Abyss.Runtime.Feedback;
 using UnityEngine;
 
 namespace Abyss.Runtime.Camera
@@ -9,7 +9,7 @@ namespace Abyss.Runtime.Camera
     /// smoothed 기준점을 내부에서 유지하고 shake offset만 최종 position에 합성한다.
     /// </summary>
     [DefaultExecutionOrder(10)]
-    public sealed class PlayerCameraFollow : MonoBehaviour
+    public sealed partial class PlayerCameraFollow : MonoBehaviour
     {
         [SerializeField] private Transform target;
         [SerializeField] private Vector3 offset = new(0f, 2f, -10f);
@@ -59,8 +59,9 @@ namespace Abyss.Runtime.Camera
             smoothedPosition = Vector3.SmoothDamp(smoothedPosition, desired, ref velocity, smoothTime);
             smoothedPosition = ConstrainPosition(smoothedPosition);
 
+            // 연출 임시 중심(PlayerCameraFollow.Presentation)은 추적 기준점을 바꾸지 않고 최종 위치에만 합성한다.
             Vector3 shakeOffset = shake != null ? shake.CurrentShakeOffset : Vector3.zero;
-            transform.position = ConstrainPosition(smoothedPosition + shakeOffset);
+            transform.position = ConstrainPosition(ApplyPresentationOffset(smoothedPosition) + shakeOffset);
         }
 
         // Opt-in for finite illustrated rooms. Existing run cameras remain unconstrained.

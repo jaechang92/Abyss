@@ -1,4 +1,4 @@
-using Abyss.Runtime.Meta;
+﻿using Abyss.Runtime.Meta;
 using UnityEngine;
 using UnityEngine.Audio;
 using Singleton_Core;
@@ -14,7 +14,7 @@ namespace Abyss.Runtime.Audio
     /// 저장처가 둘로 갈렸다(설정 UI가 어느 쪽을 쓸지 모호하고, 한쪽만 갱신되면 재시작 시 어긋난다).
     /// 세이브 파일 하나로 통일했다.
     /// </summary>
-    public sealed class AudioManager : SingletonManager<AudioManager>
+    public sealed partial class AudioManager : SingletonManager<AudioManager>
     {
         [Header("AudioMixer")]
         [SerializeField] private AudioMixer audioMixer;

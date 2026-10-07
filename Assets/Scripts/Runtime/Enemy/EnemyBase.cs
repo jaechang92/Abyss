@@ -101,6 +101,9 @@ namespace Abyss.Runtime.Enemy
                 }
             }
 
+            // 변종 몸 색(빌린 그림을 원본과 구별). 흰색이면 아무것도 안 한다 — 기존 적은 그대로다.
+            if (data != null && data.bodyTint != Color.white) visuals?.SetBaseColor(data.bodyTint);
+
             fsm.StartStateMachine(EnemyStateIds.Patrol);
         }
 
@@ -115,7 +118,13 @@ namespace Abyss.Runtime.Enemy
 
         protected virtual void FixedUpdate()
         {
-            if (body == null || isDead) return;
+            if (body == null) return;
+            // 사망 후에도 사망 클립 동안 남은 수평 속도로 미끄러지지 않게 한다. 낙하(y)는 그대로 둔다.
+            if (isDead)
+            {
+                StopHorizontal();
+                return;
+            }
             if (fsm == null || !fsm.IsRunning) return;
 
             string current = fsm.CurrentStateId;
@@ -151,7 +160,7 @@ namespace Abyss.Runtime.Enemy
                 return;
             }
 
-            body.linearVelocity = new Vector2(dir * data.moveSpeed, body.linearVelocity.y);
+            body.linearVelocity = new Vector2(dir * data.moveSpeed * MoveSpeedMultiplier, body.linearVelocity.y);
         }
 
         private void StopHorizontal()
@@ -268,11 +277,17 @@ namespace Abyss.Runtime.Enemy
         {
             if (isDead) return;
             isDead = true;
+            // 추적·순찰 중 남은 수평 속도를 즉시 끊는다 — 사망 FixedUpdate 도 계속 멈춘다.
+            if (body != null) StopHorizontal();
 
-            if (data != null && RunManager.HasInstance)
+            // 파생 훅 — 처치 이벤트보다 먼저(소환사가 졸개를 거둬야 StageDirector가 같은 이벤트에서 함께 지운다).
+            OnDying();
+
+            // 소환된 졸개는 보상이 없다 — 소환사를 살려 두고 졸개로 경험치·골드를 캐는 길을 막는다(EnemyBase.Summon).
+            if (data != null && RunManager.HasInstance && !IsSummoned)
             {
                 RunManager.Instance.GainExp(data.expReward, data.enemyId);
-                RunManager.Instance.GainGoldShards(data.goldReward);
+                RunManager.Instance.GainCombatGoldShards(data.goldReward);
                 if (data.IsBoss) RunManager.Instance.NotifyBossKilled();
                 else if (data.IsElite) RunManager.Instance.NotifyEliteKilled();
             }
@@ -356,7 +371,7 @@ namespace Abyss.Runtime.Enemy
             if (distance <= data.attackRange)
             {
                 // CanBeginAttack 이 막으면 쿨다운 중과 똑같이 다룬다 — 쿨다운을 소비하지 않고 추적에서 기다린다.
-                bool canAttack = Time.time >= lastAttackTime + data.attackCooldown && CanBeginAttack();
+                bool canAttack = Time.time >= lastAttackTime + data.attackCooldown * AttackCooldownMultiplier && CanBeginAttack();
                 // 🔑 여기까지 왔으면 공격 상태라도 붙잡힌 시간이 끝났다 — 쿨다운이 공격 동작보다 짧으면
                 //    Attack 에 멈춘 채 다시 못 들어가던 경로를 막는다(시간 0 인 적은 쿨다운 ≥ 0.1 이라 영향 없음).
                 if (canAttack)

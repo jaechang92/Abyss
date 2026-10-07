@@ -26,6 +26,7 @@ namespace Abyss.Runtime.Interaction
 
         private readonly List<IInteractable> candidates = new List<IInteractable>();
         private IInteractable current;
+        public IInteractable CurrentTarget => current;
 
         // 같은 오브젝트의 잠금 소스. 패널이 화면을 점유하는 동안 상호작용을 막는 게이트로 쓴다.
         // 없으면(런 플레이어) 막지 않는다 — IInteractionBlocker 주석 참조.

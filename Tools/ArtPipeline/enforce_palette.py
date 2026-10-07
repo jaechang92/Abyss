@@ -55,7 +55,7 @@ import de_baselines as deb
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
-PALETTE_SRC = os.path.join(REPO, "Art_Source", "palettes", "_palettes.txt")
+PALETTE_SRC = os.path.join(REPO, "..", "Abyss_Local", "Art_Source", "palettes", "_palettes.txt")
 
 HEX = re.compile(r"\b([0-9A-Fa-f]{6})\b")
 

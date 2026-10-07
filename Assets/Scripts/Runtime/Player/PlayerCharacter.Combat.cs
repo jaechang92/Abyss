@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Feedback;
 using UnityEngine;
@@ -44,9 +44,15 @@ namespace Abyss.Runtime.Player
         ///
         /// 🔑 <b>대미지 식을 여기 한 곳에 둔다.</b> 공격 입력과 스탯 창이 각자 곱하면
         /// 층을 하나 더할 때 한쪽만 고쳐져 <b>창에 보이는 값과 실제로 들어가는 값이 갈린다</b> — 오류가 안 난다.
-        /// ⚠️ 적중 시점에만 붙는 것(심연 충전 2배)은 여기 없다. 헛스윙에는 안 붙기 때문이다.
+        /// ⚠️ 적중 시점에만 붙는 것(심연 충전 2배 · 신중한 시선 치명타)은 여기 없다. 헛스윙에는 안 붙기 때문이다.
+        /// 최후의 일격(피의 서약 시너지, 저HP 2배)은 휘두르는 순간의 HP로 정해지므로 이 곱의 한 층이다.
         /// </summary>
-        public float TotalAttackMult => AttackMultiplier * MetaAttackMult * WeaponAttackMult;
+        public float TotalAttackMult => AttackMultiplier * MetaAttackMult * WeaponAttackMult * FinalStandAttackMult;
+
+        /// <summary>
+        /// 실제 기본 공격 쿨다운 배율 — 버프(시간 왜곡)와 피의 분노의 곱. 두 층은 서로 독립이다.
+        /// </summary>
+        private float AttackCooldownScale => BuffAttackCooldownMultiplier * BloodRageCooldownMultiplier;
 
         public int BaseLightAttackDamage => lightAttackDamage;
         public int BaseHeavyAttackDamage => heavyAttackDamage;
@@ -94,8 +100,8 @@ namespace Abyss.Runtime.Player
         // Unity 6.6부터 인스턴스 메서드 NoFilter()는 deprecated — 정적 noFilter 프로퍼티를 쓴다.
         private static ContactFilter2D overlapFilter = ContactFilter2D.noFilter;
 
-        public bool CanAttackLight => Time.time >= lastAttackLightTime + attackCooldownLight;
-        public bool CanAttackHeavy => Time.time >= lastAttackHeavyTime + attackCooldownHeavy;
+        public bool CanAttackLight => Time.time >= lastAttackLightTime + attackCooldownLight * AttackCooldownScale;
+        public bool CanAttackHeavy => Time.time >= lastAttackHeavyTime + attackCooldownHeavy * AttackCooldownScale;
 
         private void OnAttack(InputValue value)
         {
@@ -106,6 +112,8 @@ namespace Abyss.Runtime.Player
             lastAttackLightTime = Time.time;
             stateMachine?.TriggerAttackLight();
             PerformAttack(LightAttackDamage, lightHitstop, lightShake, isHeavy: false);
+            // 입력 경로에서만, 실제 판정·발사가 일어났을 때만 알린다 — 가드 자동 반격은 PerformAttack 을 직접 불러 여기를 지나지 않는다.
+            RaiseTutorialAttackIfPerformed();
         }
 
         private void OnAttackHeavy(InputValue value)
@@ -118,6 +126,7 @@ namespace Abyss.Runtime.Player
             lastAttackHeavyTime = Time.time;
             stateMachine?.TriggerAttackHeavy();
             PerformAttack(HeavyAttackDamage, heavyHitstop, heavyShake, isHeavy: true);
+            RaiseTutorialAttackIfPerformed();
         }
 
         /// <summary>
@@ -130,6 +139,7 @@ namespace Abyss.Runtime.Player
         private void PerformAttack(int damage, float hitstop, Vector2 shake, bool isHeavy)
         {
             CancelLunge("공격");  // P04 B — 공격(자동 반격 포함)이 접근을 끊는다
+            isTutorialAttackPerformed = false;
 
             // 본체 sprite tint flash — AttackEffect는 옆에 표시되는 검기, 본체 flash는 캐릭터 자체가 공격함을 인지시킴.
             TriggerAttackFlash(isHeavy ? heavyFlashColor : lightFlashColor,
@@ -145,6 +155,7 @@ namespace Abyss.Runtime.Player
 
             if (attackPoint == null) return;
 
+            isTutorialAttackPerformed = true;  // 근접 판정을 실제로 돌렸다(빗나감 포함)
             int hitCount = CollectAndDamageEnemies(damage);
             if (hitCount <= 0) return;
 
@@ -228,6 +239,9 @@ namespace Abyss.Runtime.Player
             // 하기 위함(Passives 파트 참조). 수집이 끝난 이 지점이 "맞았다"가 확정되는 유일한 곳이다.
             damage = ConsumeAbyssCharge(damage);
 
+            // 신중한 시선(무축) 치명타 — 같은 자리(적중 확정 뒤). 휘두름 한 번에 한 번 굴린다.
+            damage = RollKeenEye(damage);
+
             // P04 C — 표식 소비도 적중 확정 뒤 · 피해 전. 피해 식은 바꾸지 않는다(경직만).
             TryConsumeRangedMark(reusableHitList);
 
@@ -236,7 +250,9 @@ namespace Abyss.Runtime.Player
                 enemy.TakeDamage(damage);
             }
 
-            ApplyMeleeLifeSteal(damage * reusableHitList.Count);
+            int totalDamage = damage * reusableHitList.Count;
+            ApplyMeleeLifeSteal(totalDamage);
+            ApplyVampiricSeal(totalDamage);   // 흡혈 인장(피의 서약) — 폼 흡수와 별개 층
             return reusableHitList.Count;
         }
 

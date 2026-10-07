@@ -99,6 +99,20 @@ namespace Abyss.Runtime.Run
         }
 
         /// <summary>
+        /// 전투 보상 골드 배율(1 = 무보정). 무축 Passive <b>황금 손길</b>이 켠다(PlayerCharacter.NeutralPassives).
+        /// 적 처치·방 클리어 보상만 이 배율을 탄다 — 이벤트·스킵 보상·치트는 <see cref="GainGoldShards"/>로 그대로 들어온다.
+        /// 런 스코프라 <see cref="StartNewRun"/>이 1로 되돌린다.
+        /// </summary>
+        public float CombatGoldMultiplier { get; set; } = 1f;
+
+        /// <summary>전투 보상 골드 획득. <see cref="CombatGoldMultiplier"/>를 곱한 뒤 <see cref="GainGoldShards"/>로 넘긴다.</summary>
+        public void GainCombatGoldShards(int amount)
+        {
+            if (amount <= 0) return;
+            GainGoldShards(Mathf.RoundToInt(amount * Mathf.Max(0f, CombatGoldMultiplier)));
+        }
+
+        /// <summary>
         /// 리롤 등 소비. 잔액 부족 시 false 반환(상태 불변).
         /// </summary>
         public bool SpendGoldShards(int amount)
@@ -163,6 +177,7 @@ namespace Abyss.Runtime.Run
             currentExp = 0;
             // 시작 골드 특전(3-2). 업그레이드가 없으면 0이라 지금까지와 같다.
             goldShards = Mathf.Max(0, MetaUpgrades.StartingGoldBonus());
+            CombatGoldMultiplier = 1f;            // 지난 런의 황금 손길이 넘어오지 않게
             bossKillsThisRun = 0;
             lastRunAbyssShardsEarned = 0;
             lastRunEndReason = RunEndReason.Death;

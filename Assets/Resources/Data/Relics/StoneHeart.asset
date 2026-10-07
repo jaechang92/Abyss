@@ -15,7 +15,7 @@ MonoBehaviour:
   relicId: relic_stone_heart
   nameKey: Relic_StoneHeart_Name
   descKey: Relic_StoneHeart_Desc
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 82788ae7671a440cb1af4c59ed048bc5, type: 3}
   rarity: 0
   effectType: 0
   valuePerLevel: 8

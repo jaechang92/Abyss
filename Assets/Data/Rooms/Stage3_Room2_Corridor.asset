@@ -20,12 +20,9 @@ MonoBehaviour:
   - data: {fileID: 11400000, guid: 03c0a0ca364f01848bbbac63dc134c4f, type: 2}
     count: 2
   - data: {fileID: 11400000, guid: 3825ebf787f068e4591b38e30f222528, type: 2}
-    count: 2
-  clearGoldReward: 18
-  hasFormReward: 0
-  formReward: {fileID: 0}
-  eventData: {fileID: 0}
-  shopData: {fileID: 0}
+    count: 1
+  - data: {fileID: 11400000, guid: 47e4152f7d4a88c488fab72d79e29f6d, type: 2}
+    count: 1
   mapLength: 40
   placements:
   - data: {fileID: 11400000, guid: 03c0a0ca364f01848bbbac63dc134c4f, type: 2}
@@ -38,5 +35,12 @@ MonoBehaviour:
     enemies:
     - data: {fileID: 11400000, guid: 03c0a0ca364f01848bbbac63dc134c4f, type: 2}
       x: 11
-    - data: {fileID: 11400000, guid: 3825ebf787f068e4591b38e30f222528, type: 2}
+    - data: {fileID: 11400000, guid: 47e4152f7d4a88c488fab72d79e29f6d, type: 2}
       x: 16
+  clearGoldReward: 18
+  hasFormReward: 0
+  formReward: {fileID: 0}
+  hasWeaponReward: 0
+  weaponReward: {fileID: 0}
+  eventData: {fileID: 0}
+  shopData: {fileID: 0}

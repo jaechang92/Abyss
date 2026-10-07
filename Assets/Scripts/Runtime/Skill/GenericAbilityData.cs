@@ -57,8 +57,15 @@ namespace Abyss.Runtime.Skill
         [Tooltip("받는 피해 배율(Buff, 1 = 변화 없음, <1 = 피해 감소). buffDuration 동안 적용. 방패병 '철벽 방어' 등 방어 스킬용.")]
         [Min(0f)] public float buffDefenseMultiplier = 1f;
 
+        [Tooltip("기본 공격 쿨다운 배율(Buff, 1 = 변화 없음, <1 = 더 빨리 휘두른다). buffDuration 동안 적용. '시간 왜곡' 등.")]
+        [Min(0f)] public float buffAttackCooldownMultiplier = 1f;
+
         [Tooltip("버프 지속시간(초, 0 = 즉시 효과(Heal)만).")]
         [Min(0f)] public float buffDuration = 0f;
+
+        [Header("대가 (피의 서약 축)")]
+        [Tooltip("발동 시 현재 HP에서 바치는 비율(0 = 대가 없음). PayHpCost 경로라 이걸로 죽지 않고 방어 버프도 끼지 않는다.")]
+        [Range(0f, 0.9f)] public float hpCostRatio = 0f;
 
         [Header("연소 (불꽃 축)")]
         [Tooltip("명중한 적에게 부여할 연소 스택. 0이면 연소를 걸지 않는다(불꽃 축이 아닌 스킬).")]

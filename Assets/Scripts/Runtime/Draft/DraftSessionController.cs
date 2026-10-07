@@ -296,7 +296,8 @@ namespace Abyss.Runtime.Draft
         private void DrawAndAnnounce()
         {
             string currentFormId = CurrentFormId();
-            var cards = pool.DrawOptions(OptionCount, currentFormId, ownedSynergyTags, ownedSkillIds);
+            bool isHighRarityFavored = ownedSkillIds.Contains(SkillIds.FATES_FAVOR);
+            var cards = pool.DrawOptions(OptionCount, currentFormId, ownedSynergyTags, ownedSkillIds, isHighRarityFavored);
             currentOptions = new DraftOptions(cards, currentReason, rerollsUsed);
             GameEvents.RaiseDraftOptionsReady(currentOptions);
         }

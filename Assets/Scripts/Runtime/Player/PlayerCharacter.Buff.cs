@@ -19,7 +19,14 @@ namespace Abyss.Runtime.Player
         private float buffMoveMult = 1f;
         private float buffAtkMult = 1f;
         private float buffDefMult = 1f;
+        private float buffAttackCooldownMult = 1f;
         private float buffTimer;
+
+        // 공격 쿨다운 배율 하한. 0이면 매 프레임 공격이 나가므로 최대 75% 단축(0.25)으로 제한한다.
+        private const float MIN_BUFF_ATTACK_COOLDOWN_MULT = 0.25f;
+
+        /// <summary>기본 공격 쿨다운 배율(1 = 기본, &lt;1 = 더 빨리). Combat이 참조(시간 왜곡 등).</summary>
+        public float BuffAttackCooldownMultiplier => buffAttackCooldownMult;
 
         /// <summary>이동속도 배율(1 = 기본). Movement가 참조.</summary>
         public float MoveSpeedMultiplier => buffMoveMult;
@@ -47,14 +54,21 @@ namespace Abyss.Runtime.Player
         /// duration이 0 이하면 무시(즉시 효과는 BuffEffect의 Heal이 담당).
         /// </summary>
         public void ApplyTimedBuff(float moveMult, float atkMult, float defMult, float duration)
+            => ApplyTimedBuff(moveMult, atkMult, defMult, 1f, duration);
+
+        /// <summary>
+        /// 시간제 버프 적용(재적용 시 덮어씀). attackCooldownMult는 기본 공격 쿨다운 배율(1 = 변화 없음).
+        /// </summary>
+        public void ApplyTimedBuff(float moveMult, float atkMult, float defMult, float attackCooldownMult, float duration)
         {
             if (duration <= 0f) return;
 
             buffMoveMult = Mathf.Max(MIN_BUFF_MOVE_MULT, moveMult);
             buffAtkMult = Mathf.Max(0f, atkMult);
             buffDefMult = Mathf.Max(MIN_BUFF_DEF_MULT, defMult);
+            buffAttackCooldownMult = Mathf.Clamp(attackCooldownMult, MIN_BUFF_ATTACK_COOLDOWN_MULT, 1f);
             buffTimer = duration;
-            Debug.Log($"[PlayerCharacter] 버프 적용 — 이동 x{buffMoveMult:F2} / 공격 x{buffAtkMult:F2} / 방어 x{buffDefMult:F2} / {duration:F1}초");
+            Debug.Log($"[PlayerCharacter] 버프 적용 — 이동 x{buffMoveMult:F2} / 공격 x{buffAtkMult:F2} / 방어 x{buffDefMult:F2} / 공격 쿨다운 x{buffAttackCooldownMult:F2} / {duration:F1}초");
         }
 
         // PlayerCharacter.Update에서 매 프레임 호출. 만료 시 1배 원복.
@@ -68,6 +82,7 @@ namespace Abyss.Runtime.Player
                 buffMoveMult = 1f;
                 buffAtkMult = 1f;
                 buffDefMult = 1f;
+                buffAttackCooldownMult = 1f;
             }
         }
     }

@@ -1,8 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Run;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -34,9 +35,20 @@ namespace Abyss.Runtime.UI
         [Header("참조")]
         [SerializeField] private DraftSessionController session;
 
+        // 카드 호버·포커스 상세. 씬 배선 없이 root 밑에 런타임으로 만든다(root가 꺼지면 같이 정리된다).
+        private SkillCardDetailsPanel cardDetails;
+
         private void Awake()
         {
-            if (root != null) root.SetActive(false);
+            if (root != null)
+            {
+                root.SetActive(false);
+                cardDetails = SkillCardDetailsPanel.Create(root.transform);
+
+                // 채택 UI 스킨 — 저장된 씬의 기존 자식에 배치·프레임·선택 표식만 덧붙인다(빌더 재실행 불필요).
+                ModalArtSkin.ApplyDraft(root.transform, titleText, cards,
+                    rerollButton, rerollLabel, skipButton, skipLabel, buildContext, cardDetails);
+            }
 
             for (int i = 0; i < cards.Length; i++)
             {
@@ -44,6 +56,7 @@ namespace Abyss.Runtime.UI
                 {
                     int captured = i;
                     cards[i].OnSelected += HandleCardSelected;
+                    cards[i].AttachDetails(cardDetails);
                 }
             }
 
@@ -57,6 +70,7 @@ namespace Abyss.Runtime.UI
             GameEvents.OnDraftClosed += HandleDraftClosed;
             GameEvents.OnSkillDrafted += HandleSkillDrafted;
             GameEvents.OnDraftSlotReplaceRequested += HandleReplaceRequested;
+            GameEvents.OnRunEnded += HandleRunEnded;
         }
 
         private void OnDisable()
@@ -65,6 +79,8 @@ namespace Abyss.Runtime.UI
             GameEvents.OnDraftClosed -= HandleDraftClosed;
             GameEvents.OnSkillDrafted -= HandleSkillDrafted;
             GameEvents.OnDraftSlotReplaceRequested -= HandleReplaceRequested;
+            GameEvents.OnRunEnded -= HandleRunEnded;
+            ClearCardDetails();
         }
 
         private void Update()
@@ -82,8 +98,61 @@ namespace Abyss.Runtime.UI
             if (kb.digit1Key.wasPressedThisFrame) TrySelect(0);
             else if (kb.digit2Key.wasPressedThisFrame) TrySelect(1);
             else if (kb.digit3Key.wasPressedThisFrame) TrySelect(2);
-            else if (kb.enterKey.wasPressedThisFrame) TrySelect(0);
+            // 카드 버튼에 포커스가 있으면 Enter는 EventSystem Submit이 그 카드를 누른다 —
+            // 여기서 0번을 또 고르면 한 번의 Enter로 두 카드가 동시에 선택 요청된다.
+            else if (kb.enterKey.wasPressedThisFrame && !IsCardFocused()) TrySelect(0);
         }
+
+        private bool IsCardFocused()
+        {
+            var eventSystem = EventSystem.current;
+            var selected = eventSystem != null ? eventSystem.currentSelectedGameObject : null;
+            if (selected == null || !selected.activeInHierarchy) return false;
+
+            for (int i = 0; i < cards.Length; i++)
+            {
+                if (cards[i] != null && cards[i].FocusTarget == selected) return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 키보드·패드 최초 포커스. 포커스가 없거나 꺼진 오브젝트에 남아 있으면 첫 활성 카드 버튼을 고른다.
+        /// 이미 드래프트 안(카드·리롤·스킵)에 있으면 바꾸지 않는다. 드래프트 밖의 다른 활성 UI가 쥔 포커스도 뺏지 않는다.
+        /// 선택(SetSelectedGameObject)은 포커스만 옮기고 클릭하지 않는다 — 스킬 선택은 일어나지 않는다.
+        /// </summary>
+        private void EnsureInitialFocus(bool isReopened)
+        {
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null || root == null) return;
+
+            var current = eventSystem.currentSelectedGameObject;
+            bool isAlive = current != null && current.activeInHierarchy && IsInteractable(current);
+
+            if (isAlive && current.transform.IsChildOf(root.transform))
+            {
+                // 닫혔다 다시 열린 경우 EventSystem은 옛 선택을 쥔 채 select를 다시 보내지 않는다.
+                // 같은 대상을 다시 선택해 포커스 표시·상세를 되살린다(대상은 바꾸지 않는다).
+                if (isReopened)
+                {
+                    eventSystem.SetSelectedGameObject(null);
+                    eventSystem.SetSelectedGameObject(current);
+                }
+                return;
+            }
+            if (isAlive) return;
+
+            for (int i = 0; i < cards.Length; i++)
+            {
+                if (cards[i] == null || !cards[i].CanReceiveFocus) continue;
+                eventSystem.SetSelectedGameObject(null);
+                eventSystem.SetSelectedGameObject(cards[i].FocusTarget);
+                return;
+            }
+        }
+
+        private static bool IsInteractable(GameObject target) =>
+            !target.TryGetComponent<Selectable>(out var selectable) || selectable.IsInteractable();
 
         private void TrySelect(int index)
         {
@@ -111,6 +180,7 @@ namespace Abyss.Runtime.UI
         {
             if (options == null) return;
 
+            bool isReopened = root != null && !root.activeSelf;
             if (root != null) root.SetActive(true);
 
             if (titleText != null)
@@ -128,11 +198,24 @@ namespace Abyss.Runtime.UI
 
             RefreshButtons();
             RefreshBuildContext();
+            EnsureInitialFocus(isReopened);
         }
 
         private void HandleDraftClosed()
         {
+            ClearCardDetails();
             if (root != null) root.SetActive(false);
+        }
+
+        // 런 종료 시 패널 표시 여부는 기존 흐름(DraftClosed)에 맡기고 상세만 치운다.
+        private void HandleRunEnded()
+        {
+            ClearCardDetails();
+        }
+
+        private void ClearCardDetails()
+        {
+            if (cardDetails != null) cardDetails.Clear();
         }
 
         // 카드 선택이 슬롯 교체로 이어지면 선택 단계는 끝났다 — 교체 모달에 화면을 넘긴다.
@@ -140,6 +223,7 @@ namespace Abyss.Runtime.UI
         // DraftSessionController.CancelReplacement가 OnDraftOptionsReady를 재발행해 되돌아온다.
         private void HandleReplaceRequested(SkillData _, IReadOnlyList<SkillData> __)
         {
+            ClearCardDetails();
             if (root != null) root.SetActive(false);
         }
 

@@ -1,4 +1,4 @@
-using Abyss.Runtime.Flow;
+﻿using Abyss.Runtime.Flow;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using UnityEngine;
@@ -35,8 +35,18 @@ namespace Abyss.Runtime.UI
         private bool quitArmed;
         private Text quitLabel;
 
+        // 키보드·패드 탐색 대상(위→아래). 첫 선택은 Start가 맡는다 — 씬 로드 직후 OnEnable 시점에는
+        // 같은 씬의 EventSystem이 아직 켜지지 않아 EventSystem.current가 비어 있을 수 있다.
+        private Button[] menuButtons;
+        private bool hasStarted;
+        // 상위 화면(저장 모달·설정·도감)이 닫힌 순간만 잡아 선택을 복구한다 — 매 프레임 선택을 다시 쥐지 않는다.
+        private bool wasUpperOverlayOpen;
+        private bool wasCodexOpen;
+
         private void Awake()
         {
+            menuButtons = new[] { startButton, codexButton, settingsButton, quitButton };
+
             if (startButton != null) startButton.onClick.AddListener(StartGame);
             // 설정·도감 패널은 씬에 배치하지 않고 각 패널이 동적 생성해 공유한다
             // (설정은 일시정지와, 도감은 로비 메뉴와 같은 인스턴스를 쓴다).
@@ -57,9 +67,30 @@ namespace Abyss.Runtime.UI
 
         // 시작·종료 라벨과 기록 줄은 상태에 따라 키가 바뀌거나 포맷 인자가 있어 LocalizedText 대상이 아니다.
         // 설정 패널에서 언어를 바꾸면 여기서 다시 그린다.
-        private void OnEnable() => Loc.AddLanguageChangedListener(OnLanguageChanged);
+        private void OnEnable()
+        {
+            Loc.AddLanguageChangedListener(OnLanguageChanged);
+            // 다시 켜진 경우만. 선택이 살아 있으면(설정·서사 포커스 자리 등) 건드리지 않는다.
+            if (hasStarted) MenuButtonNavigation.SelectIfLost(null, menuButtons);
+        }
 
-        private void OnDisable() => Loc.RemoveLanguageChangedListener(OnLanguageChanged);
+        private void OnDisable()
+        {
+            Loc.RemoveLanguageChangedListener(OnLanguageChanged);
+            MenuButtonNavigation.ClearOwnedSelection(menuButtons);
+        }
+
+        private void Update()
+        {
+            bool isUpperOverlayOpen = MenuButtonNavigation.IsUpperOverlayOpen;
+            // 도감은 포커스를 관리하지 않아, 도감 안을 마우스로 누른 뒤 닫으면 선택이 꺼진 버튼에 남는다 — 도감 버튼으로 돌려준다.
+            if (wasUpperOverlayOpen && !isUpperOverlayOpen)
+            {
+                MenuButtonNavigation.SelectIfLost(wasCodexOpen ? codexButton : null, menuButtons);
+            }
+            wasUpperOverlayOpen = isUpperOverlayOpen;
+            wasCodexOpen = CodexPanel.IsOpen;
+        }
 
         private void OnLanguageChanged(LocalizationLanguage language)
         {
@@ -81,6 +112,11 @@ namespace Abyss.Runtime.UI
         private void Start()
         {
             RefreshFromSave();
+
+            // 시작 버튼 선택은 저장 모달 생성보다 먼저 — 모달이 이 선택을 기억했다가 닫힐 때 돌려준다.
+            MenuButtonNavigation.ApplyVertical(menuButtons);
+            MenuButtonNavigation.SelectFirst(menuButtons);
+            hasStarted = true;
 
             // 저장 알림의 진입점 — 부팅 중에 난 세이브 접근 실패도 여기서 처음 사용자에게 보인다.
             SaveStatusOverlay.Ensure();

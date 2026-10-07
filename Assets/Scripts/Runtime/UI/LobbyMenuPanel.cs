@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Abyss.Runtime.Flow;
 using Abyss.Runtime.Localization;
 using UnityEngine;
@@ -27,6 +27,13 @@ namespace Abyss.Runtime.UI
         private bool quitArmed;
         private Action onClosed;
 
+        // 키보드·패드 탐색 대상(위→아래). 버튼을 동적 생성하므로 만들 때 담아 둔다.
+        private Button[] menuButtons;
+        private Button codexButton;
+        // 상위 화면(저장 모달·설정·도감)이 닫힌 순간만 잡아 선택을 복구한다 — 매 프레임 선택을 다시 쥐지 않는다.
+        private bool wasUpperOverlayOpen;
+        private bool wasCodexOpen;
+
         public static bool IsOpen => instance != null && instance.body != null && instance.body.activeSelf;
 
         /// <summary>
@@ -38,9 +45,16 @@ namespace Abyss.Runtime.UI
             EnsureInstance();
             if (instance == null) return;
 
+            // 이미 열린 메뉴에 다시 들어온 호출은 선택을 옮기지 않는다 — 위에 덮인 설정·도감의 선택을 빼앗지 않게.
+            bool wasOpen = IsOpen;
             instance.onClosed = onClosed;
             instance.DisarmQuit();
             instance.body.SetActive(true);
+            if (!wasOpen)
+            {
+                MenuButtonNavigation.ApplyVertical(instance.menuButtons);
+                MenuButtonNavigation.SelectFirst(instance.menuButtons);
+            }
         }
 
         /// <summary>열려 있으면 닫고 onClosed 콜백을 1회 호출한다.</summary>
@@ -48,6 +62,7 @@ namespace Abyss.Runtime.UI
         {
             if (!IsOpen) return;
 
+            MenuButtonNavigation.ClearOwnedSelection(instance.menuButtons);
             instance.body.SetActive(false);
             instance.DisarmQuit();
 
@@ -65,9 +80,26 @@ namespace Abyss.Runtime.UI
         // 이 메뉴 위에서 설정 패널을 열어 언어를 바꿀 수 있으므로 열린 채로 다시 그려야 한다.
         private void OnEnable() => Loc.AddLanguageChangedListener(OnLanguageChanged);
 
-        private void OnDisable() => Loc.RemoveLanguageChangedListener(OnLanguageChanged);
+        // 씬 언로드 등 Close를 거치지 않고 꺼질 때도 이 메뉴 버튼이 쥔 선택만 푼다 — 상위 화면 선택은 보존된다.
+        private void OnDisable()
+        {
+            Loc.RemoveLanguageChangedListener(OnLanguageChanged);
+            MenuButtonNavigation.ClearOwnedSelection(menuButtons);
+        }
 
         private void OnLanguageChanged(LocalizationLanguage language) => RefreshQuitLabel();
+
+        private void Update()
+        {
+            bool isUpperOverlayOpen = MenuButtonNavigation.IsUpperOverlayOpen;
+            // 도감은 포커스를 관리하지 않아, 도감 안을 마우스로 누른 뒤 닫으면 선택이 꺼진 버튼에 남는다 — 도감 버튼으로 돌려준다.
+            if (wasUpperOverlayOpen && !isUpperOverlayOpen && body != null && body.activeSelf)
+            {
+                MenuButtonNavigation.SelectIfLost(wasCodexOpen ? codexButton : null, menuButtons);
+            }
+            wasUpperOverlayOpen = isUpperOverlayOpen;
+            wasCodexOpen = CodexPanel.IsOpen;
+        }
 
         private static void EnsureInstance()
         {
@@ -161,6 +193,10 @@ namespace Abyss.Runtime.UI
             RefreshQuitLabel();
 
             CreateLocalizedLabel(panel.transform, "HintText", new Vector2(0, -204), new Vector2(360, 30), StringKey.Common_EscToClose, 14, new Color(0.55f, 0.55f, 0.66f), TextAnchor.MiddleCenter);
+
+            codexButton = codex;
+            menuButtons = new[] { resume, codex, settings, toTitle, quit };
+            MenuButtonNavigation.ApplyVertical(menuButtons);
         }
     }
 }

@@ -39,6 +39,7 @@ namespace Abyss.Runtime.Player
             metaAttackMult = MetaUpgrades.AttackMultiplier();
             currentHp = maxHp;
             isDead = false;
+            ResetBloodPactRunState();
         }
 
         /// <summary>
@@ -70,7 +71,7 @@ namespace Abyss.Runtime.Player
         /// </summary>
         public void TakeDamage(int amount)
         {
-            if (isDead || amount <= 0 || DebugInvincible) return;
+            if (isDead || amount <= 0 || DebugInvincible || IsInvulnerable) return;
             ApplyDamage(amount);
         }
 
@@ -83,7 +84,8 @@ namespace Abyss.Runtime.Player
         /// <param name="sourcePosition">공격이 날아온 위치(정면 판정용).</param>
         public void TakeDamage(int amount, Vector2 sourcePosition)
         {
-            if (isDead || amount <= 0 || DebugInvincible) return;
+            // 죽음의 약속 무적 중에는 가드 판정도 돌지 않는다 — 막은 것으로 처리되면 자동 반격이 공짜로 나간다.
+            if (isDead || amount <= 0 || DebugInvincible || IsInvulnerable) return;
 
             GuardOutcome outcome = ResolveIncomingGuard(sourcePosition);
             if (outcome == GuardOutcome.None)
@@ -114,13 +116,22 @@ namespace Abyss.Runtime.Player
 
         private void ApplyDamage(int amount)
         {
+            // 혈영(피의 서약) — 저HP 회피. 회피하면 아래 단계가 모두 돌지 않는다(맞지 않은 것이다).
+            if (TryDodgeWithBloodShade()) return;
+
             // 방어 버프(철벽 방어 등) 적용 — 받는 피해 배율. 배율 적용 후에도 최소 1 피해 보장(약공 무효화 방지).
             int mitigated = DefenseMultiplier < 1f
                 ? Mathf.Max(1, Mathf.RoundToInt(amount * DefenseMultiplier))
                 : amount;
 
+            // 신성 보호(무축) — 주기마다 다음 피격을 1로. 버프 다음 · 변환 앞(1로 줄인 피격엔 변환할 몫이 없다).
+            mitigated = ApplyHolyWard(mitigated);
+
             // 불꽃 갑옷(Passive) — 남은 피해의 일부를 주변 적의 연소로 옮긴다. 버프 경감 '다음' 단계다.
             mitigated = ApplyFlameArmor(mitigated);
+
+            // 죽음의 약속(피의 서약) — 모든 경감이 끝난 피해가 치명상이면 HP 1을 남긴다. 런당 1회.
+            mitigated = ApplyDeathsPromise(mitigated);
 
             int previous = currentHp;
             currentHp = Mathf.Max(0, currentHp - mitigated);
@@ -132,7 +143,24 @@ namespace Abyss.Runtime.Player
             // Die() 전에 두면 사망 처리와 순서가 뒤엉키지 않는다.
             ReflectCounterStance(mitigated);
 
+            // 버틴 직후의 무적·충격. HP 이벤트·반격 뒤에 둬 기존 피격 순서를 바꾸지 않는다.
+            ResolveDeathsPromise();
+
             if (currentHp <= 0) Die();
+        }
+
+        /// <summary>
+        /// 런 중 최대 HP 증가(핏빛 광채). 늘어난 만큼 현재 HP도 채운다 — 최대치만 오르면 체감이 「빈 칸이 늘었다」가 된다.
+        /// InitializeHealth가 런 시작마다 최대 HP를 다시 계산하므로 런을 넘어가지 않는다.
+        /// </summary>
+        public void IncreaseMaxHp(int amount)
+        {
+            if (isDead || amount <= 0) return;
+
+            int previous = currentHp;
+            maxHp += amount;
+            currentHp = Mathf.Min(maxHp, currentHp + amount);
+            OnHpChanged?.Invoke(previous, currentHp);
         }
 
         public void Heal(int amount)

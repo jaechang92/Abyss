@@ -39,8 +39,8 @@ namespace Abyss.Runtime.Draft
         /// 풀이 비어 있으면 SkillCatalog에서 1회 채운다(지연 로드, 실행순서 무관).
         ///
         /// <b>메타 해금이 필요한 스킬은 해금 전까지 안 들어온다</b>(3-2).
-        /// 잠금은 <b>옵트인</b>이라 <c>requiresMetaUnlock</c>이 false인 스킬 — 지금 18종 전부 —
-        /// 은 세이브를 보지도 않고 그대로 들어온다. 즉 현행 플레이는 하나도 안 바뀐다.
+        /// 잠금은 <b>옵트인</b>이라 <c>requiresMetaUnlock</c>이 false인 스킬은 세이브를 보지도 않고 그대로 들어온다.
+        /// 잠긴 것은 2026-10-06 메타 해금 1단계의 신규 3종(죽음의 약속·핏빛 광채·운명의 가호)뿐이다(ContentBuilder.MetaUnlocks).
         /// </summary>
         private void EnsureLoaded()
         {
@@ -58,14 +58,20 @@ namespace Abyss.Runtime.Draft
             }
         }
 
+        /// <summary>무축 Legendary <b>운명의 가호</b> 보유 시 Epic·Legendary 가중치에 곱하는 배율.</summary>
+        public const float HIGH_RARITY_FAVOR_MULTIPLIER = 2f;
+
         /// <summary>
         /// 중복 없이 count장 추첨. excludedSkillIds에 포함된 스킬은 후보에서 제외.
+        /// isHighRarityFavored면 Epic·Legendary 가중치를 <see cref="HIGH_RARITY_FAVOR_MULTIPLIER"/>배 한다(운명의 가호).
+        /// 순수 계산기(<see cref="DraftWeightCalculator"/>)의 계약은 그대로 두고 여기서만 곱한다.
         /// </summary>
         public IReadOnlyList<SkillData> DrawOptions(
             int count,
             string currentFormId,
             IReadOnlyCollection<string> ownedSynergyTags,
-            IReadOnlyCollection<string> excludedSkillIds = null)
+            IReadOnlyCollection<string> excludedSkillIds = null,
+            bool isHighRarityFavored = false)
         {
             EnsureLoaded();
 
@@ -85,6 +91,7 @@ namespace Abyss.Runtime.Draft
                 if (excludedSkillIds != null && excludedSkillIds.Contains(skill.skillId)) continue;
 
                 float w = DraftWeightCalculator.CalculateWeight(skill, currentFormId, ownedSynergyTags, rarityWeights);
+                if (isHighRarityFavored && skill.rarity >= SkillRarity.Epic) w *= HIGH_RARITY_FAVOR_MULTIPLIER;
                 if (w > 0f)
                 {
                     candidates.Add(skill);
