@@ -21,12 +21,35 @@ MonoBehaviour:
   weaponAnchors: {fileID: 11400000, guid: e4335241e9e7356439bdbc1f2cd29907, type: 2}
   defaultWeapon: {fileID: 11400000, guid: 9c6dd403580fb6f4088dd967837b0fbb, type: 2}
   description: "\uBD99\uC5B4\uC11C \uBCA0\uB294 \uADFC\uC811. \uC801\uC911 \uD53C\uD574\uC758 8%\uB97C HP\uB85C \uD761\uC218. \uBD88\uAF43 \uCD95 \uC2DC\uB108\uC9C0. HP +20%, \uC774\uB3D9\uC18D\uB3C4 \uAE30\uBCF8."
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 5a8d34ad504e428381e0bf6c86b7df50, type: 3}
   hpMultiplier: 1.2
   moveSpeedMultiplier: 1
   jumpCount: 2
+  attackStyle: 0
+  rangedLight:
+    projectilePrefab: {fileID: 0}
+    speed: 0
+    lifetime: 0
+    pierceCount: 0
+    damageScale: 0
+    useWeaponSprite: 0
+    spriteAngleOffset: 0
+  rangedHeavy:
+    projectilePrefab: {fileID: 0}
+    speed: 0
+    lifetime: 0
+    pierceCount: 0
+    damageScale: 0
+    useWeaponSprite: 0
+    spriteAngleOffset: 0
+  guard:
+    isEnabled: 0
+    holdDamageScale: 0
+    justGuardWindow: 0
+    justGuardRearmDelay: 0
+    counterDamageScale: 0
+  meleeLifeSteal: 0.08
   primaryAction: {fileID: 0}
   secondaryAction: {fileID: 0}
-  meleeLifeSteal: 0.08
   castColor: {r: 0.7, g: 0.35, b: 0.95, a: 1}
   swapInSfx: {fileID: 8300000, guid: 0627da07cafc56c42ad8d67b532f7bdf, type: 3}

@@ -21,7 +21,7 @@ MonoBehaviour:
   weaponAnchors: {fileID: 11400000, guid: 279c7c5c2fc115c4ab040d25f372922c, type: 2}
   defaultWeapon: {fileID: 11400000, guid: c9c003632fc783f45b6b4b92e3d73ab9, type: 2}
   description: "\uBD99\uC5B4\uC11C \uB358\uC9C0\uB294 \uC720\uB9AC\uB300\uD3EC. \uC9E7\uC740 \uC0AC\uAC70\uB9AC\uC758 \uBB34\uAC70\uC6B4 \uD22C\uCC3D\uC73C\uB85C \uD55C \uBC29\uC774 \uD06C\uB2E4. \uC2EC\uC5F0 \uCD95 \uC2DC\uB108\uC9C0. HP -10%, \uC774\uB3D9\uC18D\uB3C4 +15%, 2\uB2E8 \uC810\uD504."
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: e837c09147134cbb98c40e59db175fef, type: 3}
   hpMultiplier: 0.9
   moveSpeedMultiplier: 1.15
   jumpCount: 2
