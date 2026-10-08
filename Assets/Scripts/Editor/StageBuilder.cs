@@ -407,6 +407,7 @@ namespace Abyss.EditorTools
             {
                 spArrayProp.GetArrayElementAtIndex(i).objectReferenceValue = spawnPoints[i];
             }
+            WirePassageRecordSprite(so);
             so.ApplyModifiedProperties();
             EditorUtility.SetDirty(director);
 
@@ -425,6 +426,45 @@ namespace Abyss.EditorTools
             }
 
             Debug.Log($"[StageBuilder] StageDirector 셋업 완료 — Sequence='{sequence.displayName}' ({sequence.stages.Count} 스테이지), SpawnPoints={spawnPoints.Count}개");
+        }
+
+        private const string PASSAGE_RECORD_SPRITE_PATH = "Assets/Art/UI/CodexBossHud/codex/tab-records-v1.png";
+        private const long PASSAGE_RECORD_SPRITE_FILE_ID = 7464020456401336496;
+
+        /// <summary>
+        /// 통로 기록 그림이 비어 있을 때만 기본 그림(가져온 텍스처의 Sprite 하위 에셋)을 배선한다.
+        /// 이미 지정된 그림은 덮어쓰지 않는다. 원본 아트·가져오기 설정은 건드리지 않는다.
+        /// </summary>
+        private static void WirePassageRecordSprite(SerializedObject so)
+        {
+            var prop = so.FindProperty("passageRecordSprite");
+            if (prop == null)
+            {
+                Debug.LogWarning("[StageBuilder] StageDirector에 passageRecordSprite 필드가 없습니다 — 통로 기록 그림 배선을 건너뜁니다.");
+                return;
+            }
+            if (prop.objectReferenceValue != null) return;
+
+            var sprite = LoadPassageRecordSprite();
+            if (sprite == null)
+            {
+                Debug.LogWarning($"[StageBuilder] 통로 기록 기본 그림을 찾지 못했습니다: {PASSAGE_RECORD_SPRITE_PATH} (fileID {PASSAGE_RECORD_SPRITE_FILE_ID}). 그림 없이 배치됩니다.");
+                return;
+            }
+            prop.objectReferenceValue = sprite;
+        }
+
+        /// <summary>텍스처 경로의 하위 에셋 중 지정 fileID의 Sprite를 찾는다. 텍스처 자체는 Sprite가 아니라 LoadAssetAtPath로 받지 않는다.</summary>
+        private static Sprite LoadPassageRecordSprite()
+        {
+            foreach (var asset in AssetDatabase.LoadAllAssetsAtPath(PASSAGE_RECORD_SPRITE_PATH))
+            {
+                if (asset is not Sprite sprite) continue;
+                if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(sprite, out string _, out long fileId)
+                    && fileId == PASSAGE_RECORD_SPRITE_FILE_ID)
+                    return sprite;
+            }
+            return null;
         }
     }
 }

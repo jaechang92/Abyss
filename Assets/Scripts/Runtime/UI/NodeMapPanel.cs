@@ -31,6 +31,8 @@ namespace Abyss.Runtime.UI
         private const float NODE_Y = -28f;                 // 노드 위 가장자리 112, 제목 아래 가장자리 154
         private const float NODE_LABEL_WIDTH = 320f;
         private const float PANEL_CORNER = 24f;
+        private const int HINT_FONT_SIZE = 24;
+        private const int HINT_MIN_FONT_SIZE = 14;      // 손익 예고 노드만 bestFit 하한
 
         private readonly List<Button> nodeButtons = new();
         private readonly List<Text> nodeTitles = new();
@@ -39,6 +41,7 @@ namespace Abyss.Runtime.UI
 
         private IReadOnlyList<RoomData> options;
         private Action<RoomData> onPicked;
+        private ExpeditionRoomPreview.Inputs shownHintInputs;   // 힌트 줄을 만든 골드·언어
 
         /// <summary>
         /// 갈림길을 연다. <paramref name="onPicked"/>는 선택된 방과 함께 한 번 호출된다.
@@ -105,6 +108,7 @@ namespace Abyss.Runtime.UI
                 Bind(i, roomOptions[i]);
             }
 
+            BindHints(ExpeditionRoomPreview.ReadInputs());
             LayoutNodes(roomOptions.Count);
             ShowBody();
             BeginFocus();
@@ -115,9 +119,39 @@ namespace Abyss.Runtime.UI
             nodeTypes[index].text = RoomTypeDisplay.Headline(room.roomType);
             nodeTypes[index].color = RoomTypeDisplay.Color(room.roomType);
             nodeTitles[index].text = room.ChoiceTitle;
+        }
 
-            // 힌트가 없으면 줄을 비운다 — "정보 없음" 같은 문구는 선택에 도움이 안 된다.
-            nodeHints[index].text = string.IsNullOrEmpty(room.hint) ? string.Empty : room.hint;
+        /// <summary>
+        /// 보이는 노드의 힌트 줄을 지금 골드·언어로 채운다. 열 때 한 번, 열린 동안 골드·언어가 바뀌면 다시(LateUpdate).
+        /// 월드 문과 같은 원본·같은 입력(ExpeditionRoomPreview) — 대상 방은 데이터에서 만든 손익 예고(잔액 부족 표식 포함),
+        /// 나머지는 기존 힌트. 힌트가 없으면 줄을 비운다 — "정보 없음" 같은 문구는 선택에 도움이 안 된다.
+        /// </summary>
+        private void BindHints(ExpeditionRoomPreview.Inputs inputs)
+        {
+            shownHintInputs = inputs;
+            for (int i = 0; i < nodeHints.Count && i < options.Count; i++)
+            {
+                var hint = nodeHints[i];
+                hint.text = ExpeditionRoomPreview.Detail(options[i], inputs, out bool isPreview);
+
+                // 손익 예고는 선택지마다 한 줄이라 기존 한 줄 힌트보다 길다 — 예고 노드만 영역(4줄) 안에서 글자를 줄인다.
+                // 그 밖의 방은 기존 24pt 고정 그대로.
+                hint.resizeTextForBestFit = isPreview;
+                if (isPreview)
+                {
+                    hint.resizeTextMinSize = HINT_MIN_FONT_SIZE;
+                    hint.resizeTextMaxSize = HINT_FONT_SIZE;
+                }
+            }
+        }
+
+        /// <summary>열린 동안 골드·언어가 바뀌면 힌트를 다시 만든다 — 포커스를 옮기거나 다시 열지 않아도 맞게.</summary>
+        private void LateUpdate()
+        {
+            if (!IsBodyOpen || options == null) return;
+
+            var inputs = ExpeditionRoomPreview.ReadInputs();
+            if (!inputs.Equals(shownHintInputs)) BindHints(inputs);
         }
 
         /// <summary>
@@ -202,7 +236,7 @@ namespace Abyss.Runtime.UI
                 string.Empty, 24, ModalArtSkin.SubTextColor, TextAnchor.UpperCenter);
             ModalArtSkin.StyleText(type, 28);   // 색은 Bind에서 RoomTypeDisplay(SoT)가 정한다
             ModalArtSkin.StyleText(title, 28);
-            ModalArtSkin.StyleText(hint, 24);
+            ModalArtSkin.StyleText(hint, HINT_FONT_SIZE);   // bestFit은 BindHints가 예고 노드에만 켠다
 
             // 프레임·호버 면·선택 표식(시각 전용). 클릭·Navigation은 위 onClick과 Navigation 파일 그대로다.
             ModalArtSkin.EnsureSelectableSkin(button, PANEL_CORNER, ppu);

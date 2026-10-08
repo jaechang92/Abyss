@@ -265,3 +265,35 @@ Tutorial_Waiting,튜토리얼,첫 플레이 안내 대기,기본 4동작 후 폼
 Journey_ReturnTitle,여정,사망 후 로비 귀환 안내,직전 런 처치 있음,,남겨진 흔적이 돌아왔다,Your traces have returned,残された痕跡が帰ってきた
 Journey_ReturnEarlyTitle,여정,사망 후 로비 귀환 안내,직전 런 처치 없음,,아직 희미한 흔적이 돌아왔다,A faint trace has returned,まだ淡い痕跡が帰ってきた
 Journey_ReturnDetailFormat,여정,로비 귀환 직전 런 요약,,{0}: 구역 {1}: 처치 {2}: 정산 조각,기록: {0}구역 · {1}처치 · +{2}심연 조각,Last attempt: Stage {0} · {1} defeated · +{2} Abyss shards,前の挑戦: エリア{0} · {1}体撃破 · 深淵の欠片+{2}
+Expedition_EnemiesFormat,탐험,분기 방 손익 예고(문·갈림길),첫 무리 구성,{0}: 구성 문구,적: {0},Enemies: {0},敵: {0}
+Expedition_ReinforcementsFormat,탐험,분기 방 손익 예고(문·갈림길),맵 방 추가 무리 구성,{0}: 구성 문구,추가 무리: {0},Reinforcements: {0},増援: {0}
+Expedition_MeleeRangedFormat,탐험,분기 방 손익 예고(문·갈림길),근접·원거리 둘 다,{0}: 근접 수 / {1}: 원거리 수,근접 {0} · 원거리 {1},Melee {0} · Ranged {1},近接 {0} · 遠距離 {1}
+Expedition_MeleeFormat,탐험,분기 방 손익 예고(문·갈림길),근접만,{0}: 근접 수,근접 {0},Melee {0},近接 {0}
+Expedition_RangedFormat,탐험,분기 방 손익 예고(문·갈림길),원거리만,{0}: 원거리 수,원거리 {0},Ranged {0},遠距離 {0}
+Expedition_FormReward,탐험,분기 방 손익 예고(문·갈림길),폼 보상 방(지정),,클리어 시 폼 보상,Clear reward: Form,クリア報酬: フォーム
+Expedition_FormRewardRandom,탐험,분기 방 손익 예고(문·갈림길),폼 보상 방(무작위),,클리어 시 폼 보상(무작위),Clear reward: Form (random),クリア報酬: フォーム(ランダム)
+Expedition_WeaponReward,탐험,분기 방 손익 예고(문·갈림길),무기 보상 방(지정),,클리어 시 무기 보상,Clear reward: Weapon,クリア報酬: 武器
+Expedition_WeaponRewardRandom,탐험,분기 방 손익 예고(문·갈림길),무기 보상 방(무작위),,클리어 시 무기 보상(무작위),Clear reward: Weapon (random),クリア報酬: 武器(ランダム)
+Expedition_ClearGoldFormat,탐험,분기 방 손익 예고(문·갈림길),배율 전 기본값,{0}: 클리어 기본 골드,클리어 기본 골드 {0},Base clear gold {0},クリア基本ゴールド {0}
+Expedition_GoldCostFormat,탐험,분기 방 손익 예고(문·갈림길),이벤트 선택지 대가,{0}: 골드 비용,골드 {0},{0} Gold,ゴールド {0}
+Expedition_HpCostFormat,탐험,분기 방 손익 예고(문·갈림길),이벤트 선택지 대가 · 체력 1 보장,{0}: 최대 HP 비율,최대 HP {0}%(체력 1은 남음),{0}% Max HP (leaves 1 HP),最大HP {0}%(HP1は残る)
+Expedition_Free,탐험,분기 방 손익 예고(문·갈림길),대가 없음 · 결과 있음,,무료,Free,無料
+Expedition_FreePass,탐험,분기 방 손익 예고(문·갈림길),효과 없는 선택지,,대가 없이 지나칠 수 있음,Can pass at no cost,代価なしで通り過ぎられる
+Expedition_GoldGainFormat,탐험,분기 방 손익 예고(문·갈림길),이벤트 결과,{0}: 획득 골드,골드 +{0},+{0} Gold,ゴールド +{0}
+Expedition_HealFormat,탐험,분기 방 손익 예고(문·갈림길),이벤트 결과,{0}: 회복 비율,최대 HP {0}% 회복,Heal {0}% Max HP,最大HP {0}%回復
+Expedition_SkillDraft,탐험,분기 방 손익 예고(문·갈림길),이벤트 결과 1회,,스킬 드래프트,Skill draft,スキルドラフト
+Expedition_SkillDraftCountFormat,탐험,분기 방 손익 예고(문·갈림길),이벤트 결과 여러 회,{0}: 횟수,스킬 드래프트 {0}회,Skill draft ×{0},スキルドラフト {0}回
+Expedition_RerollFormat,탐험,분기 방 손익 예고(문·갈림길),이벤트 결과,{0}: 리롤 수,리롤 +{0},Reroll +{0},リロール +{0}
+Expedition_WeaponDraw,탐험,분기 방 손익 예고(문·갈림길),이벤트 결과 1회 · 결과 미리 뽑지 않음,,무기 추첨(무작위),Weapon draw (random),武器抽選(ランダム)
+Expedition_WeaponDrawCountFormat,탐험,분기 방 손익 예고(문·갈림길),이벤트 결과 여러 회,{0}: 횟수,무기 추첨 {0}회(무작위),Weapon draw ×{0} (random),武器抽選 {0}回(ランダム)
+Expedition_ChoiceFormat,탐험,분기 방 손익 예고(문·갈림길),선택지 한 줄,{0}: 대가 / {1}: 결과 목록,{0} → {1},{0} → {1},{0} → {1}
+Expedition_CostPairFormat,탐험,분기 방 손익 예고(문·갈림길),대가 잇기,{0}: 앞 항목 / {1}: 다음 항목,{0} + {1},{0} + {1},{0} + {1}
+Expedition_OutcomePairFormat,탐험,분기 방 손익 예고(문·갈림길),결과 잇기,{0}: 앞 항목 / {1}: 다음 항목,"{0}, {1}","{0}, {1}",{0}、{1}
+Expedition_UnaffordableFormat,탐험,분기 방 손익 예고(문·갈림길),골드 비용 > 보유 골드,{0}: 선택지 줄 / {1}: 보유 골드,{0} (골드 부족 · 보유 {1}),{0} (Not enough gold · have {1}),{0}(ゴールド不足 · 所持 {1})
+Expedition_PortalPurpose,탐험,로비-입구 목적(통행 기록 미발견),,,"남겨진 형체 곁에, 길을 적은 흔적이 있다.","Beside a form left behind, someone wrote down the way.",残された形のそばに、道を書き記した跡がある。
+Expedition_PortalRecorderHint,탐험,로비-입구 안내(발견·반응 미열람),,,기록자에게 남겨진 글을 보여줄 수 있다.,You can show the writing you found to the Recordkeeper.,残された文を記録者に見せられる。
+Expedition_PassageRecordTitle,탐험,런-통행 기록 이름표,,,남겨진 기록,Left-Behind Record,残された記録
+Expedition_PassageRecordPrompt,탐험,런-통행 기록 상호작용 문구,,,기록 읽기,Read the record,記録を読む
+Story_PassageRecord_Line1,서사,런-통행 기록 본문(매복방 초기 2 + 추가 2),,,앞의 둘이 전부는 아니었다. 안쪽에서 둘이 더 나왔다.,,
+Story_PassageReaction_Line1,서사,기록자-발견 반응 1,,,"앞의 둘, 뒤의 둘. 나는 자네가 가져온 글을 그렇게 옮겨 적었네.",,
+Story_PassageReaction_Line2,서사,기록자-발견 반응 2,,,쓴 이의 이름은 없었어. 그 뒤의 일도 적혀 있지 않았고.,,

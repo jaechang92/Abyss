@@ -1,5 +1,7 @@
-using System;
+﻿using System;
+using Abyss.Runtime.Flow;
 using Abyss.Runtime.Interaction;
+using Abyss.Runtime.Run;
 using Abyss.Runtime.UI;
 using UnityEngine;
 
@@ -22,6 +24,8 @@ namespace Abyss.Runtime.Stage
         private const float GLOW_PEAK_AT = 0.3f;            // 점등 구간 중 가장 밝은 지점(비율)
         private const float GLOW_FRAME_BOOST = 0.75f;       // 테두리를 흰색 쪽으로
         private const float GLOW_PANEL_BOOST = 0.55f;       // 문짝 판을 방 색 쪽으로
+        private const float DETAIL_BOTTOM = DOOR_HEIGHT + 1.15f;    // 보상 줄 위 — 이웃 문의 이름 줄과 겹치지 않게 위로 쌓는다
+        private const float DETAIL_CHARACTER_SIZE = 0.06f;
 
         private static Sprite whiteSprite;
 
@@ -29,6 +33,13 @@ namespace Abyss.Runtime.Stage
         private string title;
         private Action onChosen;
         private bool isUsed;
+
+        // 접근 상세 — 방 정보가 있는 문만 가진다(다음 스테이지 문은 room == null 이라 비어 있다).
+        private RoomData room;
+        private TextMesh detailLabel;
+        private PlayerInteractor interactor;
+        private bool isDetailShown;
+        private ExpeditionRoomPreview.Inputs shownInputs;     // 지금 문장을 만든 골드·언어 — 바뀌면 다시 만든다
 
         // 생성 점등 — 표시 색만 잠깐 바꾼다. 콜라이더·상호작용·생성 타이밍은 건드리지 않는다.
         private SpriteRenderer frameRenderer;
@@ -47,8 +58,18 @@ namespace Abyss.Runtime.Stage
         /// </summary>
         public static RoomExitDoor Create(Transform parent, Vector3 footPosition, RoomData room, Action<RoomData> chosen)
         {
-            return Create(parent, footPosition, $"ExitDoor_{room.roomId}", RoomTypeDisplay.RewardHeadline(room),
+            var door = Create(parent, footPosition, $"ExitDoor_{room.roomId}", RoomTypeDisplay.RewardHeadline(room),
                 room.ChoiceTitle, RoomTypeDisplay.Color(room.roomType), () => chosen?.Invoke(room));
+
+            // 손익 예고 대상 방만 상세 줄을 단다 — 나머지 문은 예전처럼 보상 줄 + 이름만(ExpeditionRoomPreview).
+            if (!string.IsNullOrEmpty(ExpeditionRoomPreview.WorldDetail(room, ExpeditionRoomPreview.ReadInputs())))
+            {
+                door.room = room;
+                door.detailLabel = CreateLabel(door.transform, string.Empty, new Vector3(0f, DETAIL_BOTTOM, 0f),
+                    DETAIL_CHARACTER_SIZE, new Color(0.9f, 0.9f, 0.95f), TextAnchor.LowerCenter);
+                door.detailLabel.gameObject.SetActive(false);
+            }
+            return door;
         }
 
         /// <summary>
@@ -74,8 +95,9 @@ namespace Abyss.Runtime.Stage
             panel.transform.localPosition = new Vector3(0f, DOOR_HEIGHT * 0.5f - 0.05f, 0f);
 
             // 문 위 글자 — 보상 한 줄(크게) + 방 이름(작게).
-            CreateLabel(go.transform, headline, new Vector3(0f, DOOR_HEIGHT + 0.75f, 0f), 0.11f, color);
-            CreateLabel(go.transform, title, new Vector3(0f, DOOR_HEIGHT + 0.3f, 0f), 0.075f, new Color(0.9f, 0.9f, 0.95f));
+            CreateLabel(go.transform, headline, new Vector3(0f, DOOR_HEIGHT + 0.75f, 0f), 0.11f, color, TextAnchor.MiddleCenter);
+            CreateLabel(go.transform, title, new Vector3(0f, DOOR_HEIGHT + 0.3f, 0f), 0.075f, new Color(0.9f, 0.9f, 0.95f),
+                TextAnchor.MiddleCenter);
 
             // 상호작용 판정 — PlayerInteractor 는 트리거 진입으로 후보를 모은다.
             var trigger = go.AddComponent<BoxCollider2D>();
@@ -118,10 +140,81 @@ namespace Abyss.Runtime.Stage
             if (t >= 1f) EndGlow();
         }
 
-        /// <summary>비활성화되면 점등을 끊고 원래 색으로 되돌린다 — 다시 켜져도 밝은 채로 남지 않게.</summary>
+        /// <summary>비활성화되면 점등을 끊고 원래 색으로 되돌린다 — 다시 켜져도 밝은 채로 남지 않게. 상세도 지운다.</summary>
         private void OnDisable()
         {
             if (glowElapsed >= 0f) EndGlow();
+            HideDetail();
+        }
+
+        // ───────────────────────── 접근 상세 ─────────────────────────
+
+        /// <summary>
+        /// 상세 판정은 LateUpdate — <see cref="PlayerInteractor"/>가 이번 프레임 Update에서 초점을 옮긴 결과를 같은 프레임에 반영한다
+        /// (실행 순서에 따라 한 프레임 늦게 지워지지 않게).
+        /// </summary>
+        private void LateUpdate() => UpdateDetail();
+
+        /// <summary>
+        /// 상세는 <see cref="PlayerInteractor.CurrentTarget"/>이 이 문일 때만 띄운다(<c>RewardAltarFeedback</c>와 같은 타깃 기준) —
+        /// 두 문의 긴 문장이 겹치지 않게, 다른 문·제단으로 초점이 옮겨 가면 즉시 지운다.
+        /// 들어간 뒤·정지(모달·일시정지)·상위 화면(설정·도감·저장 모달, 닫힌 그 프레임 포함)·씬 전환·런 종료 중에는 띄우지 않는다.
+        /// 문장은 보일 때 새로 만들고, 보이는 동안 골드·언어가 바뀌면 다시 만든다 — 낡은 문장을 들고 있지 않게.
+        /// </summary>
+        private void UpdateDetail()
+        {
+            if (detailLabel == null) return;
+
+            if (!CanShowDetail)
+            {
+                HideDetail();
+                return;
+            }
+
+            if (interactor == null) interactor = FindAnyObjectByType<PlayerInteractor>();
+            bool isFocused = interactor != null && ReferenceEquals(interactor.CurrentTarget, this);
+            if (!isFocused)
+            {
+                HideDetail();
+                return;
+            }
+
+            var inputs = ExpeditionRoomPreview.ReadInputs();
+            if (isDetailShown && inputs.Equals(shownInputs)) return;
+
+            // 모달과 같은 원본·같은 입력(ExpeditionRoomPreview) — 잔액 부족 표식도 같은 판정이다.
+            string detail = ExpeditionRoomPreview.WorldDetail(room, inputs);
+            if (string.IsNullOrEmpty(detail))
+            {
+                HideDetail();
+                return;
+            }
+
+            detailLabel.text = detail;
+            detailLabel.gameObject.SetActive(true);
+            shownInputs = inputs;
+            isDetailShown = true;
+        }
+
+        private bool CanShowDetail => !isUsed && isActiveAndEnabled && Time.timeScale > 0f &&
+            !IsUpperOverlayOwningScreen &&
+            (!RunManager.HasInstance || RunManager.Instance.IsRunActive) &&
+            (!SceneFlowController.HasInstance || !SceneFlowController.Instance.IsLoading);
+
+        /// <summary>
+        /// 설정·도감·저장 모달이 화면을 쥐고 있는지(닫은 그 프레임 포함). 정지 여부와 별개로 명시 확인한다 —
+        /// 상위 화면이 timeScale을 멈추지 않는 경로에서도 문 상세가 그 위로 비치지 않게.
+        /// </summary>
+        private static bool IsUpperOverlayOwningScreen =>
+            MenuButtonNavigation.IsUpperOverlayOpen ||
+            SettingsPanel.WasClosedThisFrame || CodexPanel.WasClosedThisFrame;
+
+        private void HideDetail()
+        {
+            isDetailShown = false;
+            if (detailLabel == null || !detailLabel.gameObject.activeSelf) return;   // 이미 숨김 — 매 프레임 다시 쓰지 않는다
+            detailLabel.text = string.Empty;
+            detailLabel.gameObject.SetActive(false);
         }
 
         private void EndGlow()
@@ -152,7 +245,8 @@ namespace Abyss.Runtime.Stage
             return go;
         }
 
-        private static void CreateLabel(Transform parent, string text, Vector3 localPosition, float characterSize, Color color)
+        private static TextMesh CreateLabel(Transform parent, string text, Vector3 localPosition, float characterSize, Color color,
+                                            TextAnchor anchor)
         {
             var go = new GameObject("Label");
             go.transform.SetParent(parent, false);
@@ -163,13 +257,14 @@ namespace Abyss.Runtime.Stage
             mesh.font = UiFactory.GetDefaultFont();
             mesh.fontSize = 48;
             mesh.characterSize = characterSize;
-            mesh.anchor = TextAnchor.MiddleCenter;
+            mesh.anchor = anchor;
             mesh.alignment = TextAlignment.Center;
             mesh.color = color;
 
             var renderer = go.GetComponent<MeshRenderer>();
             if (mesh.font != null) renderer.sharedMaterial = mesh.font.material;
             renderer.sortingOrder = ORDER_LABEL;
+            return mesh;
         }
 
         /// <summary>1유닛 흰 사각형(피벗 가운데). 문짝을 색으로만 그리는 동안 쓴다.</summary>

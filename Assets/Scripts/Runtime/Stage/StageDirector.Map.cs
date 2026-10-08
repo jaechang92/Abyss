@@ -359,6 +359,7 @@ namespace Abyss.Runtime.Stage
             pendingReinforcements.Clear();
             // 이전 방의 CLEAR가 새 방에 남지 않게 즉시 숨긴다.
             UI.RoomClearBanner.Hide();
+            ClearPassageRecord();
             exitDoors.Clear();
             mapKillCount = 0;
             if (mapRoot == null) return;

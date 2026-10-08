@@ -1686,6 +1686,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Lobby.DungeonPortal
   promptKey: Portal_Prompt
+  previewSequence: {fileID: 11400000, guid: aec6fe30fa1fba547bbf2c792d294fed, type: 2}
 --- !u!61 &566349039
 BoxCollider2D:
   m_ObjectHideFlags: 0

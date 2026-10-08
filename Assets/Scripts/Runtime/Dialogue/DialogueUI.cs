@@ -30,6 +30,10 @@ namespace Abyss.Runtime.Dialogue
         private DialogueLine[] lines;
         private int index;
         private Action onComplete;
+        // PlayTracked 호출자의 종료 콜백 — 종료 이유를 받는다. 기존 onComplete와 동시에 차지 않는다.
+        private Action<DialogueEndReason> onEnded;
+        // 대화 세대. 세션을 열거나 끝낼 때마다 오른다 — 이전 콜백 안에서 더 새 대화가 열렸는지 판별한다.
+        private int session;
 
         // 연 프레임. 대화를 시작한 입력이 같은 프레임에 첫 줄을 넘기지 않게 한다.
         private int startFrame = -1;
@@ -55,9 +59,19 @@ namespace Abyss.Runtime.Dialogue
             portraitPresenter?.Clear();
         }
 
-        private void OnDisable() => ReleaseFocus();
+        // 비활성화·파괴(씬 이탈 포함): 포커스를 돌려주고 PlayTracked 호출자에게만 중단을 알린다.
+        // 기존 Play 호출자의 완료 콜백은 예전처럼 부르지 않는다 — 언로드 중에 폼 패널 같은 후속 동작이 시작되지 않게.
+        private void OnDisable()
+        {
+            ReleaseFocus();
+            InterruptTracked();
+        }
 
-        private void OnDestroy() => ReleaseFocus();
+        private void OnDestroy()
+        {
+            ReleaseFocus();
+            InterruptTracked();
+        }
 
         /// <summary>DialogueData 재생. 라인이 없으면 즉시 complete 호출.</summary>
         public void Play(DialogueData data, Action complete)
@@ -68,11 +82,12 @@ namespace Abyss.Runtime.Dialogue
         {
             // 이미 재생 중에 다른 호출자가 Play하면, 이전 onComplete를 먼저 정리해
             // 이전 NPC의 busy/InputLocked 고착(이동 불가)을 막는다.
-            if (IsOpen)
+            // 이유를 받는 호출자가 재생 중이었다면 교체로 알린다(정상 완료가 아니다).
+            if (ReplaceCurrentSession())
             {
-                var prev = onComplete;
-                onComplete = null;
-                prev?.Invoke();
+                // 이전 콜백이 그 사이 더 새 대화를 열었다 — 그 대화가 주인이다. 이번 요청은 교체된 것으로 끝낸다.
+                complete?.Invoke();
+                return;
             }
 
             if (dialogueLines == null || dialogueLines.Length == 0)
@@ -92,9 +107,52 @@ namespace Abyss.Runtime.Dialogue
             KeepFocus();
         }
 
+        /// <summary>
+        /// 종료 이유를 받는 재생 — 정상 완료와 교체·중단·빈 대사를 구분해야 하는 새 호출자용(발견 반응 등).
+        /// <see cref="DialogueEndReason.Completed"/>는 마지막 줄을 넘겨 닫혔을 때만 온다. 콜백은 한 번만 온다.
+        /// 재생 중이던 기존 호출자는 예전 Play와 같이 완료 콜백으로 정리한다.
+        /// </summary>
+        public void PlayTracked(DialogueLine[] dialogueLines, Action<DialogueEndReason> ended)
+        {
+            if (ReplaceCurrentSession())
+            {
+                // 이전 콜백이 그 사이 더 새 대화를 열었다 — 그 대화를 지우지 않고 이번 요청을 교체로 끝낸다.
+                ended?.Invoke(DialogueEndReason.Replaced);
+                return;
+            }
+
+            if (dialogueLines == null || dialogueLines.Length == 0)
+            {
+                Close();
+                ended?.Invoke(DialogueEndReason.Empty);
+                return;
+            }
+            if (root == null || !isActiveAndEnabled)
+            {
+                Close();
+                ended?.Invoke(DialogueEndReason.Interrupted);
+                return;
+            }
+
+            lines = dialogueLines;
+            onEnded = ended;
+            index = 0;
+            startFrame = Time.frameCount;
+            root.SetActive(true);
+            RefreshHint(true);
+            ShowLine();
+            KeepFocus();
+        }
+
         private void Update()
         {
             if (!IsOpen) return;
+            // 중단(비활성화) 뒤 다시 켜졌는데 화면만 남은 경우 — 줄이 없으니 닫는다(넘기기 입력으로 빈 배열을 읽지 않게).
+            if (lines == null)
+            {
+                Close();
+                return;
+            }
 
             KeepFocus();
             RefreshHint(false);
@@ -132,13 +190,53 @@ namespace Abyss.Runtime.Dialogue
             index++;
             if (index >= lines.Length)
             {
-                Close();
+                // 콜백을 먼저 떼어 낸 뒤 닫는다 — Close의 SetActive가 OnDisable을 불러도 중단으로 잘못 끝나지 않게.
                 var cb = onComplete;
+                var ended = onEnded;
                 onComplete = null;
+                onEnded = null;
+                session++;
+                Close();
                 cb?.Invoke();
+                ended?.Invoke(DialogueEndReason.Completed);
                 return;
             }
             ShowLine();
+        }
+
+        /// <summary>
+        /// 새 재생 요청 직전, 현재 세션의 콜백·줄을 모두 떼어 내고 세대를 올린 뒤 이전 콜백을 부른다.
+        /// 기존 Play 호출자는 화면이 열려 있을 때만 완료 콜백으로, 이유를 받는 호출자는 교체로 끝난다.
+        /// 이전 콜백이 그 안에서 더 새 대화를 열었으면 true — 호출자는 그 대화를 덮지 않고 물러난다.
+        /// </summary>
+        private bool ReplaceCurrentSession()
+        {
+            var prevComplete = IsOpen ? onComplete : null;
+            var prevEnded = onEnded;
+            onComplete = null;
+            onEnded = null;
+            lines = null;
+            int mySession = ++session;
+
+            prevComplete?.Invoke();
+            prevEnded?.Invoke(DialogueEndReason.Replaced);
+
+            return session != mySession && lines != null;
+        }
+
+        /// <summary>
+        /// 비활성화·파괴 중 중단. 화면(root)은 여기서 건드리지 않는다 — 파괴·비활성화 도중의 SetActive를 피하고,
+        /// 다시 켜지면 <see cref="Update"/>가 줄 없는 화면을 닫는다. 줄은 비워 넘기기 입력이 와도 진행하지 않는다.
+        /// 콜백을 먼저 비우고 부른다(재진입 시 두 번 오지 않게).
+        /// </summary>
+        private void InterruptTracked()
+        {
+            var ended = onEnded;
+            if (ended == null) return;
+            onEnded = null;
+            lines = null;
+            session++;
+            ended.Invoke(DialogueEndReason.Interrupted);
         }
 
         private void Close()

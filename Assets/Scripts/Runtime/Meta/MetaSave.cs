@@ -133,6 +133,17 @@ namespace Abyss.Runtime.Meta
         /// <summary>⚠️ v2 레거시 — <see cref="storyStage"/> 참조.</summary>
         public int storyBossSnapshot;
 
+        // ── 탐사 발견 (26-expedition-discovery E3·E4) ──
+        // 도감 발견(discoveredFormIds 등)·스토리 진행도와 섞지 않는다 — 저쪽은 「만난 적 있다」·「챕터를 봤다」이고
+        // 이쪽은 「길에서 남겨진 기록을 읽었다」와 「기록자의 반응을 끝까지 들었다」다.
+        // 순수 필드 추가라 마이그레이션이 필요 없다 — 기본값(빈 리스트 = 아무것도 발견하지 않음)이 곧 옳은 과거다.
+
+        /// <summary>조사한 통행 기록 ID(<c>PassageDiscovery</c>). 사망·런 재시작으로 지우지 않는다.</summary>
+        public List<string> discoveredPassageIds = new();
+
+        /// <summary>기록자 반응을 정상 종료까지 들은 통행 기록 ID. 발견 목록과 따로 둔다.</summary>
+        public List<string> viewedPassageReactionIds = new();
+
         // ── 첫 플레이 튜토리얼 ──
         // records.hasSeenPrologue·hasSeenEnding 과 섞지 않는다 — 저쪽은 「서사를 봤다」이고 이쪽은
         // 「조작을 배웠다」다. 프롤로그를 치트로 되돌려도 학습 기록은 그대로여야 하고, 그 반대도 같다.

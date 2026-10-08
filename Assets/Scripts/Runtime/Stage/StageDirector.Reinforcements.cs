@@ -273,6 +273,7 @@ namespace Abyss.Runtime.Stage
                 pendingReinforcements.Clear();
             }
             UI.RoomClearBanner.Hide();
+            ClearPassageRecord();
         }
 
         /// <summary>

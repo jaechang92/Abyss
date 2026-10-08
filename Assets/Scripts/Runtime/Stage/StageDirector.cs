@@ -420,6 +420,9 @@ namespace Abyss.Runtime.Stage
                 RunManager.Instance?.GainCombatGoldShards(room.clearGoldReward);
             }
 
+            // 탐사 발견: 기록 방이면 통행 기록을 세운다 — 보상·게이트·진행과 무관(StageDirector.Expedition.cs).
+            TrySpawnPassageRecord(room);
+
             // 월드 상호작용 opt-in 이벤트 방: 자동 모달 대신 오브젝트를 세운다(legacy 게이트를 잡지 않는다).
             if (TryBeginWorldEvent(room)) return;
 

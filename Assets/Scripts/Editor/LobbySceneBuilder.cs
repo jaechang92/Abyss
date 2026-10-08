@@ -7,6 +7,7 @@ using Abyss.Runtime.Interaction;
 using Abyss.Runtime.Lobby;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
+using Abyss.Runtime.Stage;
 using Abyss.Runtime.Story;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -412,6 +413,10 @@ namespace Abyss.EditorTools
             var so = new SerializedObject(portal);
             var p = so.FindProperty("promptKey");
             if (p != null) p.stringValue = StringKey.Portal_Prompt;
+            // 입구 목적은 Run 씬 StageDirector와 같은 시퀀스 에셋을 읽는다(별도 Stage1 표를 두지 않는다).
+            var sequence = AssetDatabase.LoadAssetAtPath<StageSequenceData>(AbyssPaths.Stages + "/MainRunSequence.asset");
+            if (sequence == null) Debug.LogWarning("[LobbySceneBuilder] MainRunSequence 없음 — 입구 목적 표시 생략");
+            SetObject(so, "previewSequence", sequence);
             so.ApplyModifiedProperties();
         }
 
