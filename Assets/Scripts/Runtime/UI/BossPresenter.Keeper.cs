@@ -179,7 +179,7 @@ namespace Abyss.Runtime.UI
             bool isCompleted = false;
             try
             {
-                lease = KeeperIntroPanel.Open(keeperTitle, keeperEpithet);
+                lease = KeeperIntroPanel.Open(keeperTitle, keeperEpithet, KEEPER_ENEMY_ID);
                 if (AudioManager.HasInstance) AudioManager.Instance.SetBgmDuck(this, isFirst ? FIRST_BGM_DUCK : RETRY_BGM_DUCK);
 
                 // 열자마자 정지를 쥐지 못했으면(공용 열림 기록 잔존 등) 남의 정지다 — 첫 프레임 판정에서 양보한다.

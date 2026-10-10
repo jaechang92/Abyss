@@ -1,4 +1,5 @@
-﻿using Abyss.Runtime.Events;
+﻿using Abyss.Runtime.ArtIntegration;
+using Abyss.Runtime.Events;
 using Abyss.Runtime.Localization;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -182,7 +183,27 @@ namespace Abyss.Runtime.UI
         /// 패널을 비운 채 열고 정지를 건다. 반환한 소유 기록으로만 닫는다.
         /// 공용 열림 기록이 이미 켜져 있어 DraftOpened 가 나가지 않으면 <see cref="Lease.OwnsPause"/> 가 거짓이다 — 호출한 쪽이 양보한다.
         /// </summary>
-        public static Lease Open(string title, string epithet)
+        public static Lease Open(string title, string epithet) => Open(title, epithet, null);
+
+        /// <summary>
+        /// 위와 같고 이름 왼쪽에 보스 초상(A2 · <paramref name="enemyId"/>=EnemyData.enemyId)을 둔다.
+        /// 초상은 이름 묶음 안이라 이름과 함께 나타나고 사라진다. 그림이 없으면 초상 칸을 끈다.
+        /// </summary>
+        public static Lease Open(string title, string epithet, string enemyId)
+        {
+            var lease = OpenPanel(title, epithet);
+            var panel = EnsureInstance();
+            if (panel.titleLabel != null)
+            {
+                UiArtDecor.PlaceLeadingIcon(panel.titleLabel, UiArtKeys.BossPortrait(enemyId), PORTRAIT_SIZE, PORTRAIT_GAP);
+            }
+            return lease;
+        }
+
+        private const float PORTRAIT_SIZE = 96f;
+        private const float PORTRAIT_GAP = 16f;
+
+        private static Lease OpenPanel(string title, string epithet)
         {
             var panel = EnsureInstance();
             panel.isEndingIntentionally = false;

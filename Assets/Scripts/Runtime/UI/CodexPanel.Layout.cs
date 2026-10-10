@@ -54,6 +54,8 @@ namespace Abyss.Runtime.UI
             BuildPager(panel.transform);
             BuildDetail(panel.transform);
             BuildRecords(panel.transform);
+
+            ApplyArt();
         }
 
         // ───────────────────────── 헤더 ─────────────────────────

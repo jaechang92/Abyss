@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Meta;
 using Abyss.Runtime.Run;
 using UnityEngine;
+using Abyss.Runtime.Feedback;
 
 namespace Abyss.Runtime.Player
 {
@@ -135,6 +136,7 @@ namespace Abyss.Runtime.Player
 
             int previous = currentHp;
             currentHp = Mathf.Max(0, currentHp - mitigated);
+            if (currentHp < previous) WorldArtFx.Play("hit-spark", transform.position + Vector3.up * 0.6f, owner: transform);
             OnHpChanged?.Invoke(previous, currentHp);
 
             // 반격 태세(Synergy) — 실제로 깎인 피해를 기준으로 되돌린다. 불꽃 갑옷과 달리

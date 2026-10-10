@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Abyss.Runtime.Enemy
 {
@@ -51,6 +51,15 @@ namespace Abyss.Runtime.Enemy
         {
             if (!flipsToFace || sr == null || Mathf.Approximately(direction, 0f)) return;
             sr.flipX = direction < 0f;
+        }
+
+        /// <summary>
+        /// 좌우 반전을 켠다. 오른쪽을 보는 전용 atlas 가 붙을 때 <see cref="EnemyAtlasPresenter"/> 가 부른다
+        /// (EnemyAnimationBuilder 가 애니메이션 적에 <see cref="flipsToFace"/> 를 켜는 것의 런타임 대응).
+        /// </summary>
+        public void EnableFacing()
+        {
+            flipsToFace = true;
         }
 
         /// <summary>

@@ -150,8 +150,13 @@ namespace Abyss.Runtime.Player
             if (TryPerformRangedAttack(damage, hitstop, shake, isHeavy)) return;
 
             // 이펙트 크기는 판정 박스에서 파생된다 - 화면이 사거리를 부풀리지 않게 값을 넘긴다.
-            if (isHeavy) attackEffect?.PlayHeavy(attackBoxSize);
-            else attackEffect?.PlayLight(attackBoxSize);
+            bool hasSlash = attackPoint != null && WorldArtFx.Play("slash-arc", attackPoint.position,
+                attackBoxSize.y, isHeavy ? 0.24f : 0.16f, facingSign, transform, attackBoxSize.x);
+            if (!hasSlash)
+            {
+                if (isHeavy) attackEffect?.PlayHeavy(attackBoxSize);
+                else attackEffect?.PlayLight(attackBoxSize);
+            }
 
             if (attackPoint == null) return;
 
@@ -240,14 +245,19 @@ namespace Abyss.Runtime.Player
             damage = ConsumeAbyssCharge(damage);
 
             // 신중한 시선(무축) 치명타 — 같은 자리(적중 확정 뒤). 휘두름 한 번에 한 번 굴린다.
+            int beforeCritical = damage;
             damage = RollKeenEye(damage);
+            bool isCritical = damage > beforeCritical;
 
             // P04 C — 표식 소비도 적중 확정 뒤 · 피해 전. 피해 식은 바꾸지 않는다(경직만).
             TryConsumeRangedMark(reusableHitList);
 
             foreach (var enemy in reusableHitList)
             {
+                int previousHp = enemy.CurrentHp;
                 enemy.TakeDamage(damage);
+                if (isCritical && enemy != null && enemy.CurrentHp < previousHp)
+                    WorldArtFx.Play("critical-impact", enemy.transform.position, 1.25f, owner: transform);
             }
 
             int totalDamage = damage * reusableHitList.Count;

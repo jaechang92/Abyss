@@ -66,6 +66,8 @@ namespace Abyss.Runtime.UI
             if (!IsBodyOpen || current == null) return;
             if (IsUpperModalOwningInput) return;
 
+            RefreshChoiceAffordability();
+
             // 결과 단계에서만 ESC·패드 B = [계속]. 관문(CanAcceptContinue)이 결과를 띄운 프레임을 거른다.
             if (chosen != null && CanAcceptContinue && WasCancelPressedThisFrame())
             {

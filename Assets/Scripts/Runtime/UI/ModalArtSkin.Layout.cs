@@ -103,6 +103,7 @@ namespace Abyss.Runtime.UI
             float buttonY = TopToCenterY(DRAFT_BUTTON_TOP, DraftButtonSize.y);
             ApplyDraftButton(reroll, rerollLabel, new Vector2(-DRAFT_BUTTON_X, buttonY), ppu);
             ApplyDraftButton(skip, skipLabel, new Vector2(DRAFT_BUTTON_X, buttonY), ppu);
+            ApplyRerollIcon(reroll, rerollLabel);
 
             if (buildContext != null) ApplyBuildContext(buildContext.transform, ppu);
 

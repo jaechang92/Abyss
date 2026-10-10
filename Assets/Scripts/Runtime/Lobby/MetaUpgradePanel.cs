@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using Abyss.Runtime.UI;
@@ -17,6 +18,8 @@ namespace Abyss.Runtime.Lobby
     /// </summary>
     public sealed partial class MetaUpgradePanel : MonoBehaviour
     {
+        private const float SHARDS_ICON_SIZE = 28f; // A2 심연 조각 아이콘
+
         [Header("루트")]
         [SerializeField] private GameObject root;
 
@@ -170,7 +173,12 @@ namespace Abyss.Runtime.Lobby
         private void Refresh()
         {
             int shards = MetaSaveService.Instance.Current.abyssShardsTotal;
-            if (shardsLabel != null) shardsLabel.text = Loc.GetFormat(StringKey.Altar_ShardsFormat, shards);
+            if (shardsLabel != null)
+            {
+                shardsLabel.text = Loc.GetFormat(StringKey.Altar_ShardsFormat, shards);
+                // A2 심연 조각 아이콘 — 실제 잔액 글자 앞. 글자 폭이 바뀌므로 잔액을 쓸 때마다 다시 맞춘다.
+                UiArtDecor.PlaceLeadingIcon(shardsLabel, UiArtKeys.CURRENCY_ABYSS_SHARDS, SHARDS_ICON_SIZE);
+            }
 
             foreach (var row in rows)
             {

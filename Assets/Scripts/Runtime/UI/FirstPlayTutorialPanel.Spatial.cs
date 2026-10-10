@@ -15,13 +15,15 @@ namespace Abyss.Runtime.UI
         {
             var rect = (RectTransform)body.transform;
             rect.anchorMin = rect.anchorMax = rect.pivot = isCompact ? new Vector2(1f, 0f) : new Vector2(0.5f, 1f);
-            rect.anchoredPosition = isCompact ? new Vector2(-24f, 24f) : new Vector2(0f, -24f);
+            // 큰 띠는 프레임 그림이 화면 위로 잘리지 않는 위치(NormalBodyPosition) — 매번 같은 값이라 반복 전환에도 그대로다.
+            rect.anchoredPosition = isCompact ? new Vector2(-24f, 24f) : NormalBodyPosition;
             rect.sizeDelta = isCompact ? new Vector2(460f, 42f) : PanelSize;
             header.gameObject.SetActive(!isCompact);
             hint.gameObject.SetActive(!isCompact);
             ((RectTransform)padHint.transform).anchoredPosition = isCompact ? new Vector2(-60f, 0f) : new Vector2(-70f, -36f);
             ((RectTransform)padHint.transform).sizeDelta = isCompact ? new Vector2(320f, 30f) : new Vector2(440f, 24f);
             ((RectTransform)skipButton.transform).anchoredPosition = isCompact ? new Vector2(166f, 0f) : new Vector2(250f, -36f);
+            SetFrameArtVisible(!isCompact);
         }
 
         public void SetSpatialVisible(bool isVisible)
@@ -35,6 +37,7 @@ namespace Abyss.Runtime.UI
             Assign(spatialKey, binding);
             Assign(spatialHint, instruction);
             for (int i = 0; i < actionShapes.Length; i++) actionShapes[i].SetActive(i == action);
+            SetCompleteMark(action < 0);
         }
 
         public void PlaceSpatialHint(UnityEngine.Camera camera, Vector3 target)
@@ -65,6 +68,7 @@ namespace Abyss.Runtime.UI
             spatialHint = CreateLabel(spatialBody.transform, "Instruction", new Vector2(0f, -24f),
                 new Vector2(440f, 42f), string.Empty, 20, HintColor, TextAnchor.MiddleCenter);
             spatialKey.raycastTarget = spatialHint.raycastTarget = false;
+            ApplyKeyFrame((RectTransform)keycap.transform);
             actionShapes = new GameObject[4];
             for (int i = 0; i < 4; i++)
             {

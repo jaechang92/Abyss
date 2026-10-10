@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Run;
 using Abyss.Runtime.Stage;
@@ -57,6 +58,11 @@ namespace Abyss.Runtime.UI
         private Text descriptionText;
         private Text goldText;
 
+        // A2: 상인 초상은 패널 왼쪽 바깥(위 가장자리 맞춤), 골드 아이콘은 잔액 글자 앞.
+        private const float PORTRAIT_SIZE = 180f;
+        private const float PORTRAIT_GAP = 16f;
+        private const float GOLD_ICON_SIZE = 28f;
+
         private readonly List<GameObject> itemRows = new();
         private readonly List<Text> nameLabels = new();
         private readonly List<Text> descLabels = new();
@@ -108,6 +114,7 @@ namespace Abyss.Runtime.UI
 
             if (titleText != null) titleText.text = data.title;
             if (descriptionText != null) descriptionText.text = data.description;
+            BindShopPortrait(data.shopId);
 
             RefreshItems();
             ShowBody();
@@ -118,7 +125,11 @@ namespace Abyss.Runtime.UI
         private void RefreshItems()
         {
             int gold = RunManager.HasInstance ? RunManager.Instance.GoldShards : 0;
-            if (goldText != null) goldText.text = $"보유 골드 {gold}";
+            if (goldText != null)
+            {
+                goldText.text = $"보유 골드 {gold}";
+                UiArtDecor.PlaceLeadingIcon(goldText, UiArtKeys.CURRENCY_GOLD_SHARDS, GOLD_ICON_SIZE);
+            }
 
             for (int i = 0; i < itemRows.Count; i++)
             {
@@ -185,6 +196,19 @@ namespace Abyss.Runtime.UI
             }
 
             RefreshItems();
+        }
+
+        /// <summary>
+        /// 상인 초상(A2). <see cref="ShopData.shopId"/>로 고른다 — 현지화된 상점 이름으로 고르지 않는다.
+        /// 초상이 없는 상점이면 칸을 끈다(다른 상인 그림으로 대신하지 않는다).
+        /// </summary>
+        private void BindShopPortrait(string shopId)
+        {
+            if (titleText == null || titleText.transform.parent is not RectTransform panel) return;
+            float x = -PANEL_WIDTH * 0.5f - PORTRAIT_GAP - PORTRAIT_SIZE * 0.5f;
+            float y = PANEL_HEIGHT * 0.5f - PORTRAIT_SIZE * 0.5f;
+            var box = new Rect(x - PORTRAIT_SIZE * 0.5f, y - PORTRAIT_SIZE * 0.5f, PORTRAIT_SIZE, PORTRAIT_SIZE);
+            UiArtDecor.ApplyIconInRect(panel, "ArtShopPortrait", UiArtKeys.ShopPortrait(shopId), box, Color.white);
         }
 
         // ───────────────────────── 무기 좌판 ─────────────────────────

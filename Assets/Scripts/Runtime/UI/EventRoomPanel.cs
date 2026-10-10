@@ -58,6 +58,7 @@ namespace Abyss.Runtime.UI
 
         private EventData current;
         private EventChoice chosen;
+        private int displayedGold;
 
         // 선택 시점에 적용하고 남은, [계속] 뒤로 미뤄야 하는 드래프트 횟수.
         // 🔴 미루는 이유는 <b>모달 겹침 하나뿐</b>이다 — 나머지 효과는 패널이 열린 채 적용해도 안전하다
@@ -90,7 +91,7 @@ namespace Abyss.Runtime.UI
         /// <paramref name="onConfirmed"/>를 부른다 — <see cref="GameEvents.OnEventResolved"/>는 내지 않는다.
         /// 바깥에서 꺼지거나 파괴되면 콜백은 오지 않는다(자동 해결 없음). 열지 못했으면 false.
         /// </summary>
-        public static bool OpenForWorld(EventData data, Action onConfirmed)
+        public static bool OpenForWorld(EventData data, Action onConfirmed, Action<bool> onArtResolved = null)
         {
             if (onConfirmed == null || data == null || data.choices == null || data.choices.Count == 0)
             {
@@ -106,6 +107,7 @@ namespace Abyss.Runtime.UI
             var panel = EnsureInstance();
             if (panel == null) return false;
             panel.Show(data, onConfirmed);
+            panel.worldArtResolved = onArtResolved;
             return true;
         }
 
@@ -120,6 +122,9 @@ namespace Abyss.Runtime.UI
             current = data;
             chosen = null;
             worldConfirmed = onConfirmed;
+            worldArtResolved = null;
+            wasArtConsumed = false;
+            ApplyEventArtwork(false);
 
             // 월드 모드의 버튼은 방 이동이 아니라 확인 닫기다(21-room-reward-flow §4). legacy 문구는 그대로.
             if (continueLabel != null) continueLabel.text = onConfirmed != null ? "확인" : "계속";
@@ -137,6 +142,7 @@ namespace Abyss.Runtime.UI
         private void BindChoices(EventData data)
         {
             int gold = RunManager.HasInstance ? RunManager.Instance.GoldShards : 0;
+            displayedGold = gold;
 
             for (int i = 0; i < choiceButtons.Count; i++)
             {
@@ -154,13 +160,32 @@ namespace Abyss.Runtime.UI
             }
         }
 
+        private void RefreshChoiceAffordability()
+        {
+            if (chosen != null || current == null) return;
+            int gold = RunManager.HasInstance ? RunManager.Instance.GoldShards : 0;
+            if (gold == displayedGold) return;
+            BindChoices(current);
+            RefreshNavigation();
+        }
+
         private void OnChoiceClicked(int index)
         {
             // 연 프레임·이미 고른 뒤·상위 모달이 쥔 동안의 클릭은 버린다 — 효과가 두 번 적용되지 않게(Navigation 참조).
             if (!CanAcceptChoice) return;
             if (current == null || index < 0 || index >= current.choices.Count) return;
 
-            chosen = current.choices[index];
+            var candidate = current.choices[index];
+            int gold = RunManager.HasInstance ? RunManager.Instance.GoldShards : 0;
+            if (candidate.GoldCost > gold)
+            {
+                // 표시 후 잔액이 바뀌어도 효과/해결 그림을 적용하기 전에 거절한다.
+                BindChoices(current);
+                RefreshNavigation();
+                KeepFocusInside();
+                return;
+            }
+            chosen = candidate;
 
             // 모달을 안 여는 효과는 여기서 적용한다. 드래프트만 [계속] 뒤로 미룬다 —
             // 그것만이 이 패널이 열린 채 겹치는 효과이기 때문이다(아래 Continue 참조).
@@ -168,8 +193,12 @@ namespace Abyss.Runtime.UI
             // 🔴 <b>당긴 이유</b>: 무기 가차는 「무엇이 나왔는지」를 결과 문구에 실어야 하는데,
             //    resultText 는 에셋에 미리 쓴 문장이라 그걸 못 담는다. 적용을 [계속] 뒤로 미루면
             //    패널이 이미 닫힌 뒤라 <b>붙일 자리 자체가 없다</b> — 상자를 열고도 무엇을 얻었는지
-            //    모른 채 방을 넘어가게 된다. 잔액은 BindChoices 가 이미 걸렀으므로 앞당겨도 안전하다.
+            //    모른 채 방을 넘어가게 된다. 잔액은 표시 시점과 위 실행 직전 두 번 확인한다.
+            bool canShowConsumed = chosen.effects != null && chosen.effects.Count > 0 &&
+                RunManager.HasInstance && chosen.GoldCost <= RunManager.Instance.GoldShards;
             pendingDrafts = EventEffectApplier.ApplyNonModal(chosen.effects, out string weaponGain);
+            wasArtConsumed = canShowConsumed;
+            ApplyEventArtwork(wasArtConsumed);
 
             if (descriptionText != null)
             {
@@ -201,6 +230,9 @@ namespace Abyss.Runtime.UI
             var confirmed = worldConfirmed;
             worldConfirmed = null;
 
+            var artResolved = worldArtResolved;
+            worldArtResolved = null;
+            artResolved?.Invoke(wasArtConsumed);
             current = null;
             chosen = null;
 

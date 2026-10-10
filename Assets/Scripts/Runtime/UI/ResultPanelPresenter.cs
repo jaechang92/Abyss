@@ -1,3 +1,4 @@
+﻿using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Meta;
 using Abyss.Runtime.Run;
@@ -45,6 +46,10 @@ namespace Abyss.Runtime.UI
         [SerializeField] private Text lobbyLabel;
 
         /// <summary>직전 런이 완주로 끝났는가. 이 패널을 띄울지 엔딩에 넘길지가 여기에 갈린다.</summary>
+        private const float EMBLEM_SIZE = 48f;
+        private const float SHARDS_ICON_SIZE = 26f;
+        private const float ICON_GAP = 10f;
+
         private static bool IsClearedRun =>
             RunManager.HasInstance && RunManager.Instance.LastRunEndReason == RunEndReason.Cleared;
 
@@ -62,7 +67,13 @@ namespace Abyss.Runtime.UI
                 UiFactory.ApplyOverlaySorting(root, UiSortingOrder.RunResult);
             }
             if (restartButton != null) restartButton.onClick.AddListener(HandleRestart);
-            if (lobbyButton != null) lobbyButton.onClick.AddListener(HandleReturnToLobby);
+            if (lobbyButton != null)
+            {
+                lobbyButton.onClick.AddListener(HandleReturnToLobby);
+                var rect = lobbyButton.transform as RectTransform;
+                if (rect != null) WorldArtLibrary.ApplyUi(rect, "ReturnStairsArt", "exit/return-stairs",
+                    new Rect(rect.rect.width * 0.5f + 8f, -24f, 44f, 48f));
+            }
         }
 
         private void OnEnable()
@@ -154,6 +165,10 @@ namespace Abyss.Runtime.UI
             if (stageText != null) stageText.text = RunSummaryText.Stage(stats);
             if (elapsedText != null) elapsedText.text = RunSummaryText.Elapsed(stats);
             if (abyssEarnedText != null) abyssEarnedText.text = RunSummaryText.AbyssEarned(stats);
+
+            // A2: 정산 엠블럼은 제목 앞, 심연 조각 아이콘은 실제 획득 줄 앞. 글자가 정해진 뒤 그 폭에 맞춘다.
+            UiArtDecor.PlaceLeadingIcon(titleText, UiArtKeys.UI_RUN_RESULT_EMBLEM, EMBLEM_SIZE, ICON_GAP);
+            UiArtDecor.PlaceLeadingIcon(abyssEarnedText, UiArtKeys.CURRENCY_ABYSS_SHARDS, SHARDS_ICON_SIZE, ICON_GAP);
         }
 
         private void HandleRestart()

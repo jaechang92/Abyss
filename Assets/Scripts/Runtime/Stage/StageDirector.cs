@@ -66,6 +66,7 @@ namespace Abyss.Runtime.Stage
             GameEvents.OnRunAbandoned += HandleRunAbandoned;
             GameEvents.OnPlayerDead += HandlePlayerDead;
             SubscribeWorldInteraction(true);
+            WorldEnvironmentArt.Attach(this);
             if (startOnEnable) Invoke(nameof(StartSequence), SEQUENCE_START_DELAY);
         }
 

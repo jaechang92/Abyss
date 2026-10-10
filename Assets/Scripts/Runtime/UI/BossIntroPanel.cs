@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Localization;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -23,6 +24,10 @@ namespace Abyss.Runtime.UI
         private const float LINE_SECONDS = 4f;
         private const float INPUT_GRACE_SECONDS = 0.25f;
 
+        // A2 초상: 이름(중심 110 · 높이 90) 위 16 띄워 180 칸.
+        private const float PORTRAIT_SIZE = 180f;
+        private const float PORTRAIT_CENTER_Y = 261f;
+
         private static readonly Color TitleColor = new Color(1f, 0.82f, 0.52f);
         private static readonly Color EpithetColor = new Color(0.70f, 0.70f, 0.80f);
         private static readonly Color LineColor = new Color(0.93f, 0.93f, 0.97f);
@@ -41,6 +46,13 @@ namespace Abyss.Runtime.UI
         /// 이미 재생 중이면 겹치지 않고 곧바로 <paramref name="onFinished"/>만 부른다.
         /// </summary>
         public static void Play(string title, string epithet, IReadOnlyList<string> lines, Action onFinished)
+            => Play(title, epithet, lines, onFinished, null);
+
+        /// <summary>
+        /// 위와 같고 이름 위에 보스 초상(A2)을 함께 보인다. <paramref name="enemyId"/>는 EnemyData.enemyId —
+        /// 초상 그림이 없는 보스면 초상 칸을 끄고 기존 카드 그대로다.
+        /// </summary>
+        public static void Play(string title, string epithet, IReadOnlyList<string> lines, Action onFinished, string enemyId)
         {
             var panel = EnsureInstance();
             if (panel.isPlaying)
@@ -48,7 +60,15 @@ namespace Abyss.Runtime.UI
                 onFinished?.Invoke();
                 return;
             }
+            panel.ApplyPortrait(enemyId);
             _ = panel.RunAsync(title, epithet, lines, onFinished);
+        }
+
+        private void ApplyPortrait(string enemyId)
+        {
+            if (titleLabel == null || titleLabel.transform.parent is not RectTransform body) return;
+            var box = new Rect(-PORTRAIT_SIZE * 0.5f, PORTRAIT_CENTER_Y - PORTRAIT_SIZE * 0.5f, PORTRAIT_SIZE, PORTRAIT_SIZE);
+            UiArtDecor.ApplyIconInRect(body, "ArtBossPortrait", UiArtKeys.BossPortrait(enemyId), box, Color.white);
         }
 
         protected override void BuildContent(Transform body)

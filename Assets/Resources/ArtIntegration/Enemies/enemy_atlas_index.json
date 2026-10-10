@@ -1,0 +1,2549 @@
+{
+ "version": 1,
+ "enemies": [
+  {
+   "enemyId": "bone_archer",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/bone_archer_run",
+     "sheetHeight": 496,
+     "fps": 8.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 110,
+       "topY": 13
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/bone_archer_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/bone_archer_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 110,
+       "topY": 13
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 108,
+       "topY": 16
+      },
+      {
+       "x": 372,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/bone_archer_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 102,
+       "topY": 22
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 88,
+       "topY": 35
+      },
+      {
+       "x": 372,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 76,
+       "topY": 48
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 50.0
+  },
+  {
+   "enemyId": "boss_abyss_keeper",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/boss_abyss_keeper_run",
+     "sheetHeight": 496,
+     "fps": 8.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 101,
+       "topY": 23
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 110,
+       "topY": 13
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 106,
+       "topY": 17
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/boss_abyss_keeper_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 106,
+       "topY": 17
+      },
+      {
+       "x": 124,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 107,
+       "topY": 16
+      },
+      {
+       "x": 372,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 105,
+       "topY": 18
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/boss_abyss_keeper_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 108,
+       "topY": 16
+      },
+      {
+       "x": 124,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 110,
+       "topY": 14
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 110,
+       "topY": 14
+      },
+      {
+       "x": 372,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 110,
+       "topY": 14
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/boss_abyss_keeper_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 108,
+       "topY": 16
+      },
+      {
+       "x": 124,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 105,
+       "topY": 18
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 94,
+       "topY": 29
+      },
+      {
+       "x": 372,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 81,
+       "topY": 43
+      }
+     ]
+    },
+    {
+     "id": "volley",
+     "atlas": "ArtIntegration/Enemies/boss_abyss_keeper_volley",
+     "sheetHeight": 124,
+     "fps": 6.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 107,
+       "topY": 17
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 111,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 109,
+       "topY": 14
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 36.7059
+  },
+  {
+   "enemyId": "boss_flame_serpent",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/boss_flame_serpent_run",
+     "sheetHeight": 496,
+     "fps": 8.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 496,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 110,
+       "topY": 13
+      },
+      {
+       "x": 744,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/boss_flame_serpent_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 248,
+       "h": 124,
+       "footY": 111,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 496,
+       "y": 124,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 744,
+       "y": 124,
+       "w": 248,
+       "h": 124,
+       "footY": 108,
+       "topY": 15
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/boss_flame_serpent_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 248,
+       "h": 124,
+       "footY": 110,
+       "topY": 13
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 496,
+       "y": 248,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 744,
+       "y": 248,
+       "w": 248,
+       "h": 124,
+       "footY": 105,
+       "topY": 18
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/boss_flame_serpent_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 248,
+       "h": 124,
+       "footY": 106,
+       "topY": 17
+      },
+      {
+       "x": 496,
+       "y": 372,
+       "w": 248,
+       "h": 124,
+       "footY": 100,
+       "topY": 23
+      },
+      {
+       "x": 744,
+       "y": 372,
+       "w": 248,
+       "h": 124,
+       "footY": 94,
+       "topY": 29
+      }
+     ]
+    },
+    {
+     "id": "breath",
+     "atlas": "ArtIntegration/Enemies/boss_flame_serpent_breath",
+     "sheetHeight": 124,
+     "fps": 6.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 100,
+       "topY": 23
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 496,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 744,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "tail",
+     "atlas": "ArtIntegration/Enemies/boss_flame_serpent_tail",
+     "sheetHeight": 124,
+     "fps": 6.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 110,
+       "topY": 13
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 496,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 744,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 110,
+       "topY": 14
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 32.0
+  },
+  {
+   "enemyId": "boss_thronebound",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/boss_thronebound_run",
+     "sheetHeight": 496,
+     "fps": 8.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 109,
+       "topY": 14
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/boss_thronebound_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 108,
+       "topY": 15
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 100,
+       "topY": 23
+      },
+      {
+       "x": 372,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 110,
+       "topY": 13
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/boss_thronebound_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 109,
+       "topY": 15
+      },
+      {
+       "x": 372,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/boss_thronebound_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 100,
+       "topY": 23
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 88,
+       "topY": 35
+      },
+      {
+       "x": 372,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 81,
+       "topY": 43
+      }
+     ]
+    },
+    {
+     "id": "blink",
+     "atlas": "ArtIntegration/Enemies/boss_thronebound_blink",
+     "sheetHeight": 124,
+     "fps": 6.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 105,
+       "topY": 19
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 101,
+       "topY": 22
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 108,
+       "topY": 16
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 43.2432
+  },
+  {
+   "enemyId": "elite_berserker",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/elite_berserker_run",
+     "sheetHeight": 496,
+     "fps": 8.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 107,
+       "topY": 16
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 105,
+       "topY": 19
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 109,
+       "topY": 15
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 110,
+       "topY": 13
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/elite_berserker_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 105,
+       "topY": 18
+      },
+      {
+       "x": 124,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 111,
+       "topY": 13
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 91,
+       "topY": 33
+      },
+      {
+       "x": 372,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 105,
+       "topY": 18
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/elite_berserker_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 103,
+       "topY": 20
+      },
+      {
+       "x": 124,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 103,
+       "topY": 20
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 96,
+       "topY": 28
+      },
+      {
+       "x": 372,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 107,
+       "topY": 17
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/elite_berserker_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 102,
+       "topY": 22
+      },
+      {
+       "x": 124,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 98,
+       "topY": 26
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 86,
+       "topY": 37
+      },
+      {
+       "x": 372,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 83,
+       "topY": 40
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 50.2069
+  },
+  {
+   "enemyId": "elite_hunter",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/elite_hunter_run",
+     "sheetHeight": 496,
+     "fps": 8.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/elite_hunter_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 109,
+       "topY": 15
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 99,
+       "topY": 24
+      },
+      {
+       "x": 372,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/elite_hunter_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/elite_hunter_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 100,
+       "topY": 23
+      },
+      {
+       "x": 372,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 84,
+       "topY": 40
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 38.0952
+  },
+  {
+   "enemyId": "elite_summoner",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/elite_summoner_run",
+     "sheetHeight": 496,
+     "fps": 8.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/elite_summoner_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 106,
+       "topY": 17
+      },
+      {
+       "x": 372,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/elite_summoner_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/elite_summoner_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 104,
+       "topY": 20
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 87,
+       "topY": 37
+      },
+      {
+       "x": 372,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 81,
+       "topY": 43
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 53.3333
+  },
+  {
+   "enemyId": "flame_mortar",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/flame_mortar_run",
+     "sheetHeight": 496,
+     "fps": 8.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 98,
+       "topY": 25
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 100,
+       "topY": 23
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 99,
+       "topY": 25
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 99,
+       "topY": 25
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/flame_mortar_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 96,
+       "topY": 27
+      },
+      {
+       "x": 124,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 101,
+       "topY": 22
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 100,
+       "topY": 24
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/flame_mortar_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 98,
+       "topY": 26
+      },
+      {
+       "x": 124,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 97,
+       "topY": 26
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 93,
+       "topY": 31
+      },
+      {
+       "x": 372,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 101,
+       "topY": 23
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/flame_mortar_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 96,
+       "topY": 28
+      },
+      {
+       "x": 124,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 95,
+       "topY": 28
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 87,
+       "topY": 36
+      },
+      {
+       "x": 372,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 81,
+       "topY": 43
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 41.7143
+  },
+  {
+   "enemyId": "melee_brute",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/melee_brute_run",
+     "sheetHeight": 496,
+     "fps": 8.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 95,
+       "topY": 28
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 95,
+       "topY": 28
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 94,
+       "topY": 30
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 95,
+       "topY": 28
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/melee_brute_run",
+     "sheetHeight": 496,
+     "fps": 3.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 93,
+       "topY": 31
+      },
+      {
+       "x": 124,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 101,
+       "topY": 22
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 88,
+       "topY": 35
+      },
+      {
+       "x": 372,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 94,
+       "topY": 30
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/melee_brute_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 96,
+       "topY": 28
+      },
+      {
+       "x": 124,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 100,
+       "topY": 23
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 98,
+       "topY": 26
+      },
+      {
+       "x": 372,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 96,
+       "topY": 27
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/melee_brute_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 94,
+       "topY": 30
+      },
+      {
+       "x": 124,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 93,
+       "topY": 31
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 87,
+       "topY": 37
+      },
+      {
+       "x": 372,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 82,
+       "topY": 42
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 36.9655
+  },
+  {
+   "enemyId": "melee_grunt",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/melee_grunt_run",
+     "sheetHeight": 496,
+     "fps": 10.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 93,
+       "topY": 30
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 85,
+       "topY": 38
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 94,
+       "topY": 30
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 93,
+       "topY": 30
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/melee_grunt_run",
+     "sheetHeight": 496,
+     "fps": 5.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 94,
+       "topY": 30
+      },
+      {
+       "x": 124,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 95,
+       "topY": 28
+      },
+      {
+       "x": 372,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 94,
+       "topY": 29
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/melee_grunt_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 94,
+       "topY": 30
+      },
+      {
+       "x": 124,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 110,
+       "topY": 14
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 103,
+       "topY": 21
+      },
+      {
+       "x": 372,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 95,
+       "topY": 29
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/melee_grunt_run",
+     "sheetHeight": 496,
+     "fps": 5.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 93,
+       "topY": 30
+      },
+      {
+       "x": 124,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 91,
+       "topY": 33
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 81,
+       "topY": 42
+      },
+      {
+       "x": 372,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 77,
+       "topY": 46
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 32.0
+  },
+  {
+   "enemyId": "midboss_sentinel",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/midboss_sentinel_run",
+     "sheetHeight": 496,
+     "fps": 8.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 110,
+       "topY": 13
+      },
+      {
+       "x": 496,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 744,
+       "y": 0,
+       "w": 248,
+       "h": 124,
+       "footY": 111,
+       "topY": 13
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/midboss_sentinel_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 248,
+       "h": 124,
+       "footY": 102,
+       "topY": 21
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 496,
+       "y": 124,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 744,
+       "y": 124,
+       "w": 248,
+       "h": 124,
+       "footY": 102,
+       "topY": 22
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/midboss_sentinel_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 496,
+       "y": 248,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 744,
+       "y": 248,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/midboss_sentinel_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 248,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 496,
+       "y": 372,
+       "w": 248,
+       "h": 124,
+       "footY": 95,
+       "topY": 29
+      },
+      {
+       "x": 744,
+       "y": 372,
+       "w": 248,
+       "h": 124,
+       "footY": 84,
+       "topY": 39
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 35.9551
+  },
+  {
+   "enemyId": "midboss_throne_warden",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/midboss_throne_warden_run",
+     "sheetHeight": 496,
+     "fps": 8.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/midboss_throne_warden_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 96,
+       "topY": 28
+      },
+      {
+       "x": 372,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/midboss_throne_warden_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 107,
+       "topY": 17
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 105,
+       "topY": 19
+      },
+      {
+       "x": 372,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/midboss_throne_warden_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 110,
+       "topY": 13
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 91,
+       "topY": 33
+      },
+      {
+       "x": 372,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 81,
+       "topY": 42
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 69.5652
+  },
+  {
+   "enemyId": "ranged_archer",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/ranged_archer_run",
+     "sheetHeight": 496,
+     "fps": 8.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/ranged_archer_run",
+     "sheetHeight": 496,
+     "fps": 5.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/ranged_archer_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/ranged_archer_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 99,
+       "topY": 25
+      },
+      {
+       "x": 372,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 78,
+       "topY": 45
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 38.5542
+  },
+  {
+   "enemyId": "void_caster",
+   "rows": [
+    {
+     "id": "move",
+     "atlas": "ArtIntegration/Enemies/void_caster_run",
+     "sheetHeight": 496,
+     "fps": 8.0,
+     "loop": true,
+     "frames": [
+      {
+       "x": 0,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 0,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "attack",
+     "atlas": "ArtIntegration/Enemies/void_caster_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 104,
+       "topY": 19
+      },
+      {
+       "x": 372,
+       "y": 124,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "hit",
+     "atlas": "ArtIntegration/Enemies/void_caster_run",
+     "sheetHeight": 496,
+     "fps": 13.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 248,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      }
+     ]
+    },
+    {
+     "id": "dead",
+     "atlas": "ArtIntegration/Enemies/void_caster_run",
+     "sheetHeight": 496,
+     "fps": 4.0,
+     "loop": false,
+     "frames": [
+      {
+       "x": 0,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 124,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 248,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 112,
+       "topY": 12
+      },
+      {
+       "x": 372,
+       "y": 372,
+       "w": 124,
+       "h": 124,
+       "footY": 91,
+       "topY": 33
+      }
+     ]
+    }
+   ],
+   "pixelsPerUnit": 53.3333
+  }
+ ]
+}

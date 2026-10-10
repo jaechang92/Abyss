@@ -85,7 +85,7 @@ namespace Abyss.Runtime.Stage
             worldSession = session;
             worldEventObject = RoomEventInteractable.Create(ResolveMapRoot(), new Vector3(0f, ProbeFloorY(0f), 0f),
                 string.IsNullOrEmpty(data.title) ? room.ChoiceTitle : data.title, ResolveEventObjectVisual(),
-                () => CanUseWorldEvent(session), () => HandleWorldEventInteract(session));
+                () => CanUseWorldEvent(session), () => HandleWorldEventInteract(session), data.eventId);
 
             Debug.Log($"[StageDirector] 월드 이벤트 준비: {session.InteractionId} — 접근·상호작용 대기(자동 개방 없음)");
             return true;
@@ -103,7 +103,10 @@ namespace Abyss.Runtime.Stage
             if (!CanUseWorldEvent(session) || !session.TryBeginPanel()) return;
 
             Debug.Log($"[StageDirector] 월드 이벤트 상호작용: {session.InteractionId} — 선택 UI 열기");
-            if (EventRoomPanel.OpenForWorld(session.Room.eventData, () => HandleWorldEventConfirmed(session))) return;
+            if (EventRoomPanel.OpenForWorld(session.Room.eventData, () => HandleWorldEventConfirmed(session), consumed =>
+            {
+                if (IsCurrentWorldSession(session) && worldEventObject != null) worldEventObject.SetArtConsumed(consumed);
+            })) return;
 
             session.CancelPanel();
             Debug.LogWarning($"[StageDirector] {session.InteractionId} 선택 UI를 열지 못했다 — 다시 상호작용 가능");

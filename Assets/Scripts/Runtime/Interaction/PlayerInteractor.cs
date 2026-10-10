@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Abyss.Runtime.ArtIntegration;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -32,9 +33,29 @@ namespace Abyss.Runtime.Interaction
         // 없으면(런 플레이어) 막지 않는다 — IInteractionBlocker 주석 참조.
         private IInteractionBlocker blocker;
 
+        // A2 상호작용 표식 — 지금 G 로 반응할 대상 머리 위에만. 플레이어마다 하나, 플레이어와 함께 파괴된다.
+        private const float MARKER_HEIGHT = 0.7f;
+        private const float MARKER_GAP = 0.2f;
+        private const int MARKER_SORTING_ORDER = 500;
+        private SpriteRenderer marker;
+        private IInteractable markedTarget;
+        private Collider2D markedCollider;
+
         private void Awake()
         {
             blocker = GetComponent<IInteractionBlocker>();
+        }
+
+        private void OnDisable()
+        {
+            if (marker != null) marker.enabled = false;
+            markedTarget = null;
+            markedCollider = null;
+        }
+
+        private void OnDestroy()
+        {
+            if (marker != null) Destroy(marker.gameObject);
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -53,6 +74,7 @@ namespace Abyss.Runtime.Interaction
         {
             current = PickNearest();
             UpdatePrompt();
+            UpdateMarker();
         }
 
         private IInteractable PickNearest()
@@ -88,6 +110,59 @@ namespace Abyss.Runtime.Interaction
             bool isShow = current != null;
             if (promptLabel.gameObject.activeSelf != isShow) promptLabel.gameObject.SetActive(isShow);
             if (isShow) promptLabel.text = current.InteractionPrompt;
+        }
+
+        /// <summary>
+        /// 표식은 실제 상호작용 대상(최근접 · CanInteract)이 있고 잠금이 없을 때만 보인다 — 메뉴·대화가 화면을 쥔 동안은 숨긴다.
+        /// 대상이 바뀔 때만 콜라이더를 다시 찾고, 위치는 대상 콜라이더 위 가장자리를 따라간다(대상이 움직여도 맞게).
+        /// </summary>
+        private void UpdateMarker()
+        {
+            bool isShown = current != null && (blocker == null || !blocker.BlocksInteraction);
+            if (!isShown)
+            {
+                if (marker != null && marker.enabled) marker.enabled = false;
+                return;
+            }
+
+            if (!EnsureMarker()) return;
+            if (!ReferenceEquals(markedTarget, current))
+            {
+                markedTarget = current;
+                markedCollider = current is MonoBehaviour behaviour ? behaviour.GetComponentInChildren<Collider2D>() : null;
+            }
+
+            Vector3 top;
+            if (markedCollider != null)
+            {
+                var bounds = markedCollider.bounds;
+                top = new Vector3(bounds.center.x, bounds.max.y, 0f);
+            }
+            else
+            {
+                top = ((MonoBehaviour)current).transform.position;
+            }
+
+            float halfHeight = marker.sprite.bounds.extents.y * marker.transform.localScale.y;
+            marker.transform.position = top + new Vector3(0f, MARKER_GAP + halfHeight, 0f);
+            if (!marker.enabled) marker.enabled = true;
+        }
+
+        private bool EnsureMarker()
+        {
+            if (marker != null) return true;
+            var sprite = UiArtLibrary.Get(UiArtKeys.UI_INTERACTION_MARKER);
+            if (sprite == null) return false;
+
+            var go = new GameObject("InteractionMarker");
+            marker = go.AddComponent<SpriteRenderer>();
+            marker.sprite = sprite;
+            marker.sortingOrder = MARKER_SORTING_ORDER;
+            float height = sprite.bounds.size.y;
+            float scale = height > 0f ? MARKER_HEIGHT / height : 1f;
+            go.transform.localScale = new Vector3(scale, scale, 1f);
+            marker.enabled = false;
+            return true;
         }
 
         // PlayerInput SendMessages

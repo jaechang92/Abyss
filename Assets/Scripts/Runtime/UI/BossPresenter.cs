@@ -113,6 +113,7 @@ namespace Abyss.Runtime.UI
             string title = Line("Title") ?? spawned.Data.displayName;
             string epithet = Line("Epithet") ?? string.Empty;
             PrepareBar(title, epithet);
+            ApplyBarPortrait(spawned.Data.enemyId);
 
             var intro = new List<string>();
             for (int i = 1; i <= MAX_INTRO_LINES; i++)
@@ -131,7 +132,7 @@ namespace Abyss.Runtime.UI
                 ShowBar();
                 return;
             }
-            BossIntroPanel.Play(title, epithet, intro, ShowBar);
+            BossIntroPanel.Play(title, epithet, intro, ShowBar, spawned.Data.enemyId);
         }
 
         private void OnDestroy()
@@ -321,6 +322,8 @@ namespace Abyss.Runtime.UI
             flash.color = new Color(1f, 1f, 1f, 0f);
             flash.raycastTarget = false;
             flashGo.SetActive(false);
+
+            ApplyBarArt(root);
         }
 
         private static RectTransform CreateFill(Transform parent, string name, Color color)

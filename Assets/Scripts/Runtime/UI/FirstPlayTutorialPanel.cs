@@ -89,6 +89,8 @@ namespace Abyss.Runtime.UI
                 new Vector2(110f, 26f), StringKey.Tutorial_Skip, 14);
             skipButton.navigation = new Navigation { mode = Navigation.Mode.None };
             skipButton.onClick.AddListener(() => OnSkipClicked?.Invoke());
+
+            ApplyFrameArt();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Interaction;
 using Abyss.Runtime.UI;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace Abyss.Runtime.Stage
     /// 열 수 있는지(세션 단계·모달·정지·문 전환)는 <see cref="StageDirector"/>가 판정해 넘긴다 — 이 오브젝트는 상태를 들지 않는다.
     /// 씬 배선 없이 방 진입 때 <see cref="Create"/>로 만들고, 방을 떠나면 맵 루트와 함께 치워진다.
     ///
-    /// 그림은 기존 제단 스프라이트를 빌려 쓴다(임시 표현 — 최종 아트는 별도 제작). 없으면 색 사각형.
+    /// 이벤트 ID에 맞는 초기/해결 아트를 표시한다. 전용 아트가 없으면 기존 표현을 유지한다.
     /// </summary>
     public sealed class RoomEventInteractable : MonoBehaviour, IInteractable
     {
@@ -31,6 +32,7 @@ namespace Abyss.Runtime.Stage
 
         private static Sprite whiteSprite;
 
+        private string eventId;
         private string title;
         private Func<bool> canOpen;
         private Action onOpen;
@@ -46,7 +48,7 @@ namespace Abyss.Runtime.Stage
         /// <paramref name="sourceVisual"/>이 있으면 그 스프라이트·크기를 빌리고, 없으면 색 사각형으로 그린다.
         /// </summary>
         public static RoomEventInteractable Create(Transform parent, Vector3 footPosition, string title,
-                                                   SpriteRenderer sourceVisual, Func<bool> canOpen, Action onOpen)
+                                                   SpriteRenderer sourceVisual, Func<bool> canOpen, Action onOpen, string eventId = null)
         {
             var go = new GameObject("WorldEvent_" + title);
             go.transform.SetParent(parent, false);
@@ -54,6 +56,7 @@ namespace Abyss.Runtime.Stage
 
             var target = go.AddComponent<RoomEventInteractable>();
             target.title = title;
+            target.eventId = eventId;
             target.canOpen = canOpen;
             target.onOpen = onOpen;
 
@@ -76,6 +79,16 @@ namespace Abyss.Runtime.Stage
         }
 
         /// <summary>해결 표시 — 흐리게 남겨 「이미 응답한 제단」임을 알린다. 상호작용은 다시 받지 않는다.</summary>
+        public void SetArtConsumed(bool consumed)
+        {
+            if (visual == null) return;
+            var art = WorldArtLibrary.Get(WorldArtLibrary.EventKey(eventId, consumed));
+            if (art == null) return;
+            visual.sprite = art;
+            visual.transform.localScale = Vector3.one * (1.8f / art.bounds.size.y);
+            visual.transform.localPosition = Vector3.up * 0.9f;
+        }
+
         public void MarkResolved()
         {
             if (isResolved) return;
@@ -93,6 +106,15 @@ namespace Abyss.Runtime.Stage
             go.transform.SetParent(transform, false);
             visual = go.AddComponent<SpriteRenderer>();
             visual.sortingOrder = ORDER_VISUAL;
+
+            var art = WorldArtLibrary.Get(WorldArtLibrary.EventKey(eventId, false));
+            if (art != null)
+            {
+                visual.sprite = art;
+                go.transform.localScale = Vector3.one * (1.8f / art.bounds.size.y);
+                go.transform.localPosition = Vector3.up * 0.9f;
+                return 1.8f;
+            }
 
             if (source != null && source.sprite != null)
             {

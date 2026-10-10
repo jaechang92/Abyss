@@ -1,4 +1,5 @@
 ﻿using System;
+using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Flow;
 using Abyss.Runtime.Interaction;
 using Abyss.Runtime.Run;
@@ -12,7 +13,7 @@ namespace Abyss.Runtime.Stage
     /// 갈림길 모달(<see cref="UI.NodeMapPanel"/>) 대신 월드에서 다가가 들어가며 고른다.
     ///
     /// 표시 규약은 모달과 같은 <see cref="RoomTypeDisplay"/>를 쓴다 — 같은 방이 모달과 문에서 다르게 불리지 않게.
-    /// 아트가 나오기 전까지 색 사각형 + 글자다. 씬 배선 없이 <see cref="Create"/>로 만든다.
+    /// 하강 계단과 다음 방 아이콘을 표시한다. 아트 누락 시 색 사각형으로 폴백한다.
     /// </summary>
     public sealed class RoomExitDoor : MonoBehaviour, IInteractable
     {
@@ -61,6 +62,17 @@ namespace Abyss.Runtime.Stage
             var door = Create(parent, footPosition, $"ExitDoor_{room.roomId}", RoomTypeDisplay.RewardHeadline(room),
                 room.ChoiceTitle, RoomTypeDisplay.Color(room.roomType), () => chosen?.Invoke(room));
 
+            var route = UiArtKeys.TryGetRouteIcon(room.roomType);
+            if (route != null)
+            {
+                var icon = new GameObject("RouteArt").AddComponent<SpriteRenderer>();
+                icon.transform.SetParent(door.transform, false);
+                icon.sprite = route;
+                icon.sortingOrder = ORDER_LABEL;
+                icon.transform.localPosition = new Vector3(0f, 2.5f, 0f);
+                icon.transform.localScale = Vector3.one * (0.42f / route.bounds.size.y);
+            }
+
             // 손익 예고 대상 방만 상세 줄을 단다 — 나머지 문은 예전처럼 보상 줄 + 이름만(ExpeditionRoomPreview).
             if (!string.IsNullOrEmpty(ExpeditionRoomPreview.WorldDetail(room, ExpeditionRoomPreview.ReadInputs())))
             {
@@ -105,7 +117,14 @@ namespace Abyss.Runtime.Stage
             trigger.size = new Vector2(DOOR_WIDTH + 0.6f, DOOR_HEIGHT);
             trigger.offset = new Vector2(0f, DOOR_HEIGHT * 0.5f);
 
-            door.BeginGlow(frame.GetComponent<SpriteRenderer>(), panel.GetComponent<SpriteRenderer>());
+            var stairs = WorldArtLibrary.Place(go.transform, "exit/descending-stairs", Vector3.zero, 2.4f, ORDER_DOOR + 2);
+            if (stairs != null)
+            {
+                frame.SetActive(false);
+                panel.SetActive(false);
+                door.BeginGlow(stairs, null);
+            }
+            else door.BeginGlow(frame.GetComponent<SpriteRenderer>(), panel.GetComponent<SpriteRenderer>());
             return door;
         }
 

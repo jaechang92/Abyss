@@ -1,4 +1,4 @@
-using Abyss.Runtime.Enemy;
+﻿using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Feedback;
 using Abyss.Runtime.Form;
 using UnityEngine;
@@ -190,13 +190,15 @@ namespace Abyss.Runtime.Player
             if (outcome == GuardOutcome.JustGuarded)
             {
                 // 「잘했다」가 일반 가드와 분명히 달라야 한다 — 큰 링 · 짧은 멈춤 · 강한 흔들림.
-                BossAreaEffect.Spawn(front, justGuardRingRadius, justGuardRingColor, guardRingDuration);
+                if (!WorldArtFx.Play("just-guard", front, justGuardRingRadius * 2f, guardRingDuration, facingSign, transform))
+                    BossAreaEffect.Spawn(front, justGuardRingRadius, justGuardRingColor, guardRingDuration);
                 if (HitstopController.HasInstance) HitstopController.Instance.Trigger(justGuardHitstop);
                 TriggerShake(justGuardShake);
                 return;
             }
 
-            BossAreaEffect.Spawn(front, guardRingRadius, guardTintColor, guardRingDuration);
+            if (!WorldArtFx.Play("block-impact", front, guardRingRadius * 2f, guardRingDuration, facingSign, transform))
+                BossAreaEffect.Spawn(front, guardRingRadius, guardTintColor, guardRingDuration);
             TriggerShake(guardShake);
         }
 

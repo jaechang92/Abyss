@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Abyss.Runtime.Feedback;
 using UnityEngine;
 
@@ -80,7 +80,11 @@ namespace Abyss.Runtime.Enemy
                 FlashVisual();
                 PunchVisual(0.1f, 0.2f);
                 ShakeCamera(0.12f, 0.15f);
+                // 즉발 패턴 — 예고가 없어 발사 순간이 곧 타격 프레임이다(그림만, 발사 시각 불변).
+                BeginPatternPresentation(EnemyAtlasRowIds.Breath, 0f);
+                StrikePatternPresentation();
                 FireFan(count, breatheSpread);
+                EndPatternPresentation();
             }
         }
 
@@ -94,6 +98,7 @@ namespace Abyss.Runtime.Enemy
             try
             {
                 Debug.Log($"[화염 뱀] 꼬리치기 발동 — 페이즈 {CurrentPhase} (반경 {tailRange:F1})");
+                BeginPatternPresentation(EnemyAtlasRowIds.Tail, telegraphTime);
 
                 if (telegraphTime > 0f)
                 {
@@ -104,6 +109,7 @@ namespace Abyss.Runtime.Enemy
                     if (IsDead) return;
                 }
 
+                StrikePatternPresentation();
                 PlaySfx(smashSfx);
                 FlashVisual();
                 PunchVisual(0.2f, 0.25f);
@@ -118,6 +124,7 @@ namespace Abyss.Runtime.Enemy
             finally
             {
                 isTailSwinging = false;
+                EndPatternPresentation();
             }
         }
     }

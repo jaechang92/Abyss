@@ -7,6 +7,7 @@ using Abyss.Runtime.Run;
 using FSM.Core;
 using ObjectPool_Core;
 using UnityEngine;
+using Abyss.Runtime.Feedback;
 
 namespace Abyss.Runtime.Enemy
 {
@@ -56,6 +57,8 @@ namespace Abyss.Runtime.Enemy
             visuals = GetComponent<EnemyVisuals>();
             if (data != null) currentHp = data.baseHp;
             RegisterStates();
+            // 전용 atlas 가 있으면 그림 재생을 넘긴다(A1). 없으면 무동작 — 기존 Animator 그림 그대로다.
+            AttachAtlasPresenter();
         }
 
         protected virtual void Start()
@@ -102,7 +105,8 @@ namespace Abyss.Runtime.Enemy
             }
 
             // 변종 몸 색(빌린 그림을 원본과 구별). 흰색이면 아무것도 안 한다 — 기존 적은 그대로다.
-            if (data != null && data.bodyTint != Color.white) visuals?.SetBaseColor(data.bodyTint);
+            // 자기 전용 atlas 로 그려지면 구별할 필요가 없어 입히지 않는다(A1 — 엘리트 변종 고유 그림).
+            if (data != null && data.bodyTint != Color.white && !UsesDedicatedAtlasArt) visuals?.SetBaseColor(data.bodyTint);
 
             fsm.StartStateMachine(EnemyStateIds.Patrol);
         }
@@ -263,6 +267,7 @@ namespace Abyss.Runtime.Enemy
 
             int previous = currentHp;
             currentHp = Mathf.Max(0, currentHp - amount);
+            if (currentHp < previous) WorldArtFx.Play("hit-spark", transform.position, owner: transform);
             OnHpChanged?.Invoke(previous, currentHp);
 
             visuals?.Flash();

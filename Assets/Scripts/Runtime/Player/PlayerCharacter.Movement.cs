@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Abyss.Runtime.Physics;
 using UnityEngine;
+using Abyss.Runtime.Feedback;
 using UnityEngine.InputSystem;
 
 namespace Abyss.Runtime.Player
@@ -110,6 +111,7 @@ namespace Abyss.Runtime.Player
                     ? Mathf.Max(1, formController.CurrentForm.jumpCount)
                     : 1;
                 jumpsRemaining = maxJumps;
+                WorldArtFx.Play("landing-dust", groundCheck.position, 0.35f, 0.24f, owner: transform);
             }
         }
 

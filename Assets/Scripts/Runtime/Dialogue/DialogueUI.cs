@@ -1,4 +1,5 @@
 ﻿using System;
+using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.UI;
 using UnityEngine;
@@ -57,6 +58,19 @@ namespace Abyss.Runtime.Dialogue
         {
             if (root != null) root.SetActive(false);
             portraitPresenter?.Clear();
+            ApplyFrameArt();
+        }
+
+        /// <summary>
+        /// A2 대화창 테두리 그림. 대화 박스(root)를 덮도록 종횡비대로 맞춰 맨 뒤(배경 바로 위)에 둔다 —
+        /// 화자 초상·글자는 그 위에 그려진다. 표시 전용이라 재생·넘기기·종료 이유·포커스 처리와 무관하다.
+        /// 그림이 없으면 아무것도 바꾸지 않는다.
+        /// </summary>
+        private void ApplyFrameArt()
+        {
+            if (root == null || root.transform is not RectTransform rootRect) return;
+            var frame = UiArtDecor.ApplyFitted(rootRect, "ArtDialogueFrame", UiArtKeys.UI_DIALOGUE_FRAME, UiArtFit.Cover, out _);
+            if (frame != null) frame.transform.SetAsFirstSibling();
         }
 
         // 비활성화·파괴(씬 이탈 포함): 포커스를 돌려주고 PlayTracked 호출자에게만 중단을 알린다.

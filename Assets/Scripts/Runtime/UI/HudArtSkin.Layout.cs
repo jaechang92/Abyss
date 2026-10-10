@@ -47,10 +47,11 @@ namespace Abyss.Runtime.UI
         private static readonly Vector2 FormBiasPosition = new(48f, -200f);
         private static readonly Vector2 FormBiasSize = new(360f, 48f);
         // 시너지: 2열 격자(축 최대 6개 → 3줄). 한 줄 가로 배치는 6×148 ≈ 900으로 중앙 전투 공간을 침범한다.
-        // 폭 352 = 172×2 + 8, 높이 136 = 40×3 + 8×2.
+        // 폭 432 = 212×2 + 8(A2: 칩 왼쪽 축 아이콘 칸 38을 더해 172 → 212), 높이 136 = 40×3 + 8×2.
+        // 48 + 432 = 480 — 중앙 x=480 앞에서 끝난다.
         private static readonly Vector2 SynergyPosition = new(48f, -256f);
-        private static readonly Vector2 SynergySize = new(352f, 136f);
-        private const float SYNERGY_CHIP_WIDTH = 172f;
+        private static readonly Vector2 SynergySize = new(432f, 136f);
+        private const float SYNERGY_CHIP_WIDTH = 212f;
         private const float SYNERGY_CHIP_HEIGHT = 40f;
         private const float SYNERGY_CHIP_SPACING = 8f;
         private const int SYNERGY_COLUMNS = 2;
@@ -94,6 +95,8 @@ namespace Abyss.Runtime.UI
             ApplyTextStyle(hpText, HP_FONT_SIZE);
             if (hpText != null) hpText.color = BodyTextColor;
 
+            // A2 전용 체력 프레임이 있으면 그것을 쓰고, 없으면 아래 석판 프레임(기존).
+            if (TryApplyHealthArt(root, background, fill, hpText)) return;
             var frame = EnsureFrame(root, FRAME_NAME, HEALTH_FRAME_CORNER, referencePpu);
             if (frame != null)
             {
@@ -142,6 +145,7 @@ namespace Abyss.Runtime.UI
             backplate.color = PanelColor;
             backplate.transform.SetAsFirstSibling();
 
+            if (TryApplyFormArt(root, prefix, icon)) return;
             var frame = EnsureFrame(root, prefix + FRAME_NAME, FORM_FRAME_CORNER, referencePpu);
             if (frame == null) return;
             CopyRect(frame.transform, icon);
@@ -186,6 +190,7 @@ namespace Abyss.Runtime.UI
                 label.color = BodyTextColor;
             }
 
+            if (TryApplySkillArt(root, icon, label)) return;
             var frame = EnsureFrame(root, FRAME_NAME, SKILL_FRAME_CORNER, referencePpu);
             if (frame != null)
             {
@@ -336,6 +341,7 @@ namespace Abyss.Runtime.UI
                 labelRect.offsetMax = new Vector2(-padding, 0f);
             }
 
+            if (TryApplyCurrencyArt(root, background, label)) return;
             var frame = EnsureFrame(root, FRAME_NAME, GOLD_FRAME_CORNER, referencePpu);
             if (frame != null)
             {

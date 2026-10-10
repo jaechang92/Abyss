@@ -1,7 +1,8 @@
-using Abyss.Runtime.Enemy;
+﻿using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Player;
 using ObjectPool_Core;
 using UnityEngine;
+using Abyss.Runtime.Feedback;
 
 namespace Abyss.Runtime.Combat
 {
@@ -104,7 +105,11 @@ namespace Abyss.Runtime.Combat
                     // 연소를 먼저 건다 — 직격으로 죽는 적에게 불을 붙여 봐야 의미가 없고,
                     // 순서를 바꾸면 사망 처리 도중 상태이상이 붙는 경로가 생긴다.
                     if (burn.HasBurn) enemy.ApplyBurn(burn);
+                    int previousHp = enemy.CurrentHp;
+                    bool isCritical = hitListener is IProjectileCriticalFeedback feedback && feedback.LastHitWasCritical;
                     enemy.TakeDamage(finalDamage);
+                    if (isCritical && enemy != null && enemy.CurrentHp < previousHp)
+                        WorldArtFx.Play("critical-impact", enemy.transform.position, 1.25f, owner: transform);
 
                     // 피해를 준 뒤 「누구를 맞혔나」가 필요한 발사자에게만 알린다(P04 C 표식). 풀 반환 전에 —
                     // 반환하면 청취자 참조가 비워진다.

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Stage;
 using UnityEngine;
@@ -33,6 +34,7 @@ namespace Abyss.Runtime.UI
         private const float PANEL_CORNER = 24f;
         private const int HINT_FONT_SIZE = 24;
         private const int HINT_MIN_FONT_SIZE = 14;      // 손익 예고 노드만 bestFit 하한
+        private const float ROUTE_ICON_SIZE = 64f;      // 노드 위 112 ~ 제목 아래 154 사이 42 안에 위 절반이 든다
 
         private readonly List<Button> nodeButtons = new();
         private readonly List<Text> nodeTitles = new();
@@ -119,6 +121,18 @@ namespace Abyss.Runtime.UI
             nodeTypes[index].text = RoomTypeDisplay.Headline(room.roomType);
             nodeTypes[index].color = RoomTypeDisplay.Color(room.roomType);
             nodeTitles[index].text = room.ChoiceTitle;
+            BindRouteIcon(index, room.roomType);
+        }
+
+        /// <summary>
+        /// A2 경로 그림(방 타입별). 노드 위 가장자리 가운데에 걸쳐 둔다 — 절반은 노드 위 빈 칸(제목 아래)이라 타입·이름 줄을 가리지 않는다.
+        /// 그림이 없는 타입(보스·이벤트)은 칸을 끈다. 노드는 재사용되므로 이름 고정 자식을 덮어쓴다.
+        /// </summary>
+        private void BindRouteIcon(int index, RoomType type)
+        {
+            var rect = (RectTransform)nodeButtons[index].transform;
+            var box = new Rect(-ROUTE_ICON_SIZE * 0.5f, NODE_HEIGHT * 0.5f - ROUTE_ICON_SIZE * 0.5f, ROUTE_ICON_SIZE, ROUTE_ICON_SIZE);
+            UiArtDecor.ApplyIconInRect(rect, "ArtRouteIcon", UiArtKeys.Route(type), box, Color.white);
         }
 
         /// <summary>
