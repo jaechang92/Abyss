@@ -1,0 +1,88 @@
+{
+  "ok": true,
+  "engine": "component-row",
+  "run_dir": "D:\\JaeChang\\Abyss\\Assets\\Art\\EnemyAnimationProduction\\boss_flame_serpent\\pattern-breath",
+  "cell": {
+    "shape": "rect",
+    "width": 248,
+    "height": 124,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "rows": [
+    {
+      "state": "breath",
+      "frames": 4,
+      "method": "components",
+      "files": [
+        "frames\\breath\\frame-0.png",
+        "frames\\breath\\frame-1.png",
+        "frames\\breath\\frame-2.png",
+        "frames\\breath\\frame-3.png"
+      ],
+      "frame_records": [
+        {
+          "index": 0,
+          "nontransparent_pixels": 11740,
+          "bbox": [
+            12,
+            23,
+            236,
+            100
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 1,
+          "nontransparent_pixels": 8958,
+          "bbox": [
+            36,
+            12,
+            212,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 2,
+          "nontransparent_pixels": 6376,
+          "bbox": [
+            56,
+            12,
+            191,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 3,
+          "nontransparent_pixels": 13172,
+          "bbox": [
+            13,
+            12,
+            235,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 1
+        }
+      ],
+      "ok": true
+    }
+  ],
+  "errors": [],
+  "warnings": []
+}

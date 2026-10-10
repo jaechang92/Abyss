@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "kind": "sprite-gen-request",
+  "engine": "component-row",
+  "character": {
+    "id": "boss_thronebound",
+    "description": "large quiet charcoal figure made of overlapping three pale borrowed face plates, calm small ink eye marks straight mouths no expression, layered ash torso tapering into broad low irregular base, long two arms, no crown throne weapon",
+    "base_image": "base-source.png"
+  },
+  "cell": {
+    "shape": "square",
+    "width": 124,
+    "height": 124,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12,
+    "size": 124,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "states": {
+    "move": {
+      "frames": 4,
+      "fps": 8,
+      "loop": true,
+      "action": "slow distorted drift grounded. Four distinct progressive poses. Keep exact accepted identity, all limbs and attached objects consistent, generous spacing, no detached effects or particles. First and last flow continuously. Stationary root."
+    },
+    "attack": {
+      "frames": 4,
+      "fps": 4,
+      "loop": false,
+      "action": "long hand sweeps forward while face plates remain visible. Four distinct progressive poses. Keep exact accepted identity, all limbs and attached objects consistent, generous spacing, no detached effects or particles. Start ready, clear anticipation/action, recovery."
+    },
+    "hit": {
+      "frames": 4,
+      "fps": 13,
+      "loop": false,
+      "action": "layered body compresses faces remain intact. Four distinct progressive poses. Keep exact accepted identity, all limbs and attached objects consistent, generous spacing, no detached effects or particles. Start ready, clear anticipation/action, recovery."
+    },
+    "dead": {
+      "frames": 4,
+      "fps": 4,
+      "loop": false,
+      "action": "layers fold into low mound with three faces resting touching. Four distinct progressive poses. Keep exact accepted identity, all limbs and attached objects consistent, generous spacing, no detached effects or particles. Clear irreversible progressive collapse, never return to standing."
+    }
+  },
+  "style": "same accepted anchor, chunky low resolution flat pixel clusters, muted tones, no extra detail",
+  "motion_phase_guides": false
+}

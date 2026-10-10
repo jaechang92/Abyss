@@ -1,0 +1,276 @@
+{
+  "ok": true,
+  "engine": "component-row",
+  "run_dir": "D:\\JaeChang\\Abyss\\Assets\\Art\\EnemyAnimationProduction\\boss_thronebound\\run",
+  "cell": {
+    "shape": "square",
+    "width": 124,
+    "height": 124,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12,
+    "size": 124,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "rows": [
+    {
+      "state": "move",
+      "frames": 4,
+      "method": "components",
+      "files": [
+        "frames\\move\\frame-0.png",
+        "frames\\move\\frame-1.png",
+        "frames\\move\\frame-2.png",
+        "frames\\move\\frame-3.png"
+      ],
+      "frame_records": [
+        {
+          "index": 0,
+          "nontransparent_pixels": 5466,
+          "bbox": [
+            17,
+            12,
+            107,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 1,
+          "nontransparent_pixels": 5604,
+          "bbox": [
+            18,
+            12,
+            106,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 2,
+          "nontransparent_pixels": 6173,
+          "bbox": [
+            12,
+            14,
+            112,
+            109
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 3,
+          "nontransparent_pixels": 5469,
+          "bbox": [
+            15,
+            12,
+            109,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        }
+      ],
+      "ok": true
+    },
+    {
+      "state": "attack",
+      "frames": 4,
+      "method": "components",
+      "files": [
+        "frames\\attack\\frame-0.png",
+        "frames\\attack\\frame-1.png",
+        "frames\\attack\\frame-2.png",
+        "frames\\attack\\frame-3.png"
+      ],
+      "frame_records": [
+        {
+          "index": 0,
+          "nontransparent_pixels": 5227,
+          "bbox": [
+            19,
+            12,
+            104,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 1,
+          "nontransparent_pixels": 5131,
+          "bbox": [
+            12,
+            15,
+            112,
+            108
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 2,
+          "nontransparent_pixels": 3913,
+          "bbox": [
+            12,
+            23,
+            112,
+            100
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 3,
+          "nontransparent_pixels": 5536,
+          "bbox": [
+            12,
+            13,
+            112,
+            110
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        }
+      ],
+      "ok": true
+    },
+    {
+      "state": "hit",
+      "frames": 4,
+      "method": "components",
+      "files": [
+        "frames\\hit\\frame-0.png",
+        "frames\\hit\\frame-1.png",
+        "frames\\hit\\frame-2.png",
+        "frames\\hit\\frame-3.png"
+      ],
+      "frame_records": [
+        {
+          "index": 0,
+          "nontransparent_pixels": 5424,
+          "bbox": [
+            20,
+            12,
+            103,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 1,
+          "nontransparent_pixels": 5986,
+          "bbox": [
+            16,
+            12,
+            108,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 2,
+          "nontransparent_pixels": 6052,
+          "bbox": [
+            12,
+            15,
+            112,
+            109
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 3,
+          "nontransparent_pixels": 5419,
+          "bbox": [
+            20,
+            12,
+            104,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        }
+      ],
+      "ok": true
+    },
+    {
+      "state": "dead",
+      "frames": 4,
+      "method": "components",
+      "files": [
+        "frames\\dead\\frame-0.png",
+        "frames\\dead\\frame-1.png",
+        "frames\\dead\\frame-2.png",
+        "frames\\dead\\frame-3.png"
+      ],
+      "frame_records": [
+        {
+          "index": 0,
+          "nontransparent_pixels": 5976,
+          "bbox": [
+            12,
+            12,
+            111,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 1,
+          "nontransparent_pixels": 5079,
+          "bbox": [
+            12,
+            23,
+            112,
+            100
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 2,
+          "nontransparent_pixels": 3659,
+          "bbox": [
+            12,
+            35,
+            112,
+            88
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 3,
+          "nontransparent_pixels": 2674,
+          "bbox": [
+            12,
+            43,
+            112,
+            81
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        }
+      ],
+      "ok": true
+    }
+  ],
+  "errors": [],
+  "warnings": []
+}

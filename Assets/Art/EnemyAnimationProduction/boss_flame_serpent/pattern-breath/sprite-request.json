@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "sprite-gen-request",
+  "engine": "component-row",
+  "character": {
+    "id": "boss_flame_serpent",
+    "description": "long low S-curved procession of five empty armor shells rust joined into one crawling serpentine mass, front hollow helmet and rear taper of overlapping plate shells, slate gray and muted rust, no reptile anatomy no fire",
+    "base_image": "base-source.png"
+  },
+  "cell": {
+    "shape": "rect",
+    "width": 248,
+    "height": 124,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "states": {
+    "breath": {
+      "frames": 4,
+      "fps": 6,
+      "loop": false,
+      "action": "front hollow helmet rises and opens while connected armor procession crouches, release posture then settle; no flame or detached particles. Four distinct anticipation, action, recovery poses. Full unclipped connected body in each separate slot."
+    }
+  },
+  "style": "same accepted pixel identity and muted materials",
+  "motion_phase_guides": false
+}

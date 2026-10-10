@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "sprite-gen-request",
+  "engine": "component-row",
+  "character": {
+    "id": "boss_abyss_keeper",
+    "description": "a large quiet unfinished blank paper surface shaped as a broad broken torso, edges terminate abruptly as if not drawn, faceless flat pale ivory planes with charcoal contour gaps, two heavy arms and low grounded base, NOT a black armored knight",
+    "base_image": "base-source.png"
+  },
+  "cell": {
+    "shape": "square",
+    "width": 124,
+    "height": 124,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12,
+    "size": 124,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "states": {
+    "volley": {
+      "frames": 4,
+      "fps": 6,
+      "loop": false,
+      "action": "blank broad torso raises both arms, palms open to release blank fragments, then lowers hands; no detached projectiles. Four distinct anticipation, action, recovery poses. Full unclipped connected body in each separate slot."
+    }
+  },
+  "style": "same accepted pixel identity and muted materials",
+  "motion_phase_guides": false
+}

@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "kind": "sprite-gen-request",
+  "engine": "component-row",
+  "character": {
+    "id": "melee_brute",
+    "description": "ONE squat round mass of TWO empty rust fused armor suits, two bucket helmets rear left high front right low, ONE spear through chest with blunt shaft left and single spearhead right, low bent knees, right facing",
+    "base_image": "base-source.png"
+  },
+  "cell": {
+    "shape": "square",
+    "width": 124,
+    "height": 124,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12,
+    "size": 124,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "states": {
+    "move": {
+      "frames": 4,
+      "fps": 8,
+      "loop": true,
+      "action": "Heavy dragging cycle: fused armor lump leans right with front folded knee reaching, rear armor drags knee underneath, opposite knee pulls as rear helmet dips, returns near first pose. Two helmets and single through-spear stay connected. Stationary root, subtle alternating knee shift not just bobbing."
+    },
+    "attack": {
+      "frames": 4,
+      "fps": 3,
+      "loop": false,
+      "action": "Body slam sequence: low ready, rear armor rises and pulls whole fused lump back in clear anticipation, entire lump pitches forward down with single spearhead pointing right lower, returns into low recovery. TWO helmets visible each pose, one spear, no extra weapons or detached effects."
+    },
+    "hit": {
+      "frames": 4,
+      "fps": 13,
+      "loop": false,
+      "action": "Impact recoil: low fused lump ready, whole connected lump jolts backward slightly, both helmets tilt back while knees stay planted, settles near original. Two helmets and spear remain same proportions, no extra limbs, no particles."
+    },
+    "dead": {
+      "frames": 4,
+      "fps": 4,
+      "loop": false,
+      "action": "Armor collapse: ready fused lump, rust seams loosen and two helmets droop, both armor shells sink together, two clearly distinguishable empty helmets rest among flattened armor pieces touching at ground with straight spear visible. All pieces in one touching cluster for extraction, no dust or isolated flying parts."
+    }
+  },
+  "style": "tiny chunky flat pixel sprite, slate armor pale bone edges and muted rust seams, two empty bucket helmets, ONE straight through-spear with only right spearhead, squat fused armor lump, no texture",
+  "motion_phase_guides": false
+}

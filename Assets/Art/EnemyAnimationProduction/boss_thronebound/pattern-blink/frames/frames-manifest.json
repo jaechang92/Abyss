@@ -1,0 +1,90 @@
+{
+  "ok": true,
+  "engine": "component-row",
+  "run_dir": "D:\\JaeChang\\Abyss\\Assets\\Art\\EnemyAnimationProduction\\boss_thronebound\\pattern-blink",
+  "cell": {
+    "shape": "square",
+    "width": 124,
+    "height": 124,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12,
+    "size": 124,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "rows": [
+    {
+      "state": "blink",
+      "frames": 4,
+      "method": "components",
+      "files": [
+        "frames\\blink\\frame-0.png",
+        "frames\\blink\\frame-1.png",
+        "frames\\blink\\frame-2.png",
+        "frames\\blink\\frame-3.png"
+      ],
+      "frame_records": [
+        {
+          "index": 0,
+          "nontransparent_pixels": 5516,
+          "bbox": [
+            12,
+            19,
+            112,
+            105
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 1,
+          "nontransparent_pixels": 4080,
+          "bbox": [
+            12,
+            22,
+            112,
+            101
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 2,
+          "nontransparent_pixels": 5806,
+          "bbox": [
+            12,
+            16,
+            112,
+            108
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 3,
+          "nontransparent_pixels": 5326,
+          "bbox": [
+            16,
+            12,
+            107,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        }
+      ],
+      "ok": true
+    }
+  ],
+  "errors": [],
+  "warnings": []
+}

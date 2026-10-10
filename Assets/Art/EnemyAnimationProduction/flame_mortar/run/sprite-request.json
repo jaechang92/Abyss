@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "kind": "sprite-gen-request",
+  "engine": "component-row",
+  "character": {
+    "id": "flame_mortar",
+    "description": "low broad quiet ash creature bearing broken city roof tiles and bowl fragments fused to its back, no human head, body is squat charcoal pile with attached short supports, pale tile edge and muted rust accents",
+    "base_image": "base-source.png"
+  },
+  "cell": {
+    "shape": "square",
+    "width": 124,
+    "height": 124,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12,
+    "size": 124,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "states": {
+    "move": {
+      "frames": 4,
+      "fps": 8,
+      "loop": true,
+      "action": "short heavy shuffle. Four distinct progressive poses. Keep exact accepted identity, all limbs and attached objects consistent, generous spacing, no detached effects or particles. First and last flow continuously. Stationary root."
+    },
+    "attack": {
+      "frames": 4,
+      "fps": 4,
+      "loop": false,
+      "action": "rear roof fragment rises as body crouches then bowls tilt up without detached projectile. Four distinct progressive poses. Keep exact accepted identity, all limbs and attached objects consistent, generous spacing, no detached effects or particles. Start ready, clear anticipation/action, recovery."
+    },
+    "hit": {
+      "frames": 4,
+      "fps": 13,
+      "loop": false,
+      "action": "tile laden mass compresses. Four distinct progressive poses. Keep exact accepted identity, all limbs and attached objects consistent, generous spacing, no detached effects or particles. Start ready, clear anticipation/action, recovery."
+    },
+    "dead": {
+      "frames": 4,
+      "fps": 4,
+      "loop": false,
+      "action": "roof tiles droop into flat connected rubble pile. Four distinct progressive poses. Keep exact accepted identity, all limbs and attached objects consistent, generous spacing, no detached effects or particles. Clear irreversible progressive collapse, never return to standing."
+    }
+  },
+  "style": "same accepted anchor, chunky low resolution flat pixel clusters, muted tones, no extra detail",
+  "motion_phase_guides": false
+}

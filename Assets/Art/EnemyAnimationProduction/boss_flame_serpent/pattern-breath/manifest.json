@@ -1,0 +1,74 @@
+{
+  "characterId": "boss_flame_serpent",
+  "engine": "component-row",
+  "game_input": "sprite-sheet-alpha.png",
+  "degraded_static_fallback": false,
+  "curation_applied": false,
+  "sprite_sheet_alpha": "sprite-sheet-alpha.png",
+  "sprite_sheet_alpha_report": "sprite-sheet-alpha.report.json",
+  "base_image": "base-source.png",
+  "cell": {
+    "shape": "rect",
+    "width": 248,
+    "height": 124,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "animation": {
+    "cellWidth": 248,
+    "cellHeight": 124,
+    "columns": 4,
+    "rows": {
+      "breath": {
+        "row": 0,
+        "frames": 4,
+        "fps": 6,
+        "loop": false
+      }
+    }
+  },
+  "frame_layout": {
+    "sheetWidth": 992,
+    "sheetHeight": 124,
+    "cellWidth": 248,
+    "cellHeight": 124,
+    "rows": {
+      "breath": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 248,
+          "h": 124
+        },
+        {
+          "x": 248,
+          "y": 0,
+          "w": 248,
+          "h": 124
+        },
+        {
+          "x": 496,
+          "y": 0,
+          "w": 248,
+          "h": 124
+        },
+        {
+          "x": 744,
+          "y": 0,
+          "w": 248,
+          "h": 124
+        }
+      ]
+    }
+  }
+}
