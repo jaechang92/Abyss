@@ -288,7 +288,7 @@ namespace Abyss.EditorTools
         }
 
         /// <summary>
-        /// 어빌리티 3종 발동음(Docs/game-design/_skill_sfx_generator.py 산출물)을 GenericAbilityData.castSfx에 연결.
+        /// Active 스킬 어빌리티 전체(12종)의 발동음을 GenericAbilityData.castSfx에 연결.
         /// 자산 경로 → SFX/skill_{key}.wav 매핑. 신규·기존(CreateOrSkip 건너뛴) 자산 모두 반영한다.
         /// wav가 없으면(생성기 미실행) 해당 항목만 건너뛴다.
         /// </summary>
@@ -304,6 +304,8 @@ namespace Abyss.EditorTools
             WireSfx($"{AbyssPaths.Abilities}/Ability_VoidJavelin.asset", "skill_void_javelin");
             WireSfx($"{AbyssPaths.Abilities}/Ability_PhantomStep.asset", "skill_phantom_step");
             WireSfx($"{AbyssPaths.Abilities}/Ability_FlameBurst.asset", "skill_flame_burst");
+            WireSfx($"{AbyssPaths.Abilities}/Ability_BloodPactBlade.asset", "skill_blood_pact_blade");
+            WireSfx($"{AbyssPaths.Abilities}/Ability_TimeWarp.asset", "skill_time_warp");
         }
 
         private static void WireSfx(string abilityPath, string sfxKey)

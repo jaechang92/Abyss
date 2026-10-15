@@ -40,4 +40,4 @@ MonoBehaviour:
   burnDamagePerStack: 2
   showHitEffect: 1
   effectColor: {r: 0.55, g: 0.85, b: 1, a: 1}
-  castSfx: {fileID: 0}
+  castSfx: {fileID: 8300000, guid: 6e76806a9c003f4731ebd9103fc32c1e, type: 3}
