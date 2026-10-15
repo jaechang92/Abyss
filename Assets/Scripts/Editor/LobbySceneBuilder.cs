@@ -22,7 +22,7 @@ namespace Abyss.EditorTools
 {
     /// <summary>
     /// 허브 로비 씬을 생성하고 빌드 설정에 등록한다. Abyss Tools 창의 <see cref="AbyssToolNames.BuildLobbyScene"/>.
-    /// 구성: 바닥/벽 + 경량 플레이어(이동·상호작용) + 카메라 추적 + 던전 포털 + 폼 선택 패널.
+    /// 구성: 바닥/벽 + Run 과 같은 공유 플레이어(PlayerCharacter, 로비 맥락) + 카메라 추적 + 던전 포털 + 폼 선택 패널.
     /// 씬 분리 3단계(H1) — 스컬식 플레이 가능 허브 골격.
     /// </summary>
     public static partial class LobbySceneBuilder
@@ -55,7 +55,8 @@ namespace Abyss.EditorTools
             var forms = LoadForms();
             var defaultForm = ResolveDefaultForm(forms);
 
-            var player = CreatePlayer(defaultForm, out var controller, out var interactor, out var groundCheck);
+            // 플레이어는 Run 의 Player.prefab 과 같은 PlayerCharacter·FSM·폼 컨트롤러다(LobbySceneBuilder.Npc).
+            var player = CreatePlayer(defaultForm, out var controller, out var interactor);
             var portal = CreatePortal();
 
             var canvas = CreateSceneCanvas("LobbyCanvas");
@@ -75,7 +76,6 @@ namespace Abyss.EditorTools
             WireCamera(cameraFollow, player.transform);
             // 배경 높이는 카메라 추적 offset 에서 파생하므로 카메라 배선 뒤에 입힌다.
             bool isGatePainted = ApplyEnvironmentArt(ground, cameraFollow);
-            WireController(controller, groundCheck);
             WireInteractor(interactor, prompt);
             WirePortal(portal, isGatePainted);
             // 각인사 내력은 정비 NPC가 폼 선택 패널보다 먼저 재생하므로 와이어링 전에 만들어 둔다.
@@ -110,107 +110,14 @@ namespace Abyss.EditorTools
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.05f, 0.05f, 0.08f);
             cam.orthographic = true;
-            cam.orthographicSize = Abyss.Runtime.Camera.PixelScale.OrthographicSize;
+            // C3: Run 과 같은 C 프로필. 프로필이 붙어 있으면 Follow 가 Run 축별 추적(C2)을 쓴다.
+            cam.orthographicSize = RunCameraProfile.OrthographicSizeFor(RunCameraProfileId.C_Wide);
+            go.AddComponent<RunCameraProfile>();
             go.AddComponent<AudioListener>();
             return go.AddComponent<PlayerCameraFollow>();
         }
 
         // 바닥·벽(CreateGround)과 환경 아트는 LobbySceneBuilder.Environment.cs.
-
-        /// <summary>
-        /// 로비 플레이어 생성. <b>원점 = 발밑</b>이며 이는 Run 의 <c>Player.prefab</c> 규약과 같다 —
-        /// 폼 스프라이트의 피벗이 발밑에 실측돼 있어(<c>prepare_form_sprite.py</c>),
-        /// 원점을 발에 두어야 같은 그림이 두 씬에서 같은 높이로 선다.
-        /// 그래서 콜라이더는 크기 1×2 에 offset (0,1) 로 원점 위에 세운다(Run 과 동일).
-        /// </summary>
-        private static GameObject CreatePlayer(
-            FormData defaultForm,
-            out LobbyPlayerController controller, out PlayerInteractor interactor, out Transform groundCheck)
-        {
-            var go = new GameObject("LobbyPlayer");
-            // 바닥 바로 위에서 시작해 한 프레임 만에 내려앉는다. 정확히 바닥면에 두면 시작부터 겹친다.
-            go.transform.position = new Vector3(0f, FloorTopY + 0.1f, 0f);
-
-            var body = go.AddComponent<Rigidbody2D>();
-            body.gravityScale = 3f;
-            body.freezeRotation = true;
-            body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-
-            // 물리(바닥/벽 충돌). 발밑 원점이라 offset 으로 몸통을 위로 올린다.
-            var box = go.AddComponent<BoxCollider2D>();
-            box.size = new Vector2(1f, 2f);
-            box.offset = new Vector2(0f, 1f);
-
-            // 상호작용 감지용 트리거(넓은 반경). Run 과 같이 발밑 중심.
-            var trigger = go.AddComponent<CircleCollider2D>();
-            trigger.isTrigger = true;
-            trigger.radius = 1.8f;
-
-            controller = go.AddComponent<LobbyPlayerController>();
-            interactor = go.AddComponent<PlayerInteractor>();
-
-            var input = go.AddComponent<PlayerInput>();
-            ConfigurePlayerInput(input);
-
-            var driver = CreatePlayerVisual(go.transform, defaultForm);
-
-            // 폼 애니메이션(대기·달리기·점프·낙하) — 로비에는 FSM 이 없어 물리 상태에서 자세를 고른다.
-            var binder = go.AddComponent<LobbyAnimationBinder>();
-            var binderSo = new SerializedObject(binder);
-            SetObject(binderSo, "controller", controller);
-            SetObject(binderSo, "body", body);
-            SetObject(binderSo, "animatorDriver", driver);
-            binderSo.ApplyModifiedProperties();
-
-            // 지면 체크 자식. 원점이 이미 발이라 살짝만 내린다(Run 의 Player.prefab 과 같은 -0.06).
-            var gc = new GameObject("GroundCheck");
-            gc.transform.SetParent(go.transform, false);
-            gc.transform.localPosition = new Vector3(0f, -0.06f, 0f);
-            groundCheck = gc.transform;
-
-            return go;
-        }
-
-        /// <summary>
-        /// 그림을 담는 Visual 자식. Run 의 Player.prefab 과 같은 구성이다.
-        ///
-        /// 루트가 아니라 자식에 두는 이유: <see cref="LobbyPlayerController"/>가 좌우를 뒤집을 때
-        /// 루트의 <c>localScale.x</c>를 쓰는데, 스프라이트가 루트에 있으면 그림과 콜라이더가
-        /// 한 덩어리로 묶여 앞으로 폼별 크기·오프셋을 따로 줄 자리가 없다.
-        /// </summary>
-        private static Anim.Core.AnimatorDriver CreatePlayerVisual(Transform parent, FormData defaultForm)
-        {
-            var go = new GameObject("Visual");
-            go.transform.SetParent(parent, false);
-
-            var sr = go.AddComponent<SpriteRenderer>();
-            // 초기값은 예전 그대로. LobbyFormVisual 이 이것을 폴백으로 집어 가므로
-            // 그림 없는 폼이 생겨도 화면에서 사라지지 않는다.
-            sr.sprite = EditorPlatformFactory.LoadWhiteSquare();
-            sr.color = new Color(0.4f, 0.7f, 1f);
-
-            // 재생기는 Run 의 Player.prefab Visual 과 같은 구성. 컨트롤러는 비워 둔다 —
-            // 폼의 오버라이드 컨트롤러는 LobbyFormVisual 이 폼을 적용할 때 AnimatorDriver.SetController 로 꽂는다.
-            var animator = go.AddComponent<Animator>();
-            animator.applyRootMotion = false;
-            var driver = go.AddComponent<Anim.Core.AnimatorDriver>();
-            var driverSo = new SerializedObject(driver);
-            SetObject(driverSo, "animator", animator);
-            driverSo.ApplyModifiedProperties();
-
-            var visual = go.AddComponent<LobbyFormVisual>();
-            var so = new SerializedObject(visual);
-            SetObject(so, "target", sr);
-            SetObject(so, "defaultForm", defaultForm);
-            SetObject(so, "animatorDriver", driver);
-            so.ApplyModifiedProperties();
-
-            if (defaultForm == null)
-            {
-                Debug.LogWarning("[LobbySceneBuilder] 기본 폼 미해석 — 시작 폼을 고르기 전까지 로비 캐릭터가 흰 사각형으로 남는다.");
-            }
-            return driver;
-        }
 
         /// <summary>
         /// 시작 폼을 안 고르고 포털로 들어갔을 때 <b>런이 실제로 시작하는 폼</b>을 찾는다.
@@ -387,15 +294,6 @@ namespace Abyss.EditorTools
             // 카메라가 잡던 그림은 그대로 두고 싶으므로 기준점이 내려간 만큼 올려 상쇄한다.
             var offset = so.FindProperty("offset");
             if (offset != null) offset.vector3Value = new Vector3(0f, 3f, -10f);
-            so.ApplyModifiedProperties();
-        }
-
-        private static void WireController(LobbyPlayerController controller, Transform groundCheck)
-        {
-            var so = new SerializedObject(controller);
-            SetObject(so, "groundCheck", groundCheck);
-            var layerProp = so.FindProperty("groundLayer");
-            if (layerProp != null) layerProp.intValue = 1 << EditorPlatformFactory.GetGroundLayer();
             so.ApplyModifiedProperties();
         }
 

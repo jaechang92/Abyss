@@ -40,12 +40,14 @@ namespace Abyss.Runtime.Player
 
         private void OnMove(InputValue value)
         {
-            moveInput = value.Get<Vector2>();
+            // 잠긴 동안 들어온 방향은 버린다 — 저장해 두면 잠금이 풀리는 순간 저절로 걷는다(PlayerCharacter.Context).
+            moveInput = isInputLocked ? Vector2.zero : value.Get<Vector2>();
         }
 
         private void OnJump(InputValue value)
         {
             if (!value.isPressed) return;
+            if (isInputLocked) return;
             // 대시 중에는 FixedUpdateMovement가 속도를 dashDirection으로 덮어써 점프가 무효화된다.
             // 점프 횟수만 낭비되지 않도록 대시 종료 후에만 점프를 허용한다(대시-점프 캔슬은 후속 검토).
             if (IsDashing) return;
@@ -61,6 +63,7 @@ namespace Abyss.Runtime.Player
         private void OnDash(InputValue value)
         {
             if (!value.isPressed) return;
+            if (isInputLocked) return;
             // 시너지 '심연 동료'가 활성이면 쿨다운이 줄어든다(Synergy 파트가 하한과 함께 계산).
             if (Time.time < lastDashTime + EffectiveDashCooldown) return;
 
@@ -142,9 +145,15 @@ namespace Abyss.Runtime.Player
             {
                 formController.OnSwapStarted += HandleFormSwapStarted;
             }
-            SubscribeSkillEvents();
-            SubscribeSynergyEvents();
-            SubscribePassiveEvents();
+            // 스킬·시너지·Passive 는 런 보유(드래프트) 기반이라 런에서만 듣는다. 로비는 보유가 없다(빈 슬롯).
+            // 해제는 맥락과 무관하게 모두 부른다 — 구독하지 않은 핸들러의 -= 는 무해하다.
+            if (IsRunContext)
+            {
+                SubscribeSkillEvents();
+                SubscribeSynergyEvents();
+                SubscribePassiveEvents();
+            }
+            // 폼 콤보는 로컬 HP·폼 교체·정지 정리가 섞여 있어 맥락과 무관하게 연결한다(전역 리셋 신호는 로비에서 오지 않을 뿐).
             SubscribeFormComboEvents();
         }
 
@@ -193,8 +202,8 @@ namespace Abyss.Runtime.Player
             // P04 B 접근 — 대시 다음, 일반 이동 대신. 수평 속도를 쓰는 곳은 이 둘뿐이다.
             if (TryApplyLungeVelocity()) return;
 
-            // 가드 중에는 제자리에서 버틴다(16-shield-guard §2).
-            float horizontal = isGuarding ? 0f : moveInput.x * EffectiveMoveSpeed;
+            // 가드 중에는 제자리에서 버틴다(16-shield-guard §2). 외부 잠금(로비 NPC·메뉴) 중에도 선다.
+            float horizontal = (isGuarding || isInputLocked) ? 0f : moveInput.x * EffectiveMoveSpeed;
             body.linearVelocity = new Vector2(horizontal, body.linearVelocity.y);
         }
 

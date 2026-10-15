@@ -1,4 +1,4 @@
-namespace Abyss.Runtime.Interaction
+﻿namespace Abyss.Runtime.Interaction
 {
     /// <summary>
     /// 지금 상호작용을 받으면 안 되는 상태임을 알리는 것.
@@ -10,9 +10,9 @@ namespace Abyss.Runtime.Interaction
     /// 런 플레이어에는 붙일 수 없어 제단이 반응하지 않았다.
     /// 막는 조건은 씬마다 다르지만 <b>막아야 한다는 사실</b>은 같으므로, 그 하나만 인터페이스로 뽑는다.
     ///
-    /// 📌 구현이 없으면(<c>GetComponent</c> 결과 null) 막지 않는다.
-    /// 잠금 개념이 없는 플레이어에게 잠금 구현을 강요하지 않기 위해서다 —
-    /// 런 플레이어(<c>PlayerCharacter</c>)에는 아직 입력 잠금 개념 자체가 없다.
+    /// 📌 같은 오브젝트의 모든 구현을 합산하며, 구현이 없으면 막지 않는다.
+    /// 공유 PlayerCharacter는 직접 입력 잠금과 런 입력 모드·상위 모달을 반영한다.
+    /// LobbyPlayerController 어댑터의 기존 잠금 규약도 함께 유지한다.
     /// </summary>
     public interface IInteractionBlocker
     {

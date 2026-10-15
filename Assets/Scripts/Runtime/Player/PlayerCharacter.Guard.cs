@@ -126,7 +126,8 @@ namespace Abyss.Runtime.Player
 
             // PlayerInput 이 꺼져 있으면(일시정지 · 모달) 누르고 있어도 가드가 아니다.
             if (heavyAttackAction == null || cachedPlayerInput == null || !cachedPlayerInput.inputIsActive) return false;
-            return heavyAttackAction.IsPressed();
+            // 외부 잠금 중이거나, 잠금 전부터 누른 채 남은 키면 가드가 아니다(PlayerCharacter.Context).
+            return FilterHeldInput(heavyAttackAction.IsPressed());
         }
 
         /// <summary>출처가 있는 피해가 들어왔을 때의 가드 판정(<c>TakeDamage(int, Vector2)</c> 가 부른다).</summary>

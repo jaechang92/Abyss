@@ -1,4 +1,4 @@
-using Abyss.Runtime.Events;
+﻿using Abyss.Runtime.Events;
 using Abyss.Runtime.UI;
 using UnityEngine.InputSystem;
 
@@ -16,7 +16,11 @@ namespace Abyss.Runtime.Player
         private void OnPause(InputValue value)
         {
             if (!value.isPressed) return;
+            // 로비 ESC 는 로비 어댑터(LobbyPlayerController.OnPause)가 메뉴·설정·도감 개폐로 소유한다.
+            // 같은 PlayerInput 이 SendMessages 로 양쪽에 보내므로, 여기서 정지 요청까지 내면 한 키가 두 일을 한다.
+            if (!IsRunContext) return;
             if (SaveStatusOverlay.IsCapturingInput) return;
+            if (KeyboardBindingsPanel.IsOpen || KeyboardBindingsPanel.WasInputConsumedThisFrame) return;
             GameEvents.RaisePauseRequested();
         }
 
@@ -27,8 +31,10 @@ namespace Abyss.Runtime.Player
         private void OnCancel(InputValue value)
         {
             if (!value.isPressed) return;
+            if (!IsRunContext) return;  // 로비는 정지 상태가 없다 — OnPause 주석 참조
             // 저장 모달이 떠 있으면 그 키는 모달 몫이다(SaveStatusOverlay.IsCapturingInput).
             if (SaveStatusOverlay.IsCapturingInput) return;
+            if (KeyboardBindingsPanel.IsOpen || KeyboardBindingsPanel.WasInputConsumedThisFrame) return;
 
             if (SettingsPanel.IsOpen)
             {

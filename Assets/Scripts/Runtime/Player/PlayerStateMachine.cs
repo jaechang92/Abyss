@@ -1,4 +1,4 @@
-using Abyss.Runtime.Form;
+﻿using Abyss.Runtime.Form;
 using FSM.Core;
 using UnityEngine;
 
@@ -68,6 +68,7 @@ namespace Abyss.Runtime.Player
             get
             {
                 if (player != null && player.IsDead) return false;
+                if (player != null && player.IsInputLocked) return false;  // 로비 NPC·메뉴 잠금 중에는 교체도 없다
                 if (fsm == null || !fsm.IsRunning) return true;  // FSM 미가동 시엔 폼 단독 동작 보장
 
                 string id = fsm.CurrentStateId;
@@ -147,6 +148,7 @@ namespace Abyss.Runtime.Player
         {
             if (fsm == null || !fsm.IsRunning) return false;
             if (player != null && player.IsDead) return false;
+            if (player != null && player.IsInputLocked) return false;
             if (isFormSwapping) return false;
             return true;
         }

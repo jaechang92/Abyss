@@ -1,4 +1,4 @@
-using Abyss.Runtime.Form;
+﻿using Abyss.Runtime.Form;
 using UnityEngine.InputSystem;
 
 namespace Abyss.Runtime.Player
@@ -23,6 +23,7 @@ namespace Abyss.Runtime.Player
         private void OnFormSwap(InputValue value)
         {
             if (!value.isPressed) return;
+            if (isInputLocked) return;
             if (formController == null) return;
             // P04 A — 저스트 가드 창 안이면 즉시 교체하거나(성공 확인 포함) 1회 예약한다. 창이 없거나 지났으면 기존 경로.
             if (TryReserveGuardSwap()) return;

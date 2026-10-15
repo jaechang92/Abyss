@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Feedback;
 using Abyss.Runtime.Run;
@@ -51,7 +51,8 @@ namespace Abyss.Runtime.Player
             isGoldenTouchActive = SkillIds.IsOwned(owned, SkillIds.GOLDEN_TOUCH);
 
             // 골드 배율은 RunManager가 지급할 때 곱한다 — 보유가 바뀔 때마다 값을 밀어 둔다(교체로 빠지는 경우 포함).
-            if (RunManager.HasInstance)
+            // 로비 캐릭터는 영속 RunManager 의 배율을 덮지 않는다(PlayerCharacter.Context).
+            if (IsRunContext && RunManager.HasInstance)
             {
                 RunManager.Instance.CombatGoldMultiplier = isGoldenTouchActive ? goldenTouchMultiplier : 1f;
             }

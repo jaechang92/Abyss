@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using Abyss.Runtime.ArtIntegration;
+using Abyss.Runtime.Input;
+using Abyss.Runtime.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -27,11 +29,26 @@ namespace Abyss.Runtime.Interaction
 
         private readonly List<IInteractable> candidates = new List<IInteractable>();
         private IInteractable current;
+        private Text readablePromptLabel;
+        private InteractionPromptReadability promptReadability;
         public IInteractable CurrentTarget => current;
 
-        // 같은 오브젝트의 잠금 소스. 패널이 화면을 점유하는 동안 상호작용을 막는 게이트로 쓴다.
-        // 없으면(런 플레이어) 막지 않는다 — IInteractionBlocker 주석 참조.
-        private IInteractionBlocker blocker;
+        // 공유 캐릭터와 로비 어댑터 등 모든 잠금을 합산하여 컴포넌트 순서에 의존하지 않는다.
+        private IInteractionBlocker[] blockers;
+
+        private bool IsInteractionBlocked
+        {
+            get
+            {
+                if (blockers == null) return false;
+                foreach (var source in blockers)
+                {
+                    if (source is Object unityObject && unityObject == null) continue;
+                    if (source != null && source.BlocksInteraction) return true;
+                }
+                return false;
+            }
+        }
 
         // A2 상호작용 표식 — 지금 G 로 반응할 대상 머리 위에만. 플레이어마다 하나, 플레이어와 함께 파괴된다.
         private const float MARKER_HEIGHT = 0.7f;
@@ -43,11 +60,13 @@ namespace Abyss.Runtime.Interaction
 
         private void Awake()
         {
-            blocker = GetComponent<IInteractionBlocker>();
+            blockers = GetComponents<IInteractionBlocker>();
         }
 
         private void OnDisable()
         {
+            current = null;
+            if (promptLabel != null) promptLabel.gameObject.SetActive(false);
             if (marker != null) marker.enabled = false;
             markedTarget = null;
             markedCollider = null;
@@ -107,9 +126,19 @@ namespace Abyss.Runtime.Interaction
         {
             if (promptLabel == null) return;
 
-            bool isShow = current != null;
+            bool isShow = current != null && !IsInteractionBlocked;
             if (promptLabel.gameObject.activeSelf != isShow) promptLabel.gameObject.SetActive(isShow);
-            if (isShow) promptLabel.text = current.InteractionPrompt;
+            if (isShow)
+            {
+                string key = GameplayKeyBindings.GetDisplayKey("Interact");
+                promptLabel.text = current.InteractionPrompt.Replace("(G)", $"({key})").Replace("[G]", $"[{key}]");
+                if (readablePromptLabel != promptLabel || promptReadability == null)
+                {
+                    readablePromptLabel = promptLabel;
+                    promptReadability = InteractionPromptReadability.Attach(promptLabel);
+                }
+                promptReadability?.Refresh();
+            }
         }
 
         /// <summary>
@@ -118,7 +147,7 @@ namespace Abyss.Runtime.Interaction
         /// </summary>
         private void UpdateMarker()
         {
-            bool isShown = current != null && (blocker == null || !blocker.BlocksInteraction);
+            bool isShown = current != null && !IsInteractionBlocked;
             if (!isShown)
             {
                 if (marker != null && marker.enabled) marker.enabled = false;
@@ -173,10 +202,9 @@ namespace Abyss.Runtime.Interaction
             // 메뉴·대화·폼 선택 등이 화면을 점유한 동안에는 상호작용을 받지 않는다.
             // 이 게이트가 없으면 로비 메뉴를 띄운 채 G로 던전에 입장할 수 있다
             // (대화 중 다른 NPC에게 말을 거는 기존 구멍도 같이 막힌다. 대사 진행은 Space/Enter라 영향 없음).
-            //
-            // ⚠️ 런 플레이어에는 아직 잠금 소스가 없다(PlayerCharacter에 입력 잠금 개념 자체가 없음).
-            //    그래서 런 중 모달이 떠 있어도 이 게이트는 통과한다 — 알려진 구멍이고 후속 과제다.
-            if (blocker != null && blocker.BlocksInteraction) return;
+            // 런은 실제 PlayerInput 맵 차단에 더해 공유 캐릭터의 잠금으로 직접 콜백도 방어한다.
+            // 안내·표식과 동일한 실시간 판정을 써 모달을 연 직후 연속 입력도 차단한다.
+            if (IsInteractionBlocked) return;
 
             if (current != null && current.CanInteract) current.Interact(gameObject);
         }

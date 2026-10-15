@@ -1,4 +1,4 @@
-using Abyss.Runtime.Player;
+﻿using Abyss.Runtime.Player;
 using Anim.Core;
 using UnityEngine;
 
@@ -15,6 +15,10 @@ namespace Abyss.Runtime.Lobby
     ///
     /// 폴링인 이유는 <see cref="LobbyFormVisual"/>과 같다 — 구독할 발행자가 없고, 같은 이름이면
     /// <see cref="AnimatorDriver.Play"/>가 바로 돌아가므로 프레임당 비용은 비교 몇 번이다.
+    ///
+    /// 🔴 <b>2026-10-12 부터 로비 씬·빌더는 이것을 쓰지 않는다.</b> 로비도 Run 과 같은 PlayerCharacter·
+    /// <see cref="PlayerStateMachine"/>·<see cref="PlayerAnimationBinder"/>를 써서 대시까지 같은 그림으로 돈다.
+    /// 옛 씬이 남아 둘이 한 몸에 붙으면 같은 재생기를 두 writer 가 번갈아 틀므로, 공유 binder 가 있으면 스스로 꺼진다.
     /// </summary>
     public sealed class LobbyAnimationBinder : MonoBehaviour
     {
@@ -32,6 +36,9 @@ namespace Abyss.Runtime.Lobby
             if (controller == null) controller = GetComponent<LobbyPlayerController>();
             if (body == null) body = GetComponent<Rigidbody2D>();
             if (animatorDriver == null) animatorDriver = GetComponentInChildren<AnimatorDriver>(true);
+
+            // 공유 FSM binder 가 그림의 유일한 writer 다 — 함께 돌면 대시·공격 그림을 물리 자세로 덮는다.
+            if (GetComponent<PlayerAnimationBinder>() != null) enabled = false;
         }
 
         private void OnEnable()

@@ -106,6 +106,7 @@ namespace Abyss.Runtime.Player
         private void OnAttack(InputValue value)
         {
             if (!value.isPressed) return;
+            if (isInputLocked) return;  // 로비 NPC·메뉴가 조작을 잠갔다(PlayerCharacter.Context)
             if (isGuarding) return;  // 방패를 든 채로는 약공격을 안 한다
             if (!CanAttackLight) return;
 
@@ -119,6 +120,7 @@ namespace Abyss.Runtime.Player
         private void OnAttackHeavy(InputValue value)
         {
             if (!value.isPressed) return;
+            if (isInputLocked) return;
             // 가드 폼(방패병)의 X 는 가드다 — 강공격은 가드 성공 시 자동 반격으로만 나간다(PlayerCharacter.Guard).
             if (UsesGuard) return;
             if (!CanAttackHeavy) return;
