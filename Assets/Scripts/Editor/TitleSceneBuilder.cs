@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using Abyss.Runtime.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -57,7 +57,8 @@ namespace Abyss.EditorTools
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.04f, 0.04f, 0.07f);
             cam.orthographic = true;
-            cam.orthographicSize = Abyss.Runtime.Camera.PixelScale.OrthographicSize;
+            // 씬 카메라 배율은 Run C 프로필과 같은 값(C3). 화면 UI(Overlay)는 ortho 와 무관하다.
+            cam.orthographicSize = Abyss.Runtime.Camera.RunCameraProfile.OrthographicSizeFor(Abyss.Runtime.Camera.RunCameraProfileId.C_Wide);
             go.AddComponent<AudioListener>();
         }
 

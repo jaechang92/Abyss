@@ -3052,7 +3052,7 @@ Camera:
   far clip plane: 100
   field of view: 60
   orthographic: 1
-  orthographic size: 5.625
+  orthographic size: 8.4375
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -19620,7 +19620,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1316482355}
-  m_Text: "stage1 \uC544\uD2B8 \uD14C\uC2A4\uD2B8 \u2014 \uBC29\uD5A5\uD0A4 \uC774\uB3D9 \xB7 Q/E \uD655\uB300 \xB7 R \uC6D0\uC704\uCE58\nPPU 32  \xB7  \uD0C0\uC77C 32px = 1\uC720\uB2DB  \xB7  \uD50C\uB808\uC774\uC5B4 2\uC720\uB2DB = 64px\n\uD654\uBA74 20 x 11.25 \uC720\uB2DB = 640 x 360 \uC544\uD2B8px\nFHD 1920x1080 \uC5D0\uC11C \uC815\uD655\uD788 x3 \u2014 \uC815\uC218\uB77C\uC11C \uD53D\uC140\uC774 \uACE0\uB974\uAC8C \uADF8\uB824\uC9C4\uB2E4 (ortho 5.625)\n\uBC30\uACBD 160x96 \uC744 x4 \uD655\uB300 \u2192 640x384 \uC544\uD2B8px (\uAC00\uB85C \uB531 \uB9DE\uACE0 \uC138\uB85C 24px \uC5EC\uC720)\n\u26A0 \uBC30\uACBD 1px = 12 \uC2A4\uD06C\uB9B0px,  \uD504\uB86D 1px = 3 \uC2A4\uD06C\uB9B0px \u2014 4\uBC30 \uCC28\uC774\n\uD310\uC815: \u2460 x=0 \uC774\uC74C\uB9E4\uC5D0\uC11C \uBCBD/\uC9C0\uBA74\uC774 \uAC08\uB9AC\uB294\uAC00  \u2461 bg_near 1px  \u2462 \uBC14\uB2E5\uC774 \uCE90\uB9AD\uD130\uB97C \uBA39\uB294\uAC00(\uC67C\uCABD \uB05D \uD3FC 4\uC885 \xB7 \uBCBD \uC704 1\uC885)"
+  m_Text: "stage1 \uC544\uD2B8 \uD14C\uC2A4\uD2B8 \u2014 \uBC29\uD5A5\uD0A4 \uC774\uB3D9 \xB7 Q/E \uD655\uB300 \xB7 R \uC6D0\uC704\uCE58\nPPU 32  \xB7  \uD0C0\uC77C 32px = 1\uC720\uB2DB  \xB7  \uD50C\uB808\uC774\uC5B4 2\uC720\uB2DB = 64px\n\uD654\uBA74 30 x 16.875 \uC720\uB2DB = 960 x 540 \uC544\uD2B8px (C \uAE30\uBCF8)\nFHD 1920x1080 \uC5D0\uC11C x2 (ortho 8.4375)\n\uBC30\uACBD \uB098\uBA38\uC9C0 \uCE35 x4 \uD655\uB300 \xB7 \uCD5C\uD6C4\uBC29 \uD558\uB298\uB9CC \uC2E4\uD589 \uC911 \uD654\uBA74\uC744 \uB36E\uB3C4\uB85D \uC815\uC218\uBC30\uB85C \uB354 \uD0A4\uC6B4\uB2E4(ParallaxLayer.Coverage)\n\u26A0 x4 \uCE35 \uBC30\uACBD 1px = 8 \uC2A4\uD06C\uB9B0px,  \uD504\uB86D 1px = 2 \uC2A4\uD06C\uB9B0px \u2014 4\uBC30 \uCC28\uC774\n\uD310\uC815: \u2460 x=0 \uC774\uC74C\uB9E4\uC5D0\uC11C \uBCBD/\uC9C0\uBA74\uC774 \uAC08\uB9AC\uB294\uAC00  \u2461 bg_near 1px  \u2462 \uBC14\uB2E5\uC774 \uCE90\uB9AD\uD130\uB97C \uBA39\uB294\uAC00(\uC67C\uCABD \uB05D \uD3FC 4\uC885 \xB7 \uBCBD \uC704 1\uC885)"
   m_OffsetZ: 0
   m_CharacterSize: 0.049999997
   m_LineSpacing: 1
