@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.IO;
 using Abyss.Runtime.Analytics;
 using Abyss.Runtime.Draft;
@@ -145,6 +145,9 @@ namespace Abyss.Tests.PlayMode
         [UnityTest]
         public IEnumerator RoomCleared_IsFlushedOnRunEnd()
         {
+            GameEvents.RaiseRunStarted();
+            string expectedRunId = JsonUtility.FromJson<LoggedEvent>(ReadLastEvent()).run_id;
+            int firstLine = ReadAll().Split('\n').Length - 1;
             var room = MakeRoom("last_room");
 
             GameEvents.RaiseRoomEntered(room);
@@ -154,10 +157,21 @@ namespace Abyss.Tests.PlayMode
             yield return null;
 
             // run_end 앞에 방이 마감돼야 분석기가 그 방을 런 안의 사건으로 본다.
-            string all = ReadAll();
-            int roomIdx = all.LastIndexOf("last_room", System.StringComparison.Ordinal);
-            int endIdx = all.LastIndexOf("\"run_end\"", System.StringComparison.Ordinal);
-            Assert.Greater(roomIdx, -1, "마지막 방이 기록되지 않았다.");
+            string[] lines = ReadAll().Split('\n');
+            int roomIdx = -1;
+            int endIdx = -1;
+            for (int i = firstLine; i < lines.Length; i++)
+            {
+                if (string.IsNullOrWhiteSpace(lines[i])) continue;
+                var entry = JsonUtility.FromJson<LoggedEvent>(lines[i]);
+                if (entry.run_id != expectedRunId) continue;
+                if (entry.@event == "room_cleared" && entry.payload != null &&
+                    entry.payload.room_id == "last_room") roomIdx = i;
+                if (entry.@event == "run_end") endIdx = i;
+            }
+            Assert.IsNotEmpty(expectedRunId, "현재 런 ID가 기록되지 않았다.");
+            Assert.Greater(roomIdx, -1, "현재 런의 마지막 방이 기록되지 않았다.");
+            Assert.Greater(endIdx, -1, "현재 런의 종료가 기록되지 않았다.");
             Assert.Less(roomIdx, endIdx, "room_cleared가 run_end 뒤에 기록됐다.");
 
             Object.DestroyImmediate(room);
@@ -233,6 +247,19 @@ namespace Abyss.Tests.PlayMode
             Object.DestroyImmediate(room);
         }
 
+        [System.Serializable]
+        private sealed class LoggedEvent
+        {
+            public string @event;
+            public string run_id;
+            public LoggedPayload payload;
+        }
+
+        [System.Serializable]
+        private sealed class LoggedPayload
+        {
+            public string room_id;
+        }
         private static RoomData MakeRoom(string roomId)
         {
             var room = ScriptableObject.CreateInstance<RoomData>();
