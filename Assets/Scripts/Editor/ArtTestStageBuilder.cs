@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.IO;
 using Abyss.Runtime.Camera;
 using Abyss.Runtime.UI;
@@ -40,9 +40,6 @@ namespace Abyss.EditorTools
         /// <summary>배경 확대 배율. <b>정수여야 한다</b> — 아니면 픽셀이 찌그러진다.</summary>
         private const int BackgroundUpscale = 4;
 
-        /// <summary>FHD 1920x1080 에 그려질 때의 배율. <see cref="CameraSize"/>가 이 값을 만든다.</summary>
-        private const int FhdScale = Abyss.Runtime.Camera.PixelScale.ScreenUpscale;
-
         /// <summary>
         /// 라벨 폰트 크기. <b>이 값은 글자의 화면 크기가 아니라 글꼴 텍스처의 해상도다</b> —
         /// 크게 둘수록 선명하고, 실제 크기는 <c>characterSize</c>가 정한다.
@@ -62,8 +59,12 @@ namespace Abyss.EditorTools
         /// 세 씬은 5 로 남아 있었다. <b>테스트 씬만 옳은 배율로 보고 있었다는 뜻이다</b> —
         /// 아트를 판정하던 화면과 게임 화면이 서로 다른 배율이었다.
         /// 이제 <see cref="Abyss.Runtime.Camera.PixelScale"/> 가 SoT 다.
+        ///
+        /// 2026-10-12 C3 — 게임 씬(Run·Lobby)이 C 프로필(세로 540 art px, ortho 8.4375, 1080p 정수 2배)로 바뀌었으므로
+        /// 아트를 판정하는 화면도 같은 값을 <see cref="RunCameraProfile.OrthographicSizeFor"/>에서 받는다.
+        /// <see cref="ArtTestPanner"/> 의 수동 확대축소는 그대로다(프로필 컴포넌트는 붙이지 않는다).
         /// </summary>
-        private const float CameraSize = Abyss.Runtime.Camera.PixelScale.OrthographicSize;
+        private static readonly float CameraSize = RunCameraProfile.OrthographicSizeFor(RunCameraProfileId.C_Wide);
 
         /// <summary>지면 윗줄 타일의 중심 y. 윗면(밟는 자리)은 여기서 +0.5다.</summary>
         private const float GroundRowY = -3f;
@@ -191,15 +192,17 @@ namespace Abyss.EditorTools
             float artPixelsY = screenUnitsY * Ppu;
             float artPixelsX = screenUnitsX * Ppu;
             float bgPixel = BackgroundUpscale;   // 프롭 픽셀 1개당 배경 픽셀 크기 비
+            float fhdScale = 1080f / artPixelsY;  // FHD 에서 art px 하나가 차지하는 화면 px
 
             string text = string.Join("\n", new[]
             {
                 "stage1 아트 테스트 — 방향키 이동 · Q/E 확대 · R 원위치",
                 $"PPU {Ppu:0}  ·  타일 32px = 1유닛  ·  플레이어 2유닛 = 64px",
-                $"화면 {screenUnitsX:0.##} x {screenUnitsY:0.##} 유닛 = {artPixelsX:0} x {artPixelsY:0} 아트px",
-                $"FHD 1920x1080 에서 정확히 x{FhdScale} — 정수라서 픽셀이 고르게 그려진다 (ortho {cam.orthographicSize:0.###})",
-                $"배경 160x96 을 x{BackgroundUpscale} 확대 → 640x384 아트px (가로 딱 맞고 세로 24px 여유)",
-                $"⚠ 배경 1px = {BackgroundUpscale * FhdScale} 스크린px,  프롭 1px = {FhdScale} 스크린px — {bgPixel:0}배 차이",
+                // C 기본 ortho 8.4375 → 30 x 16.875 유닛. 소수 넷째 자리까지 그대로 적는다(반올림하면 다른 값으로 읽힌다).
+                $"화면 {screenUnitsX:0.###} x {screenUnitsY:0.###} 유닛 = {artPixelsX:0} x {artPixelsY:0} 아트px (C 기본)",
+                $"FHD 1920x1080 에서 x{fhdScale:0.###} (ortho {cam.orthographicSize:0.####})",
+                $"배경 나머지 층 x{BackgroundUpscale} 확대 · 최후방 하늘만 실행 중 화면을 덮도록 정수배로 더 키운다(ParallaxLayer.Coverage)",
+                $"⚠ x{BackgroundUpscale} 층 배경 1px = {BackgroundUpscale * fhdScale:0.###} 스크린px,  프롭 1px = {fhdScale:0.###} 스크린px — {bgPixel:0}배 차이",
                 "판정: ① x=0 이음매에서 벽/지면이 갈리는가  ② bg_near 1px  ③ 바닥이 캐릭터를 먹는가(왼쪽 끝 폼 4종 · 벽 위 1종)",
             });
 

@@ -59,16 +59,16 @@ namespace Abyss.Runtime.Stage
             return ProbeFloorY(x) + lift;
         }
 
-        /// <summary>제단을 맵 가운데(x 0) 바닥 높이에 맞춘다 — 씬 높이는 공용 지면 기준이므로 바닥이 올라간 만큼만 올린다.</summary>
-        private void PlaceAltarOnFloor(Transform altar)
+        /// <summary>제단을 지정 x의 바닥에 맞춘다. 씬 원래 높이에 해당 x의 지면 대비 높이 차이만 더한다.</summary>
+        private void PlaceAltarOnFloor(Transform altar, float x = 0f)
         {
             if (!altarBaseHeights.TryGetValue(altar, out float baseY))
             {
                 baseY = altar.position.y;
                 altarBaseHeights[altar] = baseY;
             }
-            float lift = ProbeFloorY(0f) - ProbeGroundY(0f);
-            altar.position = new Vector3(0f, baseY + Mathf.Max(0f, lift), altar.position.z);
+            float lift = ProbeFloorY(x) - ProbeGroundY(x);
+            altar.position = new Vector3(x, baseY + Mathf.Max(0f, lift), altar.position.z);
         }
     }
 }

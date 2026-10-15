@@ -4,12 +4,13 @@ using static Abyss.Runtime.UI.UiFactory;
 
 namespace Abyss.Runtime.UI
 {
-    /// <summary>기존 네 문단의 움직이는 구도 시안. 서사 상태·입력·씬 전환은 소유하지 않는다.</summary>
+    /// <summary>아트 표시와 누락 시 도형 폴백. 서사 상태·입력·씬 전환은 소유하지 않는다.</summary>
     public sealed class PrologueCutPresentation
     {
         private static readonly Color Stone = new Color(0.13f, 0.17f, 0.23f);
         private static readonly Color BodyColor = new Color(0.34f, 0.40f, 0.48f);
         private static readonly Color Water = new Color(0.23f, 0.43f, 0.52f);
+        private readonly PrologueArtPresentation art;
         private readonly RectTransform[] scenes = new RectTransform[4];
         private readonly CanvasGroup[] groups = new CanvasGroup[4];
         private readonly RectTransform[] dust = new RectTransform[18];
@@ -22,6 +23,9 @@ namespace Abyss.Runtime.UI
 
         public PrologueCutPresentation(Transform parent)
         {
+            art = PrologueArtPresentation.TryCreate(parent);
+            if (art != null) return;
+
             for (int i = 0; i < scenes.Length; i++)
             {
                 var go = CreateRect(parent, "PrologueCut" + (i + 1), Vector2.one * 0.5f,
@@ -40,6 +44,7 @@ namespace Abyss.Runtime.UI
 
         public void Show(int index, float seconds)
         {
+            if (art != null) { art.Show(index, seconds); return; }
             if (index < 0 || index >= scenes.Length) { Clear(); return; }
             if (activeIndex != index)
             {
@@ -86,6 +91,7 @@ namespace Abyss.Runtime.UI
 
         public void Clear()
         {
+            if (art != null) { art.Clear(); return; }
             for (int i = 0; i < scenes.Length; i++)
             {
                 groups[i].alpha = 0f;

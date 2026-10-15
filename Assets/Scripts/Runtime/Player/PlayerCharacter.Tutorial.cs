@@ -38,7 +38,12 @@ namespace Abyss.Runtime.Player
         // PerformAttack 의 void 반환 계약은 그대로 둔다.
         private bool isTutorialAttackPerformed;
 
-        private void RaiseTutorialAction(PlayerTutorialAction action) => OnTutorialAction?.Invoke(action);
+        // 로비 캐릭터는 첫 플레이 튜토리얼 진행을 올리지 않는다 — 튜토리얼은 런 안에서만 센다(PlayerCharacter.Context).
+        private void RaiseTutorialAction(PlayerTutorialAction action)
+        {
+            if (!IsRunContext) return;
+            OnTutorialAction?.Invoke(action);
+        }
 
         /// <summary>
         /// 입력 경로(OnAttack · OnAttackHeavy) 전용 — 방금 PerformAttack 이 실제로 판정·발사했을 때만 공격을 알린다.
@@ -59,7 +64,7 @@ namespace Abyss.Runtime.Player
         /// </summary>
         private void TrackTutorialGroundMove()
         {
-            if (OnTutorialAction == null || body == null)
+            if (OnTutorialAction == null || body == null || !IsRunContext)
             {
                 hasTutorialLastBodyX = false;
                 return;

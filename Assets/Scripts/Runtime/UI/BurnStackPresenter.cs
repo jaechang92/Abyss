@@ -1,4 +1,4 @@
-using Abyss.Runtime.Enemy;
+﻿using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Events;
 using UnityEngine;
 using UnityEngine.UI;
@@ -55,6 +55,8 @@ namespace Abyss.Runtime.UI
         private void OnEnable()
         {
             GameEvents.OnBurnStacksChanged += HandleBurnChanged;
+            if (tracked != null && tracked.BurnStacks > 0) Show(tracked.BurnStacks);
+            else Hide();
         }
 
         private void OnDisable()
@@ -64,7 +66,7 @@ namespace Abyss.Runtime.UI
 
         private void Update()
         {
-            if (tracked == null) return;
+            if (ReferenceEquals(tracked, null)) return;
 
             // 방 정리(DespawnAllEnemies)처럼 ClearBurn을 거치지 않고 사라지는 경로가 있다.
             // 그 경우 0 이벤트가 오지 않으므로 숫자가 죽은 적에 붙은 채 남는다.

@@ -9,7 +9,7 @@ namespace Abyss.Runtime.UI
     /// 드래프트 카드 1장. 스킬 이름·카테고리·희귀도·수식·설명 표시.
     /// 선택 Button 클릭 시 OnSelected(index) 발행.
     /// </summary>
-    public sealed class SkillCardView : MonoBehaviour
+    public sealed partial class SkillCardView : MonoBehaviour
     {
         [SerializeField] private Image background;
         [SerializeField] private Image iconImage;
@@ -79,6 +79,7 @@ namespace Abyss.Runtime.UI
         public void AttachDetails(SkillCardDetailsPanel panel)
         {
             details = panel;
+            RefreshReadability();
         }
 
         /// <summary>희귀도 띠 연결. Bind보다 늦게 붙어도 현재 스킬 기준으로 바로 칠한다.</summary>
@@ -91,6 +92,7 @@ namespace Abyss.Runtime.UI
         public void Bind(int index, SkillData skill)
         {
             BindView(index, skill);
+            RefreshReadability();
             if (details != null) details.NotifyCardRebound(this);
         }
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using Abyss.Runtime.Run;
@@ -478,6 +478,8 @@ namespace Abyss.Runtime.Meta
             save.discoveredEnemyIds ??= new List<string>();
             save.upgradeLevels ??= new List<MetaUpgradeEntry>();
             save.storyProgress ??= new List<StoryProgressEntry>();
+            save.discoveredPassageIds ??= new List<string>();
+            save.viewedPassageReactionIds ??= new List<string>();
             // 항목이 참조 타입이라 안쪽 리스트도 null일 수 있다 — 바깥만 채우면
             // 시청 기록을 Add하는 순간 NullReference로 터진다.
             foreach (var progress in save.storyProgress)

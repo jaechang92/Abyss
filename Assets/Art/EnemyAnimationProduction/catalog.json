@@ -1,0 +1,154 @@
+{
+  "date": "2026-10-08",
+  "enemies": 14,
+  "states": 60,
+  "frames": 240,
+  "runtime_integrated": false,
+  "unity_verified": false,
+  "runs": [
+    {
+      "enemy": "melee_grunt",
+      "run": "melee_grunt/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "5e803982fa90580f60a553bbd6a4ee3aeb2b272292b3f109f2c951bc686d7b8a"
+    },
+    {
+      "enemy": "melee_brute",
+      "run": "melee_brute/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "f3b2ff7ba75375844ffe0e47d534960b0f139f8f4a1346d102590acf5ceba55b"
+    },
+    {
+      "enemy": "ranged_archer",
+      "run": "ranged_archer/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "88de1e7ce959d987fe9df8a8480523c2c0d19e9b90a8485be0cc2deeab5215f3"
+    },
+    {
+      "enemy": "bone_archer",
+      "run": "bone_archer/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "0aa93df8daa9c24d872da466cdfcd41011751955ac719b3d62df585b63f6a37b"
+    },
+    {
+      "enemy": "elite_hunter",
+      "run": "elite_hunter/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "cf11d56598713f4e8e3cf434fb81bee81595f7898cd5b85d1ca07d480bacdd48"
+    },
+    {
+      "enemy": "boss_abyss_keeper",
+      "run": "boss_abyss_keeper/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "bdeeb0c1eb1fa5ada3515eff9f723e08b7bf3e29aa74130b6589662efdc34de3"
+    },
+    {
+      "enemy": "boss_abyss_keeper",
+      "run": "boss_abyss_keeper/pattern-volley",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "75fc54cfd0eae0a0996d1f63b0cdc9b59f636e0400914098d755c4538b51874d"
+    },
+    {
+      "enemy": "void_caster",
+      "run": "void_caster/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "aca56f51bb7da1d67063ebaa5b927884ebf0cfb8843216f75077e4de592c6b2e"
+    },
+    {
+      "enemy": "elite_summoner",
+      "run": "elite_summoner/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "56048ee6c7d0e2dcae3715cdc266f26602c93ad19599edb1c449a817afcb791e"
+    },
+    {
+      "enemy": "elite_berserker",
+      "run": "elite_berserker/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "1ada4565d5ebdab71aef3f1963736272794c66faee47b595398d10908c98cb06"
+    },
+    {
+      "enemy": "midboss_sentinel",
+      "run": "midboss_sentinel/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "6101e5058fd7a3e4cdb2152b77f79b4023d440d82c57e587aad56b4ce6d7b2f8"
+    },
+    {
+      "enemy": "boss_flame_serpent",
+      "run": "boss_flame_serpent/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "42c01470b4830197d2dc715a17fa599a5a4232319f7e6ea563b0a07e3e5c9a99"
+    },
+    {
+      "enemy": "boss_flame_serpent",
+      "run": "boss_flame_serpent/pattern-breath",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "72a3fae6f677b2dddcb298837d19e674b1219b8b6bda8f5c2b425c4c9f65c2ec"
+    },
+    {
+      "enemy": "boss_flame_serpent",
+      "run": "boss_flame_serpent/pattern-tail",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "c2d9b30c8aae51bf41a53f1236bd52aaa76635296d5e2ea3431bd986cec94bf8"
+    },
+    {
+      "enemy": "flame_mortar",
+      "run": "flame_mortar/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "8607c35d6db81e2c07657d5f6748b2267d99dc5a22cd55a23e7a8162a61bd23e"
+    },
+    {
+      "enemy": "midboss_throne_warden",
+      "run": "midboss_throne_warden/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "7ec0b361bdd9d8a22b8287efb70e952d51e2d2483055181f3642b8afd219be56"
+    },
+    {
+      "enemy": "boss_thronebound",
+      "run": "boss_thronebound/run",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "8e2668aa2ecaddfc2fd2af7d2a8a9fc31c7c16eea0b4961fef82035b417d2edc"
+    },
+    {
+      "enemy": "boss_thronebound",
+      "run": "boss_thronebound/pattern-blink",
+      "extraction_ok": true,
+      "atlas_ok": true,
+      "motion_status": "user_validation_pending",
+      "atlas_sha256": "b331c43ec95fe19fe8ff920749b681c0bc815373c27918c6f17922648025a5e6"
+    }
+  ]
+}

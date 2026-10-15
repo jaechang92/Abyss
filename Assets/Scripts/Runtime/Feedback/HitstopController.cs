@@ -1,4 +1,4 @@
-using Singleton_Core;
+﻿using Singleton_Core;
 using UnityEngine;
 
 namespace Abyss.Runtime.Feedback
@@ -19,6 +19,7 @@ namespace Abyss.Runtime.Feedback
         private float slowRestoreScale = 1f;
         private bool isSlowRequested;   // 히트스탑이 끝난 뒤 이어서 걸 슬로
         private bool isSlowActive;      // 지금 timeScale을 슬로가 쥐고 있다
+        public bool IsPresentationActive => isActive || isSlowRequested || isSlowActive;
 
         /// <summary>
         /// durationSeconds 만큼 Time.timeScale=0. 현재 이미 pause면 무시.

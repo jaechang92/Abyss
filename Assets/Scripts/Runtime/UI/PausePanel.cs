@@ -72,6 +72,7 @@ namespace Abyss.Runtime.UI
                 quitButton.onClick.AddListener(OnQuitClicked);
                 quitLabel = LocalizedText.Attach(quitButton.GetComponentInChildren<Text>(true), StringKey.Menu_QuitGame);
             }
+            if (root != null) MenuTextReadability.Attach(root.transform.Find("Panel"), menuPanel: true);
         }
 
         private void OnEnable()

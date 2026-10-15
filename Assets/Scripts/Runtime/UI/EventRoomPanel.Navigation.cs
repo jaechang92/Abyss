@@ -64,7 +64,11 @@ namespace Abyss.Runtime.UI
         private void Update()
         {
             if (!IsBodyOpen || current == null) return;
+            // 상위 모달이 입력을 쥐어도 낡은 월드 열림은 바로 닫는다(EventRoomPanel.WorldInteraction.cs).
+            if (CloseIfWorldOwnerStale()) return;
             if (IsUpperModalOwningInput) return;
+
+            RefreshChoiceAffordability();
 
             // 결과 단계에서만 ESC·패드 B = [계속]. 관문(CanAcceptContinue)이 결과를 띄운 프레임을 거른다.
             if (chosen != null && CanAcceptContinue && WasCancelPressedThisFrame())

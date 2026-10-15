@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Meta;
 using Abyss.Runtime.Run;
 using UnityEngine;
+using Abyss.Runtime.Feedback;
 
 namespace Abyss.Runtime.Player
 {
@@ -135,6 +136,7 @@ namespace Abyss.Runtime.Player
 
             int previous = currentHp;
             currentHp = Mathf.Max(0, currentHp - mitigated);
+            if (currentHp < previous) WorldArtFx.Play("hit-spark", transform.position + Vector3.up * 0.6f, owner: transform);
             OnHpChanged?.Invoke(previous, currentHp);
 
             // 반격 태세(Synergy) — 실제로 깎인 피해를 기준으로 되돌린다. 불꽃 갑옷과 달리
@@ -191,6 +193,17 @@ namespace Abyss.Runtime.Player
         private void Die()
         {
             isDead = true;
+
+            // 로비 맥락: HP·FSM 의 죽음(IsDead)은 그대로 두되 전역 런 종료 이벤트는 내지 않는다.
+            // 디버그 Kill·외부 TakeDamage 가 로비에서도 여기 닿고, 영속 RunManager·게임 흐름이 OnPlayerDead 를 듣는다.
+            // 전역 이벤트가 없으니 그것으로 정리되던 폼 콤보 로컬 상태만 직접 거둔다.
+            if (!IsRunContext)
+            {
+                Debug.Log("[Player] 사망(로비 맥락) — 전역 OnPlayerDead 발행 생략");
+                HandlePlayerDeadForCombo();
+                return;
+            }
+
             Debug.Log("[Player] 사망 — OnPlayerDead 발행");
             GameEvents.RaisePlayerDead();
         }

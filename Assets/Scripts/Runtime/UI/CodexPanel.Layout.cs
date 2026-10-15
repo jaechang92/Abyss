@@ -54,6 +54,9 @@ namespace Abyss.Runtime.UI
             BuildPager(panel.transform);
             BuildDetail(panel.transform);
             BuildRecords(panel.transform);
+
+            ApplyArt();
+            BuildReadability(panel.transform);
         }
 
         // ───────────────────────── 헤더 ─────────────────────────
@@ -287,8 +290,7 @@ namespace Abyss.Runtime.UI
         /// 기록 탭은 <b>2열</b>이다. 직전 런 8줄이 들어오면서 한 열로는 세로 530을 넘겨
         /// 패널 밖으로 흘러넘쳤다(<see cref="CreateWrappedLabel"/>이 세로를 Overflow로 두므로 잘리지 않고 삐져나온다).
         ///
-        /// 스크롤 대신 열을 나눈 이유는 그리드 탭과 같다 — 이 프로젝트에 ScrollRect 사용처가 0건이라
-        /// 여기 하나만 두면 그게 규약 이탈이 된다. 가로는 1360으로 남아돌았으므로 쓰지 않던 공간을 쓴다.
+        /// 조립 후 Readability가 두 열을 패널 안에 배치하고 확대된 본문 높이에 맞춰 스크롤한다.
         /// </summary>
         private void BuildRecords(Transform panel)
         {

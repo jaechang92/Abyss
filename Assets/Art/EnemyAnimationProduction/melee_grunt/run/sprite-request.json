@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "kind": "sprite-gen-request",
+  "engine": "component-row",
+  "character": {
+    "id": "melee_grunt",
+    "description": "Empty rusted armor, exactly one right sword arm, missing left arm empty socket, open hollow chest, oversized empty helmet, low folded knees, wider than tall, right facing",
+    "base_image": "base-source.png"
+  },
+  "cell": {
+    "shape": "square",
+    "width": 124,
+    "height": 124,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12,
+    "size": 124,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "states": {
+    "move": {
+      "frames": 4,
+      "fps": 10,
+      "loop": true,
+      "action": "A seamless crawling cycle using folded knees and the sole sword-holding right arm: reach forward low, pull chest forward, slide knees under chest, settle back toward first pose. Body stays low. Missing left arm stays missing. Root stationary across cells."
+    },
+    "attack": {
+      "frames": 4,
+      "fps": 5,
+      "loop": false,
+      "action": "Short blunt sword attack: low ready pose, sole right arm lifts sword overhead with clearly visible windup, chops forward downward, low recovery. Missing left arm remains empty socket. No slash arcs or detached effects."
+    },
+    "hit": {
+      "frames": 4,
+      "fps": 13,
+      "loop": false,
+      "action": "Impact recoil: low ready pose, helmet jolts backward, chest leans back slightly with sole sword arm tucked, returns toward low ready. One arm only. No particles."
+    },
+    "dead": {
+      "frames": 4,
+      "fps": 5,
+      "loop": false,
+      "action": "Armor collapse: low kneeling whole armor, helmet and chest droop, body compresses downward, flattened connected pile of empty armor with helmet and short sword still visible. All pieces touching as one silhouette, no detached dust, no standing back up."
+    }
+  },
+  "style": "chunky small pixel art, flat slate iron and muted rust, one arm absent, hollow open chest, right facing low kneeling armor, no extra limbs, no detached effects",
+  "motion_phase_guides": false
+}

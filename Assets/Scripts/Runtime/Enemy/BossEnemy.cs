@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Abyss.Runtime.Audio;
 using Abyss.Runtime.Feedback;
 using Abyss.Runtime.Player;
@@ -44,7 +44,18 @@ namespace Abyss.Runtime.Enemy
         private float lastVolleyTime = -999f;
         private CameraShake cameraShake;
 
+        // 원거리 교전 — 감지 범위 밖에서 실제로 HP 를 잃으면 기존 대상을 계속 쫓는다(인스턴스 상태, 기본 false).
+        private bool isEngagedByDamage;
+        private Transform engagedTarget;
+        private PlayerCharacter engagedPlayer;
+
         public int CurrentPhase => currentPhase;
+
+        /// <summary>
+        /// 감지 범위 밖에서 맞아 교전 중인가(살아 있고 맞을 때의 대상이 그대로 유효할 때만 참).
+        /// 추적만 넓힌다 — 탄막·근접 패턴은 여전히 감지 범위·공격 사거리 안에서만 나간다.
+        /// </summary>
+        public bool IsEngagedByDamage => isEngagedByDamage && IsEngagedTargetValid();
         public event Action<int> OnPhaseChanged;
 
         /// <summary>페이즈 전환 HP 비율 — 보스 체력바가 눈금을 이 자리에 긋는다(프리팹 직렬값이 SoT).</summary>
@@ -197,6 +208,48 @@ namespace Abyss.Runtime.Enemy
         {
             if (clip == null) return;
             if (AudioManager.HasInstance) AudioManager.Instance.PlaySfx(clip, volume);
+        }
+
+        /// <summary>
+        /// 살아 있는 채로 HP 를 잃었다 — 사거리가 긴 원거리 공격에 맞아도 서 있지 않고 다가가게 한다.
+        /// 대상은 새로 찾지 않는다(Start 에서 잡은 기존 대상만). 대상이 없으면 교전도 없다.
+        /// 첫 보스의 소개 대기는 그대로다 — 대기 중에는 FixedUpdate 가 이동을 막고, 소개가 끝난 뒤 추적이 이어진다.
+        /// </summary>
+        protected override void OnLivingHpLost()
+        {
+            if (IsDead || Target == null) return;
+            if (isEngagedByDamage && engagedTarget == Target) return;
+
+            engagedTarget = Target;
+            engagedPlayer = Target.GetComponentInParent<PlayerCharacter>();
+            isEngagedByDamage = true;
+        }
+
+        protected override bool ShouldPursueBeyondDetection
+        {
+            get
+            {
+                if (!isEngagedByDamage) return false;
+                if (IsEngagedTargetValid()) return true;
+
+                // 보스 사망·대상 소멸/교체·플레이어 사망이면 교전을 접는다 — 다시 맞기 전까지 기본 규칙(감지 범위)으로.
+                ClearEngagement();
+                return false;
+            }
+        }
+
+        private bool IsEngagedTargetValid()
+        {
+            if (IsDead || Target == null || engagedTarget == null || Target != engagedTarget) return false;
+            if (!Target.gameObject.activeInHierarchy) return false;
+            return engagedPlayer == null || !engagedPlayer.IsDead;
+        }
+
+        private void ClearEngagement()
+        {
+            isEngagedByDamage = false;
+            engagedTarget = null;
+            engagedPlayer = null;
         }
 
         protected override int GetAttackDamage()

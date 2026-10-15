@@ -1,4 +1,4 @@
-using Abyss.Runtime.Events;
+﻿using Abyss.Runtime.Events;
 using Abyss.Runtime.Form;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Run;
@@ -55,14 +55,24 @@ namespace Abyss.Runtime.UI
         {
             GameEvents.OnRoomCleared += HandleRoomCleared;
             GameEvents.OnFormSwapped += HandleFormSwapped;
-            SetVisible(false);
+            GameEvents.OnRunStarted += Refresh;
+            GameEvents.OnRunEnded += Refresh;
+            GameEvents.OnRunAbandoned += Refresh;
+            Loc.AddLanguageChangedListener(HandleLanguageChanged);
+            Refresh();
         }
 
         private void OnDisable()
         {
             GameEvents.OnRoomCleared -= HandleRoomCleared;
             GameEvents.OnFormSwapped -= HandleFormSwapped;
+            GameEvents.OnRunStarted -= Refresh;
+            GameEvents.OnRunEnded -= Refresh;
+            GameEvents.OnRunAbandoned -= Refresh;
+            Loc.RemoveLanguageChangedListener(HandleLanguageChanged);
         }
+
+        private void HandleLanguageChanged(LocalizationLanguage language) => Refresh();
 
         private void HandleRoomCleared(RoomData room) => Refresh();
 

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Combat;
 using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Feedback;
@@ -180,8 +180,9 @@ namespace Abyss.Runtime.Player
         /// 발사 1회분 캡처. 기존 적중 청취자(심연 충전 · 히트스탑)는 <see cref="inner"/> 에 그대로 넘긴다.
         /// 🔑 플레이어가 파괴된 뒤 늦게 맞으면 <c>owner == null</c>(Unity null 비교)로 걸러진다.
         /// </summary>
-        private sealed class RangedMarkShot : IProjectileHitListener, IProjectileEnemyHitListener
+        private sealed class RangedMarkShot : IProjectileHitListener, IProjectileEnemyHitListener, IProjectileCriticalFeedback
         {
+            public bool LastHitWasCritical => inner is IProjectileCriticalFeedback feedback && feedback.LastHitWasCritical;
             private readonly PlayerCharacter owner;
             private readonly IProjectileHitListener inner;
             private readonly FormData firingForm;

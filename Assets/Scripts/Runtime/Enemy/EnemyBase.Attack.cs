@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Abyss.Runtime.Audio;
 using Abyss.Runtime.Combat;
 using Abyss.Runtime.Events;
@@ -17,12 +17,23 @@ namespace Abyss.Runtime.Enemy
     /// </summary>
     public partial class EnemyBase
     {
+        private int attackSequence;
+
+        private void OnDisable()
+        {
+            // 비활성화 전 예비동작·연사를 재활성화 뒤 이어서 재생하지 않는다.
+            attackSequence++;
+            hasStruck = true;
+            OnCombatDisabled();
+        }
+
         /// <summary>
         /// 공격 상태 진입. 예비동작이 0 이면 옛 동작(즉발)이고, 아니면 타격 시각을 잡아 두고
         /// <see cref="EvaluateTransitions"/> 가 그 시각에 <see cref="Strike"/> 를 부른다.
         /// </summary>
         private void BeginAttack()
         {
+            attackSequence++;
             if (target != null) visuals?.Face(target.position.x - transform.position.x);
 
             float windup = data != null ? data.attackWindup : 0f;
@@ -78,15 +89,12 @@ namespace Abyss.Runtime.Enemy
 
             OnAttackStrike();
 
-            bool isMelee = !data.isRanged;
-            if (isMelee && Vector2.Distance(transform.position, target.position) > data.attackRange) return;
-
             PerformAttack();
         }
 
         private void PerformAttack()
         {
-            if (target == null || data == null) return;
+            if (isDead || !isActiveAndEnabled || target == null || data == null) return;
 
             // 곡사가 우선한다. 프리팹 연결이 없으면 아래 직진탄으로 자연히 폴백되므로,
             // 배선이 빠져도 이 적이 무해해지지는 않는다.
@@ -104,6 +112,11 @@ namespace Abyss.Runtime.Enemy
                 return;
             }
 
+            // 휘두른 소리는 회피해도 난다. 예비동작 뒤 근접 사거리 재판정은 그대로 유지한다.
+            PlayAttackSfx();
+            if (!data.isRanged && data.attackWindup > 0f
+                && Vector2.Distance(transform.position, target.position) > data.attackRange) return;
+
             var player = target.GetComponent<PlayerCharacter>();
             if (player != null && !player.IsDead)
             {
@@ -118,8 +131,10 @@ namespace Abyss.Runtime.Enemy
         /// </summary>
         private void FireProjectile()
         {
+            if (data == null || data.projectilePrefab == null || target == null) return;
             Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
             SpawnProjectile(toTarget);
+            PlayAttackSfx();
         }
 
         /// <summary>
@@ -131,6 +146,14 @@ namespace Abyss.Runtime.Enemy
         /// </summary>
         private async void FireBurstAsync()
         {
+            int sequence = attackSequence;
+            bool isInterrupted = false;
+            var attackFsm = fsm;
+            void ObserveInterruption(string previous, string current)
+            {
+                if (current == EnemyStateIds.Stagger || current == EnemyStateIds.Dead) isInterrupted = true;
+            }
+            if (attackFsm != null) attackFsm.OnStateChanged += ObserveInterruption;
             try
             {
                 int shots = Mathf.Max(1, data.burstCount);
@@ -138,7 +161,12 @@ namespace Abyss.Runtime.Enemy
                 {
                     // 연사 도중 죽거나 타겟이 사라질 수 있다 — 대기 구간을 사이에 두면
                     // "그동안 세상이 바뀌었을 수 있다"를 매번 확인해야 한다.
-                    if (isDead || target == null || data == null) return;
+                    if (isDead || !isActiveAndEnabled || target == null || data == null
+                        || sequence != attackSequence || isInterrupted) return;
+                    // 피격 처리가 FSM Update보다 먼저 들어온 프레임도 취소한다. 경직 면역은 존중한다.
+                    if (staggerQueued && !EnemyTimedState.IsStaggerIgnored(
+                        ResistsStaggerWhileAttacking, attackFsm != null ? attackFsm.CurrentStateId : string.Empty,
+                        Time.time, timedStateExitTime)) return;
 
                     FireProjectile();
 
@@ -151,6 +179,10 @@ namespace Abyss.Runtime.Enemy
             catch (OperationCanceledException)
             {
                 // 파괴·씬 전환으로 취소됨. 남은 탄은 쏘지 않는다.
+            }
+            finally
+            {
+                if (attackFsm != null) attackFsm.OnStateChanged -= ObserveInterruption;
             }
         }
 
@@ -170,6 +202,15 @@ namespace Abyss.Runtime.Enemy
             shell.Launch((Vector2)target.position, GetAttackDamage(),
                          data.arcFlightTime, data.arcExplosionRadius, data.arcProjectilePrefab,
                          data.arcExplodes);
+            PlayAttackSfx();
+        }
+
+        private void PlayAttackSfx()
+        {
+            // 보스·중간보스 고유 예고/패턴 효과음과 공용 공격음이 겹치지 않게 한다.
+            if (data == null || this is BossEnemy
+                || data.tier == EnemyTier.Boss || data.tier == EnemyTier.MidBoss) return;
+            PlaySfx(data.attackSfx);
         }
 
         /// <summary>

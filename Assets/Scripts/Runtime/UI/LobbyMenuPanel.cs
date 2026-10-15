@@ -197,6 +197,7 @@ namespace Abyss.Runtime.UI
             codexButton = codex;
             menuButtons = new[] { resume, codex, settings, toTitle, quit };
             MenuButtonNavigation.ApplyVertical(menuButtons);
+            MenuTextReadability.Attach(panel.transform, menuPanel: true);
         }
     }
 }

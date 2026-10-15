@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "kind": "sprite-gen-request",
+  "engine": "component-row",
+  "character": {
+    "id": "midboss_throne_warden",
+    "description": "large broad architectural body of broken city gate chest, two pillar arms, roof slab shoulders, recessed empty door opening, irregular block feet, slate stone pale ivory edges muted rust joints, no face or knight armor",
+    "base_image": "base-source.png"
+  },
+  "cell": {
+    "shape": "square",
+    "width": 124,
+    "height": 124,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12,
+    "size": 124,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "states": {
+    "move": {
+      "frames": 4,
+      "fps": 8,
+      "loop": true,
+      "action": "heavy alternating pillar step. Four distinct progressive poses. Keep exact accepted identity, all limbs and attached objects consistent, generous spacing, no detached effects or particles. First and last flow continuously. Stationary root."
+    },
+    "attack": {
+      "frames": 4,
+      "fps": 4,
+      "loop": false,
+      "action": "pillar arm lifts then slams forward. Four distinct progressive poses. Keep exact accepted identity, all limbs and attached objects consistent, generous spacing, no detached effects or particles. Start ready, clear anticipation/action, recovery."
+    },
+    "hit": {
+      "frames": 4,
+      "fps": 13,
+      "loop": false,
+      "action": "gate torso tilts backward. Four distinct progressive poses. Keep exact accepted identity, all limbs and attached objects consistent, generous spacing, no detached effects or particles. Start ready, clear anticipation/action, recovery."
+    },
+    "dead": {
+      "frames": 4,
+      "fps": 4,
+      "loop": false,
+      "action": "pillars and roof fold into connected flat ruins. Four distinct progressive poses. Keep exact accepted identity, all limbs and attached objects consistent, generous spacing, no detached effects or particles. Clear irreversible progressive collapse, never return to standing."
+    }
+  },
+  "style": "same accepted anchor, chunky low resolution flat pixel clusters, muted tones, no extra detail",
+  "motion_phase_guides": false
+}

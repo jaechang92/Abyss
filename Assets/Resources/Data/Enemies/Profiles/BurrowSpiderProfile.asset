@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ae9844b50fc4826aad66a82272f66d4, type: 3}
+  m_Name: BurrowSpiderProfile
+  m_EditorClassIdentifier:
+  ceilingWait: 3
+  buriedWait: 2.5
+  stuckTimeout: 3
+  recovery: 1.1
+  windup: 0.7
+  dropStrikeDuration: 1.2
+  dashStrikeDuration: 0.3
+  attachmentProbeDistance: 8
+  maxDropDistance: 6
+  dropSpeed: 8
+  hoverHeight: 1
+  dashSpeed: 5
+  movementProgressDistance: 0.1
+  searchRadius: 8
+  candidateSpacing: 0.5
+  maxCandidates: 33
+  connectionSpacing: 0.2
+  maxConnectionSamples: 256
+  maxFloorStep: 0.1
+  floorSkin: 0.02
+  minimumGroundNormalY: 0.95

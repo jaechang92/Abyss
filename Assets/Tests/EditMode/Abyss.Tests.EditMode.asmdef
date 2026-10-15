@@ -3,6 +3,7 @@
     "rootNamespace": "Abyss.Tests.EditMode",
     "references": [
         "Abyss.Runtime",
+        "Unity.InputSystem",
         "GAS.Core",
         "FSM.Core",
         "Anim.Core",

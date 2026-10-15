@@ -1,4 +1,5 @@
 ﻿using System;
+using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Interaction;
 using Abyss.Runtime.UI;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace Abyss.Runtime.Stage
     /// 열 수 있는지(세션 단계·모달·정지·문 전환)는 <see cref="StageDirector"/>가 판정해 넘긴다 — 이 오브젝트는 상태를 들지 않는다.
     /// 씬 배선 없이 방 진입 때 <see cref="Create"/>로 만들고, 방을 떠나면 맵 루트와 함께 치워진다.
     ///
-    /// 그림은 기존 제단 스프라이트를 빌려 쓴다(임시 표현 — 최종 아트는 별도 제작). 없으면 색 사각형.
+    /// 이벤트 ID에 맞는 초기/해결 아트를 표시한다. 전용 아트가 없으면 기존 표현을 유지한다.
     /// </summary>
     public sealed class RoomEventInteractable : MonoBehaviour, IInteractable
     {
@@ -31,22 +32,26 @@ namespace Abyss.Runtime.Stage
 
         private static Sprite whiteSprite;
 
+        private string eventId;
         private string title;
         private Func<bool> canOpen;
         private Action onOpen;
         private SpriteRenderer visual;
+        private TextMesh label;
+        private Color readyColor;
+        private bool isCombatLocked;
         private bool isResolved;
 
         public string InteractionPrompt => $"{title} — 살펴본다 (G)";
 
-        public bool CanInteract => !isResolved && canOpen != null && onOpen != null && canOpen();
+        public bool CanInteract => !isCombatLocked && !isResolved && canOpen != null && onOpen != null && canOpen();
 
         /// <summary>
         /// 발밑(<paramref name="footPosition"/>)에 서는 이벤트 오브젝트를 만든다.
         /// <paramref name="sourceVisual"/>이 있으면 그 스프라이트·크기를 빌리고, 없으면 색 사각형으로 그린다.
         /// </summary>
         public static RoomEventInteractable Create(Transform parent, Vector3 footPosition, string title,
-                                                   SpriteRenderer sourceVisual, Func<bool> canOpen, Action onOpen)
+                                                   SpriteRenderer sourceVisual, Func<bool> canOpen, Action onOpen, string eventId = null)
         {
             var go = new GameObject("WorldEvent_" + title);
             go.transform.SetParent(parent, false);
@@ -54,11 +59,13 @@ namespace Abyss.Runtime.Stage
 
             var target = go.AddComponent<RoomEventInteractable>();
             target.title = title;
+            target.eventId = eventId;
             target.canOpen = canOpen;
             target.onOpen = onOpen;
 
             float height = target.BuildVisual(sourceVisual);
-            CreateLabel(go.transform, title, new Vector3(0f, height + LABEL_GAP, 0f));
+            target.readyColor = target.visual.color;
+            target.label = CreateLabel(go.transform, title, new Vector3(0f, height + LABEL_GAP, 0f));
 
             // 상호작용 판정 — PlayerInteractor 는 트리거 진입으로 후보를 모은다(RoomExitDoor 와 같은 방식).
             var trigger = go.AddComponent<BoxCollider2D>();
@@ -75,11 +82,31 @@ namespace Abyss.Runtime.Stage
             onOpen.Invoke();
         }
 
+        /// <summary>잠금은 그림·고정 라벨로 보여 준다. CanInteract가 false여도 전투 중임을 읽을 수 있다.</summary>
+        public void SetCombatLocked(bool isLocked)
+        {
+            if (isResolved) return;
+            isCombatLocked = isLocked;
+            if (visual != null) visual.color = isLocked ? readyColor * new Color(0.45f, 0.45f, 0.55f, 1f) : readyColor;
+            if (label != null) label.text = title + (isLocked ? "\n잠김 · 주변 적 처치" : "\n개방 · 살펴볼 수 있음");
+        }
+
         /// <summary>해결 표시 — 흐리게 남겨 「이미 응답한 제단」임을 알린다. 상호작용은 다시 받지 않는다.</summary>
+        public void SetArtConsumed(bool consumed)
+        {
+            if (visual == null) return;
+            var art = WorldArtLibrary.Get(WorldArtLibrary.EventKey(eventId, consumed));
+            if (art == null) return;
+            visual.sprite = art;
+            visual.transform.localScale = Vector3.one * (1.8f / art.bounds.size.y);
+            visual.transform.localPosition = Vector3.up * 0.9f;
+        }
+
         public void MarkResolved()
         {
             if (isResolved) return;
             isResolved = true;
+            if (label != null) label.text = title + "\n살펴봄";
             if (visual == null) return;
             var c = visual.color;
             c.a *= RESOLVED_ALPHA_SCALE;
@@ -93,6 +120,15 @@ namespace Abyss.Runtime.Stage
             go.transform.SetParent(transform, false);
             visual = go.AddComponent<SpriteRenderer>();
             visual.sortingOrder = ORDER_VISUAL;
+
+            var art = WorldArtLibrary.Get(WorldArtLibrary.EventKey(eventId, false));
+            if (art != null)
+            {
+                visual.sprite = art;
+                go.transform.localScale = Vector3.one * (1.8f / art.bounds.size.y);
+                go.transform.localPosition = Vector3.up * 0.9f;
+                return 1.8f;
+            }
 
             if (source != null && source.sprite != null)
             {
@@ -115,7 +151,7 @@ namespace Abyss.Runtime.Stage
             return FALLBACK_HEIGHT;
         }
 
-        private static void CreateLabel(Transform parent, string text, Vector3 localPosition)
+        private static TextMesh CreateLabel(Transform parent, string text, Vector3 localPosition)
         {
             var go = new GameObject("Label");
             go.transform.SetParent(parent, false);
@@ -133,6 +169,7 @@ namespace Abyss.Runtime.Stage
             var renderer = go.GetComponent<MeshRenderer>();
             if (mesh.font != null) renderer.sharedMaterial = mesh.font.material;
             renderer.sortingOrder = ORDER_LABEL;
+            return mesh;
         }
 
         /// <summary>1유닛 흰 사각형(피벗 가운데). 빌릴 제단 그림이 없을 때만 쓴다.</summary>

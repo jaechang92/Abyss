@@ -74,6 +74,7 @@ namespace Abyss.Runtime.Enemy
             if (IsDead || isHoldingForEncounter || Target == null || Data == null || Data.projectilePrefab == null)
             {
                 volley.Cancel();
+                EndPatternPresentation();
                 return;
             }
 
@@ -88,10 +89,13 @@ namespace Abyss.Runtime.Enemy
                     PlaySfx(telegraphSfx, volleyTelegraphVolume);
                     TintVisual(VolleyTelegraphColor, telegraph);
                     PunchVisual(volleyPunchMagnitude, telegraph);
+                    BeginPatternPresentation(EnemyAtlasRowIds.Volley, telegraph);
                     break;
 
                 case AbyssKeeperVolleySchedule.Step.Fire:
+                    StrikePatternPresentation();
                     FireFan(CurrentVolleyCount, VolleySpreadAngle);
+                    EndPatternPresentation();
                     break;
             }
         }

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Abyss.Runtime.UI
 {
@@ -18,14 +18,14 @@ namespace Abyss.Runtime.UI
     {
         public const float PanelWidth = 560f;
 
-        /// <summary>행 간격.</summary>
-        public const float RowPitch = 50f;
+        /// <summary>행 간격. 데이터 초기화 행을 넣으며 46 → 44 — 2560×1080에서도 패널이 화면 높이 안에 남게 한다.</summary>
+        public const float RowPitch = 44f;
 
         /// <summary>첫 행(전체 음량) 중심 y.</summary>
-        public const float RowTopY = 173f;
+        public const float RowTopY = (RowCount - 1) * RowPitch * 0.5f;
 
-        /// <summary>음량 3 · 전체 화면 · 해상도 · 언어.</summary>
-        public const int RowCount = 6;
+        /// <summary>음량 3 · 전체 화면 · 해상도 · 언어 · 키보드 · 흔들림 · 보스 번쩍임 · 대사 크기/대비 · 메뉴 글자 · 데이터 초기화.</summary>
+        public const int RowCount = 13;
 
         public const float TitleHeight = 40f;
         public const float KeyGuideHeight = 60f;

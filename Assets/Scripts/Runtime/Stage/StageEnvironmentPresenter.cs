@@ -1,4 +1,4 @@
-using Abyss.Runtime.Camera;
+﻿using Abyss.Runtime.Camera;
 using Abyss.Runtime.Events;
 using UnityEngine;
 
@@ -57,6 +57,10 @@ namespace Abyss.Runtime.Stage
 
         /// <summary>지금 방 전용 아트가 켜져 있는가(검증·디버그용).</summary>
         public bool IsRoomArtShown => isRoomArtShown;
+
+        /// <summary>Another skin must not restore a graybox renderer owned by this active presentation.</summary>
+        public bool KeepsRendererHidden(Renderer renderer)
+            => !StageEnvironmentRule.ShowsGraybox(currentLook) && System.Array.IndexOf(grayboxRenderers, renderer) >= 0;
 
         public StageData Stage => stage;
         public RoomData BossRoom => bossRoom;

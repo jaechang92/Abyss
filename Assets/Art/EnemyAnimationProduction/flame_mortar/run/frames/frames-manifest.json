@@ -1,0 +1,276 @@
+{
+  "ok": true,
+  "engine": "component-row",
+  "run_dir": "D:\\JaeChang\\Abyss\\Assets\\Art\\EnemyAnimationProduction\\flame_mortar\\run",
+  "cell": {
+    "shape": "square",
+    "width": 124,
+    "height": 124,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12,
+    "size": 124,
+    "safe_margin": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "rows": [
+    {
+      "state": "move",
+      "frames": 4,
+      "method": "components",
+      "files": [
+        "frames\\move\\frame-0.png",
+        "frames\\move\\frame-1.png",
+        "frames\\move\\frame-2.png",
+        "frames\\move\\frame-3.png"
+      ],
+      "frame_records": [
+        {
+          "index": 0,
+          "nontransparent_pixels": 5430,
+          "bbox": [
+            12,
+            25,
+            112,
+            98
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 1,
+          "nontransparent_pixels": 5573,
+          "bbox": [
+            12,
+            23,
+            112,
+            100
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 2,
+          "nontransparent_pixels": 5565,
+          "bbox": [
+            12,
+            25,
+            112,
+            99
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 3,
+          "nontransparent_pixels": 5248,
+          "bbox": [
+            12,
+            25,
+            112,
+            99
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        }
+      ],
+      "ok": true
+    },
+    {
+      "state": "attack",
+      "frames": 4,
+      "method": "components",
+      "files": [
+        "frames\\attack\\frame-0.png",
+        "frames\\attack\\frame-1.png",
+        "frames\\attack\\frame-2.png",
+        "frames\\attack\\frame-3.png"
+      ],
+      "frame_records": [
+        {
+          "index": 0,
+          "nontransparent_pixels": 4973,
+          "bbox": [
+            12,
+            27,
+            112,
+            96
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 1,
+          "nontransparent_pixels": 5509,
+          "bbox": [
+            12,
+            22,
+            112,
+            101
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 2,
+          "nontransparent_pixels": 6408,
+          "bbox": [
+            13,
+            12,
+            110,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 3,
+          "nontransparent_pixels": 5554,
+          "bbox": [
+            12,
+            24,
+            112,
+            100
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        }
+      ],
+      "ok": true
+    },
+    {
+      "state": "hit",
+      "frames": 4,
+      "method": "components",
+      "files": [
+        "frames\\hit\\frame-0.png",
+        "frames\\hit\\frame-1.png",
+        "frames\\hit\\frame-2.png",
+        "frames\\hit\\frame-3.png"
+      ],
+      "frame_records": [
+        {
+          "index": 0,
+          "nontransparent_pixels": 5169,
+          "bbox": [
+            12,
+            26,
+            112,
+            98
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 1,
+          "nontransparent_pixels": 5130,
+          "bbox": [
+            12,
+            26,
+            112,
+            97
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 2,
+          "nontransparent_pixels": 4427,
+          "bbox": [
+            12,
+            31,
+            112,
+            93
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 3,
+          "nontransparent_pixels": 5689,
+          "bbox": [
+            12,
+            23,
+            112,
+            101
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        }
+      ],
+      "ok": true
+    },
+    {
+      "state": "dead",
+      "frames": 4,
+      "method": "components",
+      "files": [
+        "frames\\dead\\frame-0.png",
+        "frames\\dead\\frame-1.png",
+        "frames\\dead\\frame-2.png",
+        "frames\\dead\\frame-3.png"
+      ],
+      "frame_records": [
+        {
+          "index": 0,
+          "nontransparent_pixels": 4822,
+          "bbox": [
+            12,
+            28,
+            112,
+            96
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 1,
+          "nontransparent_pixels": 4577,
+          "bbox": [
+            12,
+            28,
+            112,
+            95
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 2,
+          "nontransparent_pixels": 3826,
+          "bbox": [
+            12,
+            36,
+            112,
+            87
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 3,
+          "nontransparent_pixels": 2755,
+          "bbox": [
+            12,
+            43,
+            112,
+            81
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        }
+      ],
+      "ok": true
+    }
+  ],
+  "errors": [],
+  "warnings": []
+}

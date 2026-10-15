@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Abyss.Runtime.Feedback;
 using UnityEngine;
 
@@ -78,6 +78,8 @@ namespace Abyss.Runtime.Enemy
                 float damageMul = isFinalPhase ? finalDamageMultiplier : 1f;
 
                 Debug.Log($"[감시자 거인] 회전베기 발동 — 페이즈 {CurrentPhase}, {hits}연속 (반경 {radius:F1})");
+                // 회전베기는 기본 attack 행으로 그린다(제작 목록 — 감시자 회전베기는 attack 에 포함). 베기마다 타격 프레임부터.
+                BeginPatternPresentation(EnemyAtlasRowIds.Attack, telegraphTime);
 
                 // 예고: 붉은 틴트 + 타격 범위 고정 링 + 차지 효과음 → 플레이어 회피 여지.
                 if (telegraphTime > 0f)
@@ -93,6 +95,7 @@ namespace Abyss.Runtime.Enemy
                 {
                     if (IsDead) return;
 
+                    StrikePatternPresentation();
                     PlaySfx(slashSfx);
                     FlashVisual();
                     PunchVisual(0.15f, comboGap);
@@ -111,6 +114,7 @@ namespace Abyss.Runtime.Enemy
             finally
             {
                 isSpinning = false;
+                EndPatternPresentation();
             }
         }
     }

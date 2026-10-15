@@ -54,8 +54,8 @@ namespace Abyss.Runtime.Stage
                  "설정되어 있으면 hasWeaponReward와 무관하게 무기 보상 룸으로 취급된다(폼 보상과 같은 규약).")]
         public Weapon.WeaponData weaponReward;
 
-        [Header("이벤트 (비전투 방)")]
-        [Tooltip("설정 시 이 방은 이벤트 방이 된다. 적 목록은 비워 둘 것 — 적이 있으면 전투가 끝나야 이벤트가 열린다.")]
+        [Header("이벤트")]
+        [Tooltip("설정 시 이 방은 이벤트 방이 된다. 적이 있으면 전투가 끝나야 이벤트가 열린다.")]
         public EventData eventData;
 
         [Header("상점 (비전투 방)")]
@@ -66,6 +66,15 @@ namespace Abyss.Runtime.Stage
         [Tooltip("LegacyAuto = 기존대로 클리어 즉시 선택 UI를 연다(기본). WorldInteraction = 맵 가운데 오브젝트에 다가가 " +
                  "상호작용해야 연다 — 지금은 맵 이벤트 방(eventData + mapLength > 0)만 지원하고, 아니면 legacy로 진행한다.")]
         public RoomInteractionMode interactionMode = RoomInteractionMode.LegacyAuto;
+
+        [Tooltip("R3 전투 발견물: 맵 월드 이벤트를 진입 때 잠긴 상태로 표시하고, 모든 적·증원 종료 뒤 개방한다. " +
+                 "eventData + WorldInteraction + mapLength > 0인 방에서만 사용한다. 기본 false로 기존 이벤트는 유지한다.")]
+        public bool isCombatDiscovery;
+
+        [Header("정비 공간 (R2 — 21-room-reward-flow §정비 공간)")]
+        [Tooltip("설정 시 이 맵 방은 상인·불씨를 함께 세우는 정비 공간이 된다(StageDirector.Maintenance.cs). " +
+                 "eventData·shopData는 비워 둘 것 — 상점·휴식은 이 데이터가 원본 에셋을 참조한다. 비우면(기본) 기존 동작 그대로.")]
+        public MaintenanceData maintenanceData;
 
         /// <summary>이 방이 폼 보상 룸인지. 플래그 또는 고정 폼 지정 중 하나라도 있으면 보상 룸.</summary>
         public bool IsFormRewardRoom => hasFormReward || formReward != null;
@@ -78,6 +87,9 @@ namespace Abyss.Runtime.Stage
 
         /// <summary>이 방이 상점 방인지. 이벤트 방과 같은 규약(데이터 유무로 판정).</summary>
         public bool IsShopRoom => shopData != null;
+
+        /// <summary>이 방이 정비 공간인지. 같은 규약(데이터 유무로 판정).</summary>
+        public bool IsMaintenanceRoom => maintenanceData != null;
 
         /// <summary>스크롤 맵 방인지. <see cref="mapLength"/>가 0이면 옛 아레나 방이다(하위 호환).</summary>
         public bool IsMapRoom => mapLength > 0f;

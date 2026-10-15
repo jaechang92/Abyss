@@ -210,6 +210,7 @@ namespace Abyss.Runtime.UI
                 right,
             };
             if (down != null) marks.Add(down);
+            if (!hasArrows) TryAddFocusBrackets(group, target, marks, left, right);
             return marks.ToArray();
         }
 

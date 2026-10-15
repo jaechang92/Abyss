@@ -57,6 +57,7 @@ namespace Abyss.Runtime.UI
             // 문단이 두 줄 이상이라 가로 오버플로 대신 줄바꿈이 필요하다(CreateLabel 기본값은 Overflow).
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.lineSpacing = 1.4f;
+            NarrativeReadability.Attach(text, anchor: NarrativeTextAnchor.Center, followsTextAlpha: true);
 
             return new SubtitleSequence(text);
         }

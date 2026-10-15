@@ -766,6 +766,7 @@ MonoBehaviour:
   defaultForm: {fileID: 11400000, guid: 0ab4bdc3dce14984aa084f522d774b1d, type: 2}
   fallbackSprite: {fileID: 0}
   animatorDriver: {fileID: 360500098}
+  formController: {fileID: 564800344}
 --- !u!114 &360500098
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1439,10 +1440,14 @@ GameObject:
   - component: {fileID: 564800342}
   - component: {fileID: 564800341}
   - component: {fileID: 564800340}
+  - component: {fileID: 564800343}
+  - component: {fileID: 564800344}
+  - component: {fileID: 564800338}
+  - component: {fileID: 564800345}
+  - component: {fileID: 564800346}
+  - component: {fileID: 564800347}
   - component: {fileID: 564800335}
   - component: {fileID: 564800339}
-  - component: {fileID: 564800338}
-  - component: {fileID: 564800337}
   m_Layer: 0
   m_Name: LobbyPlayer
   m_TagString: Untagged
@@ -1462,14 +1467,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fba17fae0f0b8cd4d9e366d7a5a0f25a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Lobby.LobbyPlayerController
-  moveSpeed: 6
-  jumpForce: 12
-  groundCheck: {fileID: 1038098169}
-  groundCheckRadius: 0.12
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  body: {fileID: 0}
+  player: {fileID: 564800345}
 --- !u!4 &564800336
 Transform:
   m_ObjectHideFlags: 0
@@ -1485,23 +1483,9 @@ Transform:
   m_Children:
   - {fileID: 360500096}
   - {fileID: 1038098169}
+  - {fileID: 564800349}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &564800337
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 564800334}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cc9aa119c59f8b48a93962c4ccdb683, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Lobby.LobbyAnimationBinder
-  controller: {fileID: 564800335}
-  body: {fileID: 564800342}
-  animatorDriver: {fileID: 360500098}
 --- !u!114 &564800338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1652,8 +1636,318 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &564800343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564800334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c07151da8676cd4a9c764d49dfe5c33, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FSM.Core::FSM.Core.StateMachine
+  isEnableDebugLog: 1
+  initialStateId:
+  currentStateDisplay: None
+  previousStateDisplay: None
+  stateChangeTime: 0
+  inspectorHelper:
+    states: []
+    transitions: []
+    currentStateId:
+    isRunning: 0
+--- !u!114 &564800344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564800334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8cfe0f4e5ba4804eb776bb3f58572be, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Form.FormController
+  slots:
+  - {fileID: 11400000, guid: 0ab4bdc3dce14984aa084f522d774b1d, type: 2}
+  - {fileID: 0}
+  activeSlot: 0
+  config: {fileID: 0}
+--- !u!114 &564800345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564800334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4752d647da573b641916c3e913926412, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Player.PlayerCharacter
+  bloodRageHpThreshold: 0.5
+  bloodRageCooldownMultiplier: 0.7
+  finalStandHpThreshold: 0.25
+  finalStandDamageMultiplier: 2
+  bloodShadeHpThreshold: 0.3
+  bloodShadeDodgeChance: 0.25
+  vampiricSealRatio: 0.05
+  crimsonRadianceMaxHpPerKill: 1
+  crimsonRadianceMaxHpCap: 30
+  deathsPromiseInvulnDuration: 2
+  deathsPromiseRadius: 3
+  deathsPromiseDamage: 20
+  deathsPromiseRingDuration: 0.35
+  bloodShadeFlashDuration: 0.12
+  attackCooldownLight: 0.3
+  attackCooldownHeavy: 0.8
+  attackPoint: {fileID: 564800349}
+  attackBoxSize: {x: 1.6, y: 1.2}
+  lightAttackDamage: 15
+  heavyAttackDamage: 35
+  attackEffect: {fileID: 564800353}
+  lightHitstop: 0.05
+  heavyHitstop: 0.1
+  lightShake: {x: 0.12, y: 0.1}
+  heavyShake: {x: 0.25, y: 0.2}
+  lightFlashColor: {r: 1, g: 1, b: 0.6, a: 1}
+  heavyFlashColor: {r: 1, g: 0.6, b: 0.4, a: 1}
+  lightFlashDuration: 0.12
+  heavyFlashDuration: 0.2
+  guardTintColor: {r: 1, g: 0.85, b: 0.4, a: 1}
+  guardTintStrength: 0.35
+  guardRingRadius: 0.7
+  guardRingDuration: 0.18
+  guardShake: {x: 0.06, y: 0.08}
+  justGuardRingColor: {r: 1, g: 0.95, b: 0.6, a: 1}
+  justGuardRingRadius: 1.3
+  justGuardHitstop: 0.06
+  justGuardShake: {x: 0.2, y: 0.15}
+  baseHp: 100
+  moveSpeed: 6
+  jumpForce: 12
+  dashSpeed: 16
+  dashDuration: 0.15
+  dashCooldown: 0.5
+  groundCheck: {fileID: 1038098169}
+  groundCheckRadius: 0.1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  keenEyeCritChance: 0.1
+  keenEyeCritMultiplier: 1.5
+  holyWardInterval: 5
+  holyWardRingRadius: 0.9
+  holyWardRingDuration: 0.2
+  goldenTouchMultiplier: 1.25
+  flameArmorConversionRatio: 0.1
+  flameArmorRadius: 3
+  flameArmorBurnDuration: 4
+  soulReclaimHealPerKill: 2
+  afterimageRadius: 1.6
+  afterimageDelay: 0.5
+  afterimageDamageRatio: 0.5
+  afterimageGhostAlpha: 0.45
+  afterimageRingDuration: 0.24
+  rangedMuzzleRadius: 0.35
+  rangedMuzzleDuration: 0.15
+  castFlashColor: {r: 0.6, g: 0.9, b: 1, a: 1}
+  castFlashDuration: 0.15
+  castRingRadius: 1.2
+  castRingDuration: 0.3
+  castHitstop: 0.04
+  castShake: {x: 0.1, y: 0.1}
+  deathExplosionRadius: 2.2
+  deathExplosionHpRatio: 0.3
+  deathExplosionDamageCap: 60
+  deathExplosionRingDuration: 0.28
+  counterStanceReflectRatio: 0.4
+  counterStanceRadius: 3
+  counterStanceRingDuration: 0.2
+  body: {fileID: 564800342}
+  formController: {fileID: 564800344}
+  stateMachine: {fileID: 564800346}
+  context: 1
+--- !u!114 &564800346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564800334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 327638fcbaaf90641ba4211e72bb778d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Player.PlayerStateMachine
+  player: {fileID: 564800345}
+  formController: {fileID: 564800344}
+  attackLightDuration: 0.25
+  attackHeavyDuration: 0.6
+  hitDuration: 0.3
+  logStateChanges: 0
+--- !u!114 &564800347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564800334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c96ea79c70cbf534c929d998f41dafc0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Player.PlayerAnimationBinder
+  stateMachine: {fileID: 564800346}
+  animatorDriver: {fileID: 360500098}
+--- !u!1 &564800348
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 564800349}
+  m_Layer: 0
+  m_Name: AttackPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &564800349
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564800348}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.9, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 564800351}
+  m_Father: {fileID: 564800336}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &564800350
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 564800351}
+  - component: {fileID: 564800352}
+  - component: {fileID: 564800353}
+  m_Layer: 0
+  m_Name: AttackEffect
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &564800351
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564800350}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.44, y: 0.9, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 564800349}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &564800352
+SpriteRenderer:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564800350}
+  m_Enabled: 0
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 5
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 21300000, guid: 8bac7315b900c434e862994514140e4e, type: 3}
+  m_Color: {r: 1, g: 0.97, b: 0.62, a: 0.9}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
+--- !u!114 &564800353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564800350}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b3698939f09eee46bb287f8a3a0f033, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Player.AttackEffect
+  sr: {fileID: 564800352}
+  lightDuration: 0.18
+  lightColor: {r: 1, g: 0.97, b: 0.62, a: 0.9}
+  lightFill: {x: 0.9, y: 0.75}
+  heavyDuration: 0.28
+  heavyColor: {r: 1, g: 0.6, b: 0.22, a: 0.92}
+  heavyFill: {x: 1, y: 1}
 --- !u!1 &566349037
 GameObject:
   m_ObjectHideFlags: 0
@@ -1686,6 +1980,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Lobby.DungeonPortal
   promptKey: Portal_Prompt
+  previewSequence: {fileID: 11400000, guid: aec6fe30fa1fba547bbf2c792d294fed, type: 2}
 --- !u!61 &566349039
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2716,6 +3011,7 @@ GameObject:
   - component: {fileID: 796137575}
   - component: {fileID: 796137574}
   - component: {fileID: 796137573}
+  - component: {fileID: 796137577}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2740,8 +3036,8 @@ MonoBehaviour:
   smoothTime: 0.18
   findPlayerAtStart: 0
   constrainToEnvironment: 1
-  environmentMin: {x: -22, y: -8.935543}
-  environmentMax: {x: 22, y: 5.731124}
+  environmentMin: {x: -43.16193, y: -12.15625}
+  environmentMax: {x: 24.713068, y: 10.46875}
 --- !u!81 &796137574
 AudioListener:
   m_ObjectHideFlags: 0
@@ -2785,7 +3081,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5.625
+  orthographic size: 8.4375
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -2801,6 +3097,20 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &796137577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796137572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e2a9c71d4b84f0a8c3d6e1f7a2b4c90, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Abyss.Runtime::Abyss.Runtime.Camera.RunCameraProfile
+  profile: 2
+  logOnApply: 1
 --- !u!4 &796137576
 Transform:
   m_ObjectHideFlags: 0
@@ -5199,8 +5509,8 @@ Transform:
   m_GameObject: {fileID: 1940551723}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.6022096, z: 0}
-  m_LocalScale: {x: 0.64825046, y: 0.64825046, z: 0.64825046}
+  m_LocalPosition: {x: -9.224432, y: -0.84375, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1500396364}

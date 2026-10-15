@@ -10,7 +10,9 @@
         /// <summary>선택을 확인하고 UI를 닫았다. 이어진 드래프트 등 모달이 끝나기를 기다린다.</summary>
         AwaitingModals,
         /// <summary>해결됐다. 출구가 선다.</summary>
-        Resolved
+        Resolved,
+        /// <summary>전투 발견물. 오브젝트는 보이지만 적·증원이 남아 있어 UI를 열 수 없다.</summary>
+        CombatLocked
     }
 
     /// <summary>
@@ -23,12 +25,12 @@
     /// </summary>
     public sealed class RoomInteractionSession
     {
-        public RoomInteractionSession(int entryVersion, string interactionId, RoomData room)
+        public RoomInteractionSession(int entryVersion, string interactionId, RoomData room, bool isCombatLocked = false)
         {
             EntryVersion = entryVersion;
             InteractionId = interactionId;
             Room = room;
-            State = RoomInteractionState.Ready;
+            State = isCombatLocked ? RoomInteractionState.CombatLocked : RoomInteractionState.Ready;
         }
 
         /// <summary>세션을 만든 방 진입 세대. 방 이동·세션 닫기가 세대를 올리면 이 세션은 낡는다.</summary>
@@ -40,6 +42,14 @@
         public RoomData Room { get; }
 
         public RoomInteractionState State { get; private set; }
+
+        /// <summary>디렉터가 전멸·증원 종료를 확인한 뒤 한 번만 개방한다. 선택/해결된 세션은 되돌리지 않는다.</summary>
+        public bool TryUnlockCombat()
+        {
+            if (State != RoomInteractionState.CombatLocked) return false;
+            State = RoomInteractionState.Ready;
+            return true;
+        }
 
         /// <summary>UI를 연다. 준비 상태에서 한 번만 성공한다(연타·두 번째 상호작용 차단).</summary>
         public bool TryBeginPanel()

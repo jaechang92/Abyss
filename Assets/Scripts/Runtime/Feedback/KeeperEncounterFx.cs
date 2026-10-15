@@ -61,14 +61,15 @@ namespace Abyss.Runtime.Feedback
         }
 
         /// <summary>처치 잔향 — 보스 형체가 옅게 떠올라 걷히고, 짧은 빛이 퍼지며 사그라들고, 먼지가 내려앉는다. 약 2.4초.</summary>
-        public static void PlayAftermath(SpriteRenderer source)
+        public static KeeperEncounterFx PlayAftermath(SpriteRenderer source)
         {
-            if (!IsUsable(source)) return;
+            if (!IsUsable(source)) return null;
 
             var fx = Create("KeeperEncounterAftermath", AFTERMATH_SECONDS);
             fx.AddGlow(source);
             fx.AddGhost(source, AftermathGhostColor, 0.05f, Vector3.up * (AFTERMATH_RISE / AFTERMATH_SECONDS), 0.15f);
             fx.AddDust(source, AFTERMATH_DUST_COUNT, 0.9f, 0.5f, 0.6f);
+            return fx;
         }
 
         private static bool IsUsable(SpriteRenderer source) => source != null && source.sprite != null;

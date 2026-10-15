@@ -142,6 +142,9 @@ namespace Abyss.Runtime.UI
 
         private void OnDisable()
         {
+            ScreenEffectPreferences.OnChanged -= HandleScreenEffectPreferencesChanged;
+            SubscribeDeathPresentation(false);
+            CancelDeathPresentation();
             bool isLeavingScene = !gameObject.scene.isLoaded || IsSceneLoading();
             CancelKeeperEncounter(isLeavingScene ? KeeperAbort.KeepPause : KeeperAbort.Release);
         }
@@ -179,7 +182,7 @@ namespace Abyss.Runtime.UI
             bool isCompleted = false;
             try
             {
-                lease = KeeperIntroPanel.Open(keeperTitle, keeperEpithet);
+                lease = KeeperIntroPanel.Open(keeperTitle, keeperEpithet, KEEPER_ENEMY_ID);
                 if (AudioManager.HasInstance) AudioManager.Instance.SetBgmDuck(this, isFirst ? FIRST_BGM_DUCK : RETRY_BGM_DUCK);
 
                 // 열자마자 정지를 쥐지 못했으면(공용 열림 기록 잔존 등) 남의 정지다 — 첫 프레임 판정에서 양보한다.
@@ -381,10 +384,10 @@ namespace Abyss.Runtime.UI
         }
 
         /// <summary>첫 보스 실제 사망에서만 — 보스가 파괴되기 전에 그림을 복제해 둔다. 슬로·사망음·보상은 기존 소유자 몫.</summary>
-        private void PlayKeeperAftermath()
+        private KeeperEncounterFx PlayKeeperAftermath()
         {
-            if (boss is not AbyssKeeperBoss dying || dying.Data == null || dying.Data.enemyId != KEEPER_ENEMY_ID) return;
-            KeeperEncounterFx.PlayAftermath(dying.BodyRenderer);
+            if (boss is not AbyssKeeperBoss dying || dying.Data == null || dying.Data.enemyId != KEEPER_ENEMY_ID) return null;
+            return KeeperEncounterFx.PlayAftermath(dying.BodyRenderer);
         }
 
         private bool HasKeeperLines() => keeperLines != null && keeperLines.Count > 0;

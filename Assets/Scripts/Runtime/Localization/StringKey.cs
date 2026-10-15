@@ -70,6 +70,16 @@
         public const string Draft_Reroll = "Draft_Reroll";
         public const string Draft_Skip = "Draft_Skip";
         public const string Draft_ReplaceSlotTitle = "Draft_ReplaceSlotTitle";
+        public const string Draft_TitleFormat = "Draft_TitleFormat";
+        public const string Draft_RerollExhausted = "Draft_RerollExhausted";
+        public const string Draft_RerollTicketFormat = "Draft_RerollTicketFormat";
+        public const string Draft_RerollCostFormat = "Draft_RerollCostFormat";
+        public const string Draft_SkipRewardFormat = "Draft_SkipRewardFormat";
+        public const string Draft_ReasonLevelUp = "Draft_ReasonLevelUp";
+        public const string Draft_ReasonBossBonus = "Draft_ReasonBossBonus";
+        public const string Draft_ReasonEliteBonus = "Draft_ReasonEliteBonus";
+        public const string Draft_ReasonRoomReward = "Draft_ReasonRoomReward";
+        public const string Draft_ReasonDefault = "Draft_ReasonDefault";
 
         // 카드 호버·포커스 상세 패널(SkillCardDetailsPanel). 폼·공식 줄은 도감의 Codex_Skill_* 를 같이 쓴다.
         public const string DraftDetail_Title = "DraftDetail_Title";
@@ -86,6 +96,10 @@
         public const string Result_ShardsGainedFormat = "Result_ShardsGainedFormat";
         public const string Result_Restart = "Result_Restart";
         public const string Result_MainMenu = "Result_MainMenu";
+        // 사망 결과 패널(ResultPanelPresenter) 전용 — 위 Result_Death·Restart·MainMenu와 문구·목적지가 다르다.
+        public const string Result_RunEnded = "Result_RunEnded";
+        public const string Result_RestartImmediate = "Result_RestartImmediate";
+        public const string Result_ReturnToLobby = "Result_ReturnToLobby";
 
         // ---- 설정 ----
         public const string Settings_MasterVolume = "Settings_MasterVolume";
@@ -95,6 +109,37 @@
         public const string Settings_Resolution = "Settings_Resolution";
         public const string Settings_Language = "Settings_Language";
         public const string Settings_KeyGuide = "Settings_KeyGuide";
+        public const string Settings_Keyboard = "Settings_Keyboard";
+        public const string Settings_CameraShake = "Settings_CameraShake";
+        public const string Settings_ReduceBossFlashes = "Settings_ReduceBossFlashes";
+        public const string Settings_NarrativeTextSize = "Settings_NarrativeTextSize";
+        public const string Settings_MenuTextSize = "Settings_MenuTextSize";
+        public const string Settings_NarrativeContrast = "Settings_NarrativeContrast";
+        public const string Keys_Help = "Keys_Help";
+        public const string Keys_Capture = "Keys_Capture";
+        public const string Keys_CancelGuide = "Keys_CancelGuide";
+        public const string Keys_Cancelled = "Keys_Cancelled";
+        public const string Keys_Saved = "Keys_Saved";
+        public const string Keys_Reset = "Keys_Reset";
+        public const string Keys_ResetDone = "Keys_ResetDone";
+        public const string Keys_Conflict = "Keys_Conflict";
+        public const string Keys_Reserved = "Keys_Reserved";
+        public const string Keys_Invalid = "Keys_Invalid";
+        public const string Keys_SaveFailed = "Keys_SaveFailed";
+        public const string Keys_Unavailable = "Keys_Unavailable";
+        public const string Keys_Move = "Keys_Move";
+        public const string Keys_MoveUp = "Keys_MoveUp";
+        public const string Keys_MoveDown = "Keys_MoveDown";
+        public const string Keys_MoveLeft = "Keys_MoveLeft";
+        public const string Keys_MoveRight = "Keys_MoveRight";
+        public const string Keys_Jump = "Keys_Jump";
+        public const string Keys_Dash = "Keys_Dash";
+        public const string Keys_Attack = "Keys_Attack";
+        public const string Keys_AttackHeavy = "Keys_AttackHeavy";
+        public const string Keys_Skill1 = "Keys_Skill1";
+        public const string Keys_Skill2 = "Keys_Skill2";
+        public const string Keys_FormSwap = "Keys_FormSwap";
+        public const string Keys_Interact = "Keys_Interact";
 
         // ---- 폼 ----
         public const string Form_DarkBlade = "Form_DarkBlade";
@@ -270,6 +315,17 @@
         public const string RunSummary_AbyssEarnedFormat = "RunSummary_AbyssEarnedFormat";
         public const string Run_StageNumberFormat = "Run_StageNumberFormat";
         public const string Run_ReachStepFormat = "Run_ReachStepFormat";
+
+        // ---- 상점 공통 조작·가격 (상품 고유 텍스트 제외) ----
+        public const string Shop_GoldBalanceFormat = "Shop_GoldBalanceFormat";
+        public const string Shop_StockFormat = "Shop_StockFormat";
+        public const string Shop_SoldOut = "Shop_SoldOut";
+        public const string Shop_Buy = "Shop_Buy";
+        public const string Shop_Leave = "Shop_Leave";
+        public const string Shop_CostGoldFormat = "Shop_CostGoldFormat";
+        public const string Shop_CostHpFormat = "Shop_CostHpFormat";
+        public const string Shop_CostGoldHpFormat = "Shop_CostGoldHpFormat";
+        public const string Shop_CostFree = "Shop_CostFree";
 
         // ---- 첫 플레이 튜토리얼 (FirstPlayTutorialController) ----
         // {0} 은 PlayerInput 의 실제 바인딩 표시 문자열이다 — 키 이름을 문구에 박지 않는다.

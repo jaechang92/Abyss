@@ -1,4 +1,4 @@
-using Abyss.Runtime.Enemy;
+﻿using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Feedback;
 using Abyss.Runtime.Player;
 using ObjectPool_Core;
@@ -163,12 +163,30 @@ namespace Abyss.Runtime.Combat
             ReturnToPool();
         }
 
+        /// <summary>
+        /// 런 경계 정리(<see cref="Abyss.Runtime.Run.RunTransientCleanup"/>) — <b>터뜨리지 않고</b> 즉시 회수한다.
+        /// 폭발·피해·링 이펙트 없음(<see cref="Consume"/>와 같은 길). 착탄 예고 링은 정리 쪽이 따로 치운다.
+        /// 이미 회수된 탄이면 false — 여러 번 불러도 풀에 두 번 반환하지 않는다.
+        /// </summary>
+        public bool DiscardSilently()
+        {
+            if (consumed || !gameObject.activeSelf) return false;
+            Consume();
+            return true;
+        }
+
         private void ReturnToPool()
         {
             if (prefabRef != null && PoolManager.HasInstance)
+            {
                 PoolManager.Instance.Release(prefabRef, this);
+            }
             else
+            {
+                // 파괴는 프레임 끝이다 — 그 사이 이동·충돌이 남지 않게 먼저 끈다.
+                gameObject.SetActive(false);
                 Destroy(gameObject);
+            }
         }
 
         // ----- IPoolable -----

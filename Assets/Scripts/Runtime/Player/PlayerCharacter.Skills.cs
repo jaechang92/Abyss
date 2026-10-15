@@ -49,6 +49,11 @@ namespace Abyss.Runtime.Player
 
         private void Start()
         {
+            // 로비 — 드래프트·스킬 보유가 없는 곳이다. 영속 AbilitySystem 의 소유 컨텍스트를 로비 캐릭터로
+            // 바꿔 끼우지 않고, 시너지·패시브 재계산(골드 배율을 RunManager 에 밀어 넣는다)도 하지 않는다.
+            // 스킬 키는 빈 슬롯으로 조용히 무시된다 — 런의 「미보유」와 같은 처리다.
+            if (!IsRunContext) return;
+
             // AbilitySystem은 영속 싱글톤 — 현재 플레이어를 소유 컨텍스트로 (재)연결.
             AbilitySystem.Instance.Initialize(this);
             // 폼 전용 스킬 발동 개시 시 개시 연출을 띄우기 위해 개시 이벤트 구독(효과 완료 전 발화).
@@ -116,6 +121,7 @@ namespace Abyss.Runtime.Player
         private void TryExecuteSlot(int slot)
         {
             if (isDead) return;
+            if (isInputLocked) return;
             if (slot < 0 || slot >= SkillSlotCount) return;
 
             string abilityName = slotNames[slot];
@@ -204,6 +210,8 @@ namespace Abyss.Runtime.Player
 
         private DraftSessionController ResolveDraftSession()
         {
+            // 로비에는 이번 런의 보유 목록이 없다 — 남아 있는 것을 찾아 읽지 않는다(빈 보유로 처리).
+            if (!IsRunContext) return null;
             if (draftSessionRef == null)
             {
                 draftSessionRef = FindAnyObjectByType<DraftSessionController>(FindObjectsInactive.Include);

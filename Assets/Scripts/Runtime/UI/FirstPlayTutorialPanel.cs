@@ -60,6 +60,7 @@ namespace Abyss.Runtime.UI
             Assign(header, headerText);
             Assign(hint, hintText);
             Assign(padHint, padHintText);
+            RefreshReadability();
         }
 
         private static void Assign(Text label, string value)
@@ -89,6 +90,9 @@ namespace Abyss.Runtime.UI
                 new Vector2(110f, 26f), StringKey.Tutorial_Skip, 14);
             skipButton.navigation = new Navigation { mode = Navigation.Mode.None };
             skipButton.onClick.AddListener(() => OnSkipClicked?.Invoke());
+
+            ApplyFrameArt();
+            RefreshReadability();
         }
     }
 }

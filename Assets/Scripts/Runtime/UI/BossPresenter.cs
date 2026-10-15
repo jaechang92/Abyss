@@ -65,6 +65,24 @@ namespace Abyss.Runtime.UI
         private Image flash;
         private float flashStartedAt = -1f;
 
+        private void OnEnable()
+        {
+            ScreenEffectPreferences.OnChanged += HandleScreenEffectPreferencesChanged;
+            SubscribeDeathPresentation(true);
+        }
+
+        private void HandleScreenEffectPreferencesChanged()
+        {
+            if (ScreenEffectPreferences.ReduceBossFlashes && flash != null)
+            {
+                flashStartedAt = -1f;
+                var color = flash.color;
+                color.a = 0f;
+                flash.color = color;
+                flash.gameObject.SetActive(false);
+            }
+        }
+
         // ───────────────────────── 진입 ─────────────────────────
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -106,6 +124,7 @@ namespace Abyss.Runtime.UI
 
             Detach();
             boss = spawned;
+            CaptureDeathOwner();
             stem = Stem(spawned.Data.enemyId);
             boss.OnHpChanged += HandleHpChanged;
             boss.OnPhaseChanged += HandlePhaseChanged;
@@ -113,6 +132,7 @@ namespace Abyss.Runtime.UI
             string title = Line("Title") ?? spawned.Data.displayName;
             string epithet = Line("Epithet") ?? string.Empty;
             PrepareBar(title, epithet);
+            ApplyBarPortrait(spawned.Data.enemyId);
 
             var intro = new List<string>();
             for (int i = 1; i <= MAX_INTRO_LINES; i++)
@@ -131,11 +151,13 @@ namespace Abyss.Runtime.UI
                 ShowBar();
                 return;
             }
-            BossIntroPanel.Play(title, epithet, intro, ShowBar);
+            BossIntroPanel.Play(title, epithet, intro, ShowBar, spawned.Data.enemyId);
         }
 
         private void OnDestroy()
         {
+            CancelDeathPresentation();
+            SubscribeDeathPresentation(false);
             // 씬 이탈 — 정지는 씬 흐름이 소유하므로 풀지 않고 자기 연출만 정리한다.
             CancelKeeperEncounter(KeeperAbort.KeepPause);
             Detach();
@@ -175,10 +197,11 @@ namespace Abyss.Runtime.UI
 
         private void HandleDeath()
         {
+            BeginDeathPresentation();
             if (HitstopController.HasInstance) HitstopController.Instance.TriggerSlow(DEATH_SLOW_SCALE, DEATH_SLOW_SECONDS);
             ShowSubtitle(Line("Death"));
             Flash();
-            PlayKeeperAftermath();
+            deathAftermath = PlayKeeperAftermath();
             barHideAt = Time.unscaledTime + BAR_HIDE_DELAY_SECONDS;
             Detach();
         }
@@ -191,6 +214,7 @@ namespace Abyss.Runtime.UI
             TickKeeperEncounter();
 
             float now = Time.unscaledTime;
+            if (ScreenEffectPreferences.ReduceBossFlashes) HandleScreenEffectPreferencesChanged();
 
             if (trailRatio > targetRatio && now >= trailHoldUntil)
             {
@@ -228,6 +252,7 @@ namespace Abyss.Runtime.UI
                     flash.gameObject.SetActive(false);
                 }
             }
+            TickDeathPresentation();
         }
 
         // ───────────────────────── 표시 ─────────────────────────
@@ -237,6 +262,8 @@ namespace Abyss.Runtime.UI
             nameLabel.text = string.IsNullOrEmpty(epithet)
                 ? title
                 : $"{title}   <size=18><color=#B3B3CC>{epithet}</color></size>";
+
+            RefreshNameReadability();
 
             targetRatio = trailRatio = 1f;
             SetRatio(fillRect, 1f);
@@ -269,6 +296,7 @@ namespace Abyss.Runtime.UI
 
         private void Flash()
         {
+            if (ScreenEffectPreferences.ReduceBossFlashes) { HandleScreenEffectPreferencesChanged(); return; }
             flash.gameObject.SetActive(true);
             flashStartedAt = Time.unscaledTime;
         }
@@ -312,6 +340,7 @@ namespace Abyss.Runtime.UI
             subtitleGroup.blocksRaycasts = false;
             subtitleLabel = CreateLabel(subtitle.transform, "Text", Vector2.zero, new Vector2(1400, 44), string.Empty, 26, SubtitleColor, TextAnchor.MiddleCenter);
             subtitleLabel.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.9f);
+            NarrativeReadability.Attach(subtitleLabel);
             subtitle.SetActive(false);
 
             // 페이즈·처치 번쩍임 — 화면 전체, 클릭을 막지 않는다.
@@ -321,6 +350,9 @@ namespace Abyss.Runtime.UI
             flash.color = new Color(1f, 1f, 1f, 0f);
             flash.raycastTarget = false;
             flashGo.SetActive(false);
+
+            ApplyBarArt(root);
+            CaptureNameReadability();
         }
 
         private static RectTransform CreateFill(Transform parent, string name, Color color)

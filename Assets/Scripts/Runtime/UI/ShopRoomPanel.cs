@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Events;
+using Abyss.Runtime.Localization;
 using Abyss.Runtime.Run;
 using Abyss.Runtime.Stage;
 using UnityEngine;
@@ -57,6 +59,11 @@ namespace Abyss.Runtime.UI
         private Text descriptionText;
         private Text goldText;
 
+        // A2: 상인 초상은 패널 왼쪽 바깥(위 가장자리 맞춤), 골드 아이콘은 잔액 글자 앞.
+        private const float PORTRAIT_SIZE = 180f;
+        private const float PORTRAIT_GAP = 16f;
+        private const float GOLD_ICON_SIZE = 28f;
+
         private readonly List<GameObject> itemRows = new();
         private readonly List<Text> nameLabels = new();
         private readonly List<Text> descLabels = new();
@@ -68,11 +75,12 @@ namespace Abyss.Runtime.UI
         private ShopData current;
 
         // 이번 방문의 품목별 구매 횟수. 재고는 방문 단위로 회복된다(같은 상점을 두 번 만나지 않는다).
-        private readonly int[] purchasedCounts = new int[MAX_ITEMS];
+        // legacy 방문은 패널 배열, 정비 공간 방문은 세션 배열을 가리킨다(ShopRoomPanel.WorldInteraction.cs).
+        private int[] purchasedCounts;
 
         // 무기 슬롯이 이번 방문에 파는 것. 🔴 <b>열 때 한 번 정하고 그 뒤로 안 바꾼다</b> —
         // RefreshItems 는 구매마다 도는데 거기서 뽑으면 물건을 살 때마다 진열이 갈린다.
-        private readonly Weapon.WeaponShop.Offer[] weaponOffers = new Weapon.WeaponShop.Offer[MAX_ITEMS];
+        private Weapon.WeaponShop.Offer[] weaponOffers;
 
         // 떠날 때 열어야 하는 드래프트 횟수. 여러 번 사면 그만큼 쌓인다.
         private int pendingDrafts;
@@ -101,6 +109,7 @@ namespace Abyss.Runtime.UI
 
         private void Show(ShopData data)
         {
+            DetachWorldShop();   // legacy 방문 — 패널 배열로 돌아와 아래에서 초기화한다(세션 배열은 건드리지 않는다)
             current = data;
             pendingDrafts = 0;
             for (int i = 0; i < purchasedCounts.Length; i++) purchasedCounts[i] = 0;
@@ -108,6 +117,7 @@ namespace Abyss.Runtime.UI
 
             if (titleText != null) titleText.text = data.title;
             if (descriptionText != null) descriptionText.text = data.description;
+            BindShopPortrait(data.shopId);
 
             RefreshItems();
             ShowBody();
@@ -118,7 +128,11 @@ namespace Abyss.Runtime.UI
         private void RefreshItems()
         {
             int gold = RunManager.HasInstance ? RunManager.Instance.GoldShards : 0;
-            if (goldText != null) goldText.text = $"보유 골드 {gold}";
+            RefreshShopHeaderText(gold);
+            if (goldText != null)
+            {
+                UiArtDecor.PlaceLeadingIcon(goldText, UiArtKeys.CURRENCY_GOLD_SHARDS, GOLD_ICON_SIZE);
+            }
 
             for (int i = 0; i < itemRows.Count; i++)
             {
@@ -146,10 +160,10 @@ namespace Abyss.Runtime.UI
                 // 왜 못 사는지가 화면에 없으면 버그처럼 보인다 — 잔액 부족은 가격을 붉게 물들여 알린다.
                 costLabels[i].color = (!soldOut && !affordable) ? ShortColor : GoldColor;
 
-                stockLabels[i].text = soldOut ? "품절" : $"남은 재고 {remaining}";
+                stockLabels[i].text = StockText(remaining);
                 stockLabels[i].color = soldOut ? ShortColor : DimColor;
 
-                buyLabels[i].text = soldOut ? "품절" : "구매";
+                buyLabels[i].text = BuyText(soldOut);
                 buyButtons[i].interactable = !soldOut && affordable;
             }
 
@@ -162,6 +176,8 @@ namespace Abyss.Runtime.UI
             if (current == null || index < 0 || index >= current.items.Count) return;
             // 연 프레임의 Submit은 무시한다 — 대화를 끝낸 확인 입력이 같은 프레임에 막 선택된 첫 구매 버튼까지 누를 수 있다.
             if (Time.frameCount == openedFrame) return;
+            // 정비 공간 방문인데 연 쪽 세션이 낡았으면(방 이동·런 종료) 아무것도 바꾸지 않고 닫는다.
+            if (CloseIfWorldOwnerStale()) return;
 
             var item = current.items[index];
             if (purchasedCounts[index] >= item.stock) return;
@@ -172,19 +188,32 @@ namespace Abyss.Runtime.UI
             int gold = RunManager.HasInstance ? RunManager.Instance.GoldShards : 0;
             if (CostOf(index) > gold) return;
 
-            purchasedCounts[index] += 1;
-
             if (item.isWeaponSlot)
             {
-                BuyWeapon(index);
+                // 무기는 실제 차감이 성공한 뒤에만 재고를 쓴다 — 차감 실패로 재고만 사라지지 않게.
+                if (BuyWeapon(index)) purchasedCounts[index] += 1;
             }
             else
             {
-                pendingDrafts += EventEffectApplier.ApplyNonModal(item.effects);
-                Debug.Log($"[ShopRoomPanel] 구매: {item.label} ({item.CostText}) — 대기 드래프트 {pendingDrafts}");
+                purchasedCounts[index] += 1;
+                AddPendingDrafts(EventEffectApplier.ApplyNonModal(item.effects));
+                Debug.Log($"[ShopRoomPanel] 구매: {item.label} ({item.CostText}) — 대기 드래프트 {PendingDraftCount}");
             }
 
             RefreshItems();
+        }
+
+        /// <summary>
+        /// 상인 초상(A2). <see cref="ShopData.shopId"/>로 고른다 — 현지화된 상점 이름으로 고르지 않는다.
+        /// 초상이 없는 상점이면 칸을 끈다(다른 상인 그림으로 대신하지 않는다).
+        /// </summary>
+        private void BindShopPortrait(string shopId)
+        {
+            if (titleText == null || titleText.transform.parent is not RectTransform panel) return;
+            float x = -PANEL_WIDTH * 0.5f - PORTRAIT_GAP - PORTRAIT_SIZE * 0.5f;
+            float y = PANEL_HEIGHT * 0.5f - PORTRAIT_SIZE * 0.5f;
+            var box = new Rect(x - PORTRAIT_SIZE * 0.5f, y - PORTRAIT_SIZE * 0.5f, PORTRAIT_SIZE, PORTRAIT_SIZE);
+            UiArtDecor.ApplyIconInRect(panel, "ArtShopPortrait", UiArtKeys.ShopPortrait(shopId), box, Color.white);
         }
 
         // ───────────────────────── 무기 좌판 ─────────────────────────
@@ -234,17 +263,19 @@ namespace Abyss.Runtime.UI
             }
         }
 
-        private void BuyWeapon(int index)
+        /// <summary>무기를 산다. 값을 치르고 담았으면 true — 호출자는 그때만 재고를 쓴다.</summary>
+        private bool BuyWeapon(int index)
         {
             var offer = weaponOffers[index];
             var run = RunManager.HasInstance ? RunManager.Instance : null;
-            if (run == null) return;
+            if (run == null) return false;
 
             // 🔴 값을 먼저 치르고 나서 담는다. 순서가 뒤집히면 잔액이 모자랄 때 공짜로 얻는다.
-            if (!run.SpendGoldShards(offer.Price)) return;
+            if (!run.SpendGoldShards(offer.Price)) return false;
 
             bool isNew = run.Weapons.Grant(offer.Weapon);
             Debug.Log($"[ShopRoomPanel] 무기 구매: {offer.Weapon.weaponId} (골드 {offer.Price}) — {(isNew ? "신규" : "강화")}");
+            return true;
         }
 
         private static string CurrentFormId()
@@ -264,12 +295,6 @@ namespace Abyss.Runtime.UI
         {
             var item = current.items[index];
             return item.isWeaponSlot ? weaponOffers[index].Price : item.GoldCost;
-        }
-
-        private string CostTextOf(int index)
-        {
-            var item = current.items[index];
-            return item.isWeaponSlot ? $"골드 {weaponOffers[index].Price}" : item.CostText;
         }
 
         private string DisplayNameOf(int index)
@@ -308,6 +333,13 @@ namespace Abyss.Runtime.UI
             // 연 프레임의 Submit으로 열자마자 떠나지 않게 한다(구매 버튼과 같은 가드).
             if (Time.frameCount == openedFrame) return;
 
+            // 정비 공간 방문은 공간 복귀로 닫는다 — 전역 해결 신호를 내지 않는다(ShopRoomPanel.WorldInteraction.cs).
+            if (IsWorldShop)
+            {
+                CloseWorldShop();
+                return;
+            }
+
             ClearOwnedSelection();
 
             int drafts = pendingDrafts;
@@ -344,9 +376,11 @@ namespace Abyss.Runtime.UI
             BuildItemRows(panel.transform);
 
             var leave = CreateButton(panel.transform, "LeaveButton", new Vector2(0, LEAVE_BUTTON_Y), new Vector2(300, 52),
-                "떠난다", 20);
+                Loc.Get(StringKey.Shop_Leave), 20);
             leave.onClick.AddListener(OnLeaveClicked);
             leaveButton = leave;
+            leaveText = leave.GetComponentInChildren<Text>();
+            BuildShopReadability(panel.transform);
         }
 
         private void BuildItemRows(Transform parent)
@@ -375,7 +409,7 @@ namespace Abyss.Runtime.UI
                     string.Empty, 14, DimColor, TextAnchor.MiddleRight);
 
                 var buy = CreateButton(row.transform, "BuyButton", new Vector2(275, 0), new Vector2(130, 52),
-                    "구매", 18);
+                    Loc.Get(StringKey.Shop_Buy), 18);
 
                 int index = i;
                 buy.onClick.AddListener(() => OnBuyClicked(index));

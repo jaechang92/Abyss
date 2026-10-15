@@ -1,4 +1,5 @@
 ﻿using Abyss.Runtime.Events;
+using System;
 using Abyss.Runtime.Interaction;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Run;
@@ -37,6 +38,9 @@ namespace Abyss.Runtime.Weapon
         private bool consumed;
         private float baseAlpha = 1f;
         private Feedback.RewardAltarFeedback feedback;
+        private Func<int, bool> isOwnerValid;
+        private Action<int> onResolved;
+        public int OfferGeneration { get; private set; }
 
         /// <summary>
         /// 무엇을 얻는지 + 이미 가진 것인지. 🔑 <b>「강화」로 읽혀야 중복이 꽝으로 안 보인다.</b>
@@ -56,7 +60,19 @@ namespace Abyss.Runtime.Weapon
         }
 
         // 이미 소비했거나 보상이 비어 있으면 상호작용 불가 — PlayerInteractor의 후보 선정에서 자동 제외된다.
-        public bool CanInteract => !consumed && rewardWeapon != null;
+        public bool CanInteract => !consumed && rewardWeapon != null && IsOfferOwned(OfferGeneration);
+
+        private bool IsOfferOwned(int generation) => isActiveAndEnabled && generation == OfferGeneration &&
+            (isOwnerValid == null || isOwnerValid(generation));
+
+        public void InvalidateOffer()
+        {
+            OfferGeneration++;
+            consumed = true;
+            rewardWeapon = null;
+            isOwnerValid = null;
+            onResolved = null;
+        }
 
         private void Awake()
         {
@@ -70,13 +86,16 @@ namespace Abyss.Runtime.Weapon
         /// 런타임 재설정. 보상 무기를 갈아끼우고 재장전(소비 해제·시각 복원)한 뒤 활성화한다.
         /// 보상 룸 클리어 시 <c>StageDirector</c>가 호출 — 제단 하나를 룸마다 재사용한다(폼 제단과 같다).
         /// </summary>
-        public void Configure(WeaponData reward)
+        public void Configure(WeaponData reward, Func<int, bool> ownerValid = null, Action<int> resolved = null)
         {
             // 비활성 상태면 먼저 켜서 Awake(visual/baseAlpha 확보)를 유발한다.
             if (!gameObject.activeSelf) gameObject.SetActive(true);
 
             rewardWeapon = reward;
+            OfferGeneration++;
             consumed = false;
+            isOwnerValid = ownerValid;
+            onResolved = resolved;
             if (feedback != null) feedback.Configure(reward != null ? reward.icon : null, reward != null);
             if (visual != null)
             {
@@ -91,13 +110,17 @@ namespace Abyss.Runtime.Weapon
             if (!CanInteract) return;
 
             consumed = true;
+            int generation = OfferGeneration;
 
             // 🔴 <b>먼저 담고 나서 알린다.</b> 순서가 뒤집히면 게이트가 풀려 방이 넘어가는 동안
             //    아직 인벤토리에 안 들어간 상태로 폼이 다시 비칠 수 있다.
             var inventory = ResolveInventory();
             int beforeVersion = inventory != null ? inventory.Version : -1;
             inventory?.Grant(rewardWeapon);
+            // Grant의 알림 구독자가 방·런을 바꿨다면 새 제시의 표현/완료를 건드리지 않는다.
+            if (!IsOfferOwned(generation)) return;
             bool granted = inventory != null && inventory.Version != beforeVersion;
+            if (!granted) Debug.LogWarning("[WeaponAltar] 무기 보상이 인벤토리를 변경하지 못했다 — 지급 결과 확인 필요");
             if (feedback != null) feedback.Complete(granted);
             if (granted && Audio.AudioManager.HasInstance && RunManager.Instance.IsRunActive &&
                 (!Flow.SceneFlowController.HasInstance || !Flow.SceneFlowController.Instance.IsLoading))
@@ -113,6 +136,9 @@ namespace Abyss.Runtime.Weapon
             }
 
             ApplyConsumedVisual();
+            var resolved = onResolved;
+            onResolved = null;
+            resolved?.Invoke(generation);
             GameEvents.RaiseWeaponRewardResolved();
         }
 

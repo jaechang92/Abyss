@@ -29,18 +29,25 @@ namespace Abyss.EditorTools
         private const string AllRoomsLog = "[Stage1AllRooms]";
         private const string NewLayoutRootPrefix = "RoomLayout_S1_";
 
-        /// <summary>Stage1 방 하나 — 단계 번호(문 개수 계산용)와 에셋 이름.</summary>
+        /// <summary>
+        /// Stage1 방 하나 — 단계 번호(문 개수 계산용)와 에셋 이름.
+        /// <see cref="AssetName"/>은 지형 규격·원래 레이아웃을 찾는 이름이다 — 정비 공간(R2)은 <see cref="MaintenanceData.LayoutSourceRoom"/>
+        /// (원래 상점 방)의 이름을 쓴다. 바인딩·단계는 실제 방(<see cref="Room"/>·<see cref="StepIndex"/>) 그대로이며,
+        /// 실제 방 에셋 이름은 <see cref="RoomAssetName"/>(새 루트 이름용)이다.
+        /// </summary>
         internal readonly struct Stage1Room
         {
             public readonly RoomData Room;
             public readonly int StepIndex;
             public readonly string AssetName;
+            public readonly string RoomAssetName;
 
-            public Stage1Room(RoomData room, int stepIndex, string assetName)
+            public Stage1Room(RoomData room, int stepIndex, string assetName, string roomAssetName)
             {
                 Room = room;
                 StepIndex = stepIndex;
                 AssetName = assetName;
+                RoomAssetName = roomAssetName;
             }
         }
 
@@ -272,7 +279,10 @@ namespace Abyss.EditorTools
 
         // ───────────────────────────────────────────────────────────── 공용
 
-        /// <summary>Stage1 단계 선택지를 순서대로(중복 없이) 모은다. 규격이 없는 방이 있으면 멈춘다.</summary>
+        /// <summary>
+        /// Stage1 단계 선택지를 순서대로(중복 없이) 모은다. 규격이 없는 방이 있으면 멈춘다.
+        /// 정비 공간은 실제 방·단계를 지키고 규격 이름만 레이아웃 원본 방에서 가져온다(<see cref="LayoutAssetName"/>).
+        /// </summary>
         internal static bool LoadStage1Rooms(out StageData stage, out RoomData bossRoom, out List<Stage1Room> rooms)
         {
             stage = AssetDatabase.LoadAssetAtPath<StageData>(StageAssetPath);
@@ -291,7 +301,7 @@ namespace Abyss.EditorTools
                 foreach (var room in options)
                 {
                     if (room == null || rooms.Any(r => r.Room == room)) continue;
-                    rooms.Add(new Stage1Room(room, i, Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(room))));
+                    rooms.Add(new Stage1Room(room, i, LayoutAssetName(room), AssetNameOf(room)));
                 }
             }
 
@@ -316,13 +326,30 @@ namespace Abyss.EditorTools
             return false;
         }
 
-        /// <summary>방에 묶인 레이아웃 루트. 없으면 RoomLayouts 끝에 새 루트를 붙이고 바인딩을 추가한다(에디터 미리보기는 꺼 둔다).</summary>
+        private static string AssetNameOf(RoomData room) => Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(room));
+
+        /// <summary>정비 공간의 레이아웃 원본 방. 정비 공간이 아니거나 원본이 없으면 null.</summary>
+        private static RoomData LayoutSourceOf(RoomData room) =>
+            room != null && room.maintenanceData != null ? room.maintenanceData.LayoutSourceRoom : null;
+
+        /// <summary>지형 규격·원래 레이아웃 이름 — 정비 공간은 레이아웃 원본 방의 에셋 이름, 나머지는 자기 이름.</summary>
+        internal static string LayoutAssetName(RoomData room)
+        {
+            var source = LayoutSourceOf(room);
+            return AssetNameOf(source != null ? source : room);
+        }
+
+        /// <summary>
+        /// 방에 직접 묶인 레이아웃 루트. 없으면 RoomLayouts 끝에 새 루트를 붙이고 바인딩을 추가한다(에디터 미리보기는 꺼 둔다).
+        /// 정비 공간도 직접 바인딩을 만든다 — 원본 상점 루트는 건드리지 않고, 런타임은 직접 바인딩을 먼저 켜므로 원본은 꺼진 채 남는다.
+        /// </summary>
         private static GameObject FindOrCreateLayoutRoot(RoomLayoutController layouts, Stage1Room entry)
         {
-            var root = FindBoundLayoutRoot(layouts, entry.Room);
+            var root = FindDirectLayoutRoot(layouts, entry.Room);
             if (root != null) return root;
 
-            root = new GameObject(NewLayoutRootPrefix + entry.AssetName);
+            // 루트 이름은 실제 방 이름 — 원본 방 루트(RoomLayout_S1_Room6_Shop_Peddler)와 경로가 겹치지 않게.
+            root = new GameObject(NewLayoutRootPrefix + entry.RoomAssetName);
             root.transform.SetParent(layouts.transform, false);
             root.SetActive(false);
 
@@ -337,7 +364,19 @@ namespace Abyss.EditorTools
             return root;
         }
 
+        /// <summary>
+        /// 런타임(<see cref="RoomLayoutController"/>)이 이 방에서 켜는 레이아웃 루트 — 직접 바인딩이 먼저, 없으면 정비 공간의 레이아웃 원본 방 바인딩.
+        /// </summary>
         internal static GameObject FindBoundLayoutRoot(RoomLayoutController layouts, RoomData room)
+        {
+            var root = FindDirectLayoutRoot(layouts, room);
+            if (root != null) return root;
+            var source = LayoutSourceOf(room);
+            return source != null ? FindDirectLayoutRoot(layouts, source) : null;
+        }
+
+        /// <summary>이 방에 직접 묶인 레이아웃 루트(별칭 없음).</summary>
+        private static GameObject FindDirectLayoutRoot(RoomLayoutController layouts, RoomData room)
         {
             var bindings = new SerializedObject(layouts).FindProperty("bindings");
             for (int i = 0; i < bindings.arraySize; i++)

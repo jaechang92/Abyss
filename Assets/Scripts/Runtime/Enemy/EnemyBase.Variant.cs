@@ -42,7 +42,7 @@ namespace Abyss.Runtime.Enemy
         {
             if (isDead) return;
             isDead = true;
-            if (body != null) StopHorizontal();
+            if (body != null) StopDeadMotion();
             visuals?.Tint(new Color(0.35f, 0.3f, 0.45f, 1f), 1f);
             Destroy(gameObject, data != null ? data.deathLingerDuration : 0.3f);
         }

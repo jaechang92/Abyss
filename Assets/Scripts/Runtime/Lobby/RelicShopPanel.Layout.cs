@@ -73,6 +73,7 @@ namespace Abyss.Runtime.Lobby
             BuildSlots(box);
             BuildGrid(box, catalog, rows);
             BuildFooter(box, messageY, buttonY);
+            BuildReadability();
         }
 
         private void BuildHeader(RectTransform box)

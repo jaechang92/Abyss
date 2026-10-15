@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Localization;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -38,6 +38,7 @@ namespace Abyss.Runtime.UI
         private CanvasGroup titleGroup;
         private Text stageLabel;
         private Text titleLabel;
+        private StageFallReadability readability;
         private bool isPlaying;
         private bool isFinishReported;
         private float startedAt;
@@ -94,6 +95,7 @@ namespace Abyss.Runtime.UI
             stageLabel = CreateLabel(title.transform, "Stage", new Vector2(0, 34), new Vector2(1400, 34), string.Empty, 22, StageLabelColor, TextAnchor.MiddleCenter);
             titleLabel = CreateLabel(title.transform, "Name", new Vector2(0, -20), new Vector2(1400, 70), string.Empty, 52, TitleColor, TextAnchor.MiddleCenter);
             titleLabel.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.8f);
+            readability = StageFallReadability.Attach(body, titleGroup, stageLabel, titleLabel, playerRect);
         }
 
         private void Begin(int stageNumber, string stageTitle, Sprite playerSprite, bool isFlipped)
@@ -112,6 +114,7 @@ namespace Abyss.Runtime.UI
             isPlaying = true;
             startedAt = Time.unscaledTime;
             ShowBody();
+            if (readability != null) readability.Apply();
         }
 
         /// <summary>정지(timeScale 0) 위에서도 Update는 돈다 — 실시간으로 움직인다.</summary>
@@ -121,6 +124,8 @@ namespace Abyss.Runtime.UI
 
             float elapsed = Time.unscaledTime - startedAt;
             Animate(elapsed);
+            // 돌아온 뒤에도 닫힐 때까지 보이므로 배율·화면 변화는 계속 반영한다.
+            if (readability != null) readability.RefreshIfNeeded();
 
             if (isFinishReported) return;
             if (elapsed >= DURATION_SECONDS || elapsed >= INPUT_GRACE_SECONDS && WasSkipPressed()) ReportFinished();

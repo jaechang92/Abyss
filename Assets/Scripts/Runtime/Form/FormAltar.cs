@@ -1,4 +1,5 @@
 ﻿using Abyss.Runtime.Events;
+using System;
 using Abyss.Runtime.Interaction;
 using Abyss.Runtime.Localization;
 using UnityEngine;
@@ -31,6 +32,10 @@ namespace Abyss.Runtime.Form
         private static FormAltar offeringAltar;
         private GameObject offeringInteractor;
         private Feedback.RewardAltarFeedback feedback;
+        private Func<int, bool> isOwnerValid;
+        private Action<int> onResolved;
+        private Action<bool> cancelModal;
+        private bool isOfferResolved;
         public int OfferGeneration { get; private set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -56,7 +61,31 @@ namespace Abyss.Runtime.Form
         public string InteractionPrompt => Loc.Get(string.IsNullOrEmpty(promptKey) ? StringKey.Prompt_FormAltar : promptKey);
 
         // 이미 소비했거나 보상이 비어 있으면 상호작용 불가 — PlayerInteractor의 후보 선정에서 자동 제외된다.
-        public bool CanInteract => !consumed && rewardForm != null;
+        public bool CanInteract => !consumed && rewardForm != null && IsOfferOwned(OfferGeneration);
+
+        private bool IsOfferOwned(int generation) => isActiveAndEnabled && generation == OfferGeneration &&
+            !isOfferResolved && (isOwnerValid == null || isOwnerValid(generation));
+
+        public bool CanResolveOffer(int generation) => consumed && IsOfferOwned(generation);
+
+        public void BindModalCancellation(int generation, Action<bool> cancel)
+        {
+            if (CanResolveOffer(generation)) cancelModal = cancel;
+        }
+
+        public void InvalidateOffer(bool canReleaseModalPause = false)
+        {
+            var cancel = cancelModal;
+            cancelModal = null;
+            isOwnerValid = null;
+            onResolved = null;
+            rewardForm = null;
+            consumed = true;
+            OfferGeneration++;
+            cancel?.Invoke(canReleaseModalPause);
+        }
+
+        private void OnDestroy() => InvalidateOffer();
 
         private void Awake()
         {
@@ -70,14 +99,18 @@ namespace Abyss.Runtime.Form
         /// 런타임 재설정. 보상 폼을 갈아끼우고 재장전(소비 해제·시각 복원)한 뒤 활성화한다.
         /// 보상 룸 클리어 시 StageDirector가 호출 — 제단 하나를 룸마다 재사용한다.
         /// </summary>
-        public void Configure(FormData reward)
+        public void Configure(FormData reward, Func<int, bool> ownerValid = null, Action<int> resolved = null)
         {
+            InvalidateOffer();
             // 비활성 상태면 먼저 켜서 Awake(visual/baseAlpha 확보)를 유발한다.
             if (!gameObject.activeSelf) gameObject.SetActive(true);
 
             rewardForm = reward;
             OfferGeneration++;
             consumed = false;
+            isOfferResolved = false;
+            isOwnerValid = ownerValid;
+            onResolved = resolved;
             if (feedback != null) feedback.Configure(reward != null ? reward.icon : null, reward != null);
             if (visual != null)
             {
@@ -92,6 +125,7 @@ namespace Abyss.Runtime.Form
             if (!CanInteract) return;
 
             consumed = true;
+            int generation = OfferGeneration;
             if (feedback != null) feedback.SetPending();
             var previousOffer = offeringAltar;
             offeringAltar = this;
@@ -102,14 +136,20 @@ namespace Abyss.Runtime.Form
                 offeringInteractor = null;
                 offeringAltar = previousOffer;
             }
-            ApplyConsumedVisual();
+            if (generation == OfferGeneration && consumed && !isOfferResolved) ApplyConsumedVisual();
         }
 
-        // 획득/거절 결과는 모달이 전달하며, 이 메서드는 표현만 바꾼다.
-        public void CompletePresentation(bool acquired, int generation)
+        // 표현이 미배선이어도 같은 제시의 진행 완료는 전달한다. 외부 비활성은 여기로 오지 않는다.
+        public bool CompletePresentation(bool acquired, int generation)
         {
-            if (!consumed || generation != OfferGeneration || feedback == null) return;
-            feedback.Complete(acquired);
+            if (!CanResolveOffer(generation)) return false;
+            isOfferResolved = true;
+            cancelModal = null;
+            var resolved = onResolved;
+            onResolved = null;
+            if (feedback != null) feedback.Complete(acquired);
+            resolved?.Invoke(generation);
+            return true;
         }
 
         // 파괴/비활성 대신 흐리게 남겨 "이미 받은 제단"임을 알린다. 재상호작용은 CanInteract가 차단한다.

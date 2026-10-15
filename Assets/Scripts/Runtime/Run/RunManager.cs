@@ -1,4 +1,4 @@
-using Abyss.Runtime.Draft;
+﻿using Abyss.Runtime.Draft;
 using Abyss.Runtime.Events;
 using Abyss.Runtime.Form;
 using Abyss.Runtime.Meta;
@@ -173,6 +173,9 @@ namespace Abyss.Runtime.Run
         {
             if (isRunActive) return;
 
+            // 방어적 정리 — 지난 런의 탄·예고 링이 어떤 경로로든 남았으면 새 런 첫 방에 섞이지 않게.
+            RunTransientCleanup.Clear();
+
             currentLevel = 1;
             currentExp = 0;
             // 시작 골드 특전(3-2). 업그레이드가 없으면 0이라 지금까지와 같다.
@@ -201,6 +204,10 @@ namespace Abyss.Runtime.Run
                 // 이중 호출 가드 — 정산은 한 번만.
                 return;
             }
+
+            // 결과가 드러나기 전에 날아가던 탄·예고 링을 조용히 치운다 — 결과 화면(timeScale 0) 뒤에서
+            // 얼어붙은 채 로비·다음 런으로 넘어가지 않게. 피해·폭발 없음이라 정산 값에 영향이 없다.
+            RunTransientCleanup.Clear();
 
             isRunActive = false;
             // 구독자가 조회하므로 이벤트 발행보다 먼저 확정해야 한다.
@@ -233,6 +240,9 @@ namespace Abyss.Runtime.Run
         {
             // 이중 호출 가드 — EndRun과 같은 모양.
             if (!isRunActive) return;
+
+            // EndRun 과 같은 이유 — 포기 사실이 드러나기 전에 지난 런의 탄·예고 링을 조용히 치운다.
+            RunTransientCleanup.Clear();
 
             isRunActive = false;
             lastRunEndReason = RunEndReason.Abandoned;

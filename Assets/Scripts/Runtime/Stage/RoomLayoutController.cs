@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Abyss.Runtime.Events;
 using UnityEngine;
@@ -45,15 +45,33 @@ namespace Abyss.Runtime.Stage
 
         private void HandleRoomEntered(RoomData room)
         {
+            var layoutRoom = ResolveLayoutRoom(room);
             for (int i = 0; i < bindings.Count; i++)
             {
                 var binding = bindings[i];
                 if (binding == null || binding.layoutRoot == null) continue;
 
-                bool isMatch = binding.room == room;
+                bool isMatch = binding.room == layoutRoom;
                 if (binding.layoutRoot.activeSelf != isMatch)
                     binding.layoutRoot.SetActive(isMatch);
             }
+        }
+
+        /// <summary>
+        /// 켤 레이아웃의 방. 정비 공간(R2)은 자기 바인딩이 없으면 <see cref="MaintenanceData.LayoutSourceRoom"/>(원래 상점 방)의
+        /// 레이아웃을 빌린다 — 씬 재생성 없이 기존 직렬화 바인딩을 그대로 쓴다. 직접 등록된 바인딩이 있으면 그것이 우선이다.
+        /// </summary>
+        private RoomData ResolveLayoutRoom(RoomData room)
+        {
+            var source = room != null && room.maintenanceData != null ? room.maintenanceData.LayoutSourceRoom : null;
+            if (source == null) return room;
+
+            for (int i = 0; i < bindings.Count; i++)
+            {
+                var binding = bindings[i];
+                if (binding != null && binding.layoutRoot != null && binding.room == room) return room;
+            }
+            return source;
         }
 
         private void ActivateOnly(int index)

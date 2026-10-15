@@ -16,9 +16,9 @@ namespace Abyss.EditorTools
     /// <summary>
     /// Stage1 전 방 적용 결과 검증 — <b>읽기 전용</b>(표현 전환 시뮬레이션 뒤 저장하지 않고 씬을 다시 연다). 로그 접두어 <c>[S1-ALL]</c>.
     /// <list type="bullet">
-    /// <item>Stage1 11방: 콜라이더 = 규격 · 스킨 일치 · 필수 경로 오르기 한도(실제 점프 값) · 착지 폭 · 석판 머리 공간 · 선택 석판 도달 점프 수 ·
+    /// <item>Stage1 10방(단계 선택지): 콜라이더 = 규격 · 스킨 일치 · 필수 경로 오르기 한도(실제 점프 값) · 착지 폭 · 석판 머리 공간 · 선택 석판 도달 점프 수 ·
     /// 입구/문/제단 평탄 · 적 등장 바닥·가장자리 거리 · 보스 평탄 폭 · 지형 분포 · 배경 덮임.</item>
-    /// <item>Stage2/3: 레이아웃 콜라이더가 RoomLayoutBuilder 원래 값 그대로인가(이전 불변 검사), 새 아트 스킨이 없는가.</item>
+    /// <item>Stage2/3(시퀀스의 Stage1 아닌 단계 선택지 방): 레이아웃 콜라이더가 RoomLayoutBuilder 원래 값 그대로인가(이전 불변 검사), 새 아트 스킨이 없는가.</item>
     /// <item>표현 전환: Stage1 모든 방 → Stage2 방 → 스테이지 밖.</item>
     /// </list>
     /// </summary>
@@ -58,7 +58,7 @@ namespace Abyss.EditorTools
             }
 
             if (sprites != null) ValidateStage1Layouts(report, scene, stage, bossRoom, rooms, layouts, sprites[KeyBackground], out _);
-            ValidateOtherStageLayouts(report, layouts, rooms);
+            ValidateOtherStageLayouts(report, layouts, stage, rooms);
             if (isWired) ValidateAllRoomsSwitching(report, presenter, so, stage, bossRoom, rooms, artRoot);
 
             EditorSceneManager.OpenScene(RunScenePath, OpenSceneMode.Single);
@@ -325,10 +325,28 @@ namespace Abyss.EditorTools
 
         // ───────────────────────────────────────────────────────────── Stage2/3 · 전환
 
-        /// <summary>Stage1 이 아닌 바인딩 — 콜라이더가 RoomLayoutBuilder 원래 값 그대로이고 새 아트 스킨이 없는가.</summary>
-        private static void ValidateOtherStageLayouts(C2Report report, RoomLayoutController layouts, List<Stage1Room> rooms)
+        /// <summary>
+        /// Stage2/3 바인딩 — 콜라이더가 RoomLayoutBuilder 원래 값 그대로이고 새 아트 스킨이 없는가.
+        /// 대상은 시퀀스의 Stage1 아닌 스테이지 단계 선택지 방이다. Stage1 경로에서 빠진 원본 방(정비 공간 이전 상점·휴식 —
+        /// 레이아웃 원본·되돌리기용으로 남은 바인딩)은 어느 스테이지 경로에도 없으므로 대상이 아니다.
+        /// </summary>
+        private static void ValidateOtherStageLayouts(C2Report report, RoomLayoutController layouts, StageData stage, List<Stage1Room> rooms)
         {
+            var sequence = AssetDatabase.LoadAssetAtPath<StageSequenceData>(SequenceAssetPath);
+            if (sequence == null || stage == null || !sequence.stages.Contains(stage))
+            {
+                report.Check("Stage2/3 레이아웃 불변", false,
+                             $"분류 데이터 없음 — 시퀀스 {SequenceAssetPath} {sequence != null} · Stage1 {stage != null} · 시퀀스에 Stage1 포함 {sequence != null && stage != null && sequence.stages.Contains(stage)}");
+                return;
+            }
+
+            var otherRooms = new HashSet<RoomData>(sequence.stages.Where(s => s != null && s != stage)
+                                                           .SelectMany(s => s.steps).Where(step => step?.options != null)
+                                                           .SelectMany(step => step.options).Where(r => r != null));
             var problems = new List<string>();
+            var outsideRoute = new List<string>();
+            if (otherRooms.Count == 0) problems.Add("시퀀스에 Stage2/3 방 없음");
+
             int checkedRooms = 0;
             var bindings = new SerializedObject(layouts).FindProperty("bindings");
             for (int i = 0; i < bindings.arraySize; i++)
@@ -337,6 +355,7 @@ namespace Abyss.EditorTools
                 var room = element.FindPropertyRelative("room").objectReferenceValue as RoomData;
                 var root = element.FindPropertyRelative("layoutRoot").objectReferenceValue as GameObject;
                 if (room == null || root == null || rooms.Any(r => r.Room == room)) continue;
+                if (!otherRooms.Contains(room)) { outsideRoute.Add(AssetNameOf(room)); continue; }
 
                 string assetName = System.IO.Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(room));
                 if (!RoomLayoutBuilder.TryGetPlatforms(assetName, out var legacy)) { problems.Add($"{assetName} 원래 규격 없음"); continue; }
@@ -352,11 +371,12 @@ namespace Abyss.EditorTools
                 if (root.GetComponentsInChildren<Transform>(true).Any(t => t.name == TerraceArtName || t.name == SlabArtName))
                     problems.Add($"{assetName} 에 Stage1 새 아트 스킨이 있다");
             }
+            string excluded = outsideRoute.Count > 0 ? $" · 경로 밖(Stage1 원본 방) {outsideRoute.Count}개 제외: {string.Join(", ", outsideRoute)}" : "";
             report.Check("Stage2/3 레이아웃 불변", problems.Count == 0 && checkedRooms > 0,
-                         problems.Count == 0 ? $"{checkedRooms}방 — RoomLayoutBuilder 원래 좌표 그대로 · 새 아트 없음" : string.Join(" · ", problems));
+                         (problems.Count == 0 ? $"{checkedRooms}방 — RoomLayoutBuilder 원래 좌표 그대로 · 새 아트 없음" : string.Join(" · ", problems)) + excluded);
         }
 
-        /// <summary>Stage1 11방 → Stage2 방 → 스테이지 밖 → Stage1 첫 방 순으로 표현을 돌린다(저장 안 함).</summary>
+        /// <summary>Stage1 10방 → Stage2 방 → 스테이지 밖 → Stage1 첫 방 순으로 표현을 돌린다(저장 안 함).</summary>
         private static void ValidateAllRoomsSwitching(C2Report report, StageEnvironmentPresenter presenter, SerializedObject so,
                                                       StageData stage, RoomData bossRoom, List<Stage1Room> rooms, GameObject artRoot)
         {

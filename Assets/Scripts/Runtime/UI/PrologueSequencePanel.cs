@@ -315,6 +315,7 @@ namespace Abyss.Runtime.UI
             var subtitleRect = (RectTransform)body.transform.Find("Subtitle");
             subtitleRect.anchoredPosition = new Vector2(0f, -320f);
             subtitleRect.sizeDelta = new Vector2(1100f, 200f);
+            subtitleRect.GetComponent<NarrativeReadability>().CaptureLayout();
 
             skipHint = CreateLabel(body.transform, "SkipHint", new Vector2(0, -460), new Vector2(600, 30),
                 string.Empty, 15, new Color(0.5f, 0.5f, 0.6f), TextAnchor.MiddleCenter);

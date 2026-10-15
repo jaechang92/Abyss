@@ -32,6 +32,7 @@ MonoBehaviour:
   isRanged: 0
   hitSfx: {fileID: 8300000, guid: 8da7d1f118caa1941915241d82449ae7, type: 3}
   deathSfx: {fileID: 8300000, guid: 9953f3ee1680d9f4b85c37fad829f8df, type: 3}
+  attackSfx: {fileID: 8300000, guid: 96ec372af7bad614ea6bf1b0847a2a26, type: 3}
   projectilePrefab: {fileID: 0}
   projectileSpeed: 8
   projectileLifetime: 3

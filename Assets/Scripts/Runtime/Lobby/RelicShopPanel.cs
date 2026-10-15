@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
+using Abyss.Runtime.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,6 +28,8 @@ namespace Abyss.Runtime.Lobby
     /// </summary>
     public sealed partial class RelicShopPanel : MonoBehaviour
     {
+        private const float SHARDS_ICON_SIZE = 28f; // A2 심연 조각 아이콘
+
         [Header("루트")]
         [Tooltip("토글 대상. 비우면 이 컴포넌트의 GameObject.")]
         [SerializeField] private GameObject root;
@@ -92,6 +96,7 @@ namespace Abyss.Runtime.Lobby
             bool isFirstOpen = !IsOpen;
             onClosed = closed;
             EnsureBuilt();
+            RefreshReadabilityLabels();
             SetMessage(string.Empty);
             Refresh();
             isRootHidePending = false;
@@ -134,16 +139,14 @@ namespace Abyss.Runtime.Lobby
 
             if (meta.Current.abyssShardsTotal < RelicGacha.DRAW_COST)
             {
-                SetMessage(Loc.Get(StringKey.Relic_NotEnough));
+                SetLocalizedMessage(StringKey.Relic_NotEnough);
                 return;
             }
 
             if (!meta.TryDrawRelic(out var drawn, out bool isDuplicate) || drawn == null)
             {
                 // 잔액은 위에서 봤으므로 여기 오면 후보가 없다는 뜻이다(에셋 미생성 등).
-                SetMessage(Loc.Get(StringKey.Relic_NotEnough));
-                Debug.LogWarning("[RelicShopPanel] 감정 실패 — 유물 카탈로그가 비어 있는지 확인할 것 " +
-                                 "(Generate > Relic Content).");
+                SetLocalizedMessage(RelicCatalog.All.Length > 0 ? StringKey.SaveStatus_WriteFailed : StringKey.Relic_NotEnough);
                 return;
             }
 
@@ -152,18 +155,21 @@ namespace Abyss.Runtime.Lobby
 
             if (!isDuplicate)
             {
-                SetMessage(Loc.GetFormat(StringKey.Relic_GainedFormat, relicName));
+                SetLocalizedMessage(StringKey.Relic_GainedFormat, relicName);
+                readingMessageRelic = drawn;
                 // 처음 얻은 유물은 빈 슬롯이 있으면 바로 끼워 준다 — 뽑아 놓고 효과가 없는
                 // 상태로 나가는 것이 이 시스템에서 가장 흔한 오해다.
                 TryAutoEquip(drawn.relicId);
             }
             else if (level >= drawn.maxLevel)
             {
-                SetMessage(Loc.GetFormat(StringKey.Relic_MaxedFormat, relicName));
+                SetLocalizedMessage(StringKey.Relic_MaxedFormat, relicName);
+                readingMessageRelic = drawn;
             }
             else
             {
-                SetMessage(Loc.GetFormat(StringKey.Relic_LevelUpFormat, relicName, level));
+                SetLocalizedMessage(StringKey.Relic_LevelUpFormat, relicName, level);
+                readingMessageRelic = drawn;
             }
 
             Refresh();
@@ -178,7 +184,7 @@ namespace Abyss.Runtime.Lobby
             for (int i = 0; i < equipped.Count; i++)
             {
                 if (!string.IsNullOrEmpty(equipped[i])) continue;
-                meta.TryEquipRelic(relicId, i);
+                if (!meta.TryEquipRelic(relicId, i)) SetLocalizedMessage(StringKey.SaveStatus_WriteFailed);
                 return;
             }
         }
@@ -203,7 +209,12 @@ namespace Abyss.Runtime.Lobby
                 for (int i = 0; i < equipped.Count; i++)
                 {
                     if (equipped[i] != relicId) continue;
-                    meta.UnequipRelicSlot(i);
+                    if (!meta.UnequipRelicSlot(i))
+                    {
+                        SetLocalizedMessage(StringKey.SaveStatus_WriteFailed);
+                        Refresh();
+                        return;
+                    }
                     break;
                 }
                 SetMessage(string.Empty);
@@ -215,13 +226,18 @@ namespace Abyss.Runtime.Lobby
             for (int i = 0; i < current.Count; i++)
             {
                 if (!string.IsNullOrEmpty(current[i])) continue;
-                meta.TryEquipRelic(relicId, i);
+                if (!meta.TryEquipRelic(relicId, i))
+                {
+                    SetLocalizedMessage(StringKey.SaveStatus_WriteFailed);
+                    Refresh();
+                    return;
+                }
                 SetMessage(string.Empty);
                 Refresh();
                 return;
             }
 
-            SetMessage(Loc.Get(StringKey.Relic_SlotsFull));
+            SetLocalizedMessage(StringKey.Relic_SlotsFull);
         }
 
         private void OnSlotClicked(SlotView slot)
@@ -229,7 +245,11 @@ namespace Abyss.Runtime.Lobby
             if (IsOpenedThisFrame) return;
             var meta = MetaSaveService.Instance;
             if (meta == null || slot == null) return;
-            if (!meta.UnequipRelicSlot(slot.Index)) return;
+            if (!meta.UnequipRelicSlot(slot.Index))
+            {
+                SetLocalizedMessage(StringKey.SaveStatus_WriteFailed);
+                return;
+            }
 
             SetMessage(string.Empty);
             Refresh();
@@ -239,6 +259,9 @@ namespace Abyss.Runtime.Lobby
 
         private void SetMessage(string text)
         {
+            readingMessageKey = null;
+            readingMessageArgs = null;
+            readingMessageRelic = null;
             if (messageLabel != null) messageLabel.text = text;
         }
 
@@ -249,7 +272,12 @@ namespace Abyss.Runtime.Lobby
             if (meta == null) return;
 
             int shards = meta.Current.abyssShardsTotal;
-            if (shardsLabel != null) shardsLabel.text = Loc.GetFormat(StringKey.Altar_ShardsFormat, shards);
+            if (shardsLabel != null)
+            {
+                shardsLabel.text = Loc.GetFormat(StringKey.Altar_ShardsFormat, shards);
+                // A2 심연 조각 아이콘 — 실제 잔액 글자 앞. 글자 폭이 바뀌므로 잔액을 쓸 때마다 다시 맞춘다.
+                UiArtDecor.PlaceLeadingIcon(shardsLabel, UiArtKeys.CURRENCY_ABYSS_SHARDS, SHARDS_ICON_SIZE);
+            }
 
             bool canDraw = shards >= RelicGacha.DRAW_COST;
             if (drawButton != null) drawButton.interactable = canDraw;
@@ -258,6 +286,7 @@ namespace Abyss.Runtime.Lobby
             RefreshSlots(meta);
             RefreshTiles(meta);
             RefreshNavigation();
+            if (readingScroll != null) ApplyReadability();
         }
 
         private void RefreshSlots(MetaSaveService meta)

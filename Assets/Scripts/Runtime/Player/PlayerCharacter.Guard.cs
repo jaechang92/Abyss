@@ -1,4 +1,4 @@
-using Abyss.Runtime.Enemy;
+﻿using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Feedback;
 using Abyss.Runtime.Form;
 using UnityEngine;
@@ -126,7 +126,8 @@ namespace Abyss.Runtime.Player
 
             // PlayerInput 이 꺼져 있으면(일시정지 · 모달) 누르고 있어도 가드가 아니다.
             if (heavyAttackAction == null || cachedPlayerInput == null || !cachedPlayerInput.inputIsActive) return false;
-            return heavyAttackAction.IsPressed();
+            // 외부 잠금 중이거나, 잠금 전부터 누른 채 남은 키면 가드가 아니다(PlayerCharacter.Context).
+            return FilterHeldInput(heavyAttackAction.IsPressed());
         }
 
         /// <summary>출처가 있는 피해가 들어왔을 때의 가드 판정(<c>TakeDamage(int, Vector2)</c> 가 부른다).</summary>
@@ -190,13 +191,15 @@ namespace Abyss.Runtime.Player
             if (outcome == GuardOutcome.JustGuarded)
             {
                 // 「잘했다」가 일반 가드와 분명히 달라야 한다 — 큰 링 · 짧은 멈춤 · 강한 흔들림.
-                BossAreaEffect.Spawn(front, justGuardRingRadius, justGuardRingColor, guardRingDuration);
+                if (!WorldArtFx.Play("just-guard", front, justGuardRingRadius * 2f, guardRingDuration, facingSign, transform))
+                    BossAreaEffect.Spawn(front, justGuardRingRadius, justGuardRingColor, guardRingDuration);
                 if (HitstopController.HasInstance) HitstopController.Instance.Trigger(justGuardHitstop);
                 TriggerShake(justGuardShake);
                 return;
             }
 
-            BossAreaEffect.Spawn(front, guardRingRadius, guardTintColor, guardRingDuration);
+            if (!WorldArtFx.Play("block-impact", front, guardRingRadius * 2f, guardRingDuration, facingSign, transform))
+                BossAreaEffect.Spawn(front, guardRingRadius, guardTintColor, guardRingDuration);
             TriggerShake(guardShake);
         }
 

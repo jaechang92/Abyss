@@ -18,9 +18,8 @@ namespace Abyss.Runtime.UI
     /// 인스턴스를 공유하므로 씬에 배치하지 않고 <c>DontDestroyOnLoad</c>로 들고 다닌다.
     /// ESC도 자기가 소유한다(Update 폴링). 그래서 씬 빌더 수정 없이 동작하며, 진입 버튼만 각 화면이 붙인다.
     ///
-    /// 스크롤 대신 <b>그리드 + 페이지 넘김</b>을 쓴다. 프로젝트 전체에 ScrollRect·LayoutGroup 사용처가
-    /// 없어(모든 UI가 UiFactory 수동 좌표) 코드로 조립한 ScrollRect 하나만 규약을 벗어나게 되고,
-    /// 페이지 방식은 스킬이 60~80종으로 늘어도 그대로 버틴다.
+    /// 목록은 <b>그리드 + 페이지 넘김</b>을 유지한다. 확대된 이름과 긴 상세·기록은
+    /// CodexPanel.Readability의 스크롤 영역으로 읽으며 기존 페이지 크기와 선택 인덱스는 유지한다.
     /// </summary>
     public sealed partial class CodexPanel : MonoBehaviour
     {
@@ -191,6 +190,7 @@ namespace Abyss.Runtime.UI
             }
 
             bool isRecords = currentTab == CodexTab.Records;
+            SetReadabilityTab(isRecords);
             gridRoot.SetActive(!isRecords);
             detailRoot.SetActive(!isRecords);
             recordsText.gameObject.SetActive(isRecords);
@@ -202,6 +202,7 @@ namespace Abyss.Runtime.UI
                 countLabel.text = string.Empty;
                 recordsText.text = BuildLastRunText();
                 recordsSecondaryText.text = BuildRecordsText();
+                ApplyReadability(true);
                 RefreshNavigation();
                 return;
             }
@@ -210,6 +211,7 @@ namespace Abyss.Runtime.UI
             RefreshGrid();
             RefreshPager();
             RefreshDetail();
+            ApplyReadability(true);
             RefreshNavigation();
         }
 

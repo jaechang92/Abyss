@@ -103,12 +103,14 @@ namespace Abyss.Runtime.UI
             float buttonY = TopToCenterY(DRAFT_BUTTON_TOP, DraftButtonSize.y);
             ApplyDraftButton(reroll, rerollLabel, new Vector2(-DRAFT_BUTTON_X, buttonY), ppu);
             ApplyDraftButton(skip, skipLabel, new Vector2(DRAFT_BUTTON_X, buttonY), ppu);
+            ApplyRerollIcon(reroll, rerollLabel);
 
             if (buildContext != null) ApplyBuildContext(buildContext.transform, ppu);
 
             // 시안의 얇은 금속 테두리 — 위에서 만든 석판 프레임을 끄고 드래프트 대상에만 덧씌운다(공유 석판 규칙은 그대로).
             DraftArtSkin.Apply(mainPanel, slot, cards, reroll, skip,
                 buildContext != null ? buildContext.transform : null, ppu);
+            if (buildContext != null) buildContext.AttachReadability();
         }
 
         /// <summary>MainPanel 위 가장자리에서 잰 top·높이 → 중심 원점 y.</summary>
@@ -227,7 +229,7 @@ namespace Abyss.Runtime.UI
         }
 
         /// <summary>
-        /// 현재 빌드 패널. 글자 24로 키우되 내용(Refresh 문구)은 그대로다. 보유 목록이 영역을 넘으면 기존처럼 아랫줄이 잘린다.
+        /// 현재 빌드 패널의 기준 스킨. 긴 목록의 확대·스크롤은 스킨 적용 후 연결한다.
         /// </summary>
         private static void ApplyBuildContext(Transform panel, float ppu)
         {

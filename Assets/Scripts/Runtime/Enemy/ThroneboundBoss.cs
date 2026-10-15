@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Abyss.Runtime.Feedback;
 using UnityEngine;
 
@@ -105,6 +105,8 @@ namespace Abyss.Runtime.Enemy
                 Vector3 center = blink ? ResolveBlinkDestination() : transform.position;
 
                 Debug.Log($"[왕좌의 영혼] {(blink ? "순간이동 슬래시" : "제자리 슬래시")} 발동 — 페이즈 {CurrentPhase}");
+                // 순간이동 슬래시 = blink 행, 제자리 슬래시 = 기본 attack 행. 예고 시간이 준비 자세 시간이다.
+                BeginPatternPresentation(blink ? EnemyAtlasRowIds.Blink : EnemyAtlasRowIds.Attack, telegraphTime);
 
                 // 예고는 '지금 서 있는 곳'이 아니라 '벨 곳'에 띄운다.
                 if (telegraphTime > 0f)
@@ -123,6 +125,7 @@ namespace Abyss.Runtime.Enemy
                     PunchVisual(0.22f, 0.2f);
                 }
 
+                StrikePatternPresentation();
                 PlaySfx(slashSfx);
                 FlashVisual();
                 SpawnAreaEffect(slashRadius, ThroneColor);
@@ -142,6 +145,7 @@ namespace Abyss.Runtime.Enemy
             finally
             {
                 isStriking = false;
+                EndPatternPresentation();
             }
         }
 

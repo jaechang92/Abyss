@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Abyss.Runtime.Meta
@@ -34,7 +34,7 @@ namespace Abyss.Runtime.Meta
         public bool OwnsRelic(string relicId) => GetRelicLevel(relicId) > 0;
 
         /// <summary>
-        /// 유물 1회 뽑기. 잔액 부족·후보 없음이면 false이고 <b>아무것도 바뀌지 않는다</b>.
+        /// 유물 1회 뽑기. 잔액 부족·후보 없음·저장 실패이면 false이고 <b>아무것도 바뀌지 않는다</b>.
         ///
         /// <paramref name="drawn"/>은 뽑힌 유물, <paramref name="isDuplicate"/>는 이미 갖고
         /// 있던 것인지다. 화면이 "새로 얻었다"와 "레벨이 올랐다"를 다르게 말해야 하기 때문에
@@ -54,16 +54,18 @@ namespace Abyss.Runtime.Meta
             var candidate = RelicGacha.Draw(RelicCatalog.All);
             if (candidate == null || string.IsNullOrEmpty(candidate.relicId)) return false;
 
+            var previous = new RelicMutationSnapshot(current);
             current.abyssShardsTotal -= RelicGacha.DRAW_COST;
 
             int level = GetRelicLevel(candidate.relicId);
-            isDuplicate = level > 0;
+            bool duplicate = level > 0;
             // 최대 레벨이면 레벨은 그대로 둔다. 조각은 이미 나갔고, 그 사실을 화면이
             // "최대치"로 말한다 — 여기서 조용히 되돌리면 표시와 잔액이 어긋난다.
             SetRelicLevel(candidate.relicId, Mathf.Min(level + 1, candidate.maxLevel));
 
+            if (!TrySaveRelicMutation(previous)) return false;
             drawn = candidate;
-            Save();
+            isDuplicate = duplicate;
             return true;
         }
 
@@ -83,7 +85,7 @@ namespace Abyss.Runtime.Meta
         }
 
         /// <summary>
-        /// 유물을 슬롯에 끼운다. 미보유·슬롯 범위 밖이면 false.
+        /// 유물을 슬롯에 끼운다. 미보유·슬롯 범위 밖·자동 저장 실패이면 false.
         ///
         /// 같은 유물이 이미 <b>다른</b> 슬롯에 있으면 그 슬롯을 비운다(자리 이동).
         /// 두 슬롯에 같은 유물이 앉으면 효과가 두 번 더해져, 화면상 슬롯 3칸으로
@@ -93,6 +95,7 @@ namespace Abyss.Runtime.Meta
         {
             if (string.IsNullOrEmpty(relicId)) return false;
             EnsureLoaded();
+            var previous = autoSave ? new RelicMutationSnapshot(current) : null;
             NormalizeEquipSlots();
 
             if (slot < 0 || slot >= MetaSave.EquippedRelicSlots) return false;
@@ -104,7 +107,7 @@ namespace Abyss.Runtime.Meta
             }
             current.equippedRelicIds[slot] = relicId;
 
-            if (autoSave) Save();
+            if (autoSave && !TrySaveRelicMutation(previous)) return false;
             return true;
         }
 
@@ -112,13 +115,14 @@ namespace Abyss.Runtime.Meta
         public bool UnequipRelicSlot(int slot, bool autoSave = true)
         {
             EnsureLoaded();
+            var previous = autoSave ? new RelicMutationSnapshot(current) : null;
             NormalizeEquipSlots();
 
             if (slot < 0 || slot >= MetaSave.EquippedRelicSlots) return false;
             if (string.IsNullOrEmpty(current.equippedRelicIds[slot])) return false;
 
             current.equippedRelicIds[slot] = string.Empty;
-            if (autoSave) Save();
+            if (autoSave && !TrySaveRelicMutation(previous)) return false;
             return true;
         }
 
@@ -152,6 +156,54 @@ namespace Abyss.Runtime.Meta
             var list = current.equippedRelicIds;
             while (list.Count < MetaSave.EquippedRelicSlots) list.Add(string.Empty);
             while (list.Count > MetaSave.EquippedRelicSlots) list.RemoveAt(list.Count - 1);
+        }
+
+        /// <summary>목록 참조도 보존하여 이미 열린 UI의 읽기 전용 뷰가 이전 상태로 돌아간다.</summary>
+        private sealed class RelicMutationSnapshot
+        {
+            private readonly List<RelicEntry> relics;
+            private readonly List<string> equippedIds;
+            private readonly int shards;
+            private readonly string saveTime;
+            private readonly int version;
+
+            public RelicMutationSnapshot(MetaSave data)
+            {
+                relics = new List<RelicEntry>(data.relics);
+                equippedIds = new List<string>(data.equippedRelicIds);
+                shards = data.abyssShardsTotal;
+                saveTime = data.saveTimeUtc;
+                version = data.version;
+            }
+
+            public void Restore(MetaSave data)
+            {
+                data.relics.Clear();
+                data.relics.AddRange(relics);
+                data.equippedRelicIds.Clear();
+                data.equippedRelicIds.AddRange(equippedIds);
+                data.abyssShardsTotal = shards;
+                data.saveTimeUtc = saveTime;
+                data.version = version;
+            }
+        }
+
+        private bool TrySaveRelicMutation(RelicMutationSnapshot previous)
+        {
+            bool success = false;
+            try
+            {
+                success = Save();
+                return success;
+            }
+            catch (System.Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                if (!success) previous.Restore(current);
+            }
         }
     }
 }

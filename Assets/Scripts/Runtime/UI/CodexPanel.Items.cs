@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Enemy;
 using Abyss.Runtime.Form;
@@ -204,12 +204,12 @@ namespace Abyss.Runtime.UI
                 var enemy = catalog[i];
                 bool found = meta.IsEnemyDiscovered(enemy.enemyId);
                 string name = Resolve(enemy.displayName, enemy.enemyId);
-                var portrait = ResolvePortrait(enemy);
+                var art = ResolveEnemyArt(enemy, found, bossTab);
 
                 result.Add(new CodexItem(
                     name: found ? name : UNKNOWN_NAME,
-                    icon: portrait.sprite,
-                    iconTint: found ? portrait.tint : SilhouetteColor,
+                    icon: art.sprite,
+                    iconTint: art.tint,
                     glyph: found ? FirstGlyph(name) : UNKNOWN_GLYPH,
                     tileColor: found ? Dim(RoomTypeDisplay.Color(EnemyRoomType(enemy))) : LockedTileColor,
                     badge: found ? EnemyBadge(enemy) : string.Empty,

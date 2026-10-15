@@ -1,3 +1,4 @@
+﻿using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using SaveSystem_Core;
@@ -38,6 +39,11 @@ namespace Abyss.Runtime.UI
     {
         private const float TOAST_SECONDS = 3.5f;
 
+        // A2 저장 기록 아이콘 크기·간격.
+        private const float SAVE_ICON_SIZE = 36f;
+        private const float SAVE_SMALL_ICON_SIZE = 28f;
+        private const float SAVE_ICON_GAP = 10f;
+
         private static readonly Color PanelColor = new Color(0.10f, 0.10f, 0.15f, 0.98f);
         private static readonly Color TitleColor = new Color(1f, 0.78f, 0.45f);
         private static readonly Color BodyColor = new Color(0.90f, 0.90f, 0.96f);
@@ -63,6 +69,8 @@ namespace Abyss.Runtime.UI
         private float toastHideTime;
         // [저장 없이 계속]을 골랐다 — 같은 보류가 이어지는 동안 모달을 다시 띄우지 않는다.
         private bool isModalDismissed;
+        // 글자 확대·줄바꿈 배치(SaveStatusReadability). 글자·표시 상태가 바뀐 자리에서 다시 맞춘다.
+        private SaveStatusReadability readability;
 
         public static bool IsModalOpen => instance != null && instance.modalBody != null && instance.modalBody.activeSelf;
         public static bool IsBadgeVisible => instance != null && instance.badge != null && instance.badge.activeSelf;
@@ -200,11 +208,22 @@ namespace Abyss.Runtime.UI
             badge.SetActive(isBlocked && isModalDismissed);
             if (!modalBody.activeSelf) ReleaseModalFocus();
 
-            if (!isBlocked) return;
+            if (!isBlocked)
+            {
+                ApplyReadability();
+                return;
+            }
+            PlaceModalTitleIcon();
             retryResultLabel.text = string.Empty;
             pathLabel.text = SaveSystem.HasInstance
                 ? Loc.GetFormat(StringKey.SaveStatus_PathFormat, SaveSystem.Instance.SaveDirectory)
                 : string.Empty;
+            ApplyReadability();
+        }
+
+        private void ApplyReadability()
+        {
+            if (readability != null) readability.Apply();
         }
 
         // ───────────────────────── 버튼 동작 ─────────────────────────
@@ -218,6 +237,7 @@ namespace Abyss.Runtime.UI
                 return;
             }
             retryResultLabel.text = Loc.Get(StringKey.SaveStatus_RetryFailed);
+            ApplyReadability();
         }
 
         private void OnContinueClicked()
@@ -240,8 +260,11 @@ namespace Abyss.Runtime.UI
         private void ShowToast(string message)
         {
             toastLabel.text = message;
+            // 토스트 문구 앞 — 문구 길이가 매번 달라 띄울 때마다 맞춘다.
+            UiArtDecor.PlaceLeadingIcon(toastLabel, UiArtKeys.COMMON_SAVE_RECORD, SAVE_SMALL_ICON_SIZE, SAVE_ICON_GAP);
             toast.SetActive(true);
             toastHideTime = Time.unscaledTime + TOAST_SECONDS;
+            ApplyReadability();
         }
 
         // ───────────────────────── UI 구성 ─────────────────────────
@@ -251,6 +274,31 @@ namespace Abyss.Runtime.UI
             BuildModal(root);
             BuildBadge(root);
             BuildToast(root);
+            ApplySaveRecordArt();
+            // 아트까지 붙은 뒤 한 번 — 기준 좌표·글자 크기를 이 시점에 잡는다.
+            readability = SaveStatusReadability.Attach(root);
+        }
+
+        /// <summary>
+        /// A2 저장 기록 아이콘 — 저장 상태를 알리는 세 표시(보류 모달 제목·「저장 안 됨」 배지·복구/실패 토스트)의 왼쪽에.
+        /// 문구·성공/실패 판정·버튼 동작은 그대로다. 오버레이는 한 번만 만들어지므로 장식도 한 번이다.
+        /// </summary>
+        private void ApplySaveRecordArt()
+        {
+            PlaceModalTitleIcon();
+            if (badge != null && badge.transform is RectTransform badgeRect)
+            {
+                var size = UiArtDecor.SizeOf(badgeRect);
+                var box = new Rect(-size.x * 0.5f + SAVE_ICON_GAP, -SAVE_SMALL_ICON_SIZE * 0.5f, SAVE_SMALL_ICON_SIZE, SAVE_SMALL_ICON_SIZE);
+                UiArtDecor.ApplyIconInRect(badgeRect, "ArtSaveIcon", UiArtKeys.COMMON_SAVE_RECORD, box, Color.white);
+            }
+        }
+
+        /// <summary>보류 모달 제목 앞. 제목은 현지화 글자라 모달을 띄울 때마다 폭에 맞춘다.</summary>
+        private void PlaceModalTitleIcon()
+        {
+            if (modalBody == null || modalBody.transform.Find("Panel/TitleText") is not RectTransform title) return;
+            UiArtDecor.PlaceLeadingIcon(title.GetComponent<Text>(), UiArtKeys.COMMON_SAVE_RECORD, SAVE_ICON_SIZE, SAVE_ICON_GAP);
         }
 
         private void BuildModal(Transform root)

@@ -31,6 +31,11 @@ namespace Abyss.Runtime.UI
         private Vector3? acquisitionOrigin;
         private FormAltar rewardAltar;
         private int rewardGeneration;
+        private bool hasRewardAltar;
+        private int modalGeneration;
+        private bool ownsModalPause;
+        private bool isPublishingPause;
+        private bool hasDeferredPauseRelease;
 
         // 2단계 취소 확인: 첫 클릭은 '무장'(경고 라벨)만, 재클릭에서 실제 포기. 오조작으로 보상을 날리는 걸 막는다.
         private bool cancelArmed;
@@ -61,24 +66,33 @@ namespace Abyss.Runtime.UI
         {
             if (incoming == null || formController == null) return;
 
+            modalGeneration++;
             incomingForm = incoming;
             controller = formController;
             acquisitionOrigin = FormAltar.CaptureOfferOrigin(incoming, formController);
             rewardAltar = FormAltar.CaptureOffer(incoming, formController);
             rewardGeneration = rewardAltar != null ? rewardAltar.OfferGeneration : -1;
-
-            if (incomingText != null)
+            hasRewardAltar = rewardAltar != null;
+            if (hasRewardAltar)
             {
-                incomingText.text = Loc.GetFormat(StringKey.Form_AcquiredFormat, incoming.LocalizedName);
+                if (!rewardAltar.CanResolveOffer(rewardGeneration))
+                {
+                    Close(resolveReward: false, releasePause: false);
+                    return;
+                }
+                int generation = modalGeneration;
+                rewardAltar.BindModalCancellation(rewardGeneration, releasePause =>
+                {
+                    if (this != null && generation == modalGeneration)
+                        Close(resolveReward: false, releasePause: releasePause);
+                });
             }
+
+            // 새 폼·슬롯 이름은 언어 변경 때도 같은 함수로 다시 그린다(FormReplacementModal.Localization.cs).
+            RefreshFormTexts();
 
             for (int i = 0; i < currentSlotButtons.Length; i++)
             {
-                var slotForm = i < controller.SlotCount ? controller.GetSlot(i) : null;
-                if (currentSlotLabels[i] != null)
-                {
-                    currentSlotLabels[i].text = slotForm != null ? slotForm.LocalizedName : "—";
-                }
                 if (currentSlotButtons[i] != null)
                 {
                     currentSlotButtons[i].interactable = i < controller.SlotCount;
@@ -86,28 +100,90 @@ namespace Abyss.Runtime.UI
             }
 
             // 새로 열 때는 취소 무장을 해제해 항상 1클릭=경고 상태에서 시작한다.
-            ResetCancelArm();
-
             // root가 이 컴포넌트의 GameObject라 첫 SetActive(true)에서 Awake가 돈다 — 포커스는 그 뒤에 잡는다.
             if (root != null) root.SetActive(true);
+            ResetCancelArm();
+            ReplacementTextReadability.Attach(root != null ? root.transform : null, incomingText, currentSlotButtons, cancelButton);
 
             // 이미 열려 있는 상태(중복 호출)가 아니면 정지 진입.
             bool isFirstOpen = !isOpen;
             if (!isOpen)
             {
                 isOpen = true;
-                GameEvents.RaiseDraftOpened();
+                ownsModalPause = true;
+            }
+            hasDeferredPauseRelease = false;
+            _ = TrackModalPauseAsync(modalGeneration);
+            if (isFirstOpen)
+            {
+                isPublishingPause = true;
+                try { GameEvents.RaiseDraftOpened(); }
+                finally { isPublishingPause = false; }
             }
             BeginFocus(isFirstOpen);
         }
 
+        // UI를 닫은 뒤에도 자기 정지 token은 유지한다. 사망/씬 전환은 같은 호출 안에서 먼저 확정된다.
+        // 다음 프레임의 활성 런에서만 회수하고, 다른 모달이 DraftOpened를 냈으면 그 정지에는 손대지 않는다.
+        private async Awaitable TrackModalPauseAsync(int generation)
+        {
+            void MarkTakenOver()
+            {
+                if (this != null && generation == modalGeneration && !isPublishingPause) ownsModalPause = false;
+            }
+            void AbandonPause()
+            {
+                if (this == null || generation != modalGeneration) return;
+                ownsModalPause = false;
+                hasDeferredPauseRelease = false;
+            }
+            GameEvents.OnDraftOpened += MarkTakenOver;
+            GameEvents.OnRunEnded += AbandonPause;
+            GameEvents.OnRunAbandoned += AbandonPause;
+            GameEvents.OnPlayerDead += AbandonPause;
+            try
+            {
+                while (generation == modalGeneration && ownsModalPause && (isOpen || hasDeferredPauseRelease))
+                {
+                    await Awaitable.NextFrameAsync(destroyCancellationToken);
+                    if (this == null || generation != modalGeneration) return;
+                    if (hasDeferredPauseRelease && CanReleaseModalPause()) ReleaseModalPause();
+                }
+            }
+            catch (System.OperationCanceledException) { }
+            finally
+            {
+                GameEvents.OnDraftOpened -= MarkTakenOver;
+                GameEvents.OnRunEnded -= AbandonPause;
+                GameEvents.OnRunAbandoned -= AbandonPause;
+                GameEvents.OnPlayerDead -= AbandonPause;
+            }
+        }
+
+        private bool CanReleaseModalPause() => ownsModalPause && !IsUpperModalOpen &&
+            !NodeMapPanel.IsOpen && !EventRoomPanel.IsOpen && !ShopRoomPanel.IsOpen &&
+            (!Run.RunManager.HasInstance || Run.RunManager.Instance.IsRunActive) &&
+            (!Flow.SceneFlowController.HasInstance || !Flow.SceneFlowController.Instance.IsLoading);
+
+        private void ReleaseModalPause()
+        {
+            ownsModalPause = false;
+            hasDeferredPauseRelease = false;
+            GameEvents.RaiseDraftClosed();
+        }
+
         private void Cancel()
         {
+            if (!HasCurrentRewardOwner())
+            {
+                Close(resolveReward: false, releasePause: false);
+                return;
+            }
             // 2단계 확인: 첫 클릭은 무장(경고 라벨)만 하고 닫지 않는다. 재클릭에서 실제 포기.
             if (!cancelArmed)
             {
                 cancelArmed = true;
-                if (cancelLabel != null) cancelLabel.text = Loc.Get(StringKey.Form_ReplaceCancelConfirm);
+                RefreshCancelLabel();
                 return;
             }
             // 무장 상태에서 재클릭 — 폼을 받지 않고 닫는다(획득 포기).
@@ -118,7 +194,7 @@ namespace Abyss.Runtime.UI
         private void ResetCancelArm()
         {
             cancelArmed = false;
-            if (cancelLabel != null) cancelLabel.text = Loc.Get(StringKey.Common_Cancel);
+            RefreshCancelLabel();
         }
 
         /// <summary>
@@ -126,31 +202,44 @@ namespace Abyss.Runtime.UI
         /// 부르는데, 그때는 이미 닫힌 상태라 선택 정리만 한다(닫기 중복 없음). 닫힘 신호는 맨 마지막에 낸다 —
         /// 그 신호로 이어지는 다음 방·드래프트가 잡는 포커스를 이 모달이 뒤에서 뺏지 않는다.
         /// </summary>
-        private void Close(bool acquired = false)
+        private bool HasCurrentRewardOwner() => !hasRewardAltar ||
+            rewardAltar != null && rewardAltar.CanResolveOffer(rewardGeneration);
+
+        private void Close(bool acquired = false, bool resolveReward = true, bool releasePause = true)
         {
             var sourceAltar = rewardAltar;
             int sourceGeneration = rewardGeneration;
+            bool hadAltar = hasRewardAltar;
+            bool canResolve = resolveReward && HasCurrentRewardOwner();
             ResetCancelArm();
             bool wasOpen = isOpen;
+            hasDeferredPauseRelease = ownsModalPause && (wasOpen || hasDeferredPauseRelease);
             isOpen = false;
             incomingForm = null;
             controller = null;
             acquisitionOrigin = null;
             rewardAltar = null;
+            hasRewardAltar = false;
             if (wasOpen) ReleaseFocus();
             if (root != null) root.SetActive(false);
 
             if (wasOpen)
             {
-                GameEvents.RaiseDraftClosed();
-                if (sourceAltar != null) sourceAltar.CompletePresentation(acquired, sourceGeneration);
-                // 보상 흐름 종료 신호(획득/거절 공통). 보상 룸 게이트(StageDirector)가 이걸로 진행을 재개한다.
-                GameEvents.RaiseFormRewardResolved();
+                // 낡은 모달은 결과/씬/다른 모달이 가져간 정지를 풀지 않는다.
+                if (releasePause && CanReleaseModalPause()) ReleaseModalPause();
+                bool completed = canResolve && (!hadAltar ||
+                    sourceAltar != null && sourceAltar.CompletePresentation(acquired, sourceGeneration));
+                if (completed) GameEvents.RaiseFormRewardResolved();
             }
         }
 
         private void OnSlotSelected(int index)
         {
+            if (!isActiveAndEnabled || !HasCurrentRewardOwner())
+            {
+                Close(resolveReward: false, releasePause: false);
+                return;
+            }
             if (controller == null || incomingForm == null) return;
             if (index < 0 || index >= controller.SlotCount) return;
 
@@ -158,11 +247,14 @@ namespace Abyss.Runtime.UI
             var previous = controller.CurrentForm;
             var acquiredController = controller;
             var acquiredForm = incomingForm;
+            int operationGeneration = modalGeneration;
             var origin = acquisitionOrigin;
             var presentation = acquiredController.GetComponent<Feedback.FormPresentationFeedback>();
             int roomVersion = presentation != null ? presentation.RoomVersion : -1;
-            controller.EquipForm(incomingForm, index, activate: true);
-            GameEvents.RaiseFormSwapped(previous, controller.CurrentForm);
+            acquiredController.EquipForm(acquiredForm, index, activate: true);
+            if (operationGeneration != modalGeneration || !isOpen || !HasCurrentRewardOwner()) return;
+            GameEvents.RaiseFormSwapped(previous, acquiredController.CurrentForm);
+            if (operationGeneration != modalGeneration || !isOpen || !HasCurrentRewardOwner()) return;
 
             Close(acquired: true);
             // 획득 성공 전용. 닫기/거절/시작 폼 적용은 이 경로를 지나지 않는다.

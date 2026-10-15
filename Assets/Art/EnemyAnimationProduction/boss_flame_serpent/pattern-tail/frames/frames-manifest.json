@@ -1,0 +1,88 @@
+{
+  "ok": true,
+  "engine": "component-row",
+  "run_dir": "D:\\JaeChang\\Abyss\\Assets\\Art\\EnemyAnimationProduction\\boss_flame_serpent\\pattern-tail",
+  "cell": {
+    "shape": "rect",
+    "width": 248,
+    "height": 124,
+    "safe_margin_x": 12,
+    "safe_margin_y": 12
+  },
+  "chroma_key": {
+    "name": "green",
+    "hex": "#00FF00",
+    "rgb": [
+      0,
+      255,
+      0
+    ],
+    "selection": "manual"
+  },
+  "rows": [
+    {
+      "state": "tail",
+      "frames": 4,
+      "method": "components",
+      "files": [
+        "frames\\tail\\frame-0.png",
+        "frames\\tail\\frame-1.png",
+        "frames\\tail\\frame-2.png",
+        "frames\\tail\\frame-3.png"
+      ],
+      "frame_records": [
+        {
+          "index": 0,
+          "nontransparent_pixels": 11613,
+          "bbox": [
+            12,
+            13,
+            236,
+            110
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 1,
+          "nontransparent_pixels": 8183,
+          "bbox": [
+            49,
+            12,
+            199,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 2,
+          "nontransparent_pixels": 9226,
+          "bbox": [
+            55,
+            12,
+            192,
+            112
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        },
+        {
+          "index": 3,
+          "nontransparent_pixels": 11555,
+          "bbox": [
+            12,
+            14,
+            236,
+            110
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 0
+        }
+      ],
+      "ok": true
+    }
+  ],
+  "errors": [],
+  "warnings": []
+}

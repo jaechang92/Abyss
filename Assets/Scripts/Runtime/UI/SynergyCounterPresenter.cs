@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Events;
 using UnityEngine;
@@ -37,6 +38,12 @@ namespace Abyss.Runtime.UI
         // 임계 미달 축은 흐리게 — 도달한 축이 한눈에 들어오게 한다.
         private const float INACTIVE_ALPHA = 0.5f;
         private static readonly Color INACTIVE_BACKGROUND = new(0.10f, 0.10f, 0.14f, 0.70f);
+
+        // A2 축 아이콘 칸(칩 왼쪽). 글자는 이 폭만큼 오른쪽에서 시작한다.
+        private const float AXIS_ICON_SIZE = 26f;
+        private const float AXIS_ICON_ZONE = 38f;
+        private const string AXIS_ICON_NAME = "ArtAxisIcon";
+        private const string AXIS_FRAME_NAME = "ArtAxisFrame";
 
         private readonly Dictionary<string, int> counts = new();
         private readonly List<string> orderedTags = new();
@@ -158,6 +165,55 @@ namespace Abyss.Runtime.UI
                     ? new Color(axisColor.r * 0.30f, axisColor.g * 0.30f, axisColor.b * 0.30f, 0.92f)
                     : INACTIVE_BACKGROUND;
             }
+
+            ApplyAxisArt(chip, tag, activated);
+        }
+
+        /// <summary>
+        /// A2 — 칩 왼쪽 칸에 축 아이콘(+시너지 프레임). 보유 스킬의 축 태그로만 고른다 —
+        /// 예약 축(frost·soul)은 조회 경로만 있고, 그 축 스킬을 실제로 가졌을 때만 칩이 생긴다.
+        /// 그림이 없는 축이면 장식을 끄고 글자 칸을 원래대로 둔다. 칩은 재사용되므로 이름 고정 자식을 덮어쓴다.
+        /// </summary>
+        private void ApplyAxisArt(ChipView chip, string tag, bool activated)
+        {
+            if (chip.Root.transform is not RectTransform chipRect) return;
+
+            var tint = activated ? Color.white : new Color(1f, 1f, 1f, INACTIVE_ALPHA);
+            var box = new Rect(-AXIS_ICON_SIZE * 0.5f, -AXIS_ICON_SIZE * 0.5f, AXIS_ICON_SIZE, AXIS_ICON_SIZE);
+            var icon = UiArtDecor.ApplyIconInRect(chipRect, AXIS_ICON_NAME, UiArtKeys.SynergyAxisIcon(tag), box, tint);
+            bool hasIcon = icon != null;
+
+            Image frame = null;
+            if (hasIcon && UiArtLibrary.TryGetLayout(UiArtKeys.HUD_SYNERGY_FRAME, out var layout))
+            {
+                var frameSprite = UiArtLibrary.Get(UiArtKeys.HUD_SYNERGY_FRAME);
+                if (frameSprite != null)
+                {
+                    var placement = UiArtDecor.Place(layout, box.size, UiArtFit.AroundInner);
+                    frame = UiArtDecor.EnsureImage(chipRect, AXIS_FRAME_NAME);
+                    frame.sprite = frameSprite;
+                    frame.color = tint;
+                    frame.enabled = true;
+                    UiArtDecor.SetCentered(frame.rectTransform, placement.Center, placement.Size);
+                }
+            }
+            if (frame == null) UiArtDecor.Hide(chipRect, AXIS_FRAME_NAME);
+
+            // 칩 폭은 격자가 다음 레이아웃에 정한다 — 왼쪽 가장자리에 고정해 폭이 바뀌어도 칸이 따라간다.
+            if (hasIcon) PinLeft(icon.rectTransform, Vector2.zero);
+            if (frame != null) PinLeft(frame.rectTransform, frame.rectTransform.anchoredPosition);
+
+            if (chip.Label != null && chip.Label.rectTransform.anchorMin.x == 0f && chip.Label.rectTransform.anchorMax.x == 1f)
+            {
+                var offset = chip.Label.rectTransform.offsetMin;
+                chip.Label.rectTransform.offsetMin = new Vector2(hasIcon ? AXIS_ICON_ZONE : 0f, offset.y);
+            }
+        }
+
+        private static void PinLeft(RectTransform rect, Vector2 offsetFromIconCenter)
+        {
+            rect.anchorMin = rect.anchorMax = new Vector2(0f, 0.5f);
+            rect.anchoredPosition = new Vector2(AXIS_ICON_ZONE * 0.5f, 0f) + offsetFromIconCenter;
         }
 
         /// <summary>필요한 개수만큼 칩을 확보한다(템플릿 복제, 기존 칩은 재사용).</summary>

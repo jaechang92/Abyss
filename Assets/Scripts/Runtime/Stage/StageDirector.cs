@@ -66,6 +66,7 @@ namespace Abyss.Runtime.Stage
             GameEvents.OnRunAbandoned += HandleRunAbandoned;
             GameEvents.OnPlayerDead += HandlePlayerDead;
             SubscribeWorldInteraction(true);
+            WorldEnvironmentArt.Attach(this);
             if (startOnEnable) Invoke(nameof(StartSequence), SEQUENCE_START_DELAY);
         }
 
@@ -115,6 +116,12 @@ namespace Abyss.Runtime.Stage
         }
 
         public void ProceedToNextRoom()
+        {
+            if (isReturnCommitted || IsFinalMapStep()) return;
+            AdvanceToNextRoom();
+        }
+
+        private void AdvanceToNextRoom()
         {
             isRoomClearing = false;  // 다음 단계로 넘어가며 클리어 상태 해제
             currentStepIndex += 1;
@@ -227,6 +234,7 @@ namespace Abyss.Runtime.Stage
 
             GameEvents.RaiseRoomEntered(room);
             PrepareTutorialRoom(room);
+            if (room.isCombatDiscovery) TryBeginWorldEvent(room, true);
             SpawnEnemies(room);
         }
 
@@ -242,8 +250,9 @@ namespace Abyss.Runtime.Stage
         {
             activeEnemies.Clear();
             if (isTutorialOpeningReserved) return;
+            int expected = RegisterSceneSpiders();
             // 맵 방은 배치 좌표에, 옛 아레나 방은 스폰 지점에 — 추적·대조 규약은 같다(StageDirector.Map.cs).
-            int expected = room.IsMapRoom ? SpawnMapOpening(room) : SpawnArena(room);
+            expected += room.IsMapRoom ? SpawnMapOpening(room) : SpawnArena(room);
 
             if (activeEnemies.Count != expected)
             {
@@ -308,34 +317,6 @@ namespace Abyss.Runtime.Stage
         }
 
         /// <summary>한 마리를 스폰하고 클리어 판정 대상으로 등록한다. 등록에 실패하면 소리를 내고 스폰 실패로 표시한다.</summary>
-        private EnemyBase SpawnTracked(EnemyData data, Vector3 position)
-        {
-            // 예고 시작 때 검사를 통과했더라도 등장 시점에 다시 본다 — 예고 사이 참조가 비었으면 Instantiate가 던진다.
-            if (data == null || data.spawnPrefab == null)
-            {
-                Debug.LogError($"[StageDirector] '{data?.enemyId ?? "null"}' 등장 시점에 스폰 프리팹이 없다 — 건너뜀");
-                MarkRoomSpawnFailure();
-                return null;
-            }
-
-            var go = Instantiate(data.spawnPrefab, position, Quaternion.identity);
-
-            // 프리팹 루트가 아닌 자식에 EnemyBase가 붙어 있으면 GetComponent가 놓친다.
-            // 예전에는 조용히 건너뛰어, 스폰은 됐는데 추적만 빠지는 상태가 됐다.
-            var enemy = go.GetComponentInChildren<EnemyBase>(true);
-            if (enemy == null)
-            {
-                Debug.LogError($"[StageDirector] '{data.enemyId}' 프리팹에 EnemyBase가 없다 " +
-                               $"— 스폰은 됐지만 클리어 판정에서 빠져 방이 조기 클리어된다");
-                MarkRoomSpawnFailure();
-                return null;
-            }
-
-            activeEnemies.Add(enemy);
-            if (enemy is BossEnemy) hasRoomBossEnemy = true;
-            return enemy;
-        }
-
         /// <summary>
         /// 방 진행 판정 한 곳. 남은 적이 없을 때, 아직 소환하지 않은 추가 무리가 있으면 그것을 먼저 부르고
         /// (플레이어가 도달 지점을 건너뛰어 방이 막히지 않게), 없으면 클리어한다.
@@ -420,7 +401,11 @@ namespace Abyss.Runtime.Stage
                 RunManager.Instance?.GainCombatGoldShards(room.clearGoldReward);
             }
 
-            // 월드 상호작용 opt-in 이벤트 방: 자동 모달 대신 오브젝트를 세운다(legacy 게이트를 잡지 않는다).
+            // 탐사 발견: 기록 방이면 통행 기록을 세운다 — 보상·게이트·진행과 무관(StageDirector.Expedition.cs).
+            TrySpawnPassageRecord(room);
+
+            // 정비 공간(상인·불씨) → 월드 상호작용 opt-in 이벤트 방 순. 자동 모달 대신 오브젝트를 세운다(legacy 게이트를 잡지 않는다).
+            if (TryBeginMaintenance(room)) return;
             if (TryBeginWorldEvent(room)) return;
 
             // 이벤트 룸: 선택 모달을 열고 선택이 끝날 때까지 자동 진행을 보류한다.
@@ -445,9 +430,8 @@ namespace Abyss.Runtime.Stage
 
             // 보상 제단(폼·무기)을 연다. 게이트를 걸었으면 여기서 멈춘다.
             // 규칙은 StageDirector.Rewards.cs 가 갖는다.
-            if (TryOpenRewardAltar(room)) return;
-
-            ContinueAfterRoom();
+            if (TryWaitForBossPresentation(room)) return;
+            FinishRoomReward(room);
         }
 
         /// <summary>
@@ -471,14 +455,20 @@ namespace Abyss.Runtime.Stage
         private void ContinueAfterRoom()
         {
             // 런이 끝난 뒤 늦게 온 보상 해결 신호 등으로 문·자동 진행이 다시 서지 않게.
-            if (isRoomSessionClosed) return;
+            if (isRoomSessionClosed || !IsBossPresentationReady()) return;
             if (TryOpenExitDoors()) return;
             Invoke(nameof(ProceedToNextRoom), delayBetweenRooms);
         }
 
         // 비전투 방(이벤트·휴식·상점)의 상호작용이 끝나면 게이트를 푼다. 그 결과로 스킬 드래프트가
         // 열렸더라도 ProceedToNextRoom은 스케일 시간 Invoke라 드래프트가 닫힐 때까지 알아서 기다린다.
-        private void HandleEventResolved() => ReleaseRoomGate("비전투 방 해결");
+        private void HandleEventResolved()
+        {
+            if (isRoomSessionClosed || !RunManager.HasInstance || !RunManager.Instance.IsRunActive ||
+                currentRoom == null || currentRoom.IsMaintenanceRoom || rewardSession != null) return;
+            if (IsCurrentWorldSession(worldSession)) return;
+            if (currentRoom.IsEventRoom || currentRoom.IsShopRoom) ReleaseRoomGate("legacy 비전투 방 해결");
+        }
 
         private bool IsValidStage(int index)
         {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Abyss.Runtime.Audio;
 using Abyss.Runtime.Events;
@@ -35,6 +35,18 @@ namespace Abyss.Runtime.Form
 
         private FormState state = FormState.Ready;
         private float currentCooldown;
+
+        // 런 기록(폼 플레이타임)을 남겨도 되는 맥락인가. 플레이어가 Awake 에서 알려 준다(PlayerCharacter.Context).
+        // 기본 true — 맥락을 알려 줄 플레이어가 없는 씬·테스트에서는 기존 동작 그대로다.
+        private bool isRunContext = true;
+
+        /// <summary>런 기록을 남기는 맥락인가. false 면 로비 — 플레이타임을 쌓지 않는다.</summary>
+        public bool IsRunContext => isRunContext;
+
+        /// <summary>
+        /// 실행 맥락 주입. Form 이 Player 네임스페이스를 역참조하지 않도록 값만 받는다(<see cref="SetSwapGate"/>와 같은 방향).
+        /// </summary>
+        public void SetRunContext(bool isRun) => isRunContext = isRun;
         private float currentSwapTimer;
 
         private float SwapCooldown => config != null ? config.formSwapCooldown : DEFAULT_SWAP_COOLDOWN;
@@ -171,7 +183,9 @@ namespace Abyss.Runtime.Form
 
             Debug.Log($"[FormController] Swap 실행: {previous?.formId ?? "?"} → {next?.formId ?? "?"}");
             OnSwapStarted?.Invoke(previous, next);
-            GameEvents.RaiseFormSwapped(previous, next);
+            // 전역 알림은 런 집계(분석·폼 편중 경고·스킬 슬롯)가 듣는다 — 로비 교체는 런 기록이 아니다.
+            // (로비는 시작 폼 하나만 들어 OtherForm 이 비므로 보통 여기까지 오지 않는다.)
+            if (isRunContext) GameEvents.RaiseFormSwapped(previous, next);
 
             // 교체음은 성공한 교체의 시작에만 한 번 — 거부·시작 폼 적용·EquipForm·교체 완료에서는 울리지 않는다.
             if (next != null && next.swapInSfx != null && AudioManager.HasInstance)
@@ -198,7 +212,9 @@ namespace Abyss.Runtime.Form
                 }
             }
 
-            if (CurrentForm != null && RunManager.HasInstance)
+            // 🔴 RunManager 는 DontDestroyOnLoad 라 로비에도 살아 있을 수 있다 — 존재만 보고 기록하면
+            //    로비에서 서 있는 시간이 지난 런의 폼 플레이타임으로 쌓인다. 맥락으로 막는다.
+            if (isRunContext && CurrentForm != null && RunManager.HasInstance)
             {
                 RunManager.Instance.RegisterFormPlaytime(CurrentForm.formId, Time.deltaTime);
             }

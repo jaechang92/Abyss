@@ -75,11 +75,13 @@ namespace Abyss.Runtime.UI
         /// </summary>
         private void OnDisable()
         {
+            RemoveLanguageListener();
             ClearOwnedSelection();
         }
 
         private void OnDestroy()
         {
+            RemoveLanguageListener();
             ClearOwnedSelection();
         }
 

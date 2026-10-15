@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Abyss.Runtime.Camera
 {
@@ -21,13 +21,17 @@ namespace Abyss.Runtime.Camera
     /// <b>무한 반복</b>: <see cref="wrapWidth"/>가 0보다 크면 카메라가 그만큼 멀어질 때마다
     /// 기준점을 한 칸 옮긴다. 레이어는 <b>가로로 3장 이상</b> 이어 붙어 있어야 이음매가 안 보인다
     /// (한 칸 옮기는 순간 반대편이 이미 화면에 들어와 있어야 하기 때문).
+    /// C3 부터는 카메라와의 거리를 반 칸 안(|gap| ≤ wrapWidth/2)으로 유지한다 — 3장이면 한 장 폭이 화면 반폭 이상이기만 하면 덮는다.
+    /// 반복 그림이라 어느 칸이 보이든 화면은 같다. 칸 수는 나눗셈 한 번으로 구한다(순간이동에도 루프가 길어지지 않는다).
+    ///
+    /// 최후방 반복 레이어(하늘)는 화면 전체를 덮도록 실행 중 배율·칸 수를 보정한다 — ParallaxLayer.Coverage.
     ///
     /// ⚠️ <b>LateUpdate에서 돈다.</b> 카메라(<see cref="PlayerCameraFollow"/>)가 같은 프레임의
     /// LateUpdate에서 움직이므로, Update에서 읽으면 한 프레임 늦은 위치를 쓰고 배경이 떤다.
     /// 그래서 실행 순서를 카메라보다 뒤로 못박는다.
     /// </summary>
     [DefaultExecutionOrder(20)]
-    public sealed class ParallaxLayer : MonoBehaviour
+    public sealed partial class ParallaxLayer : MonoBehaviour
     {
         [Header("깊이 — 0이 가장 멀다(화면에 붙는다), 1이 놀이 평면, 1 초과는 앞 레이어")]
         [SerializeField, Range(0f, 2f)] private float depth = 0.5f;
@@ -61,6 +65,7 @@ namespace Abyss.Runtime.Camera
             origin = transform.position;
             baseX = origin.x;
             baseY = origin.y;
+            InitCoverage();
             Apply();
         }
 
@@ -72,23 +77,30 @@ namespace Abyss.Runtime.Camera
 
         private void Apply()
         {
+            // 화면 크기(ortho·비율)가 바뀐 프레임에만 배율·wrapWidth·칸 수를 다시 정한다.
+            RefreshCoverage();
+
             float shiftX = cam.position.x * (1f - depth);
             float shiftY = followVertical ? cam.position.y * (1f - depth) : 0f;
 
             transform.position = new Vector3(baseX + shiftX, baseY + shiftY, origin.z);
 
-            if (wrapWidth <= 0f) return;
-
-            // 카메라가 한 칸 이상 벌어졌으면 기준점을 그쪽으로 한 칸 옮긴다.
-            // while 이 아니라 if 로 두면 순간이동(방 전환)에서 한 칸밖에 못 따라간다.
-            float gap = cam.position.x - transform.position.x;
-            while (Mathf.Abs(gap) >= wrapWidth)
+            if (wrapWidth > 0f)
             {
-                float step = wrapWidth * Mathf.Sign(gap);
-                baseX += step;
-                transform.position += new Vector3(step, 0f, 0f);
-                gap -= step;
+                // 카메라가 반 칸 넘게 벌어졌으면 기준점을 그쪽으로 필요한 칸 수만큼 한 번에 옮긴다.
+                // 한 칸씩 옮기면 순간이동(방 전환)에서 한 칸밖에 못 따라가고, while 은 먼 이동에서 길게 돈다.
+                float gap = cam.position.x - transform.position.x;
+                float steps = Mathf.Round(gap / wrapWidth);
+                if (steps != 0f)
+                {
+                    float step = wrapWidth * steps;
+                    baseX += step;
+                    transform.position += new Vector3(step, 0f, 0f);
+                }
             }
+
+            // 최후방 레이어만: 위아래 시차로 가장자리가 화면 안에 들어오면 그만큼만 밀어 넣는다(기준점은 안 바꾼다).
+            KeepVerticalCoverage();
         }
 
         /// <summary>

@@ -90,9 +90,13 @@ namespace Abyss.Runtime.Stage
                 if (wasMapRoom) MovePlayerTo(new Vector2(0f, groundY));
                 CreateWall(groundLeft - WALL_THICKNESS * 0.5f, groundY);
                 CreateWall(groundRight + WALL_THICKNESS * 0.5f, groundY);
-                if (follow != null) follow.SetEnvironmentBounds(
-                    new Vector2(groundLeft - WALL_THICKNESS, groundY - CAMERA_BELOW_GROUND),
-                    new Vector2(groundRight + WALL_THICKNESS, groundY + CAMERA_ABOVE_GROUND));
+                if (follow != null)
+                {
+                    follow.SetEnvironmentBounds(
+                        new Vector2(groundLeft - WALL_THICKNESS, groundY - CAMERA_BELOW_GROUND),
+                        new Vector2(groundRight + WALL_THICKNESS, groundY + CAMERA_ABOVE_GROUND));
+                    ApplyRoomFraming(follow, room, groundLeft, groundRight, groundY);
+                }
                 wasMapRoom = false;
                 return;
             }
@@ -120,7 +124,22 @@ namespace Abyss.Runtime.Stage
                 follow.SetEnvironmentBounds(
                     new Vector2(-half - WALL_THICKNESS, groundY - CAMERA_BELOW_GROUND),
                     new Vector2(half + WALL_THICKNESS, groundY + CAMERA_ABOVE_GROUND));
+                ApplyRoomFraming(follow, room, -half, half, groundY);
             }
+        }
+
+        /// <summary>
+        /// 방 구도를 카메라에 알린다 — 정비 공간(<see cref="RoomData.maintenanceData"/> 있음)이 먼저, 그다음 보스방이면
+        /// 실제 플레이 가능 좌우(벽 안쪽, 렌더 경계의 벽 여백 제외)와 바닥을, 아니면 해제. 대상 배치·경계 설정 뒤에 부르고
+        /// 곧바로 최종 구도로 맞춘다 — 페이드가 걷힐 때 이전 방 구도가 남지 않게.
+        /// 모든 진입(첫 방 사전 준비·문·치트·옛 아레나)이 <see cref="PrepareRoomMap"/>을 지나므로 여기 한 곳이다.
+        /// </summary>
+        private static void ApplyRoomFraming(PlayerCameraFollow follow, RoomData room, float arenaLeft, float arenaRight, float floorY)
+        {
+            if (room.maintenanceData != null) follow.SetMaintenanceRoomFraming(arenaLeft, arenaRight, floorY);
+            else if (room.roomType == RoomType.Boss) follow.SetBossRoomFraming(arenaLeft, arenaRight, floorY);
+            else follow.ClearRoomFraming();
+            follow.SnapToTarget();
         }
 
         /// <summary>
@@ -208,7 +227,7 @@ namespace Abyss.Runtime.Stage
         private bool TryOpenStageDoor(float half)
         {
             int nextStage = currentStageIndex + 1;
-            if (!IsValidStage(nextStage)) return false;
+            if (!IsValidStage(nextStage)) return TryOpenReturnDoor(half);
 
             var stage = sequence.stages[nextStage];
             string title = stage != null && !string.IsNullOrEmpty(stage.displayName) ? stage.displayName : $"Stage {nextStage + 1}";
@@ -224,8 +243,20 @@ namespace Abyss.Runtime.Stage
         private void HandleDoorChosen(RoomData chosen)
         {
             if (isDoorTransitioning || chosen == null) return;
+            // 정비 공간: 서비스·모달·드래프트·저장 모달·정지 중에는 문을 받지 않는다(StageDirector.Maintenance.cs).
+            if (IsMaintenanceExitBlocked())
+            {
+                RestoreExitDoors("정비 공간 서비스·모달 중 문 선택");
+                return;
+            }
             _ = EnterThroughDoorAsync($"보상 문 선택: {chosen.roomId}", () =>
             {
+                // 페이드 사이 막는 상태가 생겼으면 확정하지 않는다 — 막힌·낡은 문이 방을 넘기지 않게.
+                if (IsMaintenanceExitBlocked())
+                {
+                    RestoreExitDoors("정비 공간 서비스·모달 중 문 전환 확정");
+                    return;
+                }
                 isRoomClearing = false;
                 currentStepIndex += 1;
                 EnterRoom(chosen);
@@ -235,7 +266,26 @@ namespace Abyss.Runtime.Stage
         private void HandleStageDoorChosen()
         {
             if (isDoorTransitioning) return;
+            if (IsMaintenanceExitBlocked())
+            {
+                RestoreExitDoors("정비 공간 서비스·모달 중 문 선택");
+                return;
+            }
             _ = FallToNextStageAsync();
+        }
+
+        /// <summary>
+        /// 막은 문을 다시 세운다. 문은 상호작용 순간 스스로 사용 처리되므로(<see cref="RoomExitDoor"/>) 그대로 두면 다시 못 들어가 방이 멈춘다.
+        /// </summary>
+        private void RestoreExitDoors(string reason)
+        {
+            for (int i = 0; i < exitDoors.Count; i++)
+            {
+                if (exitDoors[i] != null) Destroy(exitDoors[i].gameObject);
+            }
+            exitDoors.Clear();
+            Debug.Log($"[StageDirector] {reason} — 막고 문을 다시 세운다");
+            if (!isRoomSessionClosed) TryOpenExitDoors();
         }
 
         /// <summary>
@@ -245,7 +295,7 @@ namespace Abyss.Runtime.Stage
         /// </summary>
         private async Awaitable FallToNextStageAsync()
         {
-            isDoorTransitioning = true;
+            int transitionTicket = BeginDoorTransition();
             int version = roomEntryVersion;
             int nextStage = currentStageIndex + 1;
             var stage = IsValidStage(nextStage) ? sequence.stages[nextStage] : null;
@@ -288,7 +338,7 @@ namespace Abyss.Runtime.Stage
             }
             finally
             {
-                isDoorTransitioning = false;
+                EndDoorTransition(transitionTicket);
             }
         }
 
@@ -309,7 +359,7 @@ namespace Abyss.Runtime.Stage
         /// <summary>문으로 다음 곳에 들어간다 — 검게 덮고, <paramref name="enter"/>로 진입하고, 걷어낸다.</summary>
         private async Awaitable EnterThroughDoorAsync(string log, Action enter)
         {
-            isDoorTransitioning = true;
+            int transitionTicket = BeginDoorTransition();
             int version = roomEntryVersion;
             var fader = ResolveFader();
 
@@ -332,23 +382,23 @@ namespace Abyss.Runtime.Stage
             }
             finally
             {
-                isDoorTransitioning = false;
+                EndDoorTransition(transitionTicket);
             }
         }
 
         // ───────────────────────── 보조 ─────────────────────────
 
         /// <summary>
-        /// 맵 방의 보상 제단(폼·무기)을 맵 가운데로 옮긴다 — 스컬처럼 보상은 맵 한가운데 나타나고, 문은 오른쪽 끝에 선다.
+        /// 맵 방의 보상 제단(폼·무기)을 출구보다 4유닛 앞에 놓는다(제단 half-7, 문 half-3).
         /// 제단은 Run 씬에 고정 좌표로 놓여 있어(무기 x 19.48 · 폼 13.21) 짧은 맵에서는 <b>벽 밖</b>에 섰다.
         /// 닿을 수 없는 제단은 보상 게이트를 영영 안 풀어 문이 서지 않는다(2026-09-26 사용자 보고 — Stage1 보스 방).
-        /// 높이는 씬 값(제단마다 피벗이 다르다)에서 x 0 바닥이 공용 지면보다 올라간 만큼만 올린다(StageDirector.Floor.cs).
+        /// 높이는 씬 값(제단마다 피벗이 다르다)에서 해당 x 바닥이 공용 지면보다 올라간 만큼만 올린다(StageDirector.Floor.cs).
         /// 옛 방은 건드리지 않는다.
         /// </summary>
         private void PlaceRewardAltar(Transform altar)
         {
             if (altar == null || currentRoom == null || !currentRoom.IsMapRoom) return;
-            PlaceAltarOnFloor(altar);
+            PlaceAltarOnFloor(altar, currentRoom.mapLength * 0.5f - 7f);
         }
 
         private void ClearMapObjects()
@@ -359,6 +409,7 @@ namespace Abyss.Runtime.Stage
             pendingReinforcements.Clear();
             // 이전 방의 CLEAR가 새 방에 남지 않게 즉시 숨긴다.
             UI.RoomClearBanner.Hide();
+            ClearPassageRecord();
             exitDoors.Clear();
             mapKillCount = 0;
             if (mapRoot == null) return;

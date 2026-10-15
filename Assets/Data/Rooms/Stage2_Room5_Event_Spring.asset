@@ -15,12 +15,22 @@ MonoBehaviour:
   roomId: stage2_room5_event_spring
   roomType: 3
   displayName: "\uC2EC\uC5F0\uC758 \uC0D8"
-  hint: "\uD68C\uBCF5 \uB610\uB294 \uB300\uAC00"
-  enemies: []
+  hint: "수비대 2마리 처치 후 회복 또는 대가"
+  enemies:
+  - data: {fileID: 11400000, guid: 03c0a0ca364f01848bbbac63dc134c4f, type: 2}
+    count: 1
+  - data: {fileID: 11400000, guid: 3825ebf787f068e4591b38e30f222528, type: 2}
+    count: 1
   clearGoldReward: 0
   hasFormReward: 0
   formReward: {fileID: 0}
   eventData: {fileID: 11400000, guid: 7ec865fcaebb4f440b457de7b169a844, type: 2}
   mapLength: 24
-  placements: []
+  placements:
+  - data: {fileID: 11400000, guid: 03c0a0ca364f01848bbbac63dc134c4f, type: 2}
+    x: -3
+  - data: {fileID: 11400000, guid: 3825ebf787f068e4591b38e30f222528, type: 2}
+    x: 5
   reinforcements: []
+  interactionMode: 1
+  isCombatDiscovery: 1

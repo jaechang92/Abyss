@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.IO;
 using System.Linq;
@@ -12,9 +12,20 @@ namespace Abyss.EditorTools
     public static partial class LobbySceneBuilder
     {
         private const string RefugeArtPath = "Assets/Art/Environment/lobby_refuge/lobby_refuge_v2.png";
-        private const float RefugeWidth = 44f;
         // Measured walk lane in the 2172 x 724 source; a foot rests on its upper stone face.
         private const float RefugeFloorFromBottom = (724f - 431f) / 724f;
+
+        // 관문 아치 실측은 옛 배치(폭 44, 중심 x 0)에서 했다 — 그 배치에서 PortalX 가 그림 가로의 어느 비율인지만 남긴다.
+        private const float RefugeCalibrationWidth = 44f;
+        private const float RefugeGateFromLeft = (PortalX + RefugeCalibrationWidth * 0.5f) / RefugeCalibrationWidth;
+
+        /// <summary>
+        /// C3: 원본 PPU 그대로(배율 1, 2172x724 → 67.875x22.625유닛). C 화면(16.875 세로, 16:9 에서 30 가로)보다 넓고 높아
+        /// 카메라가 경계 안 어디에 있어도 그림 밖이 안 보인다. 1080p 에서 art px 하나가 정확히 2화면px 이다.
+        /// 세로는 바닥선(FloorTopY·RefugeFloorFromBottom), 가로는 관문 아치(PortalX)에 맞춘다 — 포털 스프라이트를 끄고
+        /// 그림의 아치를 포털로 쓰므로 아치가 움직이면 안 된다. 충돌·NPC·플레이어 위치는 그대로다.
+        /// </summary>
+        private const float RefugeScale = 1f;
 
         private static bool ApplyRefugeArt(GameObject ground, PlayerCameraFollow follow)
         {
@@ -43,16 +54,18 @@ namespace Abyss.EditorTools
             var root = new GameObject(EnvironmentArtRootName);
             var artwork = new GameObject("LobbyRefugePanorama");
             artwork.transform.SetParent(root.transform, false);
-            float scale = RefugeWidth / sprite.bounds.size.x;
+            float scale = RefugeScale;
+            float width = sprite.bounds.size.x * scale;
             float height = sprite.bounds.size.y * scale;
             float bottom = FloorTopY - height * RefugeFloorFromBottom;
-            artwork.transform.position = new Vector3(0f, bottom + height * 0.5f, 0f);
+            float left = PortalX - width * RefugeGateFromLeft;
+            artwork.transform.position = new Vector3(left + width * 0.5f, bottom + height * 0.5f, 0f);
             artwork.transform.localScale = Vector3.one * scale;
             var renderer = artwork.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
             renderer.sortingOrder = -20;
-            follow.SetEnvironmentBounds(new Vector2(-RefugeWidth * 0.5f, bottom),
-                new Vector2(RefugeWidth * 0.5f, bottom + height));
+            // 카메라 경계 = 그림 렌더 범위. 물리 경계(벽·바닥)는 따로라 넓어지지 않는다.
+            follow.SetEnvironmentBounds(new Vector2(left, bottom), new Vector2(left + width, bottom + height));
             foreach (var graybox in ground.GetComponentsInChildren<SpriteRenderer>(true)) graybox.enabled = false;
             return true;
         }
