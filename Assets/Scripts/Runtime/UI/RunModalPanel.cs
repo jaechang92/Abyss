@@ -30,6 +30,10 @@ namespace Abyss.Runtime.UI
         // 표시/숨김 토글 대상(딤 배경). 패널 내용은 전부 이 아래에 만든다.
         private GameObject body;
         private bool isOpen;
+        private int pauseGeneration;
+        private bool ownsModalPause;
+        private bool isPublishingPause;
+        private bool hasDeferredPauseRelease;
 
         public static bool IsOpen => instance != null && instance.isOpen;
 
@@ -62,16 +66,79 @@ namespace Abyss.Runtime.UI
 
             if (isOpen) return;
             isOpen = true;
-            GameEvents.RaiseDraftOpened();   // 기존 DraftOpen 상태로 전역 정지
+            ownsModalPause = true;
+            hasDeferredPauseRelease = false;
+            _ = TrackModalPauseAsync(++pauseGeneration);
+            isPublishingPause = true;
+            try { GameEvents.RaiseDraftOpened(); }
+            finally { isPublishingPause = false; }
         }
 
         /// <summary>숨기고 정지를 푼다. 열려 있지 않았으면 발행하지 않는다.</summary>
-        protected void HideBody()
+        protected void HideBody() => HideBodyWithPauseRelease(releasePause: true);
+
+        protected void HideBodyWithPauseRelease(bool releasePause)
         {
             body.SetActive(false);
 
             if (!isOpen) return;
             isOpen = false;
+            hasDeferredPauseRelease = ownsModalPause;
+            // 무효화 닫기는 같은 프레임의 결과·후속 모달 전이를 기다린 뒤 자기 정지만 회수한다.
+            if (releasePause && CanReleaseModalPause()) ReleaseModalPause();
+        }
+
+        // FormReplacementModal과 같은 소유 규약. 다른 모달/런 종료가 넘겨받은 정지를 풀지 않는다.
+        private async Awaitable TrackModalPauseAsync(int generation)
+        {
+            void MarkTakenOver()
+            {
+                if (this != null && generation == pauseGeneration && !isPublishingPause)
+                    ownsModalPause = false;
+            }
+            void AbandonPause()
+            {
+                if (this == null || generation != pauseGeneration) return;
+                ownsModalPause = false;
+                hasDeferredPauseRelease = false;
+            }
+            GameEvents.OnDraftOpened += MarkTakenOver;
+            GameEvents.OnRunEnded += AbandonPause;
+            GameEvents.OnRunAbandoned += AbandonPause;
+            GameEvents.OnPlayerDead += AbandonPause;
+            GameEvents.OnRunStarted += AbandonPause;
+            GameEvents.OnGamePaused += AbandonPause;
+            try
+            {
+                while (generation == pauseGeneration && ownsModalPause && (isOpen || hasDeferredPauseRelease))
+                {
+                    await Awaitable.NextFrameAsync(destroyCancellationToken);
+                    if (this == null || generation != pauseGeneration) return;
+                    if (hasDeferredPauseRelease && CanReleaseModalPause()) ReleaseModalPause();
+                }
+            }
+            catch (System.OperationCanceledException) { }
+            finally
+            {
+                GameEvents.OnDraftOpened -= MarkTakenOver;
+                GameEvents.OnRunEnded -= AbandonPause;
+                GameEvents.OnRunAbandoned -= AbandonPause;
+                GameEvents.OnPlayerDead -= AbandonPause;
+                GameEvents.OnRunStarted -= AbandonPause;
+                GameEvents.OnGamePaused -= AbandonPause;
+            }
+        }
+
+        private bool CanReleaseModalPause() => ownsModalPause &&
+            !SaveStatusOverlay.IsCapturingInput && !SettingsPanel.IsOpen && !CodexPanel.IsOpen &&
+            !NodeMapPanel.IsOpen && !EventRoomPanel.IsOpen && !ShopRoomPanel.IsOpen &&
+            (!Run.RunManager.HasInstance || Run.RunManager.Instance.IsRunActive) &&
+            (!Flow.SceneFlowController.HasInstance || !Flow.SceneFlowController.Instance.IsLoading);
+
+        private void ReleaseModalPause()
+        {
+            ownsModalPause = false;
+            hasDeferredPauseRelease = false;
             GameEvents.RaiseDraftClosed();
         }
     }

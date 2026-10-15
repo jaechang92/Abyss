@@ -17,7 +17,7 @@ namespace Abyss.EditorTools
     /// SO를 실제로 만들고 갱신하는 헬퍼는 <c>StageBuilder.Assets.cs</c>(partial)에 있다.
     ///
     /// 방 구성은 전투·엘리트·보스에 비전투 방(이벤트·상점·휴식)이 더해져
-    /// Stage1 8단계 / Stage2 9단계 / Stage3 9단계다(각 분기 2곳).
+    /// Stage1 8단계 / Stage2 9단계 / Stage3 9단계다(각 분기 2곳 · 상점·휴식은 구역별 정비 공간 하나).
     /// 이미 존재하는 SO 에셋은 덮어쓰지 않고 건너뛴다.
     ///
     /// 세 빌더는 <b>아무 순서로 여러 번 돌려도 결과가 같다</b> — 시퀀스는 인자가 아니라
@@ -50,10 +50,10 @@ namespace Abyss.EditorTools
             bool proceed = EditorUtility.DisplayDialog(
                 "StageBuilder",
                 "Stage 1 콘텐츠 생성:\n" +
-                "  · RoomData 10개 (Combat 6 + Event 2 + Shop 1 + Rest 1 + Boss 1)\n" +
+                "  · RoomData 11개 (Combat 6 + Event 2 + Shop 1 + Rest 1 + 정비 1 + Boss 1)\n" +
                 "  · EventData 6종 + 휴식 3종 (Assets/Data/Events)\n" +
-                "  · ShopData 3종 (Assets/Data/Shops)\n" +
-                "  · StageData 1개 (Stage1_AbyssEntrance, 9단계 · 분기 2곳)\n\n" +
+                "  · ShopData 3종 + MaintenanceData 1종 (Assets/Data/Shops)\n" +
+                "  · StageData 1개 (Stage1_AbyssEntrance, 8단계 · 분기 2곳 · 상점/휴식 방은 정비 공간 지형 원본으로 보존)\n\n" +
                 "이미 존재하는 SO는 건너뜁니다(분기 표시명·힌트는 갱신).",
                 "생성", "취소");
             if (!proceed) return;
@@ -103,7 +103,8 @@ namespace Abyss.EditorTools
                 new[] { (archer, 2), (brute, 2) },
                 displayName: "매복", hint: "보상 골드 18");
             var room5Alt = CreateOrLoadEventRoom("Room5_Alt_SealedDoor", sealedDoor,
-                displayName: "봉인된 문", hint: "골드 또는 피가 필요하다");
+                displayName: "봉인된 문", hint: "골드 또는 피가 필요하다",
+                interactionMode: RoomInteractionMode.WorldInteraction, mapLength: 24f);
             // 상점은 엘리트·2번째 분기를 지난 뒤, 휴식 앞에 둔다 — 골드가 가장 많이 모인 시점이고,
             // 보스 직전 '준비 구간(상점 → 휴식)'을 만들어 무엇을 사고 어떻게 쉴지 한 묶음으로 계획하게 한다.
             // 분기에 걸지 않고 고정한 이유: 상점은 골드의 유일한 소비처라 지나칠 수 있으면 화폐가 다시 죽는다.
@@ -112,9 +113,14 @@ namespace Abyss.EditorTools
             var roomRest = CreateOrLoadEventRoom("Room6_Rest_Ember", restEmber, RoomType.Rest);
             var room6 = CreateOrLoadRoom("Room6_Boss",      RoomType.Boss, 50,
                 new[] { (boss, 1) }, hasWeaponReward: true);
+            // R2: 상점 → 휴식 두 방을 정비 공간 하나로 합친다(상인 왼쪽·불씨 오른쪽, 순서 자유).
+            // 위 두 방은 진행에서 빠지지만 지우지 않는다 — 상점 방은 지형 원본(레이아웃 별칭)이고 되돌림 경로다.
+            var roomMaintenance = CreateOrLoadMaintenanceRoom("Room6_Maintenance_PeddlerEmber", "Maintenance_PeddlerEmber",
+                "maintenance_peddler_ember", peddler, restEmber, roomShop,
+                displayName: "정비 공간", hint: "상인과 불씨");
 
             // 분기는 항상 '전투 vs 비전투'다 — 전투끼리 갈리면 고를 이유가 숫자뿐이라 선택이 되지 않는다.
-            // 폼 보상·엘리트·상점·휴식·보스는 고정이다. 놓치면 런의 밀도가 크게 달라지는 방들이다.
+            // 폼 보상·엘리트·정비 공간·보스는 고정이다. 놓치면 런의 밀도가 크게 달라지는 방들이다.
             var stage = CreateOrLoadStage(Stage1File, Stage1Id, Stage1Name, new[]
             {
                 Step(room1),
@@ -123,8 +129,7 @@ namespace Abyss.EditorTools
                 Step(roomBone),              // 뼈 궁수 도입
                 Step(room4),
                 Step(room5, room5Alt),       // 분기 ②
-                Step(roomShop),
-                Step(roomRest),
+                Step(roomMaintenance),       // 정비 공간(상점 + 휴식)
                 Step(room6),
             });
 
@@ -140,10 +145,10 @@ namespace Abyss.EditorTools
             bool proceed = EditorUtility.DisplayDialog(
                 "StageBuilder",
                 "Stage 2 '불꽃의 회랑' 콘텐츠 생성:\n" +
-                "  · RoomData 12개 (Combat 6 + Event 2 + Shop 1 + Rest 1 + Elite 1[중간보스] + Boss 1)\n" +
+                "  · RoomData 13개 (기존 12개 + 정비 1개 · 원본 상점/휴식 보존)\n" +
                 "  · EventData 6종 + 휴식 3종 (Assets/Data/Events)\n" +
-                "  · ShopData 3종 (Assets/Data/Shops)\n" +
-                "  · StageData 1개 (Stage2_FlameCorridor, 10단계 · 분기 2곳)\n" +
+                "  · ShopData 3종 + MaintenanceData 1종 (Assets/Data/Shops)\n" +
+                "  · StageData 1개 (Stage2_FlameCorridor, 9단계 · 분기 2곳)\n" +
                 "  · StageSequenceData (디스크의 스테이지를 순서대로 재구성)\n\n" +
                 "이미 존재하는 RoomData/StageData는 건너뜁니다(분기 표시·시퀀스는 갱신).",
                 "생성", "취소");
@@ -201,7 +206,9 @@ namespace Abyss.EditorTools
             // Stage1과 같은 자리(2번째 분기 뒤 · 휴식 앞). 가격은 더 비싸다 — 이 구간의 골드 수입이 2배 이상이라
             // 같은 값이면 뒤로 갈수록 상점이 사실상 공짜가 된다.
             var rShop = CreateOrLoadShopRoom("Stage2_Room6_Shop_AshTrader", ashTrader);
-            var rRest = CreateOrLoadEventRoom("Stage2_Room6_Rest_Camp", restCamp, RoomType.Rest);
+            CreateOrLoadEventRoom("Stage2_Room6_Rest_Camp", restCamp, RoomType.Rest);
+            var rMaintenance = CreateOrLoadMaintenanceRoom("Stage2_Room6_Maintenance_AshTraderCamp", "Maintenance_AshTraderCamp",
+                "maintenance_ash_trader_camp", ashTrader, restCamp, rShop, "정비 공간", "재의 상인과 야영지 불씨");
             var r6 = CreateOrLoadRoom("Stage2_Room6_Serpent",  RoomType.Boss, 70,
                 new[] { (serpent, 1) }, hasWeaponReward: true);
 
@@ -214,8 +221,7 @@ namespace Abyss.EditorTools
                 Step(rEventCache, r5),       // 분기 ① — 중간보스 대비
                 Step(r4),
                 Step(rEventSpring, r6Alt),   // 분기 ② — 중간보스 수습
-                Step(rShop),
-                Step(rRest),
+                Step(rMaintenance),         // 상점·휴식 서비스를 한 방문에 제공
                 Step(r6),
             });
 
@@ -234,10 +240,10 @@ namespace Abyss.EditorTools
             bool proceed = EditorUtility.DisplayDialog(
                 "StageBuilder",
                 "Stage 3 '왕좌의 잔해' 콘텐츠 생성:\n" +
-                "  · RoomData 12개 (Combat 6 + Event 2 + Shop 1 + Rest 1 + Elite 1[중간보스] + Boss 1)\n" +
+                "  · RoomData 13개 (기존 12개 + 정비 1개 · 원본 상점/휴식 보존)\n" +
                 "  · EventData 6종 + 휴식 3종 (Assets/Data/Events)\n" +
-                "  · ShopData 3종 (Assets/Data/Shops)\n" +
-                "  · StageData 1개 (Stage3_ThroneRuins, 10단계 · 분기 2곳)\n" +
+                "  · ShopData 3종 + MaintenanceData 1종 (Assets/Data/Shops)\n" +
+                "  · StageData 1개 (Stage3_ThroneRuins, 9단계 · 분기 2곳)\n" +
                 "  · StageSequenceData (디스크의 스테이지를 순서대로 재구성)\n\n" +
                 "먼저 'Prototype Content'와 'Prototype Prefabs'를 실행해\n" +
                 "MidBossThroneWarden·BossThronebound가 만들어져 있어야 합니다.\n\n" +
@@ -289,16 +295,19 @@ namespace Abyss.EditorTools
             var rWarden = CreateOrLoadRoom("Stage3_Room5_Warden", RoomType.Elite, 40,
                 new[] { (warden, 1), (brute, 2) });
             var rEventOath = CreateOrLoadEventRoom("Stage3_Room6_Event_Oath", oathStone,
-                displayName: "맹세의 돌", hint: "회복 또는 골드 대가");
+                displayName: "맹세의 돌", hint: "회복 또는 골드 대가",
+                interactionMode: RoomInteractionMode.WorldInteraction, mapLength: 24f);
             var r6Alt = CreateOrLoadRoom("Stage3_Room6_Alt_Hall",  RoomType.Combat, 34,
                 new[] { (brute, 3), (archer, 2) },
                 displayName: "대회랑", hint: "보상 골드 34");
             var rShop = CreateOrLoadShopRoom("Stage3_Room7_Shop_GraveRobber", graveRobber);
-            var rRest = CreateOrLoadEventRoom("Stage3_Room7_Rest_ThroneHall", restThrone, RoomType.Rest);
+            CreateOrLoadEventRoom("Stage3_Room7_Rest_ThroneHall", restThrone, RoomType.Rest);
+            var rMaintenance = CreateOrLoadMaintenanceRoom("Stage3_Room7_Maintenance_GraveRobberThroneHall", "Maintenance_GraveRobberThroneHall",
+                "maintenance_grave_robber_throne_hall", graveRobber, restThrone, rShop, "정비 공간", "도굴꾼과 왕좌 홀 불씨");
             var r7 = CreateOrLoadRoom("Stage3_Room8_Thronebound", RoomType.Boss, 100,
                 new[] { (thronebound, 1) }, hasWeaponReward: true);
 
-            // 구조는 Stage1·2와 같다(분기 2곳 · 중간보스를 앞뒤로 감쌈 · 상점 → 휴식 → 보스).
+            // 구조는 Stage1·2와 같다(분기 2곳 · 중간보스를 앞뒤로 감쌈 · 정비 → 보스).
             // 마지막 스테이지라고 형식을 바꾸지 않는다 — 여기까지 익힌 리듬을 그대로 쓰게 두는 편이
             // 최종 보스에 집중하기 좋다.
             var stage3 = CreateOrLoadStage(Stage3File, Stage3Id, Stage3Name, new[]
@@ -310,8 +319,7 @@ namespace Abyss.EditorTools
                 Step(rEventCrown, r4Alt),    // 분기 ① — 중간보스 대비
                 Step(rWarden),
                 Step(rEventOath, r6Alt),     // 분기 ② — 중간보스 수습
-                Step(rShop),
-                Step(rRest),
+                Step(rMaintenance),         // 상점·휴식 서비스를 한 방문에 제공
                 Step(r7),
             });
 

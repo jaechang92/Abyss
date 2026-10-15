@@ -16,6 +16,7 @@ namespace Abyss.Runtime.Stage
     /// </summary>
     public sealed partial class StageDirector
     {
+        private RoomRewardSession rewardSession;
         [Tooltip("무기 보상 룸에서 활성화할 제단. 비우면 무기 보상 룸이 있어도 게이트 없이 진행.")]
         [SerializeField] private WeaponAltar weaponAltar;
 
@@ -33,7 +34,11 @@ namespace Abyss.Runtime.Stage
                 var reward = ResolveRewardForm(room);
                 if (reward != null)
                 {
-                    formAltar.Configure(reward);
+                    var session = new RoomRewardSession(roomEntryVersion, room, RoomRewardKind.Form, formAltar);
+                    rewardSession = session;
+                    formAltar.Configure(reward, generation => IsCurrentReward(session, generation),
+                        generation => ResolveRoomReward(session, generation));
+                    session.BindOffer(formAltar.OfferGeneration);
                     PlaceRewardAltar(formAltar.transform);
                     isRoomGateHeld = true;
                     Debug.Log($"[StageDirector] 폼 보상 룸 — 제단 활성화({reward.formId}), 상호작용까지 진행 보류");
@@ -50,7 +55,11 @@ namespace Abyss.Runtime.Stage
                 var weapon = ResolveRewardWeapon(room);
                 if (weapon != null)
                 {
-                    weaponAltar.Configure(weapon);
+                    var session = new RoomRewardSession(roomEntryVersion, room, RoomRewardKind.Weapon, weaponAltar);
+                    rewardSession = session;
+                    weaponAltar.Configure(weapon, generation => IsCurrentReward(session, generation),
+                        generation => ResolveRoomReward(session, generation));
+                    session.BindOffer(weaponAltar.OfferGeneration);
                     PlaceRewardAltar(weaponAltar.transform);
                     isRoomGateHeld = true;
                     Debug.Log($"[StageDirector] 무기 보상 룸 — 제단 활성화({weapon.weaponId}), 상호작용까지 진행 보류");
@@ -61,6 +70,8 @@ namespace Abyss.Runtime.Stage
                                  "현재 폼의 formId 와 맞는 WeaponData.formBound 가 Resources/Data/Weapons 에 있는지 확인");
             }
 
+            if (room.IsFormRewardRoom && formAltar == null || room.IsWeaponRewardRoom && weaponAltar == null)
+                Debug.LogWarning($"[StageDirector] {room.roomId} 보상 제단 미배선 — 미지급 상태로 진행");
             return false;
         }
 
@@ -131,22 +142,36 @@ namespace Abyss.Runtime.Stage
             return cachedFormController;
         }
 
-        // 폼 보상 모달이 닫히면(획득/거절) 제단을 숨기고 게이트를 푼다.
-        private void HandleFormRewardResolved()
-        {
-            if (!isRoomGateHeld) return;
+        private bool IsCurrentReward(RoomRewardSession session, int generation) =>
+            this != null && isActiveAndEnabled && session != null && session == rewardSession &&
+            !session.IsInvalidated && !session.IsResolved && session.EntryVersion == roomEntryVersion &&
+            session.Room == currentRoom && session.OfferGeneration == generation && session.Altar != null &&
+            session.Altar.isActiveAndEnabled && !isRoomSessionClosed && isRoomClearing &&
+            RunManager.HasInstance && RunManager.Instance.IsRunActive;
 
-            if (formAltar != null) formAltar.gameObject.SetActive(false);
-            ReleaseRoomGate("폼 보상 해결");
+        private void ResolveRoomReward(RoomRewardSession session, int generation)
+        {
+            if (!IsCurrentReward(session, generation) || !isRoomGateHeld || !session.TryResolve()) return;
+            session.Altar.gameObject.SetActive(false);
+            ReleaseRoomGate($"{session.Kind} 보상 세션 해결");
         }
 
-        // 무기 제단을 집으면(획득은 제단이 이미 끝냈다) 제단을 숨기고 게이트를 푼다.
-        private void HandleWeaponRewardResolved()
+        private void ResetRewardSession(bool canReleaseModalPause)
         {
-            if (!isRoomGateHeld) return;
-
+            rewardSession?.Invalidate();
+            rewardSession = null;
+            isRoomGateHeld = false;
+            if (formAltar != null)
+            {
+                formAltar.InvalidateOffer(canReleaseModalPause);
+                formAltar.gameObject.SetActive(false);
+            }
+            if (weaponAltar != null) weaponAltar.InvalidateOffer();
             if (weaponAltar != null) weaponAltar.gameObject.SetActive(false);
-            ReleaseRoomGate("무기 보상 해결");
         }
+
+        // 호환 전역 신호는 관찰용이다. 방 게이트는 세대 지정 callback만 해제한다.
+        private void HandleFormRewardResolved() { }
+        private void HandleWeaponRewardResolved() { }
     }
 }

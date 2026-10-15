@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 999479c120d5d04418b9906a7582388d, type: 3}
+  m_Name: Maintenance_AshTraderCamp
+  m_EditorClassIdentifier: 
+  maintenanceId: maintenance_ash_trader_camp
+  shopData: {fileID: 11400000, guid: ccc631be9b0cb744085cc3145be0e523, type: 2}
+  restEventData: {fileID: 11400000, guid: f8b18ebe7779de5489d1d1d49c90eb34, type: 2}
+  layoutSourceRoom: {fileID: 11400000, guid: 18b99398918ef5c42bd6a5deb39cfda4, type: 2}
+  merchantX: -3
+  emberX: 3

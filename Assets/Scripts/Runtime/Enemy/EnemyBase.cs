@@ -108,7 +108,7 @@ namespace Abyss.Runtime.Enemy
             // 자기 전용 atlas 로 그려지면 구별할 필요가 없어 입히지 않는다(A1 — 엘리트 변종 고유 그림).
             if (data != null && data.bodyTint != Color.white && !UsesDedicatedAtlasArt) visuals?.SetBaseColor(data.bodyTint);
 
-            fsm.StartStateMachine(EnemyStateIds.Patrol);
+            fsm.StartStateMachine(InitialStateId);
         }
 
         protected virtual void Update()
@@ -126,12 +126,13 @@ namespace Abyss.Runtime.Enemy
             // 사망 후에도 사망 클립 동안 남은 수평 속도로 미끄러지지 않게 한다. 낙하(y)는 그대로 둔다.
             if (isDead)
             {
-                StopHorizontal();
+                StopDeadMotion();
                 return;
             }
             if (fsm == null || !fsm.IsRunning) return;
 
             string current = fsm.CurrentStateId;
+            if (TryMoveSpecialState(current, Time.fixedDeltaTime)) return;
             if (current == EnemyStateIds.Chase)
             {
                 MoveTowardTarget();
@@ -270,6 +271,9 @@ namespace Abyss.Runtime.Enemy
             if (currentHp < previous) WorldArtFx.Play("hit-spark", transform.position, owner: transform);
             OnHpChanged?.Invoke(previous, currentHp);
 
+            // 실제로 HP 가 깎이고 살아 있을 때만 — 치명타·0 피해는 새 교전을 만들지 않는다(보스 원거리 교전).
+            if (currentHp < previous && currentHp > 0) OnLivingHpLost();
+
             visuals?.Flash();
             // 사망 프레임에는 피격음 대신 사망음만 낸다 — 둘이 겹치면 마지막 타격이 뭉개진다.
             if (currentHp > 0) PlaySfx(data?.hitSfx);
@@ -278,12 +282,24 @@ namespace Abyss.Runtime.Enemy
             else if (causesStagger) staggerQueued = true;
         }
 
+        /// <summary>
+        /// 살아 있는 채로 HP 가 실제로 줄었을 때 1회(직격·연소 공통 경로). 기본 무동작 — 일반 적은 옛 동작 그대로다.
+        /// 보스가 감지 범위 밖에서 맞았을 때 교전을 기억하는 데 쓴다(<see cref="BossEnemy"/>).
+        /// </summary>
+        protected virtual void OnLivingHpLost() { }
+
+        /// <summary>
+        /// 감지 범위 밖이어도 추적할지. 기본 false — 일반 적은 감지 범위 밖이면 순찰로 돌아간다.
+        /// 추적만 넓힌다: 공격 사거리·패턴의 감지 범위 게이트는 그대로다.
+        /// </summary>
+        protected virtual bool ShouldPursueBeyondDetection => false;
+
         private void Die()
         {
             if (isDead) return;
             isDead = true;
             // 추적·순찰 중 남은 수평 속도를 즉시 끊는다 — 사망 FixedUpdate 도 계속 멈춘다.
-            if (body != null) StopHorizontal();
+            if (body != null) StopDeadMotion();
 
             // 파생 훅 — 처치 이벤트보다 먼저(소환사가 졸개를 거둬야 StageDirector가 같은 이벤트에서 함께 지운다).
             OnDying();
@@ -323,6 +339,7 @@ namespace Abyss.Runtime.Enemy
             fsm.AddState(new NamedState(EnemyStateIds.Attack, () => { LogEnter(EnemyStateIds.Attack); BeginAttack(); }));
             fsm.AddState(new NamedState(EnemyStateIds.Stagger, () => LogEnter(EnemyStateIds.Stagger)));
             fsm.AddState(new NamedState(EnemyStateIds.Dead, () => LogEnter(EnemyStateIds.Dead)));
+            RegisterAdditionalStates(fsm);
         }
 
         private void LogEnter(string stateId)
@@ -353,10 +370,14 @@ namespace Abyss.Runtime.Enemy
                 if (!EnemyTimedState.IsStaggerIgnored(ResistsStaggerWhileAttacking, current, Time.time, timedStateExitTime))
                 {
                     timedStateExitTime = Time.time + staggerDuration;
+                    OnCombatInterrupted();
                     fsm.ForceTransitionTo(EnemyStateIds.Stagger);
                     return;
                 }
             }
+
+            if (current == EnemyStateIds.Stagger && EnemyTimedState.IsHeld(current, Time.time, timedStateExitTime)) return;
+            if (TryEvaluateSpecialTransitions(current)) return;
 
             if (current == EnemyStateIds.Attack && EnemyTimedState.IsStrikeDue(hasStruck, Time.time, strikeTime))
             {
@@ -392,7 +413,7 @@ namespace Abyss.Runtime.Enemy
                 return;
             }
 
-            if (distance <= data.detectionRange)
+            if (distance <= data.detectionRange || ShouldPursueBeyondDetection)
             {
                 if (current != EnemyStateIds.Chase) fsm.ForceTransitionTo(EnemyStateIds.Chase);
                 return;

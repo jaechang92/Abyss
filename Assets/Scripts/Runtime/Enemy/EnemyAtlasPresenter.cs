@@ -55,6 +55,10 @@ namespace Abyss.Runtime.Enemy
         private bool isPatternActive;
         private bool isPatternEnded;
 
+        // 공격 시각과 별개인 지속 상태 표현. 비반복 행도 종료 호출까지 마지막 프레임을 유지한다.
+        private bool isStateRowActive;
+        private bool doesStateRowLoop;
+
         // 마지막 FSM 상태 — 패턴이 끝나면 이것으로 돌아간다.
         private string fsmStateId;
         private float fsmStateStart;
@@ -131,6 +135,7 @@ namespace Abyss.Runtime.Enemy
             float now = Time.time;
             isPatternActive = false;
             isPatternEnded = false;
+            isStateRowActive = false;
             isDeadClip = false;
             clip = null; // 지난 생의 미완 행(타격 전 꺼진 패턴은 끝 시각이 없다)을 이어 붙잡지 않는다.
             fsmStateId = fsm != null ? fsm.CurrentStateId : null;
@@ -147,6 +152,7 @@ namespace Abyss.Runtime.Enemy
             isBound = false;
             if (fsm != null) fsm.OnStateChanged -= HandleStateChanged;
             isPatternActive = false;
+            isStateRowActive = false;
         }
 
         /// <summary>🔴 old == new 도 온다 — 경직 중 다시 맞으면 피격 행을 처음부터 다시 튼다.</summary>
@@ -162,7 +168,13 @@ namespace Abyss.Runtime.Enemy
                 PlayDead(now);
                 return;
             }
+            if (newStateId == EnemyStateIds.Stagger && isStateRowActive)
+            {
+                isStateRowActive = false;
+                clip = null;
+            }
             if (isPatternActive) return;
+            if (isStateRowActive) return;
 
             PlayForFsm(newStateId, now, now);
         }
@@ -182,6 +194,7 @@ namespace Abyss.Runtime.Enemy
             if (row == null) return;
 
             float now = Time.time;
+            isStateRowActive = false;
             isPatternActive = true;
             isPatternEnded = false;
             Configure(row, now, Mathf.Min(STRIKE_FRAME, row.FrameCount - 1), Mathf.Max(0f, preparation),
@@ -211,6 +224,41 @@ namespace Abyss.Runtime.Enemy
             isPatternEnded = true;
             if (float.IsPositiveInfinity(strikeTime)) ReleasePattern(Time.time);
         }
+
+        /// <summary>취소는 공격 회복 프레임을 기다리지 않는다. 기존 보스의 정상 EndPattern은 유지한다.</summary>
+        public void CancelPattern()
+        {
+            if (isPatternActive) ReleasePattern(Time.time);
+        }
+
+        /// <summary>지속 상태 표현을 명시적으로 시작한다. 누락 행은 move로 폴백하고 false를 반환한다.</summary>
+        public bool BeginStateRow(string rowId, bool loop = true)
+        {
+            if (!isInitialized || isDeadClip || owner == null || owner.IsDead) return false;
+            var row = set.Get(rowId);
+            bool hasRequestedRow = row != null;
+            if (row == null) row = set.Get(EnemyAtlasRowIds.Move);
+            if (row == null) return false;
+
+            isPatternActive = false;
+            isPatternEnded = false;
+            isStateRowActive = true;
+            doesStateRowLoop = loop;
+            float now = Time.time;
+            Configure(row, now, 0, 0f, now, 1f / row.FramesPerSecond);
+            Apply(now);
+            return hasRequestedRow;
+        }
+
+        public void EndStateRow()
+        {
+            if (!isStateRowActive) return;
+            isStateRowActive = false;
+            clip = null;
+            if (!isDeadClip) PlayForFsm(fsmStateId, fsmStateStart, Time.time);
+        }
+
+        public void CancelStateRow() => EndStateRow();
 
         private void ReleasePattern(float now)
         {
@@ -294,6 +342,7 @@ namespace Abyss.Runtime.Enemy
         {
             isPatternActive = false;
             isPatternEnded = false;
+            isStateRowActive = false;
 
             var row = set.Get(EnemyAtlasRowIds.Dead);
             if (row == null) return;
@@ -328,7 +377,7 @@ namespace Abyss.Runtime.Enemy
             {
                 if (isPatternEnded && IsComplete(now)) ReleasePattern(now);
             }
-            else if (!isDeadClip && !clip.IsLoop && IsComplete(now))
+            else if (!isDeadClip && !isStateRowActive && !clip.IsLoop && IsComplete(now))
             {
                 PlayMove(now);
             }
@@ -347,6 +396,11 @@ namespace Abyss.Runtime.Enemy
         private int FrameAt(float now)
         {
             int count = clip.FrameCount;
+            if (isStateRowActive)
+            {
+                int index = Mathf.FloorToInt((now - startTime) * clip.FramesPerSecond);
+                return doesStateRowLoop ? ((index % count) + count) % count : Mathf.Clamp(index, 0, count - 1);
+            }
             if (clip.IsLoop && !isPatternActive)
             {
                 int index = Mathf.FloorToInt((now - startTime) * clip.FramesPerSecond);
@@ -368,6 +422,7 @@ namespace Abyss.Runtime.Enemy
         private bool IsComplete(float now)
         {
             if (clip == null) return true;
+            if (isStateRowActive) return false;
             if (clip.IsLoop && !isPatternActive) return false;
             return now >= strikeTime + (clip.FrameCount - split) * postFrameDuration;
         }

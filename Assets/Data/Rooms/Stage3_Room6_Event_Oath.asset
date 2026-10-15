@@ -25,3 +25,4 @@ MonoBehaviour:
   mapLength: 24
   placements: []
   reinforcements: []
+  interactionMode: 1

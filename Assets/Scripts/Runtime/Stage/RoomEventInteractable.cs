@@ -37,11 +37,14 @@ namespace Abyss.Runtime.Stage
         private Func<bool> canOpen;
         private Action onOpen;
         private SpriteRenderer visual;
+        private TextMesh label;
+        private Color readyColor;
+        private bool isCombatLocked;
         private bool isResolved;
 
         public string InteractionPrompt => $"{title} — 살펴본다 (G)";
 
-        public bool CanInteract => !isResolved && canOpen != null && onOpen != null && canOpen();
+        public bool CanInteract => !isCombatLocked && !isResolved && canOpen != null && onOpen != null && canOpen();
 
         /// <summary>
         /// 발밑(<paramref name="footPosition"/>)에 서는 이벤트 오브젝트를 만든다.
@@ -61,7 +64,8 @@ namespace Abyss.Runtime.Stage
             target.onOpen = onOpen;
 
             float height = target.BuildVisual(sourceVisual);
-            CreateLabel(go.transform, title, new Vector3(0f, height + LABEL_GAP, 0f));
+            target.readyColor = target.visual.color;
+            target.label = CreateLabel(go.transform, title, new Vector3(0f, height + LABEL_GAP, 0f));
 
             // 상호작용 판정 — PlayerInteractor 는 트리거 진입으로 후보를 모은다(RoomExitDoor 와 같은 방식).
             var trigger = go.AddComponent<BoxCollider2D>();
@@ -76,6 +80,15 @@ namespace Abyss.Runtime.Stage
             // 판정과 발동 사이에 상태가 바뀌었을 수 있다 — 발동 직전에 다시 묻는다.
             if (!CanInteract) return;
             onOpen.Invoke();
+        }
+
+        /// <summary>잠금은 그림·고정 라벨로 보여 준다. CanInteract가 false여도 전투 중임을 읽을 수 있다.</summary>
+        public void SetCombatLocked(bool isLocked)
+        {
+            if (isResolved) return;
+            isCombatLocked = isLocked;
+            if (visual != null) visual.color = isLocked ? readyColor * new Color(0.45f, 0.45f, 0.55f, 1f) : readyColor;
+            if (label != null) label.text = title + (isLocked ? "\n잠김 · 주변 적 처치" : "\n개방 · 살펴볼 수 있음");
         }
 
         /// <summary>해결 표시 — 흐리게 남겨 「이미 응답한 제단」임을 알린다. 상호작용은 다시 받지 않는다.</summary>
@@ -93,6 +106,7 @@ namespace Abyss.Runtime.Stage
         {
             if (isResolved) return;
             isResolved = true;
+            if (label != null) label.text = title + "\n살펴봄";
             if (visual == null) return;
             var c = visual.color;
             c.a *= RESOLVED_ALPHA_SCALE;
@@ -137,7 +151,7 @@ namespace Abyss.Runtime.Stage
             return FALLBACK_HEIGHT;
         }
 
-        private static void CreateLabel(Transform parent, string text, Vector3 localPosition)
+        private static TextMesh CreateLabel(Transform parent, string text, Vector3 localPosition)
         {
             var go = new GameObject("Label");
             go.transform.SetParent(parent, false);
@@ -155,6 +169,7 @@ namespace Abyss.Runtime.Stage
             var renderer = go.GetComponent<MeshRenderer>();
             if (mesh.font != null) renderer.sharedMaterial = mesh.font.material;
             renderer.sortingOrder = ORDER_LABEL;
+            return mesh;
         }
 
         /// <summary>1유닛 흰 사각형(피벗 가운데). 빌릴 제단 그림이 없을 때만 쓴다.</summary>

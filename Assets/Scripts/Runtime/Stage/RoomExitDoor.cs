@@ -88,7 +88,7 @@ namespace Abyss.Runtime.Stage
         /// 발밑(<paramref name="footPosition"/>)에 서는 문을 만든다 — 방이 아닌 곳(다음 스테이지 등)으로 가는 문도 이것으로.
         /// </summary>
         public static RoomExitDoor Create(Transform parent, Vector3 footPosition, string objectName, string headline,
-                                          string title, Color color, Action chosen)
+                                          string title, Color color, Action chosen, bool isReturnDoor = false)
         {
             var go = new GameObject(objectName);
             go.transform.SetParent(parent, false);
@@ -117,7 +117,8 @@ namespace Abyss.Runtime.Stage
             trigger.size = new Vector2(DOOR_WIDTH + 0.6f, DOOR_HEIGHT);
             trigger.offset = new Vector2(0f, DOOR_HEIGHT * 0.5f);
 
-            var stairs = WorldArtLibrary.Place(go.transform, "exit/descending-stairs", Vector3.zero, 2.4f, ORDER_DOOR + 2);
+            var stairs = WorldArtLibrary.Place(go.transform, isReturnDoor ? "exit/return-stairs" : "exit/descending-stairs",
+                Vector3.zero, 2.4f, ORDER_DOOR + 2);
             if (stairs != null)
             {
                 frame.SetActive(false);
@@ -134,6 +135,9 @@ namespace Abyss.Runtime.Stage
             isUsed = true;
             onChosen.Invoke();
         }
+
+        /// <summary>현재 방의 일시 입력 잠금으로 거절된 직접 귀환은 같은 문에서 다시 시도할 수 있다.</summary>
+        public void RestoreUse() => isUsed = false;
 
         // ───────────────────────── 생성 점등 ─────────────────────────
 

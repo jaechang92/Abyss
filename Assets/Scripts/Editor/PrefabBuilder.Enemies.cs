@@ -26,6 +26,12 @@ namespace Abyss.EditorTools
 
         private static bool BuildEnemyPrefab(EnemyData data, Sprite sprite, bool forceRebuild)
         {
+            // 환경형은 전용 신규 생성기로만 만든다. 전체 강제 재생성도 기존 연결을 보존한다.
+            if (data.enemyId is "burrow_spider" or "wall_crawler" or "floater")
+            {
+                Debug.Log($"[PrefabBuilder] 환경형 전용 생성 메뉴 사용: {data.enemyId}");
+                return false;
+            }
             string prefabName = ToPascalCase(data.enemyId);
             string prefabPath = $"{AbyssPaths.EnemyPrefabs}/{prefabName}.prefab";
 
@@ -168,6 +174,7 @@ namespace Abyss.EditorTools
         {
             switch (data.enemyId)
             {
+                case "burrow_spider": return root.AddComponent<BurrowSpiderEnemy>();
                 case "midboss_sentinel":
                 {
                     var sentinel = root.AddComponent<MidBossSentinelBoss>();

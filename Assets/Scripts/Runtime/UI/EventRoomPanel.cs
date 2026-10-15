@@ -70,6 +70,9 @@ namespace Abyss.Runtime.UI
         private Action worldConfirmed;
         private Text continueLabel;
 
+        // 메뉴 글자 확대·본문/선택지 스크롤 배치(EventRoomReadability.cs). 효과·포커스 규약은 건드리지 않는다.
+        private EventRoomReadability readability;
+
         /// <summary>이벤트를 연다. 선택이 끝나면 <see cref="GameEvents.OnEventResolved"/>가 발행된다.</summary>
         public static void Open(EventData data)
         {
@@ -90,8 +93,11 @@ namespace Abyss.Runtime.UI
         /// 월드 오브젝트에서 연다(R1). 선택·효과·결과·드래프트 순서는 legacy와 같고, [확인]이 UI를 닫고 드래프트를 연 뒤
         /// <paramref name="onConfirmed"/>를 부른다 — <see cref="GameEvents.OnEventResolved"/>는 내지 않는다.
         /// 바깥에서 꺼지거나 파괴되면 콜백은 오지 않는다(자동 해결 없음). 열지 못했으면 false.
+        /// <paramref name="isOwnerValid"/>가 있으면 선택·[확인] 효과 앞과 매 프레임 확인해, 거짓이면 효과·드래프트·콜백 없이 닫는다
+        /// (EventRoomPanel.WorldInteraction.cs). null이면 확인하지 않는다(R1 호출 그대로).
         /// </summary>
-        public static bool OpenForWorld(EventData data, Action onConfirmed, Action<bool> onArtResolved = null)
+        public static bool OpenForWorld(EventData data, Action onConfirmed, Action<bool> onArtResolved = null,
+                                        Func<bool> isOwnerValid = null)
         {
             if (onConfirmed == null || data == null || data.choices == null || data.choices.Count == 0)
             {
@@ -103,11 +109,17 @@ namespace Abyss.Runtime.UI
                 Debug.LogWarning("[EventRoomPanel] 이미 열린 이벤트가 있다 — 월드 이벤트를 열지 않는다");
                 return false;
             }
+            if (isOwnerValid != null && !isOwnerValid())
+            {
+                Debug.LogWarning("[EventRoomPanel] 연 쪽이 이미 낡았다 — 월드 이벤트를 열지 않는다");
+                return false;
+            }
 
             var panel = EnsureInstance();
             if (panel == null) return false;
             panel.Show(data, onConfirmed);
             panel.worldArtResolved = onArtResolved;
+            panel.isWorldOwnerValid = isOwnerValid;
             return true;
         }
 
@@ -123,6 +135,7 @@ namespace Abyss.Runtime.UI
             chosen = null;
             worldConfirmed = onConfirmed;
             worldArtResolved = null;
+            isWorldOwnerValid = null;   // legacy 열림은 판정 없음. 월드 열림은 OpenForWorld가 Show 뒤에 새로 건다.
             wasArtConsumed = false;
             ApplyEventArtwork(false);
 
@@ -136,6 +149,12 @@ namespace Abyss.Runtime.UI
             if (continueRoot != null) continueRoot.SetActive(false);
 
             ShowBody();
+            // 새 이벤트는 맨 위부터 읽는다. 첫 포커스 전에 배치해 선택지 위치를 확정한다.
+            if (readability != null)
+            {
+                readability.ResetReading();
+                readability.Apply();
+            }
             BeginFocus();
         }
 
@@ -173,6 +192,8 @@ namespace Abyss.Runtime.UI
         {
             // 연 프레임·이미 고른 뒤·상위 모달이 쥔 동안의 클릭은 버린다 — 효과가 두 번 적용되지 않게(Navigation 참조).
             if (!CanAcceptChoice) return;
+            // 연 쪽이 낡았으면 효과·그림 적용 전에 닫는다(마우스·Submit 모두 여기를 지난다).
+            if (CloseIfWorldOwnerStale()) return;
             if (current == null || index < 0 || index >= current.choices.Count) return;
 
             var candidate = current.choices[index];
@@ -209,6 +230,12 @@ namespace Abyss.Runtime.UI
 
             foreach (var b in choiceButtons) b.gameObject.SetActive(false);
             if (continueRoot != null) continueRoot.SetActive(true);
+            // 결과 문구도 맨 위부터. [계속]은 고정 바닥이라 스크롤 노출 대상이 아니다.
+            if (readability != null)
+            {
+                readability.ResetReading();
+                readability.Apply();
+            }
             BeginResultFocus();
         }
 
@@ -224,11 +251,14 @@ namespace Abyss.Runtime.UI
         {
             // 한 번만 끝낸다 — 결과가 뜬 그 프레임의 Submit·상위 모달 입력·두 번째 입력(클릭+ESC/B)은 버린다.
             if (!CanAcceptContinue) return;
+            // 연 쪽이 낡았으면 그림 훅·드래프트·확인 콜백 전에 닫는다(클릭·Submit·ESC/B 모두 여기를 지난다).
+            if (CloseIfWorldOwnerStale()) return;
 
             int drafts = pendingDrafts;
             pendingDrafts = 0;
             var confirmed = worldConfirmed;
             worldConfirmed = null;
+            isWorldOwnerValid = null;
 
             var artResolved = worldArtResolved;
             worldArtResolved = null;
@@ -277,6 +307,8 @@ namespace Abyss.Runtime.UI
 
             BuildChoiceButtons(panel.transform);
             BuildContinue(panel.transform);
+            // 본문·선택지를 같은 참조 그대로 스크롤 내용으로 한 번 옮긴다. 제목·[계속]은 Panel에 남는다.
+            readability = EventRoomReadability.Attach(body, titleText, descriptionText, choiceButtons, continueButton);
         }
 
         private void BuildChoiceButtons(Transform parent)

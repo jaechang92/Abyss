@@ -15,13 +15,23 @@ MonoBehaviour:
   roomId: stage3_room4_event_crown
   roomType: 3
   displayName: "\uBE48 \uC655\uAD00"
-  hint: "\uBA38\uB9AC\uB97C \uB0B4\uC8FC\uBA74 \uAC12\uC774 \uD06C\uB2E4"
-  enemies: []
+  hint: "수비대 2마리 처치 후 왕관의 대가 선택"
+  enemies:
+  - data: {fileID: 11400000, guid: 00319edb5f5c9024d9fb492c24ed94fd, type: 2}
+    count: 1
+  - data: {fileID: 11400000, guid: 3825ebf787f068e4591b38e30f222528, type: 2}
+    count: 1
   clearGoldReward: 0
   hasFormReward: 0
   formReward: {fileID: 0}
   eventData: {fileID: 11400000, guid: 6305823d5ba8dd9409510c03ba0ceeb3, type: 2}
   shopData: {fileID: 0}
   mapLength: 24
-  placements: []
+  placements:
+  - data: {fileID: 11400000, guid: 00319edb5f5c9024d9fb492c24ed94fd, type: 2}
+    x: -2
+  - data: {fileID: 11400000, guid: 3825ebf787f068e4591b38e30f222528, type: 2}
+    x: 6
   reinforcements: []
+  interactionMode: 1
+  isCombatDiscovery: 1

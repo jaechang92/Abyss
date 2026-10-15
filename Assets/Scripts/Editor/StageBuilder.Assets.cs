@@ -80,7 +80,7 @@ namespace Abyss.EditorTools
         /// 분기 선택지 표시 정보를 기존 에셋에 반영한다.
         /// 방 배치가 바뀌면 어떤 방이 선택지로 노출되는지도 바뀌므로 **재실행으로 갱신되어야 한다**
         /// (폼 보상 지정과 같은 규약). 인자가 null이면 손대지 않는다 — 인스펙터에서 손으로 적은 문구를
-        /// 빌더가 지우면 안 된다.
+        /// 빌더가 지우면 안 된다. 전투 발견물의 hint는 전투 배치와 함께 관리하므로 기존 값을 보존한다.
         /// </summary>
         private static void ApplyChoiceDisplay(RoomData room, string path, string displayName, string hint)
         {
@@ -90,7 +90,7 @@ namespace Abyss.EditorTools
                 room.displayName = displayName;
                 changed = true;
             }
-            if (hint != null && room.hint != hint)
+            if (!room.isCombatDiscovery && hint != null && room.hint != hint)
             {
                 room.hint = hint;
                 changed = true;
@@ -110,10 +110,14 @@ namespace Abyss.EditorTools
         ///
         /// 기존 에셋이 있으면 eventData 참조만 갱신한다. 방 배치는 데이터 구동이라 재실행으로 반영되어야
         /// 하지만, 인스펙터에서 다른 값을 만졌을 수 있어 전체를 덮어쓰지는 않는다(폼 보상 룸과 같은 규약).
+        ///
+        /// <paramref name="interactionMode"/>·<paramref name="mapLength"/>는 신규 생성 시의 기본값일 뿐이다 —
+        /// 기존 에셋의 상호작용 방식·맵 길이(수동 입력)는 덮어쓰지 않는다. 생략하면 LegacyAuto·아레나(0)로 기존과 같다.
         /// </summary>
         private static RoomData CreateOrLoadEventRoom(
             string fileName, EventData eventData, RoomType roomType = RoomType.Event,
-            string displayName = null, string hint = null)
+            string displayName = null, string hint = null,
+            RoomInteractionMode interactionMode = RoomInteractionMode.LegacyAuto, float mapLength = 0f)
         {
             string path = $"{AbyssPaths.Rooms}/{fileName}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<RoomData>(path);
@@ -137,6 +141,8 @@ namespace Abyss.EditorTools
             so.eventData = eventData;
             so.displayName = displayName;
             so.hint = hint;
+            so.interactionMode = interactionMode;
+            so.mapLength = mapLength;
             so.enemies = new List<EnemySpawnEntry>();
             AssetDatabase.CreateAsset(so, path);
             Debug.Log($"[StageBuilder] 생성: {path}");

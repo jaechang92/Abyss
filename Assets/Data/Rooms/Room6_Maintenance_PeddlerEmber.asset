@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dca2f464adf7b14bb9770618efa96d0, type: 3}
+  m_Name: Room6_Maintenance_PeddlerEmber
+  m_EditorClassIdentifier: 
+  roomId: room6_maintenance_peddlerember
+  roomType: 5
+  displayName: "\uC815\uBE44 \uACF5\uAC04"
+  hint: "\uC0C1\uC778\uACFC \uBD88\uC528"
+  enemies: []
+  mapLength: 24
+  placements: []
+  reinforcements: []
+  clearGoldReward: 0
+  hasFormReward: 0
+  formReward: {fileID: 0}
+  hasWeaponReward: 0
+  weaponReward: {fileID: 0}
+  eventData: {fileID: 0}
+  shopData: {fileID: 0}
+  interactionMode: 0
+  maintenanceData: {fileID: 11400000, guid: 615098782b9c4b81b68636b12ed69d70, type: 2}

@@ -1,4 +1,4 @@
-using Abyss.Runtime.Combat;
+﻿using Abyss.Runtime.Combat;
 using UnityEngine;
 
 namespace Abyss.Runtime.Enemy
@@ -54,6 +54,8 @@ namespace Abyss.Runtime.Enemy
         public AudioClip hitSfx;
         [Tooltip("사망 시 1회. 비우면 무음.")]
         public AudioClip deathSfx;
+        [Tooltip("일반/엘리트의 타격·발사 시 1회(연사는 매 발). 비우면 무음. 보스 고유음은 별도 유지.")]
+        public AudioClip attackSfx;
 
         /// <summary>
         /// 보스 처치 판정·프리팹 크기·발사체 연결에 쓰는 동작 스위치.

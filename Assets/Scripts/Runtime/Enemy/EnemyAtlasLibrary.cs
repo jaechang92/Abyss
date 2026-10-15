@@ -14,6 +14,13 @@ namespace Abyss.Runtime.Enemy
         public const string Attack = "attack";
         public const string Hit = "hit";
         public const string Dead = "dead";
+        public const string CeilingWait = "ceiling_wait";
+        public const string Drop = "drop";
+        public const string Buried = "buried";
+        public const string Emerge = "emerge";
+        public const string Burrow = "burrow";
+        public const string Hover = "hover";
+        public const string Dash = "dash";
 
         /// <summary>심연의 수호자 탄막 예고 → 발사.</summary>
         public const string Volley = "volley";
@@ -38,8 +45,9 @@ namespace Abyss.Runtime.Enemy
 
         public EnemyAtlasClip(Sprite[] sprites, float framesPerSecond, bool isLoop)
         {
-            Sprites = sprites;
-            FramesPerSecond = framesPerSecond > 0f ? framesPerSecond : 8f;
+            Sprites = sprites ?? Array.Empty<Sprite>();
+            FramesPerSecond = framesPerSecond > 0f && !float.IsInfinity(framesPerSecond)
+                ? Mathf.Clamp(framesPerSecond, 0.1f, 120f) : 8f;
             IsLoop = isLoop;
         }
     }
@@ -56,7 +64,8 @@ namespace Abyss.Runtime.Enemy
 
         public EnemyAtlasClip Get(string rowId)
         {
-            return rowId != null && clips.TryGetValue(rowId, out var clip) ? clip : null;
+            return rowId != null && clips.TryGetValue(rowId, out var clip)
+                && clip != null && clip.FrameCount > 0 ? clip : null;
         }
 
         public int RowCount => clips.Count;
@@ -95,6 +104,7 @@ namespace Abyss.Runtime.Enemy
         public static EnemyAtlasSet TryGet(string enemyId, float localFootY)
         {
             if (string.IsNullOrEmpty(enemyId)) return null;
+            if (float.IsNaN(localFootY) || float.IsInfinity(localFootY)) localFootY = 0f;
 
             string key = enemyId + "|" + Mathf.RoundToInt(localFootY * 1000f);
             if (sets.TryGetValue(key, out var cached)) return cached;
@@ -140,7 +150,8 @@ namespace Abyss.Runtime.Enemy
 
         private static EnemyAtlasSet Build(AtlasEnemyRecord record, float localFootY)
         {
-            if (record.Rows == null || record.PixelsPerUnit <= 0f) return null;
+            if (record.Rows == null || record.PixelsPerUnit <= 0f
+                || float.IsNaN(record.PixelsPerUnit) || float.IsInfinity(record.PixelsPerUnit)) return null;
 
             var clips = new Dictionary<string, EnemyAtlasClip>();
             foreach (var row in record.Rows)
@@ -169,6 +180,13 @@ namespace Abyss.Runtime.Enemy
             }
 
             float ppu = record.PixelsPerUnit;
+            // 잘못된 행은 Sprite.Create 전에 전부 거절하여 일부 프레임만 생성되는 상태를 피한다.
+            foreach (var frame in row.Frames)
+            {
+                if (frame == null || frame.W <= 0 || frame.H <= 0 || frame.X < 0 || frame.Y < 0
+                    || (long)frame.X + frame.W > texture.width || (long)frame.Y + frame.H > texture.height
+                    || frame.FootY < 0 || frame.FootY > frame.H) return null;
+            }
             var sprites = new Sprite[row.Frames.Length];
             for (int i = 0; i < row.Frames.Length; i++)
             {

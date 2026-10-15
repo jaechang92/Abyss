@@ -10,7 +10,7 @@ namespace Abyss.Runtime.Stage
     /// 월드 상호작용 이벤트 방(R1 — 21-room-reward-flow §4·5). <see cref="RoomData.interactionMode"/>가
     /// <see cref="RoomInteractionMode.WorldInteraction"/>인 맵 이벤트 방만 이 길을 탄다. 나머지는 기존(legacy) 자동 모달 그대로다.
     ///
-    /// 흐름: 클리어(비전투는 진입 즉시) → 맵 가운데에 오브젝트 → 접근·G → 기존 <see cref="EventRoomPanel"/> →
+    /// 흐름: R3는 진입 때 잠긴 오브젝트 → 클리어 시 개방(R1은 클리어 때 생성) → 접근·상호작용 → 기존 <see cref="EventRoomPanel"/> →
     /// [확인] → UI 닫힘 → 드래프트 → 모달이 모두 닫히면 해결 → 기존 보상 문(<see cref="ContinueAfterRoom"/>).
     ///
     /// 🔴 <b>legacy 게이트(<c>isRoomGateHeld</c>)를 잡지 않는다.</b> 인자 없는 <c>OnEventResolved</c>·폼/무기 해결 신호가
@@ -59,13 +59,14 @@ namespace Abyss.Runtime.Stage
         {
             worldSession = null;
             worldEventObject = null;
+            ResetMaintenance();   // 정비 공간 세션도 여기서 끝난다(StageDirector.Maintenance.cs)
         }
 
         /// <summary>
-        /// 월드 이벤트 방이면 오브젝트를 세우고 true — 호출자는 legacy 자동 모달·자동 진행을 하지 않는다.
+        /// 월드 이벤트 방이면 오브젝트를 세우거나 R3의 잠금을 풀고 true — legacy 자동 모달·자동 진행을 하지 않는다.
         /// 조건이 안 맞으면(opt-in 아님·맵 방 아님·선택지 없음) false로 legacy 길에 맡긴다(스톨보다 기존 동작이 낫다).
         /// </summary>
-        private bool TryBeginWorldEvent(RoomData room)
+        private bool TryBeginWorldEvent(RoomData room, bool isCombatLocked = false)
         {
             if (room == null || room.interactionMode != RoomInteractionMode.WorldInteraction) return false;
 
@@ -81,11 +82,23 @@ namespace Abyss.Runtime.Stage
                 return false;
             }
 
-            var session = new RoomInteractionSession(roomEntryVersion, $"{room.roomId}/{data.eventId}", room);
+            // R3는 입장 때 이미 세웠다. 클리어에서는 같은 세션만 개방하고 오브젝트·효과를 중복 생성하지 않는다.
+            if (IsCurrentWorldSession(worldSession) && worldSession.Room == room)
+            {
+                if (!isCombatLocked && worldSession.TryUnlockCombat())
+                {
+                    if (worldEventObject != null) worldEventObject.SetCombatLocked(false);
+                    Debug.Log($"[StageDirector] 전투 발견물 개방: {worldSession.InteractionId}");
+                }
+                return true;
+            }
+
+            var session = new RoomInteractionSession(roomEntryVersion, $"{room.roomId}/{data.eventId}", room, isCombatLocked);
             worldSession = session;
             worldEventObject = RoomEventInteractable.Create(ResolveMapRoot(), new Vector3(0f, ProbeFloorY(0f), 0f),
                 string.IsNullOrEmpty(data.title) ? room.ChoiceTitle : data.title, ResolveEventObjectVisual(),
                 () => CanUseWorldEvent(session), () => HandleWorldEventInteract(session), data.eventId);
+            if (isCombatLocked) worldEventObject.SetCombatLocked(true);
 
             Debug.Log($"[StageDirector] 월드 이벤트 준비: {session.InteractionId} — 접근·상호작용 대기(자동 개방 없음)");
             return true;
@@ -93,7 +106,7 @@ namespace Abyss.Runtime.Stage
 
         private bool IsCurrentWorldSession(RoomInteractionSession session) =>
             this != null && session != null && session == worldSession &&
-            session.EntryVersion == roomEntryVersion && !isRoomSessionClosed;
+            session.EntryVersion == roomEntryVersion && session.Room == CurrentRoom && !isRoomSessionClosed;
 
         private bool CanUseWorldEvent(RoomInteractionSession session) =>
             IsCurrentWorldSession(session) && session.State == RoomInteractionState.Ready && !IsWorldInputBlocked;
@@ -106,7 +119,7 @@ namespace Abyss.Runtime.Stage
             if (EventRoomPanel.OpenForWorld(session.Room.eventData, () => HandleWorldEventConfirmed(session), consumed =>
             {
                 if (IsCurrentWorldSession(session) && worldEventObject != null) worldEventObject.SetArtConsumed(consumed);
-            })) return;
+            }, () => IsCurrentWorldSession(session))) return;
 
             session.CancelPanel();
             Debug.LogWarning($"[StageDirector] {session.InteractionId} 선택 UI를 열지 못했다 — 다시 상호작용 가능");

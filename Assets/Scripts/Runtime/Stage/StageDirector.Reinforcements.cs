@@ -250,6 +250,8 @@ namespace Abyss.Runtime.Stage
         /// <summary>새 방 진입(<see cref="EnterRoom"/>)에서만 부른다 — 세션을 열고 스폰 실패 표시를 새 방 기준으로 지운다.</summary>
         private void OpenRoomSession()
         {
+            ResetRewardSession(true);
+            ResetReturnForRoom();
             isRoomSessionClosed = false;
             hasRoomSpawnFailure = false;
             hasRoomBossEnemy = false;
@@ -262,6 +264,7 @@ namespace Abyss.Runtime.Stage
         /// </summary>
         private void CloseRoomSession(string reason)
         {
+            ResetRewardSession(false);
             isRoomSessionClosed = true;
             ResetTutorialRoom();
             roomEntryVersion += 1;

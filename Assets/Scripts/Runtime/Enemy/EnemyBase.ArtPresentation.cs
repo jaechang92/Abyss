@@ -19,18 +19,18 @@
         }
 
         /// <summary>패턴 시작(예고 시작). <paramref name="preparation"/> 은 실제 예고 대기 시간 — 0 이면 즉발 패턴.</summary>
-        protected void BeginPatternPresentation(string rowId, float preparation)
+        protected void BeginPatternPresentation(string rowId, float preparation, bool faceTarget = true)
         {
             if (atlasPresenter == null) return;
-            FaceTargetForPresentation();
+            if (faceTarget) FaceTargetForPresentation();
             atlasPresenter.BeginPattern(rowId, preparation);
         }
 
         /// <summary>패턴의 실제 타격 시각(판정 직전). 순간이동 뒤라면 새 자리에서 대상을 본다.</summary>
-        protected void StrikePatternPresentation()
+        protected void StrikePatternPresentation(bool faceTarget = true)
         {
             if (atlasPresenter == null) return;
-            FaceTargetForPresentation();
+            if (faceTarget) FaceTargetForPresentation();
             atlasPresenter.StrikePattern();
         }
 
@@ -39,6 +39,23 @@
         {
             if (atlasPresenter == null) return;
             atlasPresenter.EndPattern();
+        }
+
+        /// <summary>지속 상태 행. FSM·공격 시각은 바꾸지 않으며 알 수 없는 행은 이동 행으로 폴백한다.</summary>
+        protected void BeginStatePresentation(string rowId, bool loop = true)
+        {
+            if (atlasPresenter != null) atlasPresenter.BeginStateRow(rowId, loop);
+        }
+
+        protected void EndStatePresentation()
+        {
+            if (atlasPresenter != null) atlasPresenter.EndStateRow();
+        }
+
+        /// <summary>중단 시 회복 그림을 기다리지 않고 즉시 현재 FSM 그림으로 복귀한다.</summary>
+        protected void CancelPatternPresentation()
+        {
+            if (atlasPresenter != null) atlasPresenter.CancelPattern();
         }
 
         private void FaceTargetForPresentation()

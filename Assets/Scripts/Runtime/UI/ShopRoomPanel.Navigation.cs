@@ -37,6 +37,8 @@ namespace Abyss.Runtime.UI
         private void Update()
         {
             if (!IsBodyOpen || current == null) return;
+            // 정비 공간 방문의 세션이 낡았으면(방 이동·런 종료) 지급·알림 없이 닫는다(ShopRoomPanel.WorldInteraction.cs).
+            if (CloseIfWorldOwnerStale()) return;
             if (IsUpperModalOwningInput) return;
 
             if (Time.frameCount != openedFrame && WasCancelPressedThisFrame())
@@ -49,9 +51,17 @@ namespace Abyss.Runtime.UI
         }
 
         // 바깥에서 패널이 꺼지거나 씬이 내려갈 때 상점이 쥔 선택만 비운다 — 꺼진 버튼에 선택이 남지 않게.
-        private void OnDisable() => ClearOwnedSelection();
+        private void OnDisable()
+        {
+            DetachShopLocalization();
+            ClearOwnedSelection();
+        }
 
-        private void OnDestroy() => ClearOwnedSelection();
+        private void OnDestroy()
+        {
+            DetachShopLocalization();
+            ClearOwnedSelection();
+        }
 
         private static bool WasCancelPressedThisFrame()
         {
@@ -65,6 +75,7 @@ namespace Abyss.Runtime.UI
         private void BeginFocus()
         {
             openedFrame = Time.frameCount;
+            shopReadingFocus = null;
             RefreshNavigation();
 
             if (IsUpperModalOwningInput) return;   // 상위 모달이 닫힌 뒤 Update가 상점 안으로 들인다.
@@ -99,7 +110,7 @@ namespace Abyss.Runtime.UI
                 RepairSelection(eventSystem, selected);
                 return;
             }
-            SelectSafely(eventSystem, EntryButton());
+            SelectSafely(eventSystem, selected == null ? ShopReadingFocusOrEntry() : EntryButton());
         }
 
         // ───────────────────────── 탐색 경로 ─────────────────────────

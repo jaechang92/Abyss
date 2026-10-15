@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Linq;
 using Abyss.Runtime.Camera;
@@ -36,7 +36,9 @@ namespace Abyss.EditorTools
 
         private const float Ppu = EnvironmentArtImporter.PixelsPerUnit;
 
-        /// <summary>배경 확대 배율 — ArtTest 와 같은 값(정수여야 픽셀이 안 찌그러진다). 159x95 → 19.9x11.9유닛 ≥ 화면 20x11.25 세로.</summary>
+        /// <summary>배경 확대 배율 — ArtTest 와 같은 값(정수여야 픽셀이 안 찌그러진다). 159x95 → 19.9x11.9유닛.
+        /// C 프로필(세로 16.875)에서는 모자라므로 최후방 하늘(bg_sky)은 실행 중 ParallaxLayer.Coverage 가 정수배로 더 키운다 —
+        /// 이 값을 바꾸지 않아도 저장된 Run 씬에 그대로 적용된다.</summary>
         private const int BackgroundUpscale = 4;
 
         /// <summary>지면 윗줄 아래에 깔 속 타일 줄 수. 카메라 최저(지면 위 2유닛 추적)에서 화면 아래가 비지 않을 만큼.</summary>
@@ -239,17 +241,23 @@ namespace Abyss.EditorTools
             }
         }
 
-        /// <summary>Stage1 방에 묶인 레이아웃 루트의 발판(콜라이더가 붙은 직계 자식). 판정은 StageData 선택지.</summary>
+        /// <summary>
+        /// Stage1 방에 묶인 레이아웃 루트의 발판(콜라이더가 붙은 직계 자식). 판정은 StageData 선택지.
+        /// 정비 공간(R2)이 직접 바인딩 없이 빌려 쓰는 레이아웃 원본 방(<see cref="MaintenanceData.LayoutSourceRoom"/>)의 루트도 포함한다 —
+        /// 런타임(<see cref="RoomLayoutController"/>)과 같은 직접 바인딩 우선 규칙. 원본 방 자체를 스테이지 선택지로 보지는 않는다.
+        /// </summary>
         internal static List<Transform> CollectStagePlatforms(RoomLayoutController layouts, StageData stage)
         {
             var result = new List<Transform>();
             var bindings = new SerializedObject(layouts).FindProperty("bindings");
+            var aliasSources = CollectBorrowedLayoutSources(bindings, stage);
             for (int i = 0; i < bindings.arraySize; i++)
             {
                 var element = bindings.GetArrayElementAtIndex(i);
                 var room = element.FindPropertyRelative("room").objectReferenceValue as RoomData;
                 var layoutRoot = element.FindPropertyRelative("layoutRoot").objectReferenceValue as GameObject;
-                if (layoutRoot == null || !StageEnvironmentRule.Contains(stage, room)) continue;
+                if (layoutRoot == null) continue;
+                if (!StageEnvironmentRule.Contains(stage, room) && !aliasSources.Contains(room)) continue;
 
                 foreach (Transform child in layoutRoot.transform)
                 {
@@ -257,6 +265,31 @@ namespace Abyss.EditorTools
                 }
             }
             return result;
+        }
+
+        /// <summary>스테이지의 정비 공간 중 직접 바인딩이 없는 방이 빌려 쓰는 레이아웃 원본 방들.</summary>
+        private static HashSet<RoomData> CollectBorrowedLayoutSources(SerializedProperty bindings, StageData stage)
+        {
+            var bound = new HashSet<RoomData>();
+            for (int i = 0; i < bindings.arraySize; i++)
+            {
+                var element = bindings.GetArrayElementAtIndex(i);
+                if (element.FindPropertyRelative("layoutRoot").objectReferenceValue == null) continue;
+                if (element.FindPropertyRelative("room").objectReferenceValue is RoomData room) bound.Add(room);
+            }
+
+            var sources = new HashSet<RoomData>();
+            if (stage?.steps == null) return sources;
+            foreach (var step in stage.steps)
+            {
+                if (step?.options == null) continue;
+                foreach (var room in step.options)
+                {
+                    var source = room != null && room.maintenanceData != null ? room.maintenanceData.LayoutSourceRoom : null;
+                    if (source != null && !bound.Contains(room)) sources.Add(source);
+                }
+            }
+            return sources;
         }
 
         // ───────────────────────────────────────────────────────────── 배경

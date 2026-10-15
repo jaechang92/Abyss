@@ -5,10 +5,21 @@ using UnityEngine;
 
 namespace Abyss.Runtime.Stage
 {
-    /// <summary>Room-owned visual skins only. Colliders, camera bounds and room progression stay untouched.</summary>
+    /// <summary>
+    /// Room-owned visual skins only. Colliders, camera bounds and room progression stay untouched.
+    /// C3: 배경 층은 카메라(PlayerCameraFollow, 10)가 최종 위치를 정한 뒤에 따라간다(실행 순서 20).
+    /// 층마다 현재 화면 가로(+시차 여유)를 덮을 만큼 조각을 모자랄 때만 덧붙이고, 첫 층(최후방, 불투명 원본)은
+    /// 높이를 화면 세로 이상으로 잡고 위아래 가장자리가 화면 안에 들어오면 그 프레임만 밀어 넣는다.
+    /// ortho·화면 비율이 바뀌면 배경 층만 다시 만든다(지면·발판 스킨과 숨긴 렌더러는 그대로).
+    /// </summary>
     [DisallowMultipleComponent]
+    [DefaultExecutionOrder(20)]
     public sealed class WorldEnvironmentArt : MonoBehaviour
     {
+        // 최후방 층 위아래 여유(유닛)와 층당 조각 상한(먼 순간이동에서도 생성이 끝없이 늘지 않게).
+        private const float COVERAGE_MARGIN = 0.5f;
+        private const int MAX_TILES_PER_LAYER = 48;
+
         private StageDirector director;
         private GameObject artRoot;
         private UnityEngine.Camera view;
@@ -16,11 +27,26 @@ namespace Abyss.Runtime.Stage
         private readonly List<SpriteRenderer> hiddenRenderers = new();
         private readonly List<Layer> layers = new();
 
-        private readonly struct Layer
+        // 배경 층을 다시 만들 때 쓰는 현재 방 값.
+        private string layerStage;
+        private bool layerBossRoom;
+        private float layerFloorY;
+        private float layerWidth;
+        private float lastViewOrtho;
+        private float lastViewAspect;
+
+        private sealed class Layer
         {
-            public readonly Transform Root;
-            public readonly float Rate;
-            public Layer(Transform root, float rate) { Root = root; Rate = rate; }
+            public Transform Root;
+            public string Key;
+            public float Rate;
+            public float Bottom;
+            public float Height;
+            public int Order;
+            public float TileWidth;
+            public bool IsRearmost;
+            public int MinIndex;
+            public int MaxIndex;
         }
 
         public static void Attach(StageDirector owner)
@@ -32,7 +58,8 @@ namespace Abyss.Runtime.Stage
         private void OnEnable()
         {
             GameEvents.OnRoomEntered += QueueRoom;
-            GameEvents.OnRunEnded += Clear;
+            // 런 종료(사망·결과 화면) 동안에는 방이 그대로 보여야 하므로 OnRunEnded 로는 지우지 않는다.
+            // 정리는 방 재구성(Rebuild), 런 포기, 비활성화·씬 해제(OnDisable)에서만 한다.
             GameEvents.OnRunAbandoned += Clear;
             pending = true;
         }
@@ -40,7 +67,6 @@ namespace Abyss.Runtime.Stage
         private void OnDisable()
         {
             GameEvents.OnRoomEntered -= QueueRoom;
-            GameEvents.OnRunEnded -= Clear;
             GameEvents.OnRunAbandoned -= Clear;
             Clear();
         }
@@ -51,9 +77,30 @@ namespace Abyss.Runtime.Stage
         {
             // All OnRoomEntered subscribers (layout activation, Stage1 skins) finish before this pass.
             if (pending) { pending = false; Rebuild(); }
-            if (view == null) return;
+            if (view == null || artRoot == null) return;
+            if (layerStage != null && (view.orthographicSize != lastViewOrtho || view.aspect != lastViewAspect)) BuildLayers();
+
+            Vector3 cameraPosition = view.transform.position;
+            float halfHeight = view.orthographicSize;
+            float halfWidth = halfHeight * view.aspect;
             foreach (var layer in layers)
-                if (layer.Root != null) layer.Root.localPosition = new Vector3(view.transform.position.x * layer.Rate, 0f, 0f);
+            {
+                if (layer.Root == null) continue;
+                float offsetX = cameraPosition.x * layer.Rate;
+                float offsetY = 0f;
+                if (layer.IsRearmost)
+                {
+                    // 최후방 층의 위·아래 가장자리가 화면 안으로 들어오면 그만큼만 민다. 기준(Bottom)은 그대로라 쌓이지 않는다.
+                    float bottom = layer.Bottom;
+                    float top = layer.Bottom + layer.Height;
+                    if (bottom > cameraPosition.y - halfHeight) offsetY = cameraPosition.y - halfHeight - bottom;
+                    else if (top < cameraPosition.y + halfHeight) offsetY = cameraPosition.y + halfHeight - top;
+                }
+                layer.Root.localPosition = new Vector3(offsetX, offsetY, 0f);
+                // 층 안 좌표로 본 화면 가로 범위(+반 조각 시차 여유)가 모자라면 그쪽 조각만 덧붙인다.
+                float localX = cameraPosition.x - offsetX;
+                EnsureTiles(layer, localX - halfWidth - layer.TileWidth * 0.5f, localX + halfWidth + layer.TileWidth * 0.5f);
+            }
         }
 
         private void Rebuild()
@@ -97,18 +144,38 @@ namespace Abyss.Runtime.Stage
                 return;
             }
 
-            string stage = id == "stage_2_flame_corridor" ? "stage2" : "stage3";
+            layerStage = id == "stage_2_flame_corridor" ? "stage2" : "stage3";
+            layerBossRoom = room.roomType == RoomType.Boss;
+            layerFloorY = floorY;
+            layerWidth = width;
+            BuildLayers();
+            foreach (var surface in surfaces) AddSurface(surface, layerStage, surface == floor);
+        }
+
+        // 배경 층만 (다시) 만든다. 최후방 = stage2 sky · stage3 far · 보스(원본이 불투명한 장).
+        private void BuildLayers()
+        {
+            foreach (var old in layers)
+                if (old.Root != null) { old.Root.gameObject.SetActive(false); Destroy(old.Root.gameObject); }
+            layers.Clear();
+            lastViewOrtho = view != null ? view.orthographicSize : 0f;
+            lastViewAspect = view != null ? view.aspect : 0f;
+            if (artRoot == null || layerStage == null) return;
+
             float height = view != null ? Mathf.Max(14f, view.orthographicSize * 2.4f) : 18f;
-            if (room.roomType == RoomType.Boss)
-                AddLayer(stage + "/boss", width, floorY - 4f, height, -60, 0.08f);
+            // 최후방은 화면 세로+여유 이상 — 위아래로 밀어 넣어도 반대쪽 가장자리가 드러나지 않는다.
+            float rearHeight = view != null ? Mathf.Max(height, view.orthographicSize * 2f + COVERAGE_MARGIN * 2f) : height;
+            string stage = layerStage;
+            if (layerBossRoom)
+                AddLayer(stage + "/boss", layerWidth, layerFloorY - 4f, rearHeight, -60, 0.08f, true);
             else
             {
-                if (stage == "stage2") AddLayer(stage + "/sky", width, floorY - 4f, height, -70, 0.02f);
-                AddLayer(stage + "/far", width, floorY - 4f, height, -60, 0.08f);
-                AddLayer(stage + "/mid", width, floorY - 3f, height * 0.8f, -40, 0.15f);
-                AddLayer(stage + "/near", width, floorY - 2f, height * 0.45f, -20, 0.22f);
+                bool hasSky = stage == "stage2";
+                if (hasSky) AddLayer(stage + "/sky", layerWidth, layerFloorY - 4f, rearHeight, -70, 0.02f, true);
+                AddLayer(stage + "/far", layerWidth, layerFloorY - 4f, hasSky ? height : rearHeight, -60, 0.08f, !hasSky);
+                AddLayer(stage + "/mid", layerWidth, layerFloorY - 3f, height * 0.8f, -40, 0.15f, false);
+                AddLayer(stage + "/near", layerWidth, layerFloorY - 2f, height * 0.45f, -20, 0.22f, false);
             }
-            foreach (var surface in surfaces) AddSurface(surface, stage, surface == floor);
         }
 
         private void AddStageOneScenery(float width, float floorY)
@@ -121,17 +188,40 @@ namespace Abyss.Runtime.Stage
             WorldArtLibrary.Place(artRoot.transform, "stage1/landmark_" + (index % 4 + 1), new Vector3(right, floorY, 0f), 3.1f, -8);
         }
 
-        private void AddLayer(string key, float width, float bottom, float height, int order, float rate)
+        private void AddLayer(string key, float width, float bottom, float height, int order, float rate, bool isRearmost)
         {
             var sprite = WorldArtLibrary.Get(key);
             if (sprite == null) return;
+            // 원본 비율 유지: 조각 폭 = 높이 x 원본 가로/세로.
             float tileWidth = height * sprite.bounds.size.x / sprite.bounds.size.y;
             var group = new GameObject(key.Replace('/', '_')).transform;
             group.SetParent(artRoot.transform, false);
-            int radius = Mathf.CeilToInt((width + tileWidth * 2f) / (2f * tileWidth));
+            int radius = Mathf.Min(Mathf.CeilToInt((width + tileWidth * 2f) / (2f * tileWidth)), MAX_TILES_PER_LAYER / 2 - 1);
             for (int i = -radius; i <= radius; i++)
                 WorldArtLibrary.Place(group, key, new Vector3(i * tileWidth, bottom, 0f), height, order);
-            layers.Add(new Layer(group, rate));
+            layers.Add(new Layer
+            {
+                Root = group, Key = key, Rate = rate, Bottom = bottom, Height = height, Order = order,
+                TileWidth = tileWidth, IsRearmost = isRearmost, MinIndex = -radius, MaxIndex = radius
+            });
+        }
+
+        // 조각 i 는 층 안 x = i·폭을 중심으로 [i·폭 - 폭/2, i·폭 + 폭/2] 를 덮는다. 모자란 쪽 조각만 이어 붙인다.
+        private static void EnsureTiles(Layer layer, float left, float right)
+        {
+            if (layer.TileWidth <= 0f) return;
+            int needMin = Mathf.FloorToInt(left / layer.TileWidth + 0.5f);
+            int needMax = Mathf.CeilToInt(right / layer.TileWidth - 0.5f);
+            while (layer.MinIndex > needMin && layer.MaxIndex - layer.MinIndex + 1 < MAX_TILES_PER_LAYER)
+            {
+                layer.MinIndex--;
+                WorldArtLibrary.Place(layer.Root, layer.Key, new Vector3(layer.MinIndex * layer.TileWidth, layer.Bottom, 0f), layer.Height, layer.Order);
+            }
+            while (layer.MaxIndex < needMax && layer.MaxIndex - layer.MinIndex + 1 < MAX_TILES_PER_LAYER)
+            {
+                layer.MaxIndex++;
+                WorldArtLibrary.Place(layer.Root, layer.Key, new Vector3(layer.MaxIndex * layer.TileWidth, layer.Bottom, 0f), layer.Height, layer.Order);
+            }
         }
 
         private void AddSurface(BoxCollider2D collider, string stage, bool isFloor)
@@ -174,6 +264,7 @@ namespace Abyss.Runtime.Stage
             }
             hiddenRenderers.Clear();
             layers.Clear();
+            layerStage = null;
         }
     }
 }
