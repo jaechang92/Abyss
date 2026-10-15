@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Abyss.Runtime.Feedback
 {
@@ -16,7 +16,12 @@ namespace Abyss.Runtime.Feedback
         public enum Mode { Strike, Telegraph }
 
         private const int RingTextureSize = 64;
+        // 예고 경계선(반경 비율) — 짙은 안쪽선 0.90~0.95, 밝은 바깥선 0.95~1.0. 첫 시안, 사용자 판독 후 조정.
+        private const float BOUNDARY_INNER = 0.90f;
+        private const float BOUNDARY_SPLIT = 0.95f;
+        private static readonly Color BoundaryDark = new Color(0.08f, 0.08f, 0.08f, 1f);
         private static Sprite ringSprite;
+        private static Sprite boundarySprite;
 
         private SpriteRenderer sr;
         private float maxRadius;
@@ -50,7 +55,37 @@ namespace Abyss.Runtime.Feedback
             duration = Mathf.Max(0.05f, dur);
             mode = effectMode;
             timer = 0f;
+            if (mode == Mode.Telegraph) CreateBoundary();
             Apply(0f);
+        }
+
+        /// <summary>
+        /// Telegraph 전용 무채색 이중 경계선. 색상과 무관하게 발동 전 범위를 읽게 한다.
+        /// 자식 로컬 변환은 항등 → 부모 localScale(지름)을 그대로 따라 반경이 일치한다.
+        /// 색은 텍스처에 굽고 tint는 흰색 alpha=1 고정 — 부모 점멸(Apply)과 무관하게 유지된다.
+        /// 자식이라 DiscardSilently/Destroy 때 함께 사라진다.
+        /// </summary>
+        private void CreateBoundary()
+        {
+            var child = new GameObject("Boundary");
+            child.transform.SetParent(transform, false);
+            var boundary = child.AddComponent<SpriteRenderer>();
+            boundary.sprite = GetBoundarySprite();
+            boundary.color = Color.white;
+            boundary.sortingLayerID = sr.sortingLayerID;
+            boundary.sortingOrder = sr.sortingOrder + 1; // 기존 링 바로 위
+        }
+
+        /// <summary>
+        /// 런 경계 정리(<see cref="Abyss.Runtime.Run.RunTransientCleanup"/>) — 예고·타격 링을 남은 시간과 무관하게 즉시 치운다.
+        /// timeScale 0 에서도 바로 꺼진다(파괴는 프레임 끝). 이미 치운 링이면 false.
+        /// </summary>
+        public bool DiscardSilently()
+        {
+            if (!gameObject.activeSelf) return false;
+            gameObject.SetActive(false);
+            Destroy(gameObject);
+            return true;
         }
 
         private void Update()
@@ -119,6 +154,47 @@ namespace Abyss.Runtime.Feedback
             // PPU = size → 텍스처 전체가 1유닛(지름 1). pivot 중앙.
             ringSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
             return ringSprite;
+        }
+
+        /// <summary>
+        /// 예고 경계선 스프라이트를 1회 생성해 캐시. 링 스프라이트와 같은 크기·PPU·pivot이라 같은 지름에 겹친다.
+        /// 0.90~0.95는 짙은 회색, 0.95~1.0은 흰색, 나머지는 투명 — 기존 링 채움(0.7~1.0) 안쪽에만 그린다.
+        /// </summary>
+        private static Sprite GetBoundarySprite()
+        {
+            if (boundarySprite != null) return boundarySprite;
+
+            int size = RingTextureSize;
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp
+            };
+
+            float center = (size - 1) * 0.5f;
+            float outer = center;
+            float split = center * BOUNDARY_SPLIT;
+            float inner = center * BOUNDARY_INNER;
+            var clear = new Color(1f, 1f, 1f, 0f);
+            var pixels = new Color[size * size];
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float dist = Mathf.Sqrt((x - center) * (x - center) + (y - center) * (y - center));
+                    Color pixel = clear;
+                    if (dist <= outer && dist >= split) pixel = Color.white;
+                    else if (dist < split && dist >= inner) pixel = BoundaryDark;
+                    pixels[y * size + x] = pixel;
+                }
+            }
+
+            tex.SetPixels(pixels);
+            tex.Apply();
+
+            boundarySprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
+            return boundarySprite;
         }
     }
 }

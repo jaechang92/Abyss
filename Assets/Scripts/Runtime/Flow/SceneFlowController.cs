@@ -106,6 +106,10 @@ namespace Abyss.Runtime.Flow
                 }
 
                 isCommitted = true;
+                // 런 씬을 떠나거나 런 씬으로 들어가는 전환이 확정되면 날아가던 탄·예고 링을 조용히 치운다.
+                // 탄은 DontDestroyOnLoad 풀 아래에 살아 씬 언로드로 사라지지 않는다. 실패·중복 요청은 여기까지 오지 않는다.
+                if (sourceScene == SceneNames.Run || sceneName == SceneNames.Run)
+                    Abyss.Runtime.Run.RunTransientCleanup.Clear();
                 JourneyPresentation.CommitTransition(sourceScene, sceneName);
                 InvokeCommitted(onCommitted, sceneName);
 
