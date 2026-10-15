@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Abyss.Runtime.Draft;
 using Abyss.Runtime.Events;
+using Abyss.Runtime.Localization;
 using Abyss.Runtime.Run;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -37,6 +38,8 @@ namespace Abyss.Runtime.UI
 
         // 카드 호버·포커스 상세. 씬 배선 없이 root 밑에 런타임으로 만든다(root가 꺼지면 같이 정리된다).
         private SkillCardDetailsPanel cardDetails;
+        private DraftTriggerReason displayedReason;
+        private DraftAudioFeedback audioFeedback;
 
         private void Awake()
         {
@@ -48,6 +51,7 @@ namespace Abyss.Runtime.UI
                 // 채택 UI 스킨 — 저장된 씬의 기존 자식에 배치·프레임·선택 표식만 덧붙인다(빌더 재실행 불필요).
                 ModalArtSkin.ApplyDraft(root.transform, titleText, cards,
                     rerollButton, rerollLabel, skipButton, skipLabel, buildContext, cardDetails);
+                DraftPanelReadability.Attach(root.transform, titleText, rerollButton, rerollLabel, skipButton, skipLabel);
             }
 
             for (int i = 0; i < cards.Length; i++)
@@ -62,6 +66,9 @@ namespace Abyss.Runtime.UI
 
             if (rerollButton != null) rerollButton.onClick.AddListener(HandleReroll);
             if (skipButton != null) skipButton.onClick.AddListener(HandleSkip);
+            audioFeedback = GetComponent<DraftAudioFeedback>();
+            if (audioFeedback == null) audioFeedback = gameObject.AddComponent<DraftAudioFeedback>();
+            audioFeedback.Initialize(this, root, session, cards, rerollButton, skipButton);
         }
 
         private void OnEnable()
@@ -71,6 +78,8 @@ namespace Abyss.Runtime.UI
             GameEvents.OnSkillDrafted += HandleSkillDrafted;
             GameEvents.OnDraftSlotReplaceRequested += HandleReplaceRequested;
             GameEvents.OnRunEnded += HandleRunEnded;
+            Loc.AddLanguageChangedListener(HandleLanguageChanged);
+            RefreshVisibleLocalizedText();
         }
 
         private void OnDisable()
@@ -80,6 +89,7 @@ namespace Abyss.Runtime.UI
             GameEvents.OnSkillDrafted -= HandleSkillDrafted;
             GameEvents.OnDraftSlotReplaceRequested -= HandleReplaceRequested;
             GameEvents.OnRunEnded -= HandleRunEnded;
+            Loc.RemoveLanguageChangedListener(HandleLanguageChanged);
             ClearCardDetails();
         }
 
@@ -100,7 +110,7 @@ namespace Abyss.Runtime.UI
             else if (kb.digit3Key.wasPressedThisFrame) TrySelect(2);
             // 카드 버튼에 포커스가 있으면 Enter는 EventSystem Submit이 그 카드를 누른다 —
             // 여기서 0번을 또 고르면 한 번의 Enter로 두 카드가 동시에 선택 요청된다.
-            else if (kb.enterKey.wasPressedThisFrame && !IsCardFocused()) TrySelect(0);
+            else if (kb.enterKey.wasPressedThisFrame && !IsCardFocused() && !BuildContextPanel.IsReadingInputOwned) TrySelect(0);
         }
 
         private bool IsCardFocused()
@@ -168,26 +178,24 @@ namespace Abyss.Runtime.UI
 
         private void HandleReroll()
         {
-            session?.TryReroll();
+            if (session != null && session.TryReroll()) audioFeedback?.PlayRerollSuccess();
         }
 
         private void HandleSkip()
         {
-            session?.TrySkip();
+            if (session != null && session.TrySkip()) audioFeedback?.PlaySkipSuccess();
         }
 
         private void HandleOptionsReady(DraftOptions options)
         {
             if (options == null) return;
 
+            audioFeedback?.SuppressAutomaticFocus();
+            displayedReason = options.Reason;
             bool isReopened = root != null && !root.activeSelf;
             if (root != null) root.SetActive(true);
 
-            if (titleText != null)
-            {
-                string reasonLabel = ReasonLabel(options.Reason);
-                titleText.text = $"{reasonLabel} — 스킬 1개 선택";
-            }
+            RefreshTitle();
 
             for (int i = 0; i < cards.Length; i++)
             {
@@ -215,6 +223,7 @@ namespace Abyss.Runtime.UI
 
         private void ClearCardDetails()
         {
+            audioFeedback?.ResetTargets();
             if (cardDetails != null) cardDetails.Clear();
         }
 
@@ -246,16 +255,16 @@ namespace Abyss.Runtime.UI
                     // 티켓은 값이 0이지만 "0 gold"로 찍으면 안 된다 — 특전의 공짜와 달리
                     // 쓰면 없어지는 재고라, 남은 장수를 같이 보여줘야 아껴 쓸지 정할 수 있다.
                     rerollLabel.text =
-                        cost == int.MaxValue ? "리롤 (소진)"
-                        : session.NextRerollUsesTicket ? $"리롤 (리롤권 {session.ExtraRerollStock}장)"
-                        : $"리롤 ({cost} gold)";
+                        cost == int.MaxValue ? Loc.Get(StringKey.Draft_RerollExhausted)
+                        : session.NextRerollUsesTicket ? Loc.GetFormat(StringKey.Draft_RerollTicketFormat, session.ExtraRerollStock)
+                        : Loc.GetFormat(StringKey.Draft_RerollCostFormat, cost);
                 }
             }
 
             if (skipButton != null)
             {
                 skipButton.interactable = true;
-                if (skipLabel != null) skipLabel.text = $"스킵 (+{session.SkipReward} gold)";
+                if (skipLabel != null) skipLabel.text = Loc.GetFormat(StringKey.Draft_SkipRewardFormat, session.SkipReward);
             }
         }
 
@@ -264,13 +273,29 @@ namespace Abyss.Runtime.UI
             if (buildContext != null && session != null) buildContext.Refresh(session.Owned);
         }
 
-        private static string ReasonLabel(DraftTriggerReason reason) => reason switch
+        private void HandleLanguageChanged(LocalizationLanguage _) => RefreshVisibleLocalizedText();
+
+        private void RefreshVisibleLocalizedText()
         {
-            DraftTriggerReason.LevelUp => "레벨 업!",
-            DraftTriggerReason.BossBonus => "보스 격파 보너스!",
-            DraftTriggerReason.EliteBonus => "엘리트 격파 보너스!",
-            DraftTriggerReason.RoomReward => "방 보상",
-            _ => "드래프트"
-        };
+            if (root == null || !root.activeSelf) return;
+            // 문구만 갱신한다. 카드 바인딩·포커스·선택/리롤/스킵 요청은 다시 실행하지 않는다.
+            RefreshTitle();
+            RefreshButtons();
+        }
+
+        private void RefreshTitle()
+        {
+            if (titleText != null)
+                titleText.text = Loc.GetFormat(StringKey.Draft_TitleFormat, ReasonLabel(displayedReason));
+        }
+
+        private static string ReasonLabel(DraftTriggerReason reason) => Loc.Get(reason switch
+        {
+            DraftTriggerReason.LevelUp => StringKey.Draft_ReasonLevelUp,
+            DraftTriggerReason.BossBonus => StringKey.Draft_ReasonBossBonus,
+            DraftTriggerReason.EliteBonus => StringKey.Draft_ReasonEliteBonus,
+            DraftTriggerReason.RoomReward => StringKey.Draft_ReasonRoomReward,
+            _ => StringKey.Draft_ReasonDefault
+        });
     }
 }

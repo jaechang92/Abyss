@@ -20,6 +20,7 @@ namespace Abyss.Runtime.UI
         // 설정을 열기 전 뒤 화면의 선택. 닫을 때 설정이 선택을 쥐고 있을 때만 돌려준다.
         private GameObject previousSelection;
         private Button closeButton;
+        private Button keyboardButton;
 
         // 위에서 아래 순서의 탐색 행. 한 행 안은 좌우로, 행끼리는 위아래로 잇는다. 갱신마다 다시 채운다.
         private readonly List<List<Selectable>> navigationRows = new();
@@ -40,6 +41,8 @@ namespace Abyss.Runtime.UI
         {
             if (body == null || !body.activeSelf) return;
             if (SaveStatusOverlay.IsCapturingInput) return;
+            if (KeyboardBindingsPanel.IsOpen || KeyboardBindingsPanel.WasInputConsumedThisFrame) return;
+            if (DataResetPanel.IsOpen || DataResetPanel.WasInputConsumedThisFrame) return;
 
             if (WasCancelPressedThisFrame())
             {
@@ -138,6 +141,12 @@ namespace Abyss.Runtime.UI
             if (IsSame(selected, resolutionNext)) return NavigableOrNull(resolutionPrev);
             if (IsSame(selected, languagePrev)) return NavigableOrNull(languageNext);
             if (IsSame(selected, languageNext)) return NavigableOrNull(languagePrev);
+            if (IsSame(selected, shakePrev)) return NavigableOrNull(shakeNext);
+            if (IsSame(selected, shakeNext)) return NavigableOrNull(shakePrev);
+            if (IsSame(selected, textSizePrev)) return NavigableOrNull(textSizeNext);
+            if (IsSame(selected, textSizeNext)) return NavigableOrNull(textSizePrev);
+            if (IsSame(selected, menuTextPrev)) return NavigableOrNull(menuTextNext);
+            if (IsSame(selected, menuTextNext)) return NavigableOrNull(menuTextPrev);
             return null;
         }
 
@@ -181,6 +190,13 @@ namespace Abyss.Runtime.UI
             AddRow(fullscreenToggle);
             AddRow(resolutionPrev, resolutionNext);
             AddRow(languagePrev, languageNext);
+            AddRow(keyboardButton);
+            AddRow(shakePrev, shakeNext);
+            AddRow(bossFlashToggle);
+            AddRow(textSizePrev, textSizeNext);
+            AddRow(narrativeContrastToggle);
+            AddRow(menuTextPrev, menuTextNext);
+            AddRow(dataResetButton);
             AddRow(closeButton);
         }
 

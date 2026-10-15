@@ -26,7 +26,7 @@ namespace Abyss.Runtime.UI
     /// <b>timeScale=0 위에서 동작한다</b> — 런 종료 시 ResultState가 전역 정지를 걸어두므로
     /// 모든 시간 계산은 <see cref="Time.unscaledDeltaTime"/>을 쓴다.
     /// </summary>
-    public sealed class EndingSequencePanel : MonoBehaviour
+    public sealed partial class EndingSequencePanel : MonoBehaviour
     {
         // 자막 한 문단의 호흡은 SubtitleSequence가 소유한다 — 프롤로그와 같은 값을 써야 하므로.
 
@@ -86,8 +86,11 @@ namespace Abyss.Runtime.UI
         private RectTransform creditsRect;
         private Text creditsText;
         private CanvasGroup statsGroup;
+        private Text statsTitle;
         private Text statsBody;
         private Text skipHint;
+        private EndingStatsReadability readability;   // 글자 확대·긴 통계 스크롤. 없으면 원래 동작.
+        private EndingCreditsReadability creditsReadability;   // 크레딧 글자 확대·마스크 스크롤. 없으면 원래 동작.
 
         // 재생·검은 화면 동안 EventSystem 선택을 붙잡는 자리(프롤로그 선례). 뒤 화면 버튼이 선택을 쥔 채면
         // UI 모듈의 Submit이 이 패널의 Update보다 먼저 그 버튼을 누른다.
@@ -259,43 +262,7 @@ namespace Abyss.Runtime.UI
             return button.name;
         }
 
-        private void BeginCredits()
-        {
-            phase = Phase.Credits;
-            phaseTimer = 0f;
-            subtitles?.Clear();
-
-            if (creditsText == null || creditsRect == null)
-            {
-                BeginStats();
-                return;
-            }
-
-            creditsText.gameObject.SetActive(true);
-
-            // 폭이 확정된 뒤에야 줄바꿈이 반영된 높이를 얻을 수 있다.
-            creditsHeight = creditsText.preferredHeight;
-            if (creditsHeight <= 0f) creditsHeight = CREDITS_FALLBACK_HEIGHT;
-            creditsRect.sizeDelta = new Vector2(CREDITS_WIDTH, creditsHeight);
-
-            // 화면 아래에서 시작해 위로 완전히 빠져나갈 때까지 올린다.
-            creditsRect.anchoredPosition = new Vector2(0f, -(ReferenceResolution.y * 0.5f + creditsHeight * 0.5f));
-        }
-
-        private void TickCredits()
-        {
-            if (creditsRect == null)
-            {
-                BeginStats();
-                return;
-            }
-
-            var pos = creditsRect.anchoredPosition;
-            pos.y += CREDITS_SCROLL_SPEED * Time.unscaledDeltaTime;
-            creditsRect.anchoredPosition = pos;
-
-            if (pos.y >= ReferenceResolution.y * 0.5f + creditsHeight * 0.5f) BeginStats();
-        }
+        // BeginCredits·TickCredits는 EndingSequencePanel.Credits.cs에 있다.
 
         /// <summary>
         /// 크레딧 뒤 통계. 창을 띄우지 않고 <b>같은 검은 화면에</b> 이어 붙인다 —
@@ -324,6 +291,11 @@ namespace Abyss.Runtime.UI
             statsGroup.alpha = 0f;
             statsGroup.gameObject.SetActive(true);
             RefreshHint(true);
+            if (readability != null)
+            {
+                readability.ResetReading();   // 같은 요약으로 다시 재생해도 맨 위부터
+                readability.Apply();
+            }
         }
 
         private void TickStats()
@@ -337,7 +309,11 @@ namespace Abyss.Runtime.UI
             statsGroup.alpha = Mathf.Clamp01(phaseTimer / STATS_FADE_IN);
 
             // 아무 것도 누르지 않아도 타이틀로 돌아간다 — 크레딧 뒤에 화면이 멈춰 있으면 끝난 것처럼 보이지 않는다.
-            if (phaseTimer >= STATS_AUTO_ADVANCE) Finish();
+            // 단 통계가 스크롤로 넘쳤으면 다 읽기 전에 사라지지 않게 확인 입력을 기다린다.
+            // 이 Update가 보조 컴포넌트의 LateUpdate보다 먼저 돌므로 판정 직전에 넘침 여부를 최신으로 맞춘다.
+            if (phaseTimer < STATS_AUTO_ADVANCE) return;
+            if (readability != null) readability.RefreshIfNeeded();
+            if (readability == null || !readability.IsOverflow) Finish();
         }
 
         /// <summary>
@@ -449,6 +425,11 @@ namespace Abyss.Runtime.UI
             var sink = focusSink.AddComponent<Selectable>();
             sink.transition = Selectable.Transition.None;
             sink.navigation = new Navigation { mode = Navigation.Mode.None };
+
+            // 기준 UI가 모두 만들어진 뒤에 붙인다 — 기준값(위치·크기·글자 크기)을 여기서 한 번 잡는다.
+            readability = EndingStatsReadability.Attach(statsGroup, statsTitle, statsBody, skipHint, body.transform);
+            // 크레딧 Text를 마스크 창으로 옮긴다 — 안내 위쪽에서만 흐른다. 통계 동안의 안내는 위 컴포넌트가 소유한다.
+            creditsReadability = EndingCreditsReadability.Attach(creditsText, skipHint, body.transform, statsGroup);
         }
 
         /// <summary>
@@ -461,7 +442,7 @@ namespace Abyss.Runtime.UI
                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(900, 560));
             statsGroup = group.AddComponent<CanvasGroup>();
 
-            CreateLabel(group.transform, "StatsTitle", new Vector2(0, 210), new Vector2(700, 50),
+            statsTitle = CreateLabel(group.transform, "StatsTitle", new Vector2(0, 210), new Vector2(700, 50),
                 "심연 탈출", 34, new Color(1f, 0.9f, 0.7f), TextAnchor.MiddleCenter);
 
             statsBody = CreateLabel(group.transform, "StatsBody", new Vector2(0, -20), new Vector2(820, 380),

@@ -1,4 +1,4 @@
-using Abyss.Runtime.Player;
+﻿using Abyss.Runtime.Player;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,9 +21,17 @@ namespace Abyss.Runtime.UI
             player = target;
             if (player != null)
             {
-                player.OnHpChanged += HandleHpChanged;
+                if (isActiveAndEnabled) player.OnHpChanged += HandleHpChanged;
                 Refresh(player.CurrentHp, player.BaseHp);
             }
+        }
+
+        private void OnEnable()
+        {
+            if (player == null) return;
+            player.OnHpChanged -= HandleHpChanged;
+            player.OnHpChanged += HandleHpChanged;
+            Refresh(player.CurrentHp, player.BaseHp);
         }
 
         private void OnDisable()

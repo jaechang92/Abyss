@@ -60,6 +60,7 @@ namespace Abyss.Runtime.UI
             Assign(header, headerText);
             Assign(hint, hintText);
             Assign(padHint, padHintText);
+            RefreshReadability();
         }
 
         private static void Assign(Text label, string value)
@@ -91,6 +92,7 @@ namespace Abyss.Runtime.UI
             skipButton.onClick.AddListener(() => OnSkipClicked?.Invoke());
 
             ApplyFrameArt();
+            RefreshReadability();
         }
     }
 }

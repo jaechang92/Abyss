@@ -79,20 +79,32 @@ namespace Abyss.Runtime.UI
 
         private void LateUpdate()
         {
+            if (hoveringReadingArea && !IsPointerInReadingCorridor(hoveredCard))
+            {
+                hoveringReadingArea = false;
+                hoveredCard = null;
+                Refresh();
+            }
             if (shownCard == null) return;
             if (!CanShow(shownCard))
             {
                 Refresh();
                 return;
             }
+            RefreshReadability();
             UpdateLayout();
+            HandleReadingInput();
         }
 
         /// <summary>카드 선택 버튼에 포인터가 들어오거나 나갔다.</summary>
         public void NotifyHover(SkillCardView card, bool isEntered)
         {
-            if (isEntered) hoveredCard = card;
-            else if (hoveredCard == card) hoveredCard = null;
+            if (isEntered) { hoveredCard = card; hoveringReadingArea = false; }
+            else if (hoveredCard == card)
+            {
+                hoveringReadingArea = shownCard == card && IsPointerInReadingCorridor(card);
+                if (!hoveringReadingArea) hoveredCard = null;
+            }
             Refresh();
         }
 
@@ -146,6 +158,7 @@ namespace Abyss.Runtime.UI
                 shownSkill = target.CurrentSkill;
                 RebuildContent(shownSkill);
                 isLayoutDirty = true;
+                resetReadingScroll = true;
             }
 
             if (!body.activeSelf) body.SetActive(true);
@@ -157,6 +170,7 @@ namespace Abyss.Runtime.UI
 
         private void Hide()
         {
+            hoveringReadingArea = false;
             shownCard = null;
             shownSkill = null;
             if (body != null && body.activeSelf) body.SetActive(false);
@@ -221,7 +235,7 @@ namespace Abyss.Runtime.UI
 
         /// <summary>
         /// 기본 폭에서 높이를 재고, 화면 높이를 넘으면 넓은 폭으로 한 번 더 잰다. 그래도 넘으면
-        /// 글자 크기를 줄여(best fit) 화면 안에 담는다 — 스크롤 같은 새 조작을 늘리지 않고 내용을 다 보인다.
+        /// 화면을 넘는 내용은 글자 크기를 유지하고 스크롤로 읽는다.
         /// </summary>
         private void ResizeToContent(Rect bounds)
         {
@@ -236,24 +250,8 @@ namespace Abyss.Runtime.UI
                 height = MeasureHeight(width, out headerHeight, out textHeight);
             }
 
-            bool isOverflowing = height > maxHeight;
-            if (isOverflowing)
-            {
-                height = maxHeight;
-                textHeight = Mathf.Max(BODY_MIN_FONT_SIZE, maxHeight - PADDING * 2f - headerHeight - HEADER_GAP);
-            }
-            bodyText.resizeTextForBestFit = isOverflowing;
-            bodyText.verticalOverflow = isOverflowing ? VerticalWrapMode.Truncate : VerticalWrapMode.Overflow;
-
-            float innerWidth = width - PADDING * 2f;
-            var headerRect = headerText.rectTransform;
-            headerRect.anchoredPosition = new Vector2(PADDING, -PADDING);
-            headerRect.sizeDelta = new Vector2(innerWidth, headerHeight);
-
-            var textRect = bodyText.rectTransform;
-            textRect.anchoredPosition = new Vector2(PADDING, -(PADDING + headerHeight + HEADER_GAP));
-            textRect.sizeDelta = new Vector2(innerWidth, textHeight);
-
+            height = Mathf.Min(height, maxHeight);
+            ConfigureReadingArea(width - PADDING * 2f, Mathf.Max(1f, height - PADDING * 2f), PADDING, PADDING);
             ((RectTransform)body.transform).sizeDelta = new Vector2(width, height);
         }
 
@@ -288,28 +286,14 @@ namespace Abyss.Runtime.UI
         }
 
         /// <summary>
-        /// 왼쪽 아이콘 칸, 오른쪽에 제목 + 본문. 본문이 슬롯 높이를 넘으면 떠 있는 판과 같은 규칙으로 글자를 줄여 담는다.
+        /// 왼쪽 아이콘 칸과 기존 슬롯 크기를 보존하고 오른쪽 제목·본문을 스크롤로 읽는다.
         /// </summary>
         private void ResizeDocked(Vector2 size)
         {
             float contentLeft = DOCK_PADDING + DOCK_ICON_SIZE + DOCK_ICON_GAP;
             float innerWidth = Mathf.Max(DOCK_PADDING, size.x - contentLeft - DOCK_PADDING);
 
-            // preferredHeight는 현재 rect 폭으로 줄바꿈해 잰다 — 폭부터 맞춘다. best fit은 끈 상태로 잰다.
-            bodyText.resizeTextForBestFit = false;
-            headerText.rectTransform.sizeDelta = new Vector2(innerWidth, 0f);
-            bodyText.rectTransform.sizeDelta = new Vector2(innerWidth, 0f);
-
-            float headerHeight = Mathf.Ceil(headerText.preferredHeight);
-            float available = Mathf.Max(BODY_MIN_FONT_SIZE, size.y - DOCK_PADDING * 2f - headerHeight - HEADER_GAP);
-            bool isOverflowing = Mathf.Ceil(bodyText.preferredHeight) > available;
-            bodyText.resizeTextForBestFit = isOverflowing;
-            bodyText.verticalOverflow = isOverflowing ? VerticalWrapMode.Truncate : VerticalWrapMode.Overflow;
-
-            headerText.rectTransform.anchoredPosition = new Vector2(contentLeft, -DOCK_PADDING);
-            headerText.rectTransform.sizeDelta = new Vector2(innerWidth, headerHeight);
-            bodyText.rectTransform.anchoredPosition = new Vector2(contentLeft, -(DOCK_PADDING + headerHeight + HEADER_GAP));
-            bodyText.rectTransform.sizeDelta = new Vector2(innerWidth, available);
+            ConfigureReadingArea(innerWidth, Mathf.Max(1f, size.y - DOCK_PADDING * 2f), contentLeft, DOCK_PADDING);
 
             if (dockIconFrame != null)
             {

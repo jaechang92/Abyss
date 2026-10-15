@@ -59,6 +59,7 @@ namespace Abyss.Runtime.Dialogue
             if (root != null) root.SetActive(false);
             portraitPresenter?.Clear();
             ApplyFrameArt();
+            NarrativeReadability.Attach(bodyLabel, root != null ? root.transform as RectTransform : null, speakerLabel != null ? speakerLabel.rectTransform : null);
         }
 
         /// <summary>

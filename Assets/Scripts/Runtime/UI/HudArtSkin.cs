@@ -59,6 +59,9 @@ namespace Abyss.Runtime.UI
             ApplySynergyCounter(hudRoot);
             ApplyBurnStack(hudRoot);
             ApplyGoldCounter(hudRoot, referencePpu);
+            HudCounterReadability.Attach(hudRoot);
+            HudSkillReadability.Attach(hudRoot);
+            HudStatusReadability.Attach(hudRoot);
         }
 
         /// <summary>

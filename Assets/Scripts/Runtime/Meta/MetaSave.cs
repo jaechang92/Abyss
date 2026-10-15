@@ -323,5 +323,13 @@ namespace Abyss.Runtime.Meta
         /// LocalizationManager가 첫 조회 때 1회 수행한다(스키마가 아니라 읽는 쪽의 문제라서).
         /// </summary>
         public string language = string.Empty;
+        /// <summary>Gameplay keyboard whitelist overrides; empty retains defaults in old saves.</summary>
+        public string keyboardBindingOverrides = string.Empty;
+        /// <summary>기존 세이브는 원래 카메라 강도와 보스 플래시를 유지한다.</summary>
+        public float cameraShakeScale = 1f;
+        public bool reduceBossScreenFlashes;
+        public float narrativeTextScale = 1f;
+        public bool highContrastNarrative;
+        public float menuTextScale = 1f;
     }
 }

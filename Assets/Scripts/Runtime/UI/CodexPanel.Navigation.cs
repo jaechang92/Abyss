@@ -32,7 +32,11 @@ namespace Abyss.Runtime.UI
         /// <summary>저장 모달·설정이 입력과 선택을 쥐고 있는지. 이때 도감은 닫기·포커스를 건드리지 않는다.</summary>
         private static bool IsUpperModalOwningFocus => SaveStatusOverlay.IsCapturingInput || SettingsPanel.IsOpen;
 
-        private void OnDisable() => ReleaseFocus();
+        private void OnDisable()
+        {
+            Abyss.Runtime.Localization.Loc.RemoveLanguageChangedListener(RefreshReadingLanguage);
+            ReleaseFocus();
+        }
 
         private void OnDestroy() => ReleaseFocus();
 

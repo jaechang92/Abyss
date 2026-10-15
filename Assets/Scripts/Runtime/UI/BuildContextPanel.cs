@@ -10,7 +10,7 @@ namespace Abyss.Runtime.UI
     /// 드래프트 UX F3 대응 — 현재 보유 빌드를 항상 노출.
     /// 보유 스킬을 시너지 태그별로 집계해 리스트 표시.
     /// </summary>
-    public sealed class BuildContextPanel : MonoBehaviour
+    public sealed partial class BuildContextPanel : MonoBehaviour
     {
         [SerializeField] private Text titleText;
         [SerializeField] private Text synergyCountsText;
@@ -27,6 +27,7 @@ namespace Abyss.Runtime.UI
             {
                 if (synergyCountsText != null) synergyCountsText.text = "시너지: —";
                 if (skillListText != null) skillListText.text = "보유 스킬 없음";
+                RefreshReadingContent();
                 return;
             }
 
@@ -57,6 +58,7 @@ namespace Abyss.Runtime.UI
             }
             stringBuilder.Append($"\n총 {owned.Count}개 (Active {activeCount}/2)");
             if (skillListText != null) skillListText.text = stringBuilder.ToString();
+            RefreshReadingContent();
         }
     }
 }

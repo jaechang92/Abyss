@@ -72,6 +72,8 @@ namespace Abyss.Runtime.UI
 
             shownSkill = null;
             isLayoutDirty = true;
+            readingScale = -1f;
+            RefreshReadability();
         }
 
         private void BuildView()
@@ -92,6 +94,7 @@ namespace Abyss.Runtime.UI
             bodyText = CreateText(body.transform, "Text", BODY_FONT_SIZE, BodyColor);
             bodyText.resizeTextMinSize = BODY_MIN_FONT_SIZE;
             bodyText.resizeTextMaxSize = BODY_FONT_SIZE;
+            BuildReadingView();
 
             body.SetActive(false);
         }

@@ -82,6 +82,7 @@ namespace Abyss.Runtime.Lobby
         /// </summary>
         private void OnDisable()
         {
+            Abyss.Runtime.Localization.Loc.RemoveLanguageChangedListener(RefreshReadabilityLanguage);
             if (IsOpen) CancelByExternalDisable(hideRoot: true);
             else ClearOwnedSelection();
         }
@@ -152,6 +153,7 @@ namespace Abyss.Runtime.Lobby
             openedFrame = Time.frameCount;
             if (isFirstOpen)
             {
+                readingFocus = null;
                 previousSelection = null;
                 hasEnteredFocus = false;
             }
@@ -214,7 +216,7 @@ namespace Abyss.Runtime.Lobby
 
             if (!hasEnteredFocus && selected != null) previousSelection = selected;
 
-            var entry = EntryButton();
+            var entry = selected == null && IsNavigable(readingFocus) ? readingFocus : EntryButton();
             if (entry == null) return;
             SelectSafely(eventSystem, entry.gameObject);
             if (eventSystem.currentSelectedGameObject == entry.gameObject) hasEnteredFocus = true;

@@ -1,4 +1,4 @@
-using Abyss.Runtime.Events;
+﻿using Abyss.Runtime.Events;
 using Singleton_Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -30,6 +30,7 @@ namespace Abyss.Runtime.Input
         private InputActionMap gameplayMap;
         private InputActionMap uiMap;
         private InputMode currentMode = InputMode.Disabled;
+        private InputActionAsset ownedActions;
 
         public InputMode CurrentMode => currentMode;
         public InputActionAsset Actions => inputActions;
@@ -39,6 +40,12 @@ namespace Abyss.Runtime.Input
         protected override void Awake()
         {
             base.Awake();
+            if (inputActions != null)
+            {
+                ownedActions = Instantiate(inputActions);
+                inputActions = ownedActions;
+                GameplayKeyBindings.ApplyTo(inputActions);
+            }
             ResolveMaps();
         }
 
@@ -48,6 +55,8 @@ namespace Abyss.Runtime.Input
             GameEvents.OnDraftClosed += HandleDraftClosed;
             GameEvents.OnGamePaused += HandleGamePaused;
             GameEvents.OnGameResumed += HandleGameResumed;
+            GameEvents.OnRunEnded += HandleRunEnded;
+            GameEvents.OnRunStarted += HandleRunStarted;
         }
 
         private void OnDisable()
@@ -56,11 +65,19 @@ namespace Abyss.Runtime.Input
             GameEvents.OnDraftClosed -= HandleDraftClosed;
             GameEvents.OnGamePaused -= HandleGamePaused;
             GameEvents.OnGameResumed -= HandleGameResumed;
+            GameEvents.OnRunEnded -= HandleRunEnded;
+            GameEvents.OnRunStarted -= HandleRunStarted;
         }
 
         private void Start()
         {
             if (inputActions != null) SwitchMode(initialMode);
+        }
+
+        protected override void OnDestroy()
+        {
+            if (ownedActions != null) Destroy(ownedActions);
+            base.OnDestroy();
         }
 
         public void SwitchMode(InputMode mode)
@@ -99,11 +116,39 @@ namespace Abyss.Runtime.Input
             if (uiMap == null) Debug.LogWarning($"[InputRouter] '{uiMapName}' 맵 미발견");
         }
 
+        /// <summary>PlayerInput의 실제 사본을 라우팅하여 정지·드래프트 맵 소유권을 유지한다.</summary>
+        public void UsePlayerActions(InputActionAsset actions)
+        {
+            if (actions == null || actions == inputActions) return;
+            if (ownedActions != null)
+            {
+                ownedActions.Disable();
+                Destroy(ownedActions);
+                ownedActions = null;
+            }
+            inputActions = actions;
+            ResolveMaps();
+            SwitchMode(currentMode);
+        }
+
+        /// <summary>로비/타이틀에서는 런 라우터가 플레이어의 기본 맵을 소유하지 않는다.</summary>
+        public void DetachPlayerActions()
+        {
+            inputActions = null;
+            gameplayMap = null;
+            uiMap = null;
+            currentMode = InputMode.Gameplay;
+        }
+
         private void HandleDraftOpened() => SwitchMode(InputMode.UI);
         private void HandleDraftClosed() => SwitchMode(InputMode.Gameplay);
 
         // 정지가 실제로 수락됐을 때만 모드를 바꾼다(거부된 요청에 반응하면 드래프트 중 게임플레이 입력이 살아난다).
         private void HandleGamePaused() => SwitchMode(InputMode.UI);
         private void HandleGameResumed() => SwitchMode(InputMode.Gameplay);
+
+        // 결과 화면도 UI가 입력을 소유하고, 새 런은 이전 모드가 남지 않도록 시작한다.
+        private void HandleRunEnded() => SwitchMode(InputMode.UI);
+        private void HandleRunStarted() => SwitchMode(InputMode.Gameplay);
     }
 }

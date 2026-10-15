@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Abyss.Runtime.Draft;
+using Abyss.Runtime.Localization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -70,6 +71,8 @@ namespace Abyss.Runtime.UI
 
             // root가 이 컴포넌트의 GameObject라 첫 SetActive(true)에서 Awake가 돈다 — 포커스는 그 뒤에 잡는다.
             if (root != null) root.SetActive(true);
+            if (cancelButton != null) LocalizedText.Attach(cancelButton.GetComponentInChildren<Text>(true), StringKey.Common_Cancel);
+            ReplacementTextReadability.Attach(root != null ? root.transform : null, incomingText, currentSlotButtons, cancelButton);
 
             bool isFirstOpen = !isOpen;
             isOpen = true;

@@ -63,6 +63,9 @@ namespace Abyss.Runtime.UI
             AttachButtonLabel(settingsButton, StringKey.Menu_Settings);
             LocalizedText.Attach(subtitleLabel, StringKey.Title_Subtitle);
             RefreshQuitLabel();
+            foreach (var button in menuButtons)
+                if (button != null) MenuTextReadability.Attach(button.transform);
+            if (recordText != null) MenuTextReadability.Attach(recordText.transform);
         }
 
         // 시작·종료 라벨과 기록 줄은 상태에 따라 키가 바뀌거나 포맷 인자가 있어 LocalizedText 대상이 아니다.

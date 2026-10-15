@@ -69,6 +69,8 @@ namespace Abyss.Runtime.UI
         private float toastHideTime;
         // [저장 없이 계속]을 골랐다 — 같은 보류가 이어지는 동안 모달을 다시 띄우지 않는다.
         private bool isModalDismissed;
+        // 글자 확대·줄바꿈 배치(SaveStatusReadability). 글자·표시 상태가 바뀐 자리에서 다시 맞춘다.
+        private SaveStatusReadability readability;
 
         public static bool IsModalOpen => instance != null && instance.modalBody != null && instance.modalBody.activeSelf;
         public static bool IsBadgeVisible => instance != null && instance.badge != null && instance.badge.activeSelf;
@@ -206,12 +208,22 @@ namespace Abyss.Runtime.UI
             badge.SetActive(isBlocked && isModalDismissed);
             if (!modalBody.activeSelf) ReleaseModalFocus();
 
-            if (!isBlocked) return;
+            if (!isBlocked)
+            {
+                ApplyReadability();
+                return;
+            }
             PlaceModalTitleIcon();
             retryResultLabel.text = string.Empty;
             pathLabel.text = SaveSystem.HasInstance
                 ? Loc.GetFormat(StringKey.SaveStatus_PathFormat, SaveSystem.Instance.SaveDirectory)
                 : string.Empty;
+            ApplyReadability();
+        }
+
+        private void ApplyReadability()
+        {
+            if (readability != null) readability.Apply();
         }
 
         // ───────────────────────── 버튼 동작 ─────────────────────────
@@ -225,6 +237,7 @@ namespace Abyss.Runtime.UI
                 return;
             }
             retryResultLabel.text = Loc.Get(StringKey.SaveStatus_RetryFailed);
+            ApplyReadability();
         }
 
         private void OnContinueClicked()
@@ -251,6 +264,7 @@ namespace Abyss.Runtime.UI
             UiArtDecor.PlaceLeadingIcon(toastLabel, UiArtKeys.COMMON_SAVE_RECORD, SAVE_SMALL_ICON_SIZE, SAVE_ICON_GAP);
             toast.SetActive(true);
             toastHideTime = Time.unscaledTime + TOAST_SECONDS;
+            ApplyReadability();
         }
 
         // ───────────────────────── UI 구성 ─────────────────────────
@@ -261,6 +275,8 @@ namespace Abyss.Runtime.UI
             BuildBadge(root);
             BuildToast(root);
             ApplySaveRecordArt();
+            // 아트까지 붙은 뒤 한 번 — 기준 좌표·글자 크기를 이 시점에 잡는다.
+            readability = SaveStatusReadability.Attach(root);
         }
 
         /// <summary>

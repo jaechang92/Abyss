@@ -1,10 +1,12 @@
 ﻿using Abyss.Runtime.ArtIntegration;
 using Abyss.Runtime.Events;
+using Abyss.Runtime.Localization;
 using Abyss.Runtime.Meta;
 using Abyss.Runtime.Run;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -50,6 +52,14 @@ namespace Abyss.Runtime.UI
         private const float SHARDS_ICON_SIZE = 26f;
         private const float ICON_GAP = 10f;
 
+        private ResultPanelReadability readability;
+
+        /// <summary>
+        /// 지금 화면에 띄운 요약. 언어가 바뀌면 이 확정값을 다시 그릴 뿐 재정산·라이브 Stats 조회는 하지 않는다.
+        /// 없으면 null — 통계 줄은 비우고 제목·버튼만 현재 언어로 그린다.
+        /// </summary>
+        private RunSummary shownSummary;
+
         private static bool IsClearedRun =>
             RunManager.HasInstance && RunManager.Instance.LastRunEndReason == RunEndReason.Cleared;
 
@@ -74,16 +84,33 @@ namespace Abyss.Runtime.UI
                 if (rect != null) WorldArtLibrary.ApplyUi(rect, "ReturnStairsArt", "exit/return-stairs",
                     new Rect(rect.rect.width * 0.5f + 8f, -24f, 44f, 48f));
             }
+            readability = ResultPanelReadability.Attach(root, titleText,
+                new[] { killsText, comboText, dominantFormText, formsUsedText, skillsText, stageText, elapsedText, abyssEarnedText },
+                new[] { restartButton, lobbyButton });
         }
 
         private void OnEnable()
         {
             GameEvents.OnRunEnded += HandleRunEnded;
+            Loc.AddLanguageChangedListener(HandleLanguageChanged);
+
+            // 열린 채로 비활성→재활성된 경우, 꺼져 있던 동안의 언어 변경을 글자만 따라잡는다(포커스는 그대로).
+            if (IsPanelShowing) RefreshTexts();
         }
 
         private void OnDisable()
         {
             GameEvents.OnRunEnded -= HandleRunEnded;
+            Loc.RemoveLanguageChangedListener(HandleLanguageChanged);
+        }
+
+        /// <summary>사망 결과 화면이 실제로 떠 있는가. 숨김·완주(엔딩 분기) 중에는 글자를 건드리지 않는다.</summary>
+        private bool IsPanelShowing => root != null && root.activeSelf && !IsClearedRun;
+
+        private void HandleLanguageChanged(LocalizationLanguage language)
+        {
+            if (!IsPanelShowing) return;
+            RefreshTexts();
         }
 
         private void Update()
@@ -95,8 +122,24 @@ namespace Abyss.Runtime.UI
             if (kb == null) return;
             if (kb.enterKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame)
             {
-                HandleRestart();
+                if (IsSubmitHandledByUi()) return;
+                var selected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
+                if (lobbyButton != null && selected == lobbyButton.gameObject) HandleReturnToLobby();
+                else HandleRestart();
             }
+        }
+
+        private bool IsSubmitHandledByUi()
+        {
+            var system = EventSystem.current;
+            if (system == null || !system.sendNavigationEvents) return false;
+            var selected = system.currentSelectedGameObject;
+            bool resultButton = (restartButton != null && selected == restartButton.gameObject) ||
+                (lobbyButton != null && selected == lobbyButton.gameObject);
+            if (!resultButton) return false;
+            return system.currentInputModule is InputSystemUIInputModule module && module.isActiveAndEnabled &&
+                module.submit != null && module.submit.action != null && module.submit.action.enabled &&
+                module.submit.action.WasPerformedThisFrame();
         }
 
         private void HandleRunEnded()
@@ -130,13 +173,12 @@ namespace Abyss.Runtime.UI
 
         private void ShowPanel()
         {
-            if (RunManager.HasInstance)
-            {
-                // 진행 중 통계(Stats)가 아니라 정산 시점에 굳은 요약을 읽는다 —
-                // 세이브에 들어간 것과 화면에 뜨는 것이 같은 객체다.
-                Populate(RunManager.Instance.LastRunSummary);
-            }
+            // 진행 중 통계(Stats)가 아니라 정산 시점에 굳은 요약을 읽는다 —
+            // 세이브에 들어간 것과 화면에 뜨는 것이 같은 객체다. 언어 갱신도 이 참조를 다시 그린다.
+            shownSummary = RunManager.HasInstance ? RunManager.Instance.LastRunSummary : null;
+            RefreshTexts();
             if (root != null) root.SetActive(true);
+            readability?.Apply();
             FocusRestartButton();
         }
 
@@ -147,28 +189,38 @@ namespace Abyss.Runtime.UI
             EventSystem.current.SetSelectedGameObject(restartButton.gameObject);
         }
 
-        private void Populate(RunSummary stats)
+        /// <summary>
+        /// 글자만 현재 언어로 다시 그린다. 표시·포커스·timeScale·버튼·씬 전환은 건드리지 않는다 —
+        /// 언어 변경 콜백이 ShowPanel을 거치지 않고 이것만 부르는 이유다.
+        /// </summary>
+        private void RefreshTexts()
         {
-            if (stats == null) return;
-
             // 이 패널은 사망 전용이다(완주는 EndingSequencePanel이 통계까지 맡는다).
-            if (titleText != null) titleText.text = "런 종료";
-            if (restartLabel != null) restartLabel.text = "즉시 재시작 (Enter)";
-            if (lobbyLabel != null) lobbyLabel.text = "로비로";
+            if (titleText != null) titleText.text = Loc.Get(StringKey.Result_RunEnded);
+            if (restartLabel != null) restartLabel.text = Loc.Get(StringKey.Result_RestartImmediate);
+            if (lobbyLabel != null) lobbyLabel.text = Loc.Get(StringKey.Result_ReturnToLobby);
 
             // 문구는 RunSummaryText가 소유한다 — 엔딩 통계 화면과 같은 표기를 쓰기 위함.
-            if (killsText != null) killsText.text = RunSummaryText.Kills(stats);
-            if (comboText != null) comboText.text = RunSummaryText.Combo(stats);
-            if (dominantFormText != null) dominantFormText.text = RunSummaryText.DominantForm(stats);
-            if (formsUsedText != null) formsUsedText.text = RunSummaryText.FormsUsed(stats);
-            if (skillsText != null) skillsText.text = RunSummaryText.Skills(stats);
-            if (stageText != null) stageText.text = RunSummaryText.Stage(stats);
-            if (elapsedText != null) elapsedText.text = RunSummaryText.Elapsed(stats);
-            if (abyssEarnedText != null) abyssEarnedText.text = RunSummaryText.AbyssEarned(stats);
+            // 요약이 없으면 비운다 — 다시 열렸을 때 이전 런의 숫자가 남지 않게.
+            var stats = shownSummary;
+            SetText(killsText, stats != null ? RunSummaryText.Kills(stats) : string.Empty);
+            SetText(comboText, stats != null ? RunSummaryText.Combo(stats) : string.Empty);
+            SetText(dominantFormText, stats != null ? RunSummaryText.DominantForm(stats) : string.Empty);
+            SetText(formsUsedText, stats != null ? RunSummaryText.FormsUsed(stats) : string.Empty);
+            SetText(skillsText, stats != null ? RunSummaryText.Skills(stats) : string.Empty);
+            SetText(stageText, stats != null ? RunSummaryText.Stage(stats) : string.Empty);
+            SetText(elapsedText, stats != null ? RunSummaryText.Elapsed(stats) : string.Empty);
+            SetText(abyssEarnedText, stats != null ? RunSummaryText.AbyssEarned(stats) : string.Empty);
 
             // A2: 정산 엠블럼은 제목 앞, 심연 조각 아이콘은 실제 획득 줄 앞. 글자가 정해진 뒤 그 폭에 맞춘다.
             UiArtDecor.PlaceLeadingIcon(titleText, UiArtKeys.UI_RUN_RESULT_EMBLEM, EMBLEM_SIZE, ICON_GAP);
             UiArtDecor.PlaceLeadingIcon(abyssEarnedText, UiArtKeys.CURRENCY_ABYSS_SHARDS, SHARDS_ICON_SIZE, ICON_GAP);
+            readability?.Apply();
+        }
+
+        private static void SetText(Text target, string value)
+        {
+            if (target != null) target.text = value;
         }
 
         private void HandleRestart()

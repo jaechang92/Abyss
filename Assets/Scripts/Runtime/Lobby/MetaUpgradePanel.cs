@@ -51,6 +51,9 @@ namespace Abyss.Runtime.Lobby
         private sealed class UpgradeRow
         {
             public MetaUpgradeData Data;
+            public RectTransform Rect;
+            public Text NameLabel;
+            public Text DescriptionLabel;
             public Text LevelLabel;
             public Text CostLabel;
             public Button Button;
@@ -71,12 +74,13 @@ namespace Abyss.Runtime.Lobby
         public void Open(Action closed)
         {
             bool isFirstOpen = !IsOpen;
+            if (isFirstOpen) readingSelection = null;
             onClosed = closed;
             EnsureRows();
             if (titleLabel != null) titleLabel.text = Loc.Get(StringKey.Altar_Title);
             if (closeButton != null)
             {
-                var closeText = closeButton.GetComponentInChildren<Text>();
+                var closeText = closeButton.GetComponentInChildren<Text>(true);
                 if (closeText != null) closeText.text = Loc.Get(StringKey.Common_Close);
             }
             Refresh();
@@ -113,13 +117,6 @@ namespace Abyss.Runtime.Lobby
             var catalog = MetaUpgrades.All;
             if (catalog == null) return;
 
-            int count = 0;
-            for (int i = 0; i < catalog.Length; i++)
-            {
-                if (catalog[i] != null) count += 1;
-            }
-            FitPanelToRows(count);
-
             for (int i = 0; i < catalog.Length; i++)
             {
                 var data = catalog[i];
@@ -137,13 +134,11 @@ namespace Abyss.Runtime.Lobby
             bg.color = RowBg;
 
             // 해금 항목(스킬·폼)은 이름·설명을 대상 에셋에서 읽는다 — 문구가 두 벌이 되지 않게(ContentBuilder.MetaUnlocks).
-            // 칸을 넘는 문구는 잘리는 대신 글자를 줄인다(Text 기본값은 오류 없이 조용히 자른다). 칸에 맞는 기존 행은 그대로다.
+            // 전용 가독성 배치가 글자를 축소하지 않고 문구 높이만큼 행을 늘린다.
             var nameText = CreateText(rowRt, "Name", ResolveRowName(data), 22,
                 new Vector2(-230f, 15f), new Vector2(300f, 30f), TextAnchor.LowerLeft, Color.white);
-            FitText(nameText, 14);
             var descText = CreateText(rowRt, "Desc", ResolveRowDescription(data), 14,
                 new Vector2(-224f, -20f), new Vector2(320f, 34f), TextAnchor.UpperLeft, new Color(0.72f, 0.72f, 0.8f));
-            FitText(descText, 10);
 
             var levelLabel = CreateText(rowRt, "Level", "", 20,
                 new Vector2(-10f, 0f), new Vector2(110f, 40f), TextAnchor.MiddleCenter, new Color(0.85f, 0.9f, 1f));
@@ -154,7 +149,8 @@ namespace Abyss.Runtime.Lobby
                 new Vector2(300f, 0f), new Vector2(130f, 56f), PurchaseBase,
                 Loc.Get(data.IsUnlock ? StringKey.Altar_Unlock : StringKey.Altar_Purchase));
 
-            var row = new UpgradeRow { Data = data, LevelLabel = levelLabel, CostLabel = costLabel, Button = btn, ButtonImage = img };
+            var row = new UpgradeRow { Data = data, Rect = rowRt, NameLabel = nameText, DescriptionLabel = descText,
+                LevelLabel = levelLabel, CostLabel = costLabel, Button = btn, ButtonImage = img };
             btn.onClick.AddListener(() => OnPurchase(row));
             return row;
         }
@@ -172,6 +168,7 @@ namespace Abyss.Runtime.Lobby
         /// <summary>잔액·레벨·비용·버튼 상태를 전체 재계산한다.</summary>
         private void Refresh()
         {
+            RefreshReadingLabels();
             int shards = MetaSaveService.Instance.Current.abyssShardsTotal;
             if (shardsLabel != null)
             {
@@ -207,6 +204,7 @@ namespace Abyss.Runtime.Lobby
                 if (row.ButtonImage != null) row.ButtonImage.color = canBuy ? PurchaseBase : PurchaseDisabled;
             }
 
+            ApplyReadability();
             RefreshNavigation();
         }
 

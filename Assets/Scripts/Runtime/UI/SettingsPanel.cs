@@ -82,6 +82,13 @@ namespace Abyss.Runtime.UI
         /// <summary>열려 있으면 닫고 설정을 저장한다. 닫혀 있으면 아무것도 하지 않는다(저장은 닫을 때 1회).</summary>
         public static void Close()
         {
+            // 초기화 창이 떠 있으면 가장 안쪽인 그것만 취소한다(씬의 ESC 처리기가 이 호출로 들어온다).
+            if (DataResetPanel.IsOpen)
+            {
+                DataResetPanel.Close();
+                return;
+            }
+            KeyboardBindingsPanel.Close();
             if (!IsOpen) return;
             instance.body.SetActive(false);
             instance.SaveAll();
@@ -90,6 +97,10 @@ namespace Abyss.Runtime.UI
         }
 
         public static bool IsOpen => instance != null && instance.body != null && instance.body.activeSelf;
+
+        private void OnDisable() => KeyboardBindingsPanel.Close();
+
+        private void OnDestroy() => KeyboardBindingsPanel.Close();
 
         /// <summary>
         /// 이번 프레임에 이 패널이 ESC를 소비했는지.
@@ -144,6 +155,8 @@ namespace Abyss.Runtime.UI
             RefreshValueLabels();
             SyncResolutionFromScreen();
             SyncLanguageFromCurrent();
+            SyncScreenEffects();
+            SyncDataResetEntry();
         }
 
         private void RefreshValueLabels()
@@ -378,11 +391,18 @@ namespace Abyss.Runtime.UI
             languageValue = CreateSelectorRow(panel.transform, "Language", RowY(5), StringKey.Settings_Language,
                 () => ShiftLanguage(-1), () => ShiftLanguage(1), out languagePrev, out languageNext);
 
+            keyboardButton = CreateLocalizedButton(panel.transform, "KeyboardButton", new Vector2(0f, RowY(6)),
+                new Vector2(360f, 40f), StringKey.Settings_Keyboard);
+            keyboardButton.onClick.AddListener(KeyboardBindingsPanel.Open);
+            BuildScreenEffects(panel.transform);
+
             CreateLocalizedLabel(panel.transform, "KeyGuide", new Vector2(0, KeyGuideY), new Vector2(500, KeyGuideHeight), StringKey.Settings_KeyGuide, 14, new Color(0.62f, 0.62f, 0.72f), TextAnchor.MiddleCenter);
 
             var close = CreateLocalizedButton(panel.transform, "CloseButton", new Vector2(0, CloseY), new Vector2(240, CloseHeight), StringKey.Common_Close);
             close.onClick.AddListener(Close);
             closeButton = close;
+            BuildDataResetEntry(panel.transform);
+            MenuTextReadability.Attach(panel.transform, settings: true);
         }
 
         /// <summary>

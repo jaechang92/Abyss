@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Abyss.Runtime.Feedback
 {
@@ -24,6 +24,7 @@ namespace Abyss.Runtime.Feedback
         /// </summary>
         public void Shake(float magnitude, float duration)
         {
+            if (ScreenEffectPreferences.ShakeScale <= 0f) { ClearShake(); return; }
             if (magnitude <= 0f || duration <= 0f) return;
 
             currentMagnitude = Mathf.Max(currentMagnitude, magnitude);
@@ -32,10 +33,12 @@ namespace Abyss.Runtime.Feedback
 
         private void LateUpdate()
         {
+            float scale = ScreenEffectPreferences.ShakeScale;
+            if (scale <= 0f) { ClearShake(); return; }
             if (timer > 0f)
             {
                 timer -= Time.unscaledDeltaTime;
-                Vector2 offset = Random.insideUnitCircle * currentMagnitude;
+                Vector2 offset = Random.insideUnitCircle * currentMagnitude * scale;
                 CurrentShakeOffset = new Vector3(offset.x, offset.y, 0f);
                 currentMagnitude = Mathf.MoveTowards(currentMagnitude, 0f, dampPerSecond * Time.unscaledDeltaTime);
             }
@@ -46,12 +49,29 @@ namespace Abyss.Runtime.Feedback
             }
         }
 
-        private void OnDisable()
+        /// <summary>
+        /// 남은 흔들림을 즉시 버린다. 연출·모달 중이거나 방이 바뀔 때 카메라(PlayerCameraFollow)가 부른다 —
+        /// 컴포넌트를 껐다 켜지 않고 같은 정리를 하기 위함. 이후 새 <see cref="Shake"/> 요청은 평소대로 동작한다.
+        /// </summary>
+        public void ClearShake()
         {
-            // 비활성 시 잔여 offset 정리. 다음 활성화 시 깨끗한 상태로 시작.
             CurrentShakeOffset = Vector3.zero;
             currentMagnitude = 0f;
             timer = 0f;
+        }
+
+        private void OnEnable() => ScreenEffectPreferences.OnChanged += HandlePreferencesChanged;
+
+        private void HandlePreferencesChanged()
+        {
+            if (ScreenEffectPreferences.ShakeScale <= 0f) ClearShake();
+        }
+
+        private void OnDisable()
+        {
+            ScreenEffectPreferences.OnChanged -= HandlePreferencesChanged;
+            // 비활성 시 잔여 offset 정리. 다음 활성화 시 깨끗한 상태로 시작.
+            ClearShake();
         }
     }
 }

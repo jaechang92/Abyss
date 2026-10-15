@@ -36,6 +36,7 @@ namespace Abyss.Runtime.UI
         private Text titleLabel;
         private Text epithetLabel;
         private Text lineLabel;
+        private BossIntroReadability readability;
         private bool isPlaying;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -69,6 +70,8 @@ namespace Abyss.Runtime.UI
             if (titleLabel == null || titleLabel.transform.parent is not RectTransform body) return;
             var box = new Rect(-PORTRAIT_SIZE * 0.5f, PORTRAIT_CENTER_Y - PORTRAIT_SIZE * 0.5f, PORTRAIT_SIZE, PORTRAIT_SIZE);
             UiArtDecor.ApplyIconInRect(body, "ArtBossPortrait", UiArtKeys.BossPortrait(enemyId), box, Color.white);
+            // 다시 맞춘 초상(그림이 없어 꺼진 경우 포함)을 가독성 배치의 원본으로 기록한다.
+            if (readability != null) readability.CapturePortraitSource();
         }
 
         protected override void BuildContent(Transform body)
@@ -83,10 +86,17 @@ namespace Abyss.Runtime.UI
             dividerImage.color = new Color(TitleColor.r, TitleColor.g, TitleColor.b, 0.45f);
             dividerImage.raycastTarget = false;
 
-            lineLabel = CreateLabel(body, "Line", new Vector2(0, -80), new Vector2(1400, 90), string.Empty, 30, LineColor, TextAnchor.MiddleCenter);
+            // 대사 줄은 묶음 안에 둔다 — 고대비 바탕도 같은 묶음에 생기고, 가독성 배치는 묶음 위치만 옮긴다.
+            var lineRoot = (RectTransform)CreateRect(body, "NarrativeLineRoot", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f), new Vector2(0, -80), new Vector2(1400, 90)).transform;
+            lineLabel = CreateLabel(lineRoot, "Line", Vector2.zero, new Vector2(1400, 90), string.Empty, 30, LineColor, TextAnchor.MiddleCenter);
             lineLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
+            NarrativeReadability.Attach(lineLabel);
 
-            CreateLocalizedLabel(body, "Hint", new Vector2(0, -400), new Vector2(600, 30), StringKey.Dialogue_NextHint, 17, HintColor, TextAnchor.MiddleCenter);
+            var hintLabel = CreateLocalizedLabel(body, "Hint", new Vector2(0, -400), new Vector2(600, 30), StringKey.Dialogue_NextHint, 17, HintColor, TextAnchor.MiddleCenter);
+
+            readability = BossIntroReadability.Attach(body, titleLabel, epithetLabel, lineLabel, hintLabel,
+                (RectTransform)divider.transform, lineRoot);
         }
 
         private async Awaitable RunAsync(string title, string epithet, IReadOnlyList<string> lines, Action onFinished)
@@ -98,6 +108,7 @@ namespace Abyss.Runtime.UI
                 epithetLabel.text = epithet;
                 lineLabel.text = string.Empty;
                 ShowBody();
+                if (readability != null) readability.Apply();
 
                 // 이름만 먼저 — 누구와 싸우는지가 대사보다 앞서야 한다.
                 await WaitLineAsync(TITLE_SECONDS);
@@ -107,6 +118,7 @@ namespace Abyss.Runtime.UI
                     for (int i = 0; i < lines.Count; i++)
                     {
                         lineLabel.text = lines[i];
+                        if (readability != null) readability.Apply();
                         await WaitLineAsync(LINE_SECONDS);
                     }
                 }

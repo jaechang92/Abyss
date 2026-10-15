@@ -17,6 +17,17 @@ namespace Abyss.Runtime.UI
         private const string CURRENCY_ICON_NAME = "ArtCurrencyIcon";
         private const float LABEL_PADDING = 4f;
 
+        /// <summary>수치 영역 크기 변경 뒤 전용 그림의 비율과 개구부를 다시 맞춘다.</summary>
+        public static bool RefreshCounterArt(Transform root, bool health)
+        {
+            if (root == null) return false;
+            var labelObject = root.Find(health ? "HPText" : "Label");
+            var label = labelObject != null ? labelObject.GetComponent<Text>() : null;
+            return health
+                ? TryApplyHealthArt(root, root.Find("Background"), root.Find("Fill"), label)
+                : TryApplyCurrencyArt(root, root.Find("Background"), label);
+        }
+
         /// <summary>체력: 프레임은 막대 안에 맞추고 배경·Fill 은 프레임 개구부로. 글자는 프레임 위.</summary>
         private static bool TryApplyHealthArt(Transform root, Transform background, Transform fill, Text hpText)
         {

@@ -38,20 +38,20 @@ namespace Abyss.Runtime.UI
 
         /// <summary>
         /// 큰 띠 위치(위 가운데 기준). 프레임 전체가 화면 위 여백 안에 들도록 띠를 넘친 만큼 내린다.
-        /// 상수와 BuildUI 때 한 번 계산한 값으로만 정해서 normal/compact 를 몇 번 오가도 같은 자리다.
+        /// 현재 패널 크기에 맞춘 프레임 돌출량으로 정해 반복 전환 때 위치가 누적되지 않는다.
         /// </summary>
         private Vector2 NormalBodyPosition => new(0f, -(FRAME_SAFE_TOP + frameTopOverflow));
 
-        /// <summary>BuildUI 끝에서 한 번 — 큰 띠 테두리. 큰 띠 상태(BuildUI 직후)에서 계산해 띠 위치도 맞춘다.</summary>
+        /// <summary>큰 띠 크기가 바뀌면 테두리와 위 여백도 다시 맞춘다.</summary>
         private void ApplyFrameArt()
         {
             if (body == null || body.transform is not RectTransform bodyRect) return;
             frameArt = UiArtDecor.ApplyFitted(bodyRect, FRAME_NAME, UiArtKeys.UI_TUTORIAL_FRAME, UiArtFit.AroundInner, out var placement);
             if (frameArt != null) frameArt.transform.SetAsFirstSibling();
 
-            // 배치 좌표는 띠 중심 기준(크기 = PanelSize). 프레임 위 가장자리 − 띠 위 가장자리.
+            // 배치 좌표는 현재 띠 중심 기준. 프레임 위 가장자리 − 띠 위 가장자리.
             frameTopOverflow = frameArt != null
-                ? Mathf.Max(0f, placement.Center.y + placement.Size.y * 0.5f - PanelSize.y * 0.5f)
+                ? Mathf.Max(0f, placement.Center.y + placement.Size.y * 0.5f - bodyRect.rect.height * 0.5f)
                 : 0f;
             bodyRect.anchoredPosition = NormalBodyPosition;
         }

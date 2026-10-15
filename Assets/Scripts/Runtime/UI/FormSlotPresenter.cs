@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace Abyss.Runtime.UI
 {
     /// <summary>
-    /// 현재 폼·대기 폼 아이콘 + 교체 쿨다운 게이지.
+    /// 현재 폼·대기 폼 아이콘 + 교체 쿨다운 게이지·상태 문자.
     /// FormController.CooldownProgress를 매 프레임 참조.
     /// </summary>
     public sealed partial class FormSlotPresenter : MonoBehaviour
@@ -35,6 +35,7 @@ namespace Abyss.Runtime.UI
                 if (isActiveAndEnabled) Subscribe();
                 RefreshIcons();
             }
+            RefreshSwapStatus();
         }
 
         private void OnEnable()
@@ -45,6 +46,9 @@ namespace Abyss.Runtime.UI
             GameEvents.OnRunAbandoned += ClearAcquisitionGlow;
             GameEvents.OnPlayerDead += ClearAcquisitionGlow;
             GameEvents.OnRunStarted += ResetWeaponBadges;
+            GameEvents.OnRunStarted += RefreshSwapStatus;
+            // 첫 OnEnable은 HUD 스킨보다 먼저 실행된다. 생성은 Bind/Update까지 미룬다.
+            if (swapStatusLabel != null) RefreshSwapStatus();
         }
 
         private void Subscribe()
@@ -76,7 +80,9 @@ namespace Abyss.Runtime.UI
             GameEvents.OnRunAbandoned -= ClearAcquisitionGlow;
             GameEvents.OnPlayerDead -= ClearAcquisitionGlow;
             GameEvents.OnRunStarted -= ResetWeaponBadges;
+            GameEvents.OnRunStarted -= RefreshSwapStatus;
             ClearAcquisitionGlow();
+            HideSwapStatus();
         }
 
         private void HandleRoomEntered(Stage.RoomData room) => ClearAcquisitionGlow();
@@ -90,6 +96,7 @@ namespace Abyss.Runtime.UI
 
         private void Update()
         {
+            RefreshSwapStatus();
             if (formController == null) return;
             if (feedback == null)
             {

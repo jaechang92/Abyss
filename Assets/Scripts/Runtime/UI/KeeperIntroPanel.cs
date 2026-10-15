@@ -38,6 +38,7 @@ namespace Abyss.Runtime.UI
         private Text pagerLabel;
         private GameObject nextHint;
         private GameObject bodyObject;
+        private KeeperIntroReadability readability;
         private float inputOpenAt;
 
         // 지금 이 패널을 쓰는 소개 한 번의 소유 기록. 의도한 종료(Close·Discard) 중에는 isEndingIntentionally 가 켜진다.
@@ -196,6 +197,7 @@ namespace Abyss.Runtime.UI
             if (panel.titleLabel != null)
             {
                 UiArtDecor.PlaceLeadingIcon(panel.titleLabel, UiArtKeys.BossPortrait(enemyId), PORTRAIT_SIZE, PORTRAIT_GAP);
+                panel.readability.CapturePortraitSource();
             }
             return lease;
         }
@@ -292,23 +294,28 @@ namespace Abyss.Runtime.UI
             bandImage.color = BandColor;
             bandImage.raycastTarget = false;
 
-            var titleRoot = CreateRect(body, "TitleGroup", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            var titleLayout = CreateRect(body, "TitleLayout", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            var titleRoot = CreateRect(titleLayout.transform, "TitleGroup", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
             titleGroup = titleRoot.AddComponent<CanvasGroup>();
             titleGroup.blocksRaycasts = false;
 
-            titleLabel = CreateLabel(titleRoot.transform, "Title", new Vector2(0, -350), new Vector2(1600, 60), string.Empty, 46, TitleColor, TextAnchor.MiddleCenter);
+            titleLabel = CreateLabel(titleRoot.transform, "Title", Vector2.zero, new Vector2(1600, 60), string.Empty, 46, TitleColor, TextAnchor.MiddleCenter);
             titleLabel.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.8f);
-            epithetLabel = CreateLabel(titleRoot.transform, "Epithet", new Vector2(0, -395), new Vector2(1600, 32), string.Empty, 22, EpithetColor, TextAnchor.MiddleCenter);
+            epithetLabel = CreateLabel(titleRoot.transform, "Epithet", Vector2.zero, new Vector2(1600, 32), string.Empty, 22, EpithetColor, TextAnchor.MiddleCenter);
 
-            lineLabel = CreateLabel(body, "Line", new Vector2(0, -445), new Vector2(1400, 44), string.Empty, 26, LineColor, TextAnchor.MiddleCenter);
+            var lineRoot = CreateRect(body, "NarrativeLineRoot", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            lineLabel = CreateLabel(lineRoot.transform, "Line", Vector2.zero, new Vector2(1400, 44), string.Empty, 26, LineColor, TextAnchor.MiddleCenter);
             lineLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
             lineLabel.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.9f);
+            NarrativeReadability.Attach(lineLabel, anchor: NarrativeTextAnchor.Bottom, heading: (RectTransform)titleRoot.transform);
 
             // 「더 보기」 안내 — 문구 키가 없어(GameText.csv 범위 밖) 언어와 무관한 기호만 쓴다. 임시 표기.
             pagerLabel = CreateLabel(body, "Pager", new Vector2(0, -490), new Vector2(600, 26), string.Empty, 17, HintColor, TextAnchor.MiddleCenter);
 
             nextHint = CreateLocalizedLabel(body, "Hint", new Vector2(0, -515), new Vector2(600, 26), StringKey.Dialogue_NextHint, 17, HintColor, TextAnchor.MiddleCenter).gameObject;
             nextHint.SetActive(false);
+            readability = KeeperIntroReadability.Attach((RectTransform)body, band.GetComponent<RectTransform>(), titleLayout.GetComponent<RectTransform>(),
+                lineRoot.GetComponent<RectTransform>(), titleLabel, epithetLabel, lineLabel, pagerLabel, nextHint.GetComponent<Text>());
         }
     }
 }

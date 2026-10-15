@@ -23,18 +23,15 @@ namespace Abyss.Runtime.UI
     {
         private const int MAX_OPTIONS = 3;       // 현재 콘텐츠는 2갈래지만 데이터가 앞서갈 수 있다
 
-        // 채택 UI 배치(layout-spec 방 경로 290/310/1340/460). 3개 폭 3×384+2×32=1216 — 패널 안쪽에 맞는다.
+        // 채택 UI 배치(layout-spec 방 경로 290/310/1340/460)의 기준 크기. 실제 배치·스크롤은 NodeMapReadability가 맡는다.
         private const float PANEL_WIDTH = 1340f;
         private const float PANEL_HEIGHT = 460f;
         private const float NODE_WIDTH = 384f;
         private const float NODE_HEIGHT = 280f;
-        private const float NODE_GAP = 32f;
-        private const float NODE_Y = -28f;                 // 노드 위 가장자리 112, 제목 아래 가장자리 154
         private const float NODE_LABEL_WIDTH = 320f;
         private const float PANEL_CORNER = 24f;
         private const int HINT_FONT_SIZE = 24;
-        private const int HINT_MIN_FONT_SIZE = 14;      // 손익 예고 노드만 bestFit 하한
-        private const float ROUTE_ICON_SIZE = 64f;      // 노드 위 112 ~ 제목 아래 154 사이 42 안에 위 절반이 든다
+        private const float ROUTE_ICON_SIZE = 64f;      // 카드 위 가장자리에 걸친다 — 실제 위치는 NodeMapReadability가 카드 높이에 맞춰 옮긴다
 
         private readonly List<Button> nodeButtons = new();
         private readonly List<Text> nodeTitles = new();
@@ -44,6 +41,7 @@ namespace Abyss.Runtime.UI
         private IReadOnlyList<RoomData> options;
         private Action<RoomData> onPicked;
         private ExpeditionRoomPreview.Inputs shownHintInputs;   // 힌트 줄을 만든 골드·언어
+        private NodeMapReadability readability;                 // 글자 확대·전체 예고 읽기 배치(카드 배치의 유일한 주인)
 
         /// <summary>
         /// 갈림길을 연다. <paramref name="onPicked"/>는 선택된 방과 함께 한 번 호출된다.
@@ -111,8 +109,10 @@ namespace Abyss.Runtime.UI
             }
 
             BindHints(ExpeditionRoomPreview.ReadInputs());
-            LayoutNodes(roomOptions.Count);
             ShowBody();
+            // 새 갈림길은 처음부터 읽는다. Bind가 맞춘 경로 그림을 다시 읽고, 첫 포커스 전에 배치해 카드 위치를 확정한다.
+            if (readability != null) readability.ResetReading();
+            LayoutNodes();
             BeginFocus();
         }
 
@@ -146,16 +146,10 @@ namespace Abyss.Runtime.UI
             for (int i = 0; i < nodeHints.Count && i < options.Count; i++)
             {
                 var hint = nodeHints[i];
-                hint.text = ExpeditionRoomPreview.Detail(options[i], inputs, out bool isPreview);
+                hint.text = ExpeditionRoomPreview.Detail(options[i], inputs, out _);
 
-                // 손익 예고는 선택지마다 한 줄이라 기존 한 줄 힌트보다 길다 — 예고 노드만 영역(4줄) 안에서 글자를 줄인다.
-                // 그 밖의 방은 기존 24pt 고정 그대로.
-                hint.resizeTextForBestFit = isPreview;
-                if (isPreview)
-                {
-                    hint.resizeTextMinSize = HINT_MIN_FONT_SIZE;
-                    hint.resizeTextMaxSize = HINT_FONT_SIZE;
-                }
+                // 손익 예고도 글자를 줄이지 않는다 — 전체 문구가 보이도록 카드가 늘어나고 넘치면 스크롤한다(NodeMapReadability).
+                hint.resizeTextForBestFit = false;
             }
         }
 
@@ -165,29 +159,19 @@ namespace Abyss.Runtime.UI
             if (!IsBodyOpen || options == null) return;
 
             var inputs = ExpeditionRoomPreview.ReadInputs();
-            if (!inputs.Equals(shownHintInputs)) BindHints(inputs);
+            if (inputs.Equals(shownHintInputs)) return;
+            BindHints(inputs);
+            // 글자가 바뀌었으면 같은 프레임에 다시 배치한다(세로 읽기 비율 유지).
+            if (readability != null) readability.RefreshIfNeeded();
         }
 
         /// <summary>
-        /// 선택지 수에 맞춰 가운데 정렬로 배치한다(2개면 좌우, 3개면 3열).
-        /// 기본 폭으로 패널을 넘치면 노드를 줄인다 — 콘텐츠는 2갈래지만 데이터가 3갈래를 담을 수 있고,
-        /// 그때 화면 밖으로 나가면 고를 수 없는 선택지가 생긴다.
+        /// 카드 배치는 <see cref="NodeMapReadability"/> 한 곳이 맡는다 — 카드는 원래 폭(한 줄) 그대로 두고,
+        /// 화면이 좁으면 줄이거나 세로로 쌓지 않고 가로로 스크롤한다. 고를 수 없는 선택지가 화면 밖에 남지 않는다.
         /// </summary>
-        private void LayoutNodes(int count)
+        private void LayoutNodes()
         {
-            const float SIDE_PADDING = 40f;
-            float available = PANEL_WIDTH - SIDE_PADDING - (count - 1) * NODE_GAP;
-            float width = Mathf.Min(NODE_WIDTH, available / count);
-
-            float span = count * width + (count - 1) * NODE_GAP;
-            float start = -span * 0.5f + width * 0.5f;
-
-            for (int i = 0; i < count; i++)
-            {
-                var rect = (RectTransform)nodeButtons[i].transform;
-                rect.sizeDelta = new Vector2(width, NODE_HEIGHT);
-                rect.anchoredPosition = new Vector2(start + i * (width + NODE_GAP), NODE_Y);
-            }
+            if (readability != null) readability.Apply();
         }
 
         private void OnNodeClicked(int index)
@@ -231,6 +215,9 @@ namespace Abyss.Runtime.UI
             {
                 BuildNode(panel.transform, i, ppu);
             }
+
+            // 같은 노드 참조를 한 줄 2축 스크롤 내용으로 옮긴다. 제목은 Panel에 고정으로 남는다.
+            readability = NodeMapReadability.Attach(body, title, nodeButtons, nodeTypes, nodeTitles, nodeHints);
         }
 
         private void BuildNode(Transform parent, int index, float ppu)
@@ -250,7 +237,7 @@ namespace Abyss.Runtime.UI
                 string.Empty, 24, ModalArtSkin.SubTextColor, TextAnchor.UpperCenter);
             ModalArtSkin.StyleText(type, 28);   // 색은 Bind에서 RoomTypeDisplay(SoT)가 정한다
             ModalArtSkin.StyleText(title, 28);
-            ModalArtSkin.StyleText(hint, HINT_FONT_SIZE);   // bestFit은 BindHints가 예고 노드에만 켠다
+            ModalArtSkin.StyleText(hint, HINT_FONT_SIZE);   // 배율·줄바꿈·전체 높이는 NodeMapReadability가 다시 정한다
 
             // 프레임·호버 면·선택 표식(시각 전용). 클릭·Navigation은 위 onClick과 Navigation 파일 그대로다.
             ModalArtSkin.EnsureSelectableSkin(button, PANEL_CORNER, ppu);
